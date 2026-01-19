@@ -18,10 +18,7 @@ import { Dropdown } from "primereact/dropdown";
 import { FiSearch } from "react-icons/fi";
 import { toast, ToastContainer } from "react-toastify";
 import { TfiPencilAlt } from "react-icons/tfi";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
 import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
 import { set } from "zod";
