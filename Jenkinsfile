@@ -2,53 +2,81 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME   = "staging_portal"
+        APP_NAME = "staging_portal"
         IMAGE_NAME = "staging_portal-ui"
-        APP_PATH   = "/var/www/staging/pssportal-admin"
-        PORT       = "3001"
+        PORT = "3001"
+        SOURCE_PATH = "Mainsource"
+        HEALTH_URL = "http://127.0.0.1:3001"
+        NODE_IMAGE = "node:18"
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
     }
 
     stages {
 
-        stage('Build Image') {
+        stage('Checkout') {
             steps {
-                sh """
-                cd ${APP_PATH}
-                docker build -t ${IMAGE_NAME}:latest .
-                """
+                checkout scm
             }
         }
 
-        stage('Deploy (Safe)') {
+        stage('Build Frontend (Vite)') {
             steps {
-                sh """
-                if docker ps | grep -q ${APP_NAME}; then
-                    docker stop ${APP_NAME}
-                    docker rm ${APP_NAME}
-                fi
+                sh '''
+                    docker run --rm \
+                      -v "$(pwd)/${SOURCE_PATH}:/app" \
+                      -w /app \
+                      ${NODE_IMAGE} \
+                      sh -c "npm install && npm run build"
 
-                docker run -d \\
-                  --name ${APP_NAME} \\
-                  -p ${PORT}:80 \\
-                  --restart unless-stopped \\
-                  ${IMAGE_NAME}:latest
-                """
+                    test -d ${SOURCE_PATH}/dist || (echo "Build failed: dist missing" && exit 1)
+                '''
+            }
+        }
+
+        stage('Prepare Files for Docker') {
+            steps {
+                sh '''
+                    rm -rf assets index.html
+                    cp -r ${SOURCE_PATH}/dist/assets ./assets
+                    cp ${SOURCE_PATH}/dist/index.html ./index.html
+                '''
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                sh '''
+                    docker build --no-cache -t ${IMAGE_NAME}:latest .
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    docker stop ${APP_NAME} || true
+                    docker rm ${APP_NAME} || true
+
+                    docker run -d \
+                      --name ${APP_NAME} \
+                      -p ${PORT}:80 \
+                      --restart unless-stopped \
+                      ${IMAGE_NAME}:latest
+                '''
             }
         }
 
         stage('Health Check') {
             steps {
-                sh """
-                sleep 5
-                curl -f http://127.0.0.1:${PORT}
-                """
+                sh '''
+                    sleep 5
+                    curl -f ${HEALTH_URL}
+                '''
             }
-        }
-    }
-
-    post {
-        failure {
-            echo "❌ Portal UI build failed – container untouched"
         }
     }
 }
