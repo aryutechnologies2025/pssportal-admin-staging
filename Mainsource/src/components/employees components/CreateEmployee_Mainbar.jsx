@@ -59,7 +59,7 @@ const CreateEmployee_Mainbar = () => {
       salary_amount: undefined,
     },
   });
-console.log("pan_no",watch("pan_no"));
+  console.log("pan_no", watch("pan_no"));
 
 
   const [educationList, setEducationList] = useState([]);
@@ -133,25 +133,25 @@ console.log("pan_no",watch("pan_no"));
   // }, [date_of_joining])
 
   const fetchEmpId = async (date) => {
-  if (!date) return;
+    if (!date) return;
 
-  try {
-    const response = await axiosInstance.post(
-      "api/employees/assign-emp-generate",
-      { date_of_joining: date }
-    );
+    try {
+      const response = await axiosInstance.post(
+        "api/employees/assign-emp-generate",
+        { date_of_joining: date }
+      );
 
-    if (response.data.success) {
-      setValue("gen_employee_id", response.data.employee_id, {
-        shouldValidate: true,
-      });
-    } else {
-      setValue("gen_employee_id", "");
+      if (response.data.success) {
+        setValue("gen_employee_id", response.data.employee_id, {
+          shouldValidate: true,
+        });
+      } else {
+        setValue("gen_employee_id", "");
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
 
   const selectedBankNameOption = watch("bank_name") || "";
@@ -392,7 +392,7 @@ console.log("pan_no",watch("pan_no"));
     }
     // Append normal fields
     Object.keys(data).forEach((key) => {
-      if (key !== "documents" && key !== "profile_image" && key !== "emergencyContacts" && key !== "emergencyContacts"  && key !== "pan_no") {
+      if (key !== "documents" && key !== "profile_image" && key !== "emergencyContacts" && key !== "emergencyContacts" && key !== "pan_no") {
         // If value is array or object, stringify it
         const value = data[key];
         if (Array.isArray(value) || typeof value === "object") {
@@ -512,7 +512,7 @@ console.log("pan_no",watch("pan_no"));
           // onClose: () => navigate("/employees"),
         });
       }
-          navigate("/employees"); 
+      navigate("/employees");
     } catch (err) {
       const backendErrors = err.response?.data?.errors;
 
@@ -555,7 +555,7 @@ console.log("pan_no",watch("pan_no"));
 
   const [selectedImage, setSelectedImage] = useState(null); // Store the selected image
   const [openImageModal, setOpenImageModal] = useState(false);
-const [openCamera, setOpenCamera] = useState(false);
+  const [openCamera, setOpenCamera] = useState(false);
 
 
   useEffect(() => {
@@ -580,10 +580,10 @@ const [openCamera, setOpenCamera] = useState(false);
     setSelectedImage(file); // 👈 preview
   };
 
-const handleCameraCapture = (file) => {
-  setSelectedImage(file);
-  setValue("profile_image", file);
-};
+  const handleCameraCapture = (file) => {
+    setSelectedImage(file);
+    setValue("profile_image", file);
+  };
 
 
 
@@ -1033,26 +1033,26 @@ const handleCameraCapture = (file) => {
                   <p className="text-xl font-semibold">Basic Information</p>
                   <div className="flex flex-col items-end">
                     <p className="text-xs md:text-sm mt-3 font-medium">
-    {selectedImage ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
-  </p>
-  <div className="flex gap-2 mt-1">
-    {/* Upload */}
-    <label
-      htmlFor="file"
-      className="cursor-pointer text-green-600 text-sm"
-    >
-      Upload
-    </label>
+                      {selectedImage ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
+                    </p>
+                    <div className="flex gap-2 mt-1">
+                      {/* Upload */}
+                      <label
+                        htmlFor="file"
+                        className="cursor-pointer text-green-600 text-sm"
+                      >
+                        Upload
+                      </label>
 
-    {/* Camera */}
-    <button
-      type="button"
-      onClick={() => setOpenCamera(true)}
-      className="text-green-600 text-sm"
-    >
-      Camera
-    </button>
-  </div>
+                      {/* Camera */}
+                      <button
+                        type="button"
+                        onClick={() => setOpenCamera(true)}
+                        className="text-green-600 text-sm"
+                      >
+                        Camera
+                      </button>
+                    </div>
                     {errors.profile_image && (
                       <span className="text-red-500 text-sm">{errors.profile_image.message}</span>
                     )}
@@ -1060,11 +1060,11 @@ const handleCameraCapture = (file) => {
                 </div>
 
                 {openCamera && (
-  <CameraPhoto
-    onCapture={handleCameraCapture}
-    onClose={() => setOpenCamera(false)}
-  />
-)}
+                  <CameraPhoto
+                    onCapture={handleCameraCapture}
+                    onClose={() => setOpenCamera(false)}
+                  />
+                )}
 
 
                 {/* Hidden File Input */}
@@ -1101,7 +1101,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="FULL NAME"
                       >
-                        FULL NAME <span className="text-red-500">*</span>
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                     </div>
                     <div className="w-full lg:w-72">
@@ -1171,7 +1171,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="AADHAR NO"
                       >
-                        AADHAR NO <span className="text-red-500">*</span>
+                        Aadhar No <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">Add Aadhar No</p> */}
                     </div>
@@ -1196,7 +1196,7 @@ const handleCameraCapture = (file) => {
                   <div className="flex flex-col xl:flex-row gap-1 justify-between  ">
                     <div className="flex flex-col">
                       <label className="font-medium text-sm" htmlFor="PAN NO">
-                        PAN NO <span className="text-red-500">*</span>
+                        Pan No <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">PAN NO</p> */}
                     </div>
@@ -1219,25 +1219,24 @@ const handleCameraCapture = (file) => {
                       <span className="text-red-500 text-sm">{errors.pan_no?.message}</span> */}
 
                       <input
-  type="text"
-  maxLength={10}
-  style={{ textTransform: "uppercase" }}
-  onChange={(e) => {
-    e.target.value = e.target.value
-      .toUpperCase()
-      .replace(/[^A-Z0-9]/g, "")
-      .slice(0, 10);
-              setValue("pan_no", value);
-  }}
-  placeholder="Enter PAN NO"
-  {...register("pan_no")}
-  className={`border-2 rounded-xl ps-4 h-10 w-full outline-none ${
-    errors.pan_no ? "border-red-500" : "border-gray-300"
-  }`}
-/>
-<span className="text-red-500 text-sm">
-  {errors.pan_no?.message}
-</span>
+                        type="text"
+                        maxLength={10}
+                        style={{ textTransform: "uppercase" }}
+                        onChange={(e) => {
+                          e.target.value = e.target.value
+                            .toUpperCase()
+                            .replace(/[^A-Z0-9]/g, "")
+                            .slice(0, 10);
+                          setValue("pan_no", value);
+                        }}
+                        placeholder="Enter PAN NO"
+                        {...register("pan_no")}
+                        className={`border-2 rounded-xl ps-4 h-10 w-full outline-none ${errors.pan_no ? "border-red-500" : "border-gray-300"
+                          }`}
+                      />
+                      <span className="text-red-500 text-sm">
+                        {errors.pan_no?.message}
+                      </span>
 
                     </div>
                   </div>
@@ -1249,7 +1248,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="FULL NAME"
                       >
-                        FATHER NAME <span className="text-red-500">*</span>
+                        Father Name <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">Add employee father name</p> */}
                     </div>
@@ -1272,7 +1271,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="FULL NAME"
                       >
-                        MOTHER NAME <span className="text-red-500">*</span>
+                        Mother Name <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">Add employee mother name</p> */}
                     </div>
@@ -1291,7 +1290,7 @@ const handleCameraCapture = (file) => {
                   <div className="flex flex-col xl:flex-row justify-between gap-1">
                     <div>
                       <label className="font-medium text-sm">
-                        MARITAL STATUS <span className="text-red-500">*</span>
+                        Marital Status <span className="text-red-500">*</span>
                       </label>
 
                     </div>
@@ -1331,7 +1330,7 @@ const handleCameraCapture = (file) => {
                   {marital_status === "married" && (
                     <div className="flex flex-col xl:flex-row justify-between gap-1 mt-3">
                       <label className="font-medium text-sm">
-                        SPOUSE NAME <span className="text-red-500">*</span>
+                        Spouse Name <span className="text-red-500">*</span>
                       </label>
 
                       <div className="flex flex-col items-end w-full lg:w-72">
@@ -1358,7 +1357,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="PHONE NO & EMERGENCY"
                       >
-                        PHONE NO <span className="text-red-500">*</span>
+                        Phone No <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">Contact number</p> */}
                     </div>
@@ -1387,7 +1386,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="EMAIL ADDRESS"
                       >
-                        EMAIL ADDRESS <span className="text-red-500">*</span>
+                        Email Address <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">Add employee email</p> */}
                     </div>
@@ -1410,7 +1409,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="FULL NAME"
                       >
-                        QUALIFICATION <span className="text-red-500">*</span>
+                        Qualification <span className="text-red-500">*</span>
                       </label>
                       {/* <p className="text-sm">Add employee name</p> */}
                     </div>
@@ -1433,7 +1432,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="DATE OF BIRTH"
                       >
-                        DATE OF BIRTH <span className="text-red-500">*</span>
+                        Date Of Birth <span className="text-red-500">*</span>
                       </label>
 
                     </div>
@@ -1455,7 +1454,7 @@ const handleCameraCapture = (file) => {
                         className="font-medium text-sm"
                         htmlFor="DATE OF BIRTH"
                       >
-                        DATE OF Joining <span className="text-red-500">*</span>
+                        Date Of Joining <span className="text-red-500">*</span>
                       </label>
 
                     </div>
@@ -1465,13 +1464,13 @@ const handleCameraCapture = (file) => {
                         className={`border-2 rounded-xl ps-4 h-10 w-full lg:w-72 outline-none ${errors.date_of_joining ? "border-red-500" : "border-gray-300"}`}
                         {...register("date_of_joining")}
                         onChange={(e) => {
-    const value = e.target.value;
+                          const value = e.target.value;
 
-    setValue("date_of_joining", value, { shouldValidate: true });
+                          setValue("date_of_joining", value, { shouldValidate: true });
 
-    fetchEmpId(value);
-  }}
- />
+                          fetchEmpId(value);
+                        }}
+                      />
                       {errors.date_of_joining && <p className="text-red-500 text-sm mt-1">{errors?.date_of_joining?.message}</p>}
                     </div>
                   </div>
@@ -1502,7 +1501,7 @@ const handleCameraCapture = (file) => {
                   <div className="flex flex-col xl:flex-row justify-between gap-1 mt-3">
                     <div className="flex flex-col w-full sm:w-auto">
                       <label className="font-medium text-sm" htmlFor="localAddress">
-                        LOCAL ADDRESS <span className="text-red-500">*</span>
+                        Local Address <span className="text-red-500">*</span>
                       </label>
 
                     </div>
@@ -1524,7 +1523,7 @@ const handleCameraCapture = (file) => {
                   <div className="flex flex-col xl:flex-row justify-between gap-1 mt-3">
                     <div className="flex flex-col w-full sm:w-auto">
                       <label className="font-medium text-sm" htmlFor="permanentAddress">
-                        PERMANENT ADDRESS <span className="text-red-500">*</span>
+                        Permanent Address <span className="text-red-500">*</span>
                       </label>
 
                     </div>
@@ -1678,22 +1677,22 @@ const handleCameraCapture = (file) => {
 
                     {/* Name */}
                     <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                      <label className="font-medium text-sm">FULL NAME</label>
+                      <label className="font-medium text-sm">Full Name</label>
                       <div className="">
                         <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={item.name}
-                        onChange={(e) => updateEmergencyContact(index, "name", e.target.value)}
-                        className="border-2 rounded-xl ps-4 border-gray-300 outline-none h-10 w-full lg:w-72"
-                      />
-                      {errors.emergencyContacts ? errors.emergencyContacts[index]?.name && <p className="text-red-500 text-sm mt-1">{errors.emergencyContacts[index]?.name.message}</p> : ""}
+                          type="text"
+                          placeholder="Full Name"
+                          value={item.name}
+                          onChange={(e) => updateEmergencyContact(index, "name", e.target.value)}
+                          className="border-2 rounded-xl ps-4 border-gray-300 outline-none h-10 w-full lg:w-72"
+                        />
+                        {errors.emergencyContacts ? errors.emergencyContacts[index]?.name && <p className="text-red-500 text-sm mt-1">{errors.emergencyContacts[index]?.name.message}</p> : ""}
                       </div>
                     </div>
 
                     {/* Relation */}
                     <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                      <label className="font-medium text-sm">RELATION</label>
+                      <label className="font-medium text-sm">Relation</label>
                       <div className="">
                         <select
                           value={item.relation}
@@ -1711,7 +1710,7 @@ const handleCameraCapture = (file) => {
 
                     {/* Phone */}
                     <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                      <label className="font-medium text-sm">PHONE</label>
+                      <label className="font-medium text-sm">Phone</label>
                       <div className="">
                         <input
                           type="text"
@@ -1792,7 +1791,7 @@ const handleCameraCapture = (file) => {
             <div className=" flex flex-grow basis-[30vw]  flex-col gap-3 ">
               {/* Portal Login information */}
               <div className="rounded-2xl border-2 border-gray-200 bg-white py-4 px-4 lg:px-6">
-                <p className="text-xl font-semibold">Portal Login information</p>
+                <p className="text-xl font-semibold">Portal Login Information</p>
 
                 <div className="flex flex-col gap-3 mt-4">
 
@@ -1847,14 +1846,14 @@ const handleCameraCapture = (file) => {
 
               {/* Bank information */}
               <div className="rounded-2xl border-2 border-gray-200 bg-white py-4 px-4 lg:px-6">
-                <p className="text-xl font-semibold">Bank information</p>
+                <p className="text-xl font-semibold">Bank Information</p>
 
                 <div className="flex flex-col gap-3 mt-4">
 
                   {/* BANK NAME */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      BANK NAME <span className="text-red-500">*</span>
+                      Bank Name <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -1866,19 +1865,19 @@ const handleCameraCapture = (file) => {
                         {...register("bank_name")}
                       />
 
-                     
+
                       <p className="text-red-500 text-sm min-h-[20px] mt-1">
                         {errors.bank_name?.message || ""}
                       </p>
                     </div>
 
-                    
+
                   </div>
 
                   {/* BANK ACCOUNT NO */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      BANK ACCOUNT NO. <span className="text-red-500">*</span>
+                      Bank Account No. <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -1899,7 +1898,7 @@ const handleCameraCapture = (file) => {
                   {/* IFSC CODE */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      IFSC CODE <span className="text-red-500">*</span>
+                      IFSC Code <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -1920,7 +1919,7 @@ const handleCameraCapture = (file) => {
                   {/* BANK BRANCH */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      BANK BRANCH <span className="text-red-500">*</span>
+                      Bank Branch <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -1950,7 +1949,7 @@ const handleCameraCapture = (file) => {
                   {/* SALARY BASIS */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      SALARY BASIS <span className="text-red-500">*</span>
+                      Salary Basis <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -1971,7 +1970,7 @@ const handleCameraCapture = (file) => {
                   {/* SALARY AMOUNT */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      SALARY AMOUNT <span className="text-red-500">*</span>
+                      Salary Amount <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -1992,7 +1991,7 @@ const handleCameraCapture = (file) => {
                   {/* EFFECTIVE DATE */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      EFFECTIVE DATE <span className="text-red-500">*</span>
+                      Effective Date <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -2013,7 +2012,7 @@ const handleCameraCapture = (file) => {
                   {/* PAYMENT TYPE */}
                   <div className="flex flex-col xl:flex-row gap-2 justify-between items-start">
                     <label className="font-medium text-sm">
-                      PAYMENT TYPE <span className="text-red-500">*</span>
+                      Payment Type <span className="text-red-500">*</span>
                     </label>
 
                     <div className="flex flex-col w-full lg:w-52">
@@ -2025,10 +2024,10 @@ const handleCameraCapture = (file) => {
                           {...register("payment_type")}
                           className="w-full outline-none border-none bg-transparent"
                         >
-                          <option value="">Select payment type</option>
+                          <option value="">Select Payment type</option>
                           <option value="Bank Transfer">Bank Transfer</option>
                           <option value="UPI">UPI</option>
-                          <option value="Cash in hand">Cash in hand</option>
+                          <option value="Cash in hand">Cash In Hand</option>
                         </select>
                       </div>
 
@@ -2198,7 +2197,7 @@ const handleCameraCapture = (file) => {
 
               {/* verification doc */}
               <div className="rounded-2xl border-2 border-gray-200 bg-white py-4 px-4 lg:px-6">
-                <p className="text-xl font-semibold">Verification Doc.</p>
+                <p className="text-xl font-semibold">Verification Doc</p>
                 <div className="flex gap-5 flex-wrap items-center mt-5">
                   {verifications.map((item, index) => (
                     <div key={item.type} className="flex gap-2 items-center">
@@ -2290,7 +2289,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="school-name"
                     >
-                      SCHOOL NAME
+                      School Name
                     </label>
 
                   </div>
@@ -2317,7 +2316,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="department-name"
                     >
-                      DEPARTMENT NAME
+                      Department Name
                     </label>
 
                   </div>
@@ -2344,7 +2343,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="yearofpassing"
                     >
-                      YEAR OF PASSING
+                      Year Of Passing
                     </label>
 
                   </div>
@@ -2414,7 +2413,7 @@ const handleCameraCapture = (file) => {
                 <div className="flex flex-col lg:flex-row gap-1 justify-between">
                   <div className="flex flex-col ">
                     <label className="font-medium text-sm" htmlFor="jobTitle">
-                      JOB TITLE
+                      Job Title
                     </label>
 
                   </div>
@@ -2440,7 +2439,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="companyIndustry"
                     >
-                      COMPANY'S INDUSTRY
+                      Company's Industry
                     </label>
 
                   </div>
@@ -2466,7 +2465,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="companyName"
                     >
-                      COMPANY NAME
+                      Company Name
                     </label>
 
                   </div>
@@ -2492,7 +2491,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="previousSalary"
                     >
-                      PREVIOUS SALARY
+                      Previous Salary
                     </label>
 
                   </div>
@@ -2518,7 +2517,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="periodOfWork"
                     >
-                      PERIOD OF WORK
+                      Period Of Work
                     </label>
 
                   </div>
@@ -2560,7 +2559,7 @@ const handleCameraCapture = (file) => {
                       className="font-medium text-sm"
                       htmlFor="responsibilities"
                     >
-                      RESPONSIBILITIES
+                      Responsiblilities
                     </label>
 
                   </div>
@@ -2652,7 +2651,7 @@ const handleCameraCapture = (file) => {
                       e.target.checked ? 1 : 0
                     )
                   } />
-                  <label htmlFor="appointment_letter">Last company appointment letter</label>
+                  <label htmlFor="appointment_letter">Last Company Appointment Letter</label>
                 </div>
 
                 <div className="flex gap-2 mt-5">
@@ -2662,7 +2661,7 @@ const handleCameraCapture = (file) => {
                       e.target.checked ? 1 : 0
                     )
                   } />
-                  <label htmlFor="experience_letter">Last company experience letter</label>
+                  <label htmlFor="experience_letter">Last Company Experience Letter</label>
                 </div>
               </div>
             </div>
@@ -2708,7 +2707,7 @@ const handleCameraCapture = (file) => {
               <div className="flex flex-col lg:flex-row gap-1  justify-between mt-8">
                 <div className="flex flex-col">
                   <label className="font-medium text-sm" htmlFor="school-name">
-                    ENTER TITLE
+                    Enter Title
                   </label>
 
                 </div>
@@ -2729,17 +2728,17 @@ const handleCameraCapture = (file) => {
               >
                 <input {...getInputProps()} />
                 {isDragActive ? (
-                  <p className="text-[#1ea600]">Drop your files here...</p>
+                  <p className="text-[#1ea600]">Drop Your Files Here...</p>
                 ) : (
                   <div className="text-gray-500">
                     <IoCloudUploadOutline className="text-6xl text-[#1ea600] mx-auto" />
                     <p className="mt-3">
-                      Drag & drop files here, or{" "}
+                      Drag & Drop Files Here, Or{" "}
                       <span className="text-[#1ea600] underline cursor-pointer">
-                        browse
+                        Browse
                       </span>
                     </p>
-                    <p>Supported formats: JPEG, PNG, PDF</p>
+                    <p>Supported Formats: JPEG, PNG, PDF</p>
                     {!title.trim() && (
                       <p className="text-red-500 mt-2">
                         Enter a title to enable file upload.

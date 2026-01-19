@@ -17,7 +17,7 @@ import Footer from "../Footer";
 
 import { MdLogout } from "react-icons/md";
 import Mobile_Sidebar from "../Mobile_Sidebar";
-import axiosInstance from "axios";
+// import axiosInstance from "axios";
 import { format } from "date-fns";
 import { DataTable } from "primereact/datatable";
 // import { API_URL } from "./Config";
@@ -27,6 +27,8 @@ import Loader from "../Loader";
 import Clock from "./Clock";
 import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import DateFilterDropdown from "./DateFilterDropdown";
+import { API_URL } from "../../Config";
+import axiosInstance from "../../axiosConfig";
 
 
 const Dashboard_Mainbar = () => {
@@ -170,6 +172,80 @@ const Dashboard_Mainbar = () => {
     setSelectedDate(date);
   }, []);
   
+  const financeRequestDummyData = [
+  {
+    id: 1,
+    date: "2026-01-10",
+    employee_name: "Arun Kumar",
+    company_name: "PSS Pvt Ltd",
+    amount: 12500,
+    status: "Pending",
+  },
+  {
+    id: 2,
+    date: "2026-01-09",
+    employee_name: "Priya Sharma",
+    company_name: "PSS Pvt Ltd",
+    amount: 8200,
+    status: "Approved",
+  },
+  {
+    id: 3,
+    date: "2026-01-08",
+    employee_name: "Suresh Raj",
+    company_name: "PSS Services",
+    amount: 4500,
+    status: "Waiting",
+  },
+];
+
+
+const financeRequestColumns = [
+  {
+    field: "sno",
+    header: "S.No",
+    body: (_, { rowIndex }) => rowIndex + 1,
+  },
+  {
+    field: "date",
+    header: "Date",
+    body: (row) => formatToDDMMYYYY(row.date),
+  },
+  {
+    field: "employee_name",
+    header: "Employee Name",
+    body: (row) => row.employee_name,
+  },
+  {
+    field: "company_name",
+    header: "Company Name",
+    body: (row) => row.company_name,
+  },
+  {
+    field: "amount",
+    header: "Amount",
+    body: (row) => `₹ ${row.amount}`,
+  },
+  {
+    field: "status",
+    header: "Status",
+    body: (row) => {
+      let color =
+        row.status === "Approved"
+          ? "text-green-700 bg-green-100"
+          : row.status === "Pending"
+          ? "text-yellow-700 bg-yellow-100"
+          : "text-blue-700 bg-blue-100";
+
+      return (
+        <span className={`px-3 py-1 rounded-full text-sm ${color}`}>
+          {row.status}
+        </span>
+      );
+    },
+  },
+];
+
 
   // 1. Continuous Absentees Columns
   const absenteesColumns = [
@@ -287,17 +363,13 @@ const Dashboard_Mainbar = () => {
       body: (_, { rowIndex }) => rowIndex + 1,
       
     },
-    {
-      field: "date",
-      header: "Date",
-      body: (rowData) => (
-        <div>
-          <p >{rowData.date}</p>
-          
-        </div>
-      ),
-     
-    },
+   {
+  field: "date",
+  header: "Date",
+        // body: (row) => formatToDDMMYYYY(row.date),
+  
+},
+
     {
       field: "count",
       header: "Count",
@@ -320,22 +392,22 @@ const Dashboard_Mainbar = () => {
       
     },
     {
-      field: "company",
+      field: "company_name",
       header: "Company",
       body: (rowData) => (
         <div className="flex justify-center items-center">
-    <p className=" ">{rowData.company}</p>
+    <p className=" ">{rowData.company_name}</p>
    
         </div>
       ),
      
     },
     {
-      field: "count",
+      field: "total_employees",
       header: "Employees",
       body: (rowData) => (
         <div className="">
-          <p className="">{rowData.count}</p>
+          <p className="">{rowData.total_employees}</p>
           
         </div>
       ),
@@ -444,6 +516,90 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
   });
 };
 
+useEffect(() => {
+  handleSubmit();
+}, []);
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const [fromDate, setFromDate] = useState(today);
+  const [toDate, setToDate] = useState(today);
+
+  const [dashboardData, setDashboardData] = useState([]);
+
+  console.log("dashboardData", dashboardData);
+  // Handle submit
+const handleSubmit = async () => {
+  // Ensure both dates are selected
+  if (!fromDate || !toDate) {
+    alert("Please select both From and To dates");
+    return;
+  }
+
+  try {
+    setLoading(true); // start loader
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/dashboard`, 
+      {
+        params: {
+          start_date: fromDate,
+          end_date: toDate
+        }
+      },
+    
+    );
+
+    console.log("API Response:", res.data);
+
+    if (res.data.success) {
+       setDashboardData(res.data || []);
+    } else {
+      console.error(res.data.message);
+      // toast.error(res.data.message || "Failed to fetch status list");
+    }
+  } catch (error) {
+    console.error(error);
+    // toast.error("Failed to fetch status list");
+  } finally {
+    setLoading(false); // stop loader
+  }
+};
+
+
+  // Handle reset
+const handleReset = async () => {
+  const today = new Date();
+  const formattedDate = today.toISOString().split("T")[0]; // "YYYY-MM-DD"
+
+  setFromDate(formattedDate);
+  setToDate(formattedDate);
+
+  try {
+    setLoading(true);
+
+    const res = await axiosInstance.get(`${API_URL}api/dashboard`, {
+      params: {
+        start_date: formattedDate,
+        end_date: formattedDate,
+      },
+    });
+
+    console.log("API Response:", res.data);
+
+    if (res.data.success) {
+      setDashboardData(res.data || []);
+    } else {
+      console.error(res.data.message);
+    }
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5 ">
       {loading ? (
@@ -461,7 +617,7 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                      <div className="flex justify-between items-center">
               <p className="font-semibold">Dashboard</p>
 
-              <div className="font-medium text-sm lg:text-base text-center lg:text-left mt-2 rounded-lg  focus:outline-none focus:ring-2 focus:ring-[#1ea600]">
+              {/* <div className="font-medium text-sm lg:text-base text-center lg:text-left mt-2 rounded-lg  focus:outline-none focus:ring-2 focus:ring-[#1ea600]"> */}
                 {/* <span>{day}, </span>
                 <span>{date} </span>
                 <span>{month} </span>
@@ -469,12 +625,48 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                   {hours}:{minutes}:{seconds} {amPm}
                 </span> */}
                 {/* <Clock/> */}
-                <DateFilterDropdown
+                {/* <DateFilterDropdown
         value={dateFilter}
         onChange={handleDateChange}
       
-      />
-              </div>
+      /> */}
+              {/* </div> */}
+               <div className="flex items-center gap-3  p-3 rounded-lg">
+      <div>
+        <label className="block text-sm font-medium mb-1">From Date</label>
+        <input
+          type="date"
+          className="border p-2 rounded-lg"
+          value={fromDate}
+          onChange={(e) => setFromDate(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">To Date</label>
+        <input
+          type="date"
+          className="border p-2 rounded-lg"
+          value={toDate}
+          onChange={(e) => setToDate(e.target.value)}
+        />
+      </div>
+
+      <div className="flex gap-2 mt-5">
+        <button
+          onClick={handleSubmit}
+          className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-lg  transition"
+        >
+          Submit
+        </button>
+        <button
+          onClick={handleReset}
+          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+        >
+          Reset
+        </button>
+      </div>
+    </div>
             </div>
             
            {/* dashboard  */}
@@ -482,14 +674,12 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
               
               
                 {/* Continuous Absentees */}
-                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover ">
+                {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover ">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-[#4A4A4A]">
                       Continuous Absentees
                     </h2>
-                    {/* <span className="text-sm text-gray-500">
-                      {continuousAbsentees.length} employees
-                    </span> */}
+                   
                   </div>
                   
                  <DataTable
@@ -510,18 +700,16 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                     />
                   ))}
                 </DataTable>
-              </div>
+              </div> */}
                 
                 
                    {/* Today Contract Attendance Missing */}
-                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-gray-800">
                       Today's Missing Attendance
                     </h2>
-                    {/* <span className="text-sm ">
-                      Contract Employees
-                    </span> */}
+                   
                   </div>
                   
              <DataTable
@@ -542,17 +730,15 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                     />
                   ))}
                 </DataTable>
-                </div>
+                </div> */}
 
                 {/* Employees Joined Today */}
-                <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-gray-800">
                       Employees Joined Today
                     </h2>
-                    {/* <span className="text-sm text-blue-600 font-medium">
-                      {employeesJoinedToday.length} new
-                    </span> */}
+                  
                   </div>
                   
               <DataTable
@@ -573,7 +759,7 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                     />
                   ))}
                 </DataTable>
-                </div>
+                </div> */}
                 
        
                 {/* Contract Employees */}
@@ -582,13 +768,11 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                     <h2 className="text-lg font-semibold text-gray-800">
                       Contract Employees
                     </h2>
-                    {/* <span className="text-sm text-gray-500">
-                      Total: {contractEmployees.reduce((sum, item) => sum + item.count, 0)}
-                    </span> */}
+                
                   </div>
-                  
+                    <div className="h-[300px] overflow-auto">
                  <DataTable
-                  value={contractEmployees}
+                  value={dashboardData?.contract_emps}
                   
                   showGridlines
                   responsiveLayout="scroll"
@@ -607,6 +791,7 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                   ))}
                 </DataTable>
                 </div>
+                </div>
                 
             
                 
@@ -620,9 +805,9 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                       Recent activity
                     </span> */}
                   </div>
-                  
+                  <div className="h-[300px] overflow-auto">
                  <DataTable
-                  value={jobFormSubmissions}
+                  value={dashboardData?.jobformsubmission}
                  
                   showGridlines
                   responsiveLayout="scroll"
@@ -641,9 +826,50 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
                   ))}
                 </DataTable>
                 </div>
+                </div>
+
+{/* finance request */}
+
+                {/* Contract Employees */}
+                {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Finance Request
+                    </h2>
+                     <button
+                      onClick={() => navigate("/finance-details")}
+                      className="text-sm text-green-600 font-medium hover:underline"
+                    >
+                      View All
+                    </button>
+                
+                  </div>
+                    <div className="h-[300px] overflow-auto">
+                 <DataTable
+                  // value={dashboardData?.finance_request}
+                  value={financeRequestDummyData}
+                  
+                  showGridlines
+                  responsiveLayout="scroll"
+                  className="dashboard-table"
+                  emptyMessage="No Finance Requests."
+                >
+                  {financeRequestColumns.map((col, index) => (
+                    <Column
+                      key={index}
+                      field={col.field}
+                      header={col.header}
+                      body={col.body}
+                      
+                     
+                    />
+                  ))}
+                </DataTable>
+                </div>
+                </div> */}
 
 {/* Notifications */}
-<div className="bg-white  rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+{/* <div className="bg-white  rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
   <div className="flex justify-between items-center mb-4">
     <h2 className="text-lg font-semibold text-gray-800">
       Notifications
@@ -659,27 +885,23 @@ const presentWfhColumns = [...commonColumns, loginTimeColumn];
         key={index}
         className="flex items-center justify-between py-3"
       >
-        {/* Left side: count + message */}
         <div className="flex  items-center gap-3">
-          {/* Count badge */}
           <span className="min-w-[28px] h-[28px] rounded-lg bg-gray-200 text-gray-600 text-xs flex items-center justify-center">
             {index + 1}
           </span>
 
-          {/* Message */}
           <p className="text-sm text-gray-700">
             {item.message}
           </p>
         </div>
 
-        {/* Time */}
         <span className="text-xs text-gray-500 whitespace-nowrap">
           {item.time}
         </span>
       </div>
     ))}
   </div>
-</div>
+</div> */}
 
             </div>
             

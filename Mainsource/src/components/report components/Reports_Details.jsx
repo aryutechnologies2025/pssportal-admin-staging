@@ -11,11 +11,10 @@ import { Tag } from "primereact/tag";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "react-datepicker/dist/react-datepicker.css";
-
 import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
 import { Capitalise } from "../../hooks/useCapitalise";
-import { formatIndianDateTime12Hr, formatToDDMMYYYY } from "../../Utils/dateformat";
+import { formatIndianDateTime12Hr, formatToDDMMYYYY,  } from "../../Utils/dateformat";
 import Footer from "../Footer";
 import Loader from "../Loader";
 import Mobile_Sidebar from "../Mobile_Sidebar";
@@ -32,130 +31,99 @@ function Reports_Details() {
   const [tasklist, setTasklist] = useState([]);
   const [selectedEmployeeDeatils, setSelectedEmployeeDetails] = useState(null);
   const [selectedTask, setSelectedTask] = useState(false);
+  const [data, setData] = useState([]);
+  console.log("data", data)
+  const [page, setPage] = useState(1);
+  const limit = 10;
+  const [rows, setRows] = useState(10);
+  const [totalRecords, setTotalRecords] = useState(0);
 
-  //page
-    const [page, setPage] = useState(1);
-    // console.log("page...... : ", page)
-    const limit = 10;
-    const [rows, setRows] = useState(10);
-    // console.log("rows........ : ", rows)
-    const [totalRecords, setTotalRecords] = useState(0);
-    // console.log("totalRecords...... : ", totalRecords)
-   
-  // Dummy data for demonstration - replace with your actual API data
-  const [data, setData] = useState([
-    {
-      id: 1,
-      date: "01/01/2028",
-      status: "Present",
-      workType: "WFO",
-      loginTime: "10:14:25 AM",
-      logoutTime: "7:15 PM",
-      break: "0:30:20",
-      totalHours: "08:30:25",
-      payableTime: "08:30:25"
-    },
-    {
-      id: 2,
-      date: "02/01/2028",
-      status: "Holiday",
-      workType: "-",
-      loginTime: "-",
-      logoutTime: "-",
-      break: "-",
-      totalHours: "-",
-      payableTime: "-"
-    },
-    {
-      id: 3,
-      date: "03/01/2028",
-      status: "Present",
-      workType: "WFO",
-      loginTime: "10:14:25 AM",
-      logoutTime: "7:15 PM",
-      break: "0:30:20",
-      totalHours: "08:30:25",
-      payableTime: "08:30:25"
-    },
-    {
-      id: 4,
-      date: "04/01/2028",
-      status: "Absent",
-      workType: "WFO",
-      loginTime: "10:14:25 AM",
-      logoutTime: "7:15 PM",
-      break: "0:30:20",
-      totalHours: "00:00:00",
-      payableTime: "00:00:00"
-    }
-  ]);
+  const [summary, setSummary] = useState({
+    total_working_days: 0,
+    present_days: 0,
+    absent_days: 0,
+  });
 
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(
-        // `${API_URL}/api/emp-attendances/monthly-report`,
-        {
-          withCredentials: true,
-          params: {
-            month: selectedMonth
-              .toLocaleString("default", { month: "short" })
-              .toLocaleLowerCase(),
-            year: selectedMonth.getFullYear(),
-          },
-        }
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: "contains" },
+  });
+
+  // search submit
+  const handleSubmit = () => {
+    let filteredData = [...data];
+
+    if (selectedEmployeeDeatils) {
+      filteredData = filteredData.filter(
+        (item) => item.employee_name === selectedEmployeeDeatils.label
       );
-      setMonthlyReportList(response.data);
-    } catch (error) {
-      console.log(error);
     }
+
+    setData(filteredData);
   };
 
-  const fetchEmployeeList = async () => {
-    try {
-      const response = await axiosInstance.get(
-        // `${API_URL}/api/employees/all-employees`,
-        {
-          withCredentials: true,
-        }
-      );
+  // search reset
+  const handleReset = () => {
+    setSelectedMonth(new Date());
+    setSelectedEmployeeDetails(null);
 
-      const employeeIds = response.data.data.map((emp) => ({
-        label: emp.employeeName,
-        value: emp._id,
-      }));
-      const employeeName = response.data.data.map((emp) => emp.email);
+    setFilters({
+      global: { value: null, matchMode: "contains" },
+    });
 
-      setSelectedEmployee(employeeIds);
-      setSelectedEmployeeName(employeeName);
-    } catch (error) {
-      console.log(error);
-    }
+    fetchAttendanceReport();
   };
+
 
   useEffect(() => {
-    fetchEmployeeList();
+    fetchAttendanceReport();
   }, [selectedMonth]);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    const monthDate = new Date(selectedMonth);
-    const payload = {
-      month: `${monthDate.getMonth() + 1}-${monthDate.getFullYear()}`,
-      employeeId: selectedEmployeeDeatils?.split(" - ")[0] || "",
-    };
-
+  // list 
+  const fetchAttendanceReport = async () => {
     try {
+      setLoading(true);
+
+      const month = selectedMonth.getMonth() + 1;
+      const year = selectedMonth.getFullYear();
+
       const response = await axiosInstance.get(
-        // `${API_URL}/api/task/particularday-report`,
-        { params: payload, withCredentials: true }
+        `${API_URL}api/attendance-report`,
+        
       );
-      setTasklist(response.data.data);
+
+      console.log("response check", response.data);
+
+      setSummary(response.data.summary);
+
+      const employeeOptions = response.data.employees.map(emp => ({
+        label: emp.full_name,
+        value: emp.id,
+      }));
+      setSelectedEmployee(employeeOptions);
+
+      const formattedData = response.data.data.map((item, index) => ({
+        id: index + 1,
+        employee_name: item.employee_name,
+        // date: formatToDDMMYYYY(item.date),
+        date: item.date, 
+        status: item.status,
+        login_time: item.login_time || "-",
+        logout_time: item.logout_time || "-",
+        break_time: item.break_time || "-",
+        total_hours: item.total_hours || "-",
+        payable_time: item.payable_time || "-",
+      }));
+
+      setData(formattedData);
+
+
     } catch (error) {
-      console.log(error);
+      console.error("Attendance API Error:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   const exportToCSV = () => {
     if (!data || data.length === 0) {
@@ -163,25 +131,36 @@ function Reports_Details() {
       return;
     }
 
-    const headers = ["S.No", "DATE", "STATUS", "WORK TYPE", "LOGIN TIME", "LOGOUT TIME", "BREAK", "TOTAL HOURS", "PAYABLE TIME"];
-    
-    const csvContent = [
-      headers.join(","),
-      ...data.map((record, index) => [
-        index + 1,
-        record.date,
-        record.status,
-        record.workType,
-        record.loginTime,
-        record.logoutTime,
-        record.break,
-        record.totalHours,
-        record.payableTime
-      ].join(","))
-    ].join("\n");
+    const headers = [
+      "S.No",
+      "Employee",
+      "Date",
+      "Status",
+      "Login Time",
+      "Logout Time",
+      "Break",
+      "Total Hours",
+      "Payable Time",
+    ];
+
+    const rows = data.map((item, index) => [
+      index + 1,
+      `"${item.employee_name}"`,
+      `"${item.date}"`,
+      item.status,
+      item.login_time,
+      item.logout_time,
+      item.break_time,
+      item.total_hours,
+      item.payable_time,
+    ]);
+
+    const csvContent =
+      headers.join(",") + "\n" + rows.map((r) => r.join(",")).join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", "attendance_report.csv");
@@ -190,114 +169,58 @@ function Reports_Details() {
     document.body.removeChild(link);
   };
 
-  const handleClicklogs = () => {
-    setSelectedTask(true);
-  };
-
-  const handleCloselogs = () => {
-    setSelectedTask(false);
-  };
-
+  // column
   const columns = [
     {
       header: "S.No",
       body: (_, options) => options.rowIndex + 1,
-      style: { width: "5%", textAlign: "center" },
-    //   sortable: false,
+    },
+    {
+      header: "EMPLOYEE",
+      field: "employee_name",
     },
     {
       header: "DATE",
       field: "date",
-    //   sortable: true,
-      style: { width: "10%" },
-      body: (rowData) => (
-        <div className="font-medium text-gray-900">
-          {rowData.date || "-"}
-        </div>
-      ),
+      body: (row) =>formatToDDMMYYYY(row.date),
     },
-   {
-  header: "STATUS",
-  field: "status",
-  style: { width: "10%" },
-  body: (rowData) => {
-    const statusStyles = {
-      Present: "bg-green-100 text-green-700",
-      Holiday: "bg-orange-100 text-orange-700",
-      Absent: "bg-red-100 text-red-700",
-    };
-
-    return (
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-medium ${
-          statusStyles[rowData.status] || "bg-gray-100 text-gray-600"
-        }`}
-      >
-        {rowData.status || "-"}
-      </span>
-    );
-  },
-}
-,
     {
-      header: "WORK TYPE",
-      field: "workType",
-    //   sortable: true,
-      style: { width: "10%" },
-      body: (rowData) => rowData.workType || "-",
+      header: "STATUS",
+      field: "status",
+      body: (row) => (
+        <span className={`px-3 py-1 rounded-full text-xs font-medium ${row.status === "Present"
+          ? "bg-green-100 text-green-700"
+          : row.status === "Absent"
+            ? "bg-red-100 text-red-700"
+            : "bg-gray-100 text-gray-600"
+          }`}>
+          {row.status}
+        </span>
+      ),
     },
     {
       header: "LOGIN TIME",
-      field: "loginTime",
-    //   sortable: true,
-      style: { width: "12%" },
-      body: (rowData) => rowData.loginTime || "-",
+      field: "login_time",
     },
     {
       header: "LOGOUT TIME",
-      field: "logoutTime",
-    //   sortable: true,
-      style: { width: "12%" },
-      body: (rowData) => rowData.logoutTime || "-",
+      field: "logout_time",
     },
     {
       header: "BREAK",
-      field: "break",
-    //   sortable: true,
-      style: { width: "10%" },
-      body: (rowData) => rowData.break || "-",
+      field: "break_time",
     },
     {
       header: "TOTAL HOURS",
-      field: "totalHours",
-    //   sortable: true,
-      style: { width: "12%" },
-      body: (rowData) => rowData.totalHours || "-",
+      field: "total_hours",
     },
     {
-  header: "PAYABLE TIME",
-  field: "payableTime",
-  style: { width: "12%" },
-  body: (rowData) => {
-    const time = rowData.payableTime;
-
-    let textColor = "text-gray-500";
-    if (time && time !== "00:00:00" && time !== "-") {
-      textColor = "text-green-600";
-    }
-    if (time === "00:00:00") {
-      textColor = "text-red-500";
-    }
-
-    return (
-      <span className={`font-medium ${textColor}`}>
-        {time || "-"}
-      </span>
-    );
-  },
-}
-
+      header: "PAYABLE TIME",
+      field: "payable_time",
+    },
   ];
+  console.log("columns", columns);
+
 
   return (
     <div className="flex flex-col justify-between w-screen min-h-screen bg-gray-100 px-3 md:px-5 pt-2 md:pt-10">
@@ -319,162 +242,186 @@ function Reports_Details() {
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm text-green-500">Reports</p>
+              <p
+                className="text-xs md:text-sm text-gray-500 cursor-pointer"
+                onClick={() => navigate("/pssdailyattendance")}
+              >
+                Daily Attendance
+              </p>
+              <p>{">"}</p>
+              <p className="text-sm text-[#1ea600]">Reports</p>
             </div>
             <div className="flex flex-col gap-3">
-            <p className="text-2xl md:text-3xl mt-1 md:mt-4 font-semibold">
-              Attendance Report
-            </p>
-               <div className="flex flex-wrap md:flex-nowrap gap-3 md:gap-8 justify-between items-center md:mt-5 h-auto rounded-2xl bg-white 
+              <p className="text-2xl md:text-3xl mt-1 md:mt-4 font-semibold">
+                Attendance Report
+              </p>
+
+              {/* filter */}
+              <div className="flex flex-wrap md:flex-nowrap gap-3 md:gap-8 justify-between items-center md:mt-5 h-auto rounded-2xl bg-white 
   shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6  ">
-              {/* Global Search Input */}
-              <div className="card flex flex-wrap md:flex-nowrap gap-5 md:z-50">
-                <DatePicker
-  selected={selectedMonth}
-  onChange={(date) => setSelectedMonth(date)}
-  className="w-full md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
-  showMonthDropdown
-  showMonthYearPicker
-  dateFormat="MMM-yyyy"
-  dropdownMode="select"
-  popperPlacement="bottom-start"
-  popperClassName="datepicker-popper"
-  portalId="root"
-/>
-
                 {/* Global Search Input */}
+                <div className="card flex flex-wrap md:flex-nowrap gap-5 md:z-50">
+                  <DatePicker
+                    selected={selectedMonth}
+                    onChange={(date) => setSelectedMonth(date)}
+                    className="w-full md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
+                    showMonthDropdown
+                    showMonthYearPicker
+                    dateFormat="MMM-yyyy"
+                    dropdownMode="select"
+                    popperPlacement="bottom-start"
+                    popperClassName="datepicker-popper"
+                    portalId="root"
+                  />
 
-                <Dropdown
-                  value={selectedEmployeeDeatils}
-                  onChange={(e) => setSelectedEmployeeDetails(e.value)}
-                  options={selectedEmployee}
-                  optionLabel="label"
-                  placeholder="Select a Employee"
-                  filter
-                  className="w-full md:w-48 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                />
+                  {/* Global Search Input */}
+                  <Dropdown
+                    value={selectedEmployeeDeatils}
+                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
+                    options={selectedEmployee}
+                    optionLabel="label"
+                    placeholder="Select Employee"
+                    filter
+                    className="w-full md:w-48 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
 
-                <button
-                  onClick={handleSubmit}
-                  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-md hover:scale-105 duration-300"
-                >
-                  Search
-                </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleSubmit}
+                      className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-md hover:scale-105 duration-300"
+                    >
+                      Search
+                    </button>
+
+                    <button
+                      onClick={handleReset}
+                      className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md hover:scale-105 duration-300"
+                    >
+                      Reset
+                    </button>
+                  </div>
+
+                </div>
               </div>
 
-              
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Total Working Days</p>
+                  <span className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.total_working_days}</span>
+                </div>
+
+                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Late Login</p>
+                  <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.lateLogin}</p>
+                </div>
+
+                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Present Days</p>
+                  <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.present_days}</p>
+                </div>
+
+                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Last Thon & Hours</p>
+                  <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.lateThonHours}</p>
+                </div>
+
+                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Absent Days</p>
+                  <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.absent_days}</p>
+                </div>
+
+                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Holidays</p>
+                  <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.holidays}</p>
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-          <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-            <p className="text-sm md:text-base text-[#4A4A4A]">Total Working Days</p>
-            <span className="text-xl md:text-2xl font-bold text-[#7C7C7C]">23</span>
-          </div>
-          
-          <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-            <p className="text-sm md:text-base text-[#4A4A4A]">Late Login</p>
-            <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">1</p>
-          </div>
-          
-          <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-            <p className="text-sm md:text-base text-[#4A4A4A]">Present Days</p>
-            <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">17</p>
-          </div>
-          
-          <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-            <p className="text-sm md:text-base text-[#4A4A4A]">Last Thon & Hours</p>
-            <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">1</p>
-          </div>
-          
-          <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-            <p className="text-sm md:text-base text-[#4A4A4A]">Absent Days</p>
-            <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">5</p>
-          </div>
-          
-          <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-            <p className="text-sm md:text-base text-[#4A4A4A]">Holidays</p>
-            <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">8</p>
-          </div>
-</div>
-            </div>
+
             <div className="flex flex-col w-full mt-1 md:mt-6 h-auto  rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] d px-3 py-3 md:px-6 md:py-6 ">
               <div className="flex flex-col lg:flex-row lg:items-center  md:justify-between gap-3 mb-4">
-                             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-7 mb-4">
-                               {/* Entries per page */}
-                               <div className="flex items-center gap-2">
-                                 {/* <span className="font-semibold text-base text-[#6B7280] border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]">Show</span> */}
-                                 <Dropdown
-                                   value={rows}
-                                   options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
-                                   onChange={(e) => setRows(e.value)}
-             
-                                   className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                                 />
-                                 <span className="text-sm text-[#6B7280]">Entries Per Page</span>
-                               </div>
-             
-                              
-                             </div>
-             
-                             <div className="flex flex-col md:flex-row md:items-center md:justify-between  gap-5 mb-4">
-                               {/* Search box */}
-                               <div className="relative w-64">
-               <FiSearch
-                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                 size={18}
-               />
-             
-                                 <InputText
-                                   value={globalFilter}
-                                   onChange={(e) => setGlobalFilter(e.target.value)}
-                                   
-                                   placeholder="Search......"
-                                   className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
-                            focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-[#7C7C7C]  "
-             
-                                 />
-                               </div>
-             
-                               <div className="">
-                                 <button
-                                   onClick={exportToCSV}
-                                   className=" flex items-center gap-2 bg-[#7C7C7C] hover:bg-[#9C9C9C] text-white font-medium px-4 py-2 rounded-md "
-                                 >
-                                   + Export CSV
-                                   <FaFileExport />
-                                 </button>
-                               </div>
-             
-                             </div>
-                           </div>
-                  
-                  <DataTable
-                    value={data}
-                    dataKey="_id"
-                    paginator
-                    rows={10}
-                    showGridlines
-                    globalFilter={globalFilter}
-                    emptyMessage="No Data found"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                  >
-                    {columns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                        sortable={col.sortable}
-                        style={col.style}
-                      />
-                    ))}
-                  </DataTable>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-7 mb-4">
+                  {/* Entries per page */}
+                  <div className="flex items-center gap-2">
+                    {/* <span className="font-semibold text-base text-[#6B7280] border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]">Show</span> */}
+                    <Dropdown
+                      value={rows}
+                      options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
+                      onChange={(e) => setRows(e.value)}
+
+                      className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    <span className="text-sm text-[#6B7280]">Entries Per Page</span>
+                  </div>
                 </div>
-            
+
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between  gap-5 mb-4">
+                  {/* Search box */}
+                  <div className="relative w-64">
+                    <FiSearch
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
+                    <InputText
+                      value={globalFilter}
+                      onChange={(e) => setGlobalFilter(e.target.value)}
+
+                      placeholder="Search......"
+                      className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
+                            focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-[#7C7C7C]  "
+
+                    />
+                  </div>
+
+                  <div className="">
+                    <button
+                      onClick={exportToCSV}
+                      className=" flex items-center gap-2 bg-[#7C7C7C] hover:bg-[#9C9C9C] text-white font-medium px-4 py-2 rounded-md "
+                    >
+                      + Export CSV
+                      <FaFileExport />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <DataTable
+                value={data}
+                dataKey="id"
+                paginator
+                rows={rows}
+                showGridlines
+                filters={filters}
+                filterDisplay="menu"
+                globalFilterFields={[
+                  "employee_name",
+                  "date",
+                  "status",
+                  "login_time",
+                  "logout_time",
+                  "break_time",
+                  "total_hours",
+                  "payable_time",
+                ]}
+                emptyMessage="No Data found"
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              >
+                {columns.map((col, index) => (
+                  <Column
+                    key={index}
+                    field={col.field}
+                    header={col.header}
+                    body={col.body}
+                    sortable={col.sortable}
+                    style={col.style}
+                  />
+                ))}
+              </DataTable>
+            </div>
           </div>
         </>
       )}
-      
+
       <div className="mt-auto">
         <Footer />
       </div>

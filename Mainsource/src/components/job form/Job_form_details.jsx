@@ -79,12 +79,12 @@ const Job_form_details = () => {
   // States for filters
 
   const [appliedFilters, setAppliedFilters] = useState({
-  from_date: "",
-  to_date: "",
-  reference: "",
-  district: "",
-  gender: "",
-});
+    from_date: "",
+    to_date: "",
+    reference: "",
+    district: "",
+    gender: "",
+  });
 
   const [filterType, setFilterType] = useState("");
 
@@ -92,8 +92,8 @@ const Job_form_details = () => {
   const [filterStartDate, setFilterStartDate] = useState(today);
   const [filterEndDate, setFilterEndDate] = useState(today);
 
-//   const [filterStartDate, setFilterStartDate] = useState("");
-// const [filterEndDate, setFilterEndDate] = useState("");
+  //   const [filterStartDate, setFilterStartDate] = useState("");
+  // const [filterEndDate, setFilterEndDate] = useState("");
 
 
   // console.log("fgilter", filterStartDate, filterEndDate)
@@ -133,25 +133,25 @@ const Job_form_details = () => {
 
   const [selectedReference, setSelectedReference] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
-  console.log("Selected Gender....... : ",selectedGender)
+  console.log("Selected Gender....... : ", selectedGender)
 
   // console.log("reference", reference)
   const onPageChange = (e) => {
     setPage(e.page + 1); // PrimeReact is 0-based
-    setRows(e.rows);    
+    setRows(e.rows);
 
   };
 
   const fetchRemarksById = async (id) => {
-  try {
-    const res = await axiosInstance.get(
-      `${API_URL}api/job-form/show/${id}`
-    );
-    return res.data?.data?.remarks || [];
-  } catch {
-    return [];
-  }
-};
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/job-form/show/${id}`
+      );
+      return res.data?.data?.remarks || [];
+    } catch {
+      return [];
+    }
+  };
 
 
   const exportToCSV = async () => {
@@ -159,7 +159,7 @@ const Job_form_details = () => {
       //  fetch ALL data (no pagination)
       const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
         params: {
-          from_date:  filterStartDate || "",
+          from_date: filterStartDate || "",
           to_date: filterEndDate || "",
           reference: selectedReference || "",
           district: selectedDistrict || "",
@@ -177,16 +177,16 @@ const Job_form_details = () => {
 
       const listData = response.data.data;
 
-       //  Fetch remarks for each student
-    const allData = await Promise.all(
-      listData.map(async (item) => {
-        const remarks = await fetchRemarksById(item.id);
-        return {
-          ...item,
-          remarks,
-        };
-      })
-    );
+      //  Fetch remarks for each student
+      const allData = await Promise.all(
+        listData.map(async (item) => {
+          const remarks = await fetchRemarksById(item.id);
+          return {
+            ...item,
+            remarks,
+          };
+        })
+      );
       generateCSV(allData);
     } catch (error) {
       console.error(error);
@@ -215,15 +215,15 @@ const Job_form_details = () => {
 
     const csvRows = [
       csvHeader.join(","),
-      ...data.map((item,index) => {
-       const remarks =
-        item.remarks && item.remarks.length > 0
-          ? `${item.remarks.length} remarks: ` +
+      ...data.map((item, index) => {
+        const remarks =
+          item.remarks && item.remarks.length > 0
+            ? `${item.remarks.length} remarks: ` +
             item.remarks.map(r => r.notes).join(" | ")
-          : "-";
+            : "-";
 
         return [
-           index + 1, //  S.No
+          index + 1, //  S.No
           item.name || "-",
           item.aadhar_number || "-",
           item.email_id || "-",
@@ -272,28 +272,28 @@ const Job_form_details = () => {
   };
 
   const resetFilters = () => {
-  setFilterStartDate("");
-  setFilterEndDate("");
-  setSelectedReference("");
-  setSelectedDistrict("");
-  setSelectedGender("");
-  setPage(1);
+    setFilterStartDate("");
+    setFilterEndDate("");
+    setSelectedReference("");
+    setSelectedDistrict("");
+    setSelectedGender("");
+    setPage(1);
 
-  // API reset
-  setAppliedFilters({
-    from_date: "",
-    to_date: "",
-    reference: "",
-    district: "",
-    gender: "",
-  });
+    // API reset
+    setAppliedFilters({
+      from_date: "",
+      to_date: "",
+      reference: "",
+      district: "",
+      gender: "",
+    });
 
-  setPage(1);
-};
+    setPage(1);
+  };
 
   useEffect(() => {
     fetchRoles();
-  }, [appliedFilters,rows,page]);
+  }, [appliedFilters, rows, page]);
 
 
   useEffect(() => {
@@ -310,7 +310,7 @@ const Job_form_details = () => {
 
   const fetchRoles = async () => {
     try {
-        
+
       setLoading(true);
 
       // const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
@@ -325,18 +325,18 @@ const Job_form_details = () => {
       //   },
       // });
 
-       const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
-      params: {
-        ...appliedFilters,
-        page,
-        limit: rows,
-      },
-    });
+      const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
+        params: {
+          ...appliedFilters,
+          page,
+          limit: rows,
+        },
+      });
       console.log("fetchRole Response : ", response)
       if (response.data.success) {
-        
+
         const studentsWithStats = response.data.data.map((student) => ({
-          
+
           ...student,
           remarkCount: Number(student.remarks_count) || 0,
           remarks: student.remarks || null,
@@ -347,7 +347,7 @@ const Job_form_details = () => {
               : null,
         }));
         setRoles(studentsWithStats);
-       
+
         setFilteredRoles(studentsWithStats);
         setTotalRecords(Number(response.data.totalCount) || 0);
         setReference(response.data?.reference)
@@ -371,18 +371,18 @@ const Job_form_details = () => {
     }
   };
 
- 
+
 
   const applyFilters = () => {
     setAppliedFilters({
-    from_date: filterStartDate || "",
-    to_date: filterEndDate || "",
-    reference: selectedReference || "",
-    district: selectedDistrict || "",
-    gender: selectedGender || "",
-  });
+      from_date: filterStartDate || "",
+      to_date: filterEndDate || "",
+      reference: selectedReference || "",
+      district: selectedDistrict || "",
+      gender: selectedGender || "",
+    });
 
-  setPage(1);
+    setPage(1);
   };
 
 
@@ -688,10 +688,10 @@ const Job_form_details = () => {
           .delete(`${API_URL}api/job-form/delete/${selectedStudent.id}`)
           .then((response) => {
             // if (response.data) {
-              toast.success("Profile Has Been Deleted.");
-              fetchRoles();
- 
-                
+           setTimeout(() => toast.success("Profile Has Been Deleted."),300)
+            fetchRoles();
+
+
             // } else {
             //   Swal.fire("Error!", "Failed To Delete Profile.", "error");
             // }
@@ -916,7 +916,7 @@ const Job_form_details = () => {
     {
       header: "S.No",
       body: (rowData, options) => options.rowIndex + 1,
-      style: { textAlign: "center", width: "80px", fontWeight: "medium" ,fontStyle:"popins" },
+      style: { textAlign: "center", width: "80px", fontWeight: "medium", fontStyle: "popins" },
       fixed: true,
     },
 
@@ -924,32 +924,32 @@ const Job_form_details = () => {
       header: "Name",
       field: "name",
       body: (row) => capitalizeWords(row.name),
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
     {
       header: "Aadhar Number",
       field: "aadhar_number",
 
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
 
     {
       header: "Email",
       field: "email_id",
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
 
     {
       header: "Contact",
       field: "contact_number",
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
 
     {
       header: "Gender",
       field: "gender",
       body: (row) => capitalizeWords(row.gender),
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
 
     {
@@ -962,7 +962,7 @@ const Job_form_details = () => {
       header: "District",
       field: "district",
       body: (row) => capitalizeWords(row.district),
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
     {
       header: "Education",
@@ -992,14 +992,14 @@ const Job_form_details = () => {
       header: "Refrerred By",
       field: "reference",
       body: (row) => capitalizeWords(row.reference || "-"),
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" }
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" }
     },
 
     {
       header: "Register On",
       field: "created_at",
       body: (row) => formatToDDMMYYYY(row.created_at),
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" },
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" },
       fixed: true
     },
 
@@ -1016,8 +1016,8 @@ const Job_form_details = () => {
           <div className="flex justify-center">
             <FaStickyNote
               className={`cursor-pointer text-lg transition-colors ${hasRemarks
-                  ? "text-red-600 hover:text-[#1ea600]"
-                  : "text-gray-400 hover:text-gray-600"
+                ? "text-red-600 hover:text-[#1ea600]"
+                : "text-gray-400 hover:text-gray-600"
                 }`}
               title={
                 hasRemarks
@@ -1030,7 +1030,7 @@ const Job_form_details = () => {
         );
       },
 
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" },
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" },
       fixed: true
 
     },
@@ -1059,20 +1059,20 @@ const Job_form_details = () => {
           </button>
         </div>
       ),
-      style: { textAlign: "center", fontWeight: "medium",fontStyle: "popins" },
+      style: { textAlign: "center", fontWeight: "medium", fontStyle: "popins" },
       fixed: "true",
     }
   ];
 
-const [visibleColumnFields, setVisibleColumnFields] = useState(
-    allColumns.filter(col => col.fixed || ["name", "contact_number","email_id","reference","district","gender"].includes(col.field)).map(col => col.field)
+  const [visibleColumnFields, setVisibleColumnFields] = useState(
+    allColumns.filter(col => col.fixed || ["name", "contact_number", "email_id", "reference", "district", "gender"].includes(col.field)).map(col => col.field)
   );
 
-const onColumnToggle = (event) => {
+  const onColumnToggle = (event) => {
     let selectedFields = event.value;
     const fixedFields = allColumns.filter(col => col.fixed).map(col => col.field);
     const validatedSelection = Array.from(new Set([...fixedFields, ...selectedFields]));
-    
+
     setVisibleColumnFields(validatedSelection);
   };
   const dynamicColumns = useMemo(() => {
@@ -1090,7 +1090,7 @@ const onColumnToggle = (event) => {
       ) : (
         <>
           <div>
-             <div className=" cursor-pointer ">
+            <div className=" cursor-pointer ">
               <Mobile_Sidebar />
             </div>
 
@@ -1175,8 +1175,8 @@ const onColumnToggle = (event) => {
                             </div> */}
 
               {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 "> */}
-                {/* date filter */}
-                {/* <div className="flex flex-col md:flex-row md:items-center  gap-3 ">
+              {/* date filter */}
+              {/* <div className="flex flex-col md:flex-row md:items-center  gap-3 ">
                   <div className="flex items-center gap-2">
                     <lable>Start Date:</lable>
                     <input
@@ -1237,8 +1237,8 @@ const onColumnToggle = (event) => {
                   </button>
                 </div> */}
 
-                {/* <div className="bg-white  w-full rounded-2xl shadow-md p-4 md:p-6"> */}
-                <div className="flex flex-col gap-5">
+              {/* <div className="bg-white  w-full rounded-2xl shadow-md p-4 md:p-6"> */}
+              <div className="flex flex-col gap-5">
                 <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5  gap-4 items-end">
 
                   {/* Start Date */}
@@ -1309,7 +1309,7 @@ const onColumnToggle = (event) => {
                     </select>
                   </div>
 
-   {/* gender */}
+                  {/* gender */}
 
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
@@ -1325,47 +1325,47 @@ const onColumnToggle = (event) => {
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
 
-                      
+
                     </select>
                   </div>
-                  </div>
+                </div>
 
-              
 
-                  {/* Submit Button */}
-                  <div className="w-full flex gap-4 items-end justify-end">
-                    <button
-                      onClick={applyFilters}
-                      className="px-2 md:px-3 py-2 h-10 rounded-lg bg-[#1ea600] text-white font-medium w-20  hover:bg-[#33cd10] transition "
 
-                    >
-                      Apply
-                    </button>
-                    <button
-                      onClick={resetFilters
-                        // () => {
-                        //  setFilterType("");
-                        // setFilterStartDate("");
-                        // setFilterEndDate("");
-                        // setSelectedReference("");
-                        // setSelectedDistrict("");
-                        // setSelectedGender("");
-                        // fetchRoles("emptyParams");
+                {/* Submit Button */}
+                <div className="w-full flex gap-4 items-end justify-end">
+                  <button
+                    onClick={applyFilters}
+                    className="px-2 md:px-3 py-2 h-10 rounded-lg bg-[#1ea600] text-white font-medium w-20  hover:bg-[#33cd10] transition "
+
+                  >
+                    Apply
+                  </button>
+                  <button
+                    onClick={resetFilters
+                      // () => {
+                      //  setFilterType("");
+                      // setFilterStartDate("");
+                      // setFilterEndDate("");
+                      // setSelectedReference("");
+                      // setSelectedDistrict("");
+                      // setSelectedGender("");
+                      // fetchRoles("emptyParams");
                       // }
                     }
-                     className="px-2 md:px-3 py-2 h-10 rounded-lg bg-gray-100 text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition"
+                    className="px-2 md:px-3 py-2 h-10 rounded-lg bg-gray-100 text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition"
 
-                      
-                    >
-                      Reset
-                    </button>
 
-                  </div>
-
+                  >
+                    Reset
+                  </button>
 
                 </div>
 
-              
+
+              </div>
+
+
             </div>
             <div className="flex flex-col w-full mt-1 md:mt-6 h-auto  rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] d px-3 py-3 md:px-6 md:py-6 ">
 
@@ -1385,32 +1385,32 @@ const onColumnToggle = (event) => {
                   </div>
 
                   <div className="relative inline-block">
-                   <MultiSelect
-          ref={multiSelectRef}
-          value={visibleColumnFields}
-          options={allColumns}
-          optionLabel="header"
-          optionValue="field"
-          onChange={onColumnToggle}
-          display="checkbox"
-          className="absolute opacity-0 pointer-events-none"
-          style={{ bottom: 0, left: 0, width: '100%' }}
-          panelClassName="custom-column-panel"
-          // Disable checkbox for fixed columns
-          optionDisabled={(option) => option.fixed}
-        />
+                    <MultiSelect
+                      ref={multiSelectRef}
+                      value={visibleColumnFields}
+                      options={allColumns}
+                      optionLabel="header"
+                      optionValue="field"
+                      onChange={onColumnToggle}
+                      display="checkbox"
+                      className="absolute opacity-0 pointer-events-none"
+                      style={{ bottom: 0, left: 0, width: '100%' }}
+                      panelClassName="custom-column-panel"
+                      // Disable checkbox for fixed columns
+                      optionDisabled={(option) => option.fixed}
+                    />
 
                     <p
-  onClick={() => multiSelectRef.current.show()}
-  className="flex items-center justify-between gap-2 
+                      onClick={() => multiSelectRef.current.show()}
+                      className="flex items-center justify-between gap-2 
              w-40 px-3 py-2 
              border border-gray-300 rounded-md 
              cursor-pointer text-[#7c7c7c]
              hover:bg-gray-100 transition-all text-sm"
->
-  Customize
-  <img src={customise} alt="columns" className="w-5 h-5" />
-</p>
+                    >
+                      Customize
+                      <img src={customise} alt="columns" className="w-5 h-5" />
+                    </p>
 
 
                   </div>
@@ -1419,15 +1419,15 @@ const onColumnToggle = (event) => {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between  gap-5 mb-4">
                   {/* Search box */}
                   <div className="relative w-64">
-  <FiSearch
-    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-    size={18}
-  />
+                    <FiSearch
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
 
                     <InputText
                       value={globalFilter}
                       onChange={(e) => setGlobalFilter(e.target.value)}
-                      
+
                       placeholder="Search......"
                       className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
                focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-[#7C7C7C]  "
@@ -1633,31 +1633,31 @@ const onColumnToggle = (event) => {
 
                           {Array.isArray(selectedUser.remarks) && selectedUser.remarks.length > 0 ? (
                             <ul className="space-y-4">
-                             {[...selectedUser.remarks]
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .map((item, index) => (
-      <li
-        key={item.id}
-        className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-      >
-                                  {/* Title */}
-                                  <p className="font-semibold text-gray-800">
-                                    {index + 1}. Title: {item.notes}
-                                  </p>
+                              {[...selectedUser.remarks]
+                                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                                .map((item, index) => (
+                                  <li
+                                    key={item.id}
+                                    className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                                  >
+                                    {/* Title */}
+                                    <p className="font-semibold text-gray-800">
+                                      {index + 1}. Title: {item.notes}
+                                    </p>
 
-                                  {/* Created By */}
-                                  <p className="text-sm text-gray-700 ml-5 mt-1">
-                                    <span className="font-medium">Created By:</span>{" "}
-                                    {item.addedBy || "Admin"}
-                                  </p>
+                                    {/* Created By */}
+                                    <p className="text-sm text-gray-700 ml-5 mt-1">
+                                      <span className="font-medium">Created By:</span>{" "}
+                                      {item.addedBy || "Admin"}
+                                    </p>
 
-                                  {/* Date */}
-                                  <p className="text-sm text-gray-600 ml-5">
-                                    <span className="font-medium">Date:</span>{" "}
-                                    {formatIndianDateTime(item.created_date || item.created_at)}
-                                  </p>
-                                </li>
-                              ))}
+                                    {/* Date */}
+                                    <p className="text-sm text-gray-600 ml-5">
+                                      <span className="font-medium">Date:</span>{" "}
+                                      {formatIndianDateTime(item.created_date || item.created_at)}
+                                    </p>
+                                  </li>
+                                ))}
                             </ul>
 
                           ) : (

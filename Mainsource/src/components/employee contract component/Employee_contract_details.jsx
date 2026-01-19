@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosInstance from "../../axiosConfig";
 import { FaEye } from "react-icons/fa6";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { API_URL } from "../../Config";
 import Swal from "sweetalert2";
 import { IoIosCloseCircle } from "react-icons/io";
@@ -57,7 +57,7 @@ const Employee_contract_details = () => {
       gender: z.string().min(1, "Gender is required"),
       phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
       aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
-      company: z.number().min(1, "Company is required"),
+      company: z.string().min(1, "Company is required"),
       joinedDate: z.string().min(1, "Joined date is required"),
       accountName: z.string().min(1, "Account name is required"),
       ifsccode: z.string().min(1, "IFSC code is required"),
@@ -65,21 +65,9 @@ const Employee_contract_details = () => {
       esciNumber: z.string().min(1, "ESCI number is required"),
       status: z.string().min(1, "Status is required"),
       manual_value: z.string().optional(),
-      profile_image: z
-          .any()
-          .refine(
-            (file) =>
-              !file || file instanceof File || typeof file === "string",
-            
-          )
-          .optional(),
-      
-        
-        documents: z
-          .array(z.instanceof(File))
-          .optional(),
+       profile_picture: z.any().optional(), 
+  documents: z.array(z.any()).optional(),
     })
-
 
 
 const [employeeIds, setEmployeeIds] = useState([]);
@@ -109,7 +97,7 @@ const [employeeIds, setEmployeeIds] = useState([]);
       uannumber: editData ? editData.uannumber : "",
       esciNumber: editData ? editData.esciNumber : "",
       status: editData ? editData.status : "",
-      profile_image: editData ? editData.profile_image : "",
+      profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
 
     },
@@ -299,8 +287,14 @@ useEffect(() => {
       esciNumber: "",
       gender: "",
       status: "",
+      profile_picture: "",
+      documents: [],
     };
     reset(mappedData);
+    setPhoto(null);
+     setSelectedCompany(null);  
+  setDocuments([]);
+
     setTimeout(() => {
       setIsModalOpen(false);
       setBackendValidationError(null);
@@ -318,11 +312,12 @@ useEffect(() => {
     setTimeout(() => setIsImportAddModalOpen(false), 250);
   };
 
-   const handlePhotoChange = (e) => {
+  const handlePhotoChange = (e) => {
   const file = e.target.files[0];
+  
   if (file) {
     setPhoto(file);
-    setValue("profile_image", file);
+    setValue("profile_picture", file,{ shouldValidate: true });
   }
 };
 
@@ -331,9 +326,24 @@ useEffect(() => {
     const [openCamera, setOpenCamera] = useState(false);
     const [documents, setDocuments] = useState([]);
 
-const handleCameraCapture = (file) => {
+    useEffect(() => {
+      register("profile_picture", { required: !editData });
+    }, [register, editData]);
+    
+const handleCameraCapture = (fileOrBlob) => {
+  let file = fileOrBlob;
+
+  // If camera gives Blob → convert to File
+  if (!(fileOrBlob instanceof File)) {
+    file = new File(
+      [fileOrBlob],
+      `camera-${Date.now()}.png`, 
+      { type: fileOrBlob.type || "image/png" }
+    );
+  }
+
   setPhoto(file);
-  setValue("profile_image", file);
+  setValue("profile_picture", file,{ shouldValidate: true });
 };
 
 
@@ -352,11 +362,31 @@ const removeDocument = (index) => {
   setDocuments(updatedDocs);
   setValue("documents", updatedDocs);
 };
-  const handleView = (row) => {
-    console.log("rowvvds", row);
-    setViewRow(row);
-    setIsViewModalOpen(true);
-  };
+  const handleView = async (row) => {
+
+  try {
+    const res = await axiosInstance.get(
+      `${API_URL}api/contract-employee/edit/${row.id}`
+    );
+
+    const normalizedDocs = normalizeDocuments(res.data.data);
+setViewRow({
+  ...res.data.data,
+  documents: normalizedDocs,
+});
+
+
+    console.log("view res....:....", res);
+    console.log("view res....:....", res.data);
+
+    if (res.data.success) {
+      setViewRow(res.data.data); 
+      setIsViewModalOpen(true);
+    }
+  } catch (err) {
+    console.error("View fetch failed", err);
+  }
+};
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
@@ -556,6 +586,31 @@ const removeDocument = (index) => {
     }
   };
 
+  const normalizeDocuments = (rowData) => {
+  if (rowData.document_groups?.length) {
+    return rowData.document_groups.flatMap(group =>
+      group.documents.map(doc => ({
+        id: doc.id,
+        original_name: doc.original_name,
+        document_path: doc.document_path,
+        existing: true,
+      }))
+    );
+  }
+
+  if (rowData.documents?.length) {
+    return rowData.documents.map(doc => ({
+      id: doc.id,
+      original_name: doc.original_name,
+      document_path: doc.document_path,
+      existing: true,
+    }));
+  }
+
+  return [];
+};
+
+
   const normalizeEditData = (row) => {
     console.log("rowedit", row);
     return {
@@ -567,7 +622,8 @@ const removeDocument = (index) => {
       dob: row.date_of_birth || "",
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
-      company: row.company?.id ? Number(row.company.id) : "",
+      company: String(row.company_id),
+      // company: row.company.id ? Number(row.company.id) : "",
       // companyLabel: row.company?.company_name || "",
       joinedDate: row.joining_date || "",
       accountName: row.acc_no || "",
@@ -588,25 +644,82 @@ const removeDocument = (index) => {
             : "",
       // selectedJoiningDate: row.joining_date || "",
       // joinedDate: row.joined_date || "",
-
+ profile_picture: row.profile_picture || "",
+      documents: row.documents || [],
     };
   };
 
 
-  const openEditModal = (row) => {
-    const normalizedData = normalizeEditData(row);
-
-    console.log("normalizedData", normalizedData);
-
-    setEditData(normalizedData);
-
-    setSelectedCompany(normalizedData.company);
-
-    reset(normalizedData);
-
+  const openEditModal = async (row) => {
+    console.log("open edit row",row)
+   
     setIsModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
+
+     const response = await axiosInstance.get(
+    `/api/contract-employee/edit/${row.id}`
+  );
+   console.log("openeditmodal:",response.data);
+
+  if (response.data.success) {
+      const rowData = response.data.data; // Get fresh data from API
+      const normalizedData = normalizeEditData(rowData);
+      
+      setEditData(normalizedData);
+      
+
+   if (normalizedData.profile_picture) {
+        // If it's already a full URL, use it; otherwise, append base URL
+        const imageUrl = normalizedData.profile_picture.startsWith('http') 
+          ? normalizedData.profile_picture 
+          : `${API_URL}/${normalizedData.profile_picture}`;
+        setPhoto(imageUrl);
+         setValue("profile_picture", normalizedData.profile_picture);
+        // setValue("profile_picture", null);
+      } else {
+        setPhoto(null);
+      }
+
+  //     let normalizedDocs = [];
+  //   if (rowData.document_groups) {
+  //     normalizedDocs = rowData.document_groups.flatMap(group => 
+  //       group.documents.map(doc => ({
+  //         ...doc,
+  //         id: doc.id,
+  //         title: group.title,
+  //         existing: true // marker for your UI
+  //       }))
+  //     );
+  //   } else if (rowData.documents) {
+  //     normalizedDocs = rowData.documents.map(doc => ({
+  //   ...doc,
+  //   existing: true
+  // }));
+  //   }
+
+  //   setDocuments(normalizedDocs); // Update local state for the file list UI
+  //   setValue("documents", normalizedDocs);
+
+  const normalizedDocs = normalizeDocuments(rowData);
+setDocuments(normalizedDocs);
+setValue("documents", normalizedDocs);
+
+
+
+   const selectedCompanyObj = companyDropdown.find(
+  c => c.value === String(normalizedData.company)
+);
+
+setSelectedCompany(selectedCompanyObj?.value || "");
+
+    reset({
+      ...normalizedData,
+      company: String(normalizedData.company),
+    });
+  }
+
   };
+
 
 
   // useEffect(() => {
@@ -707,8 +820,10 @@ const removeDocument = (index) => {
 
     try {
       await axiosInstance.delete(`${API_URL}api/contract-employee/delete/${id}`);
-      toast.success("Contract Candidates deleted successfully");
-      fetchContractCandidates();
+     
+     setTimeout(() => toast.success("Contract Candidates deleted successfully"),300)
+       await fetchContractCandidates();
+      
     } catch (error) {
       toast.error("Failed to delete Contract Candidates");
     }
@@ -803,7 +918,14 @@ const removeDocument = (index) => {
   // create
   const onSubmit = async (data) => {
     try {
-      const createCandidate = {
+     console.log('Form data before submit:', {
+      profile_picture: data.profile_picture,
+      profile_image_type: typeof data.profile_picture,
+      isFile: data.profile_picture instanceof File,
+      documents: data.documents,
+      documents_length: data.documents?.length
+    });
+     const createCandidate = {
         name: data.name,
         address: data.address || "test",
 
@@ -820,58 +942,78 @@ const removeDocument = (index) => {
         esic: data.esciNumber,
         employee_id: data.manual_value,
 
-        status: data.status,
+        // status: data.status,
+        status: 1,
         created_by: userId,
         role_id: userRole,
       };
+
+      const formData = new FormData();
+
+
+Object.entries(createCandidate).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(
+          key,
+          typeof value === "object" ? JSON.stringify(value) : value
+        );
+      }
+    });
+
+ //  Profile image
+    if (data.profile_picture instanceof File) {
+      formData.append("profile_picture", data.profile_picture);
+    }else if (typeof data.profile_picture === "string") {
+            
+            formData.append("existing_profile_picture", data.profile_picture);
+          }
+    
+
+
+// Documents (NEW FILES ONLY)
+      console.log("on submit doc",documents);
+      
+            if (documents && documents.length > 0) {
+              documents.forEach((doc,index) => {
+                if (doc instanceof File) {
+                  formData.append("documents[]", doc);
+                }else if (doc.id) {
+          
+            // formData.append(`existing_document_ids[${index}]`, doc.id);
+             formData.append("existing_document_ids[]", doc.id);
+            // formData.append("documents[]", doc.id);
+          }
+              });
+            }
+
+      console.log("Create candidate ,.... : .....",createCandidate)
       setLoading(true);
-      if (editData) {
-        const response = await axiosInstance.post(
-          `/api/contract-employee/update/${editData.id}`,
-          createCandidate
-        );
-        fetchContractCandidates();
-        closeAddModal();
 
-        toast.success("Candidate Updated successfully", {
-          onClose: () => {
-            fetchContractCandidates();
-          },
-        });
+       const url = editData
+      ? `/api/contract-employee/update/${editData.id}`
+      : `/api/contract-employee/create`;
 
-      } else {
-        const response = await axiosInstance.post(
-          "/api/contract-employee/create",
-          createCandidate
-        );
-        console.log("Response for create candidate : ", response);
-        setSelectedCompany(null);
-        fetchContractCandidates();
-        closeAddModal();
-        toast.success("Candidate added successfully", {
-          onClose: () => {
-            fetchContractCandidates();
-          },
-        });
+    await axiosInstance.post(url, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
-      }
-    } catch (error) {
-      if (error.response) {
-        console.log("Backend error:", error.response.data);
-        setBackendValidationError(error.response.data.message);
-      } else if (error.request) {
-        console.log("No response received:", error.request);
-      } else {
-        console.log("Axios config error:", error.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+     setTimeout(() => toast.success(editData ? "Updated Successfully" : "Created Successfully"),300)
+     fetchContractCandidates();
+    closeAddModal();
+    
+
+  } catch (error) {
+    console.error(" Error creating candidate:", error);
+    toast.error("Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+
   };
 
   const companyDropdown = companyOptions.map((c) => ({
     label: c.label,
-    value: c.value,
+    value: String(c.value),
     company_emp_id: c.company_emp_id,
   }));
 
@@ -1261,64 +1403,65 @@ const removeDocument = (index) => {
                       </span>
                     )}
 
-                    {/* Upload Photo */}
-                    <div className="flex justify-end">
-                      <div className="flex flex-col items-center gap-2">
-                    
-                        <p className="font-medium">
-                          {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
-                        </p>
-                    
-                        {/* Preview */}
-                        <div className="relative">
-                          {photo ? (
-                            <img
-                              src={photo instanceof File ? URL.createObjectURL(photo) : photo}
-                              className="w-32 h-40 rounded-md object-cover border"
-                            />
-                          ) : (
-                            <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
-                              Upload
-                            </div>
-                          )}
-                        </div>
-                    
-                        {/* Buttons */}
-                        <div className="flex gap-2">
-                          <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
-                            Upload
-                            <input
-                              type="file"
-                              accept="image/*"
-                              hidden
-                              onChange={handlePhotoChange}
-                            />
-                          </label>
-                    
-                          <button
-                            type="button"
-                            onClick={() => setOpenCamera(true)}
-                            className="bg-gray-200 px-3 py-1 rounded"
-                          >
-                            Camera
-                          </button>
-                        </div>
-                    
-                        {errors.profile_image && (
-                          <p className="text-red-500 text-sm">{errors.profile_image.message}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {openCamera && (
-                      <CameraPhoto
-                        onCapture={handleCameraCapture}
-                        onClose={() => setOpenCamera(false)}
-                      />
-                    )}
+                 {/* Upload Photo */}
+<div className="flex justify-end">
+  <div className="flex flex-col items-center gap-2">
+
+    <p className="font-medium">
+      {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
+    </p>
+
+    {/* Preview */}
+    <div className="relative">
+      {photo ? (
+        <img
+          src={photo instanceof File ? URL.createObjectURL(photo) : photo}
+          className="w-32 h-40 rounded-md object-cover border"
+        />
+      ) : (
+        <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
+          Upload
+        </div>
+      )}
+    </div>
+
+    {/* Buttons */}
+    <div className="flex gap-2">
+      <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
+        Upload
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={handlePhotoChange}
+        />
+      </label>
+
+      <button
+        type="button"
+        onClick={() => setOpenCamera(true)}
+        className="bg-gray-200 px-3 py-1 rounded"
+      >
+        Camera
+      </button>
+    </div>
+
+    {errors.profile_picture && (
+      <p className="text-red-500 text-sm">{errors.profile_picture.message}</p>
+    )}
+  </div>
+</div>
+
+{openCamera && (
+  <CameraPhoto
+    onCapture={handleCameraCapture}
+    onClose={() => setOpenCamera(false)}
+  />
+)}
                     
 
-                      {/* Company */}
+             
+                   {/* Company */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
                         Company Name <span className="text-red-500">*</span>
@@ -1330,25 +1473,15 @@ const removeDocument = (index) => {
                           options={companyDropdown}
                           optionLabel="label"
                           optionValue="value"
+                         
+                          onChange={(e) => {
+                            setSelectedCompany(e.value);
+                            setValue("company", String(e.value), { shouldValidate: true });
+                          }}
                           placeholder="Select Company"
                           filter
                           className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedCompany(e.value);
-                            
-
-                            const obj = companyDropdown.find(
-                              (item) => item.value === e.value
-                            );
-
-                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
-
-                            setValue("company", Number(e.value), {
-                              shouldValidate: true,
-                            });
-                          }}
                         />
-
 
                         {errors.company && (
                           <p className="text-red-500 text-sm">
@@ -1517,7 +1650,7 @@ const removeDocument = (index) => {
                           inputMode="numeric"
                           maxLength={12}
                           onInput={(e) => {
-                            e.target.value = e.target.value.replace(/\D/g, "");
+                            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 12);
                           }}
                           placeholder="Enter AadharNumber"
                         />
@@ -1573,7 +1706,7 @@ const removeDocument = (index) => {
         placeholder={
           companyEmpType === "manual"
             ? "Enter Employee ID"
-            : "Auto Generated"
+            : "Enter Employee ID"
         }
         className={`w-full px-2 py-2 border rounded-[10px]
           ${companyEmpType === "automatic"
@@ -1699,8 +1832,7 @@ const removeDocument = (index) => {
                       </div>
                     </div>
 
-
-                    {/* Documents */}
+{/* Documents */}
 
 <div className="mt-5 flex justify-between items-start">
   <label className="block text-md font-medium">
@@ -1722,25 +1854,23 @@ const removeDocument = (index) => {
     </label>
 
     {/* Selected documents list */}
-    <div className="flex flex-wrap gap-2 mt-2">
-      {documents.map((file, index) => (
-        <div
-          key={index}
-          className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full text-sm"
-        >
-          <span className="truncate max-w-[120px]">
-            {file.name}
-          </span>
-          <button
-            type="button"
-            onClick={() => removeDocument(index)}
-            className="text-red-500 font-bold"
-          >
-            ✕
-          </button>
-        </div>
-      ))}
+  
+<div className="mt-4 space-y-2">
+  {documents.map((doc, index) => (
+    <div key={index} className="flex justify-between items-center p-2 border rounded">
+      <span className="text-sm truncate">
+        {doc instanceof File ? doc.name : (doc.original_name || "Existing Document")}
+      </span>
+      <button
+        type="button"
+        onClick={() => removeDocument(index)}
+        className="text-red-500 font-bold px-2"
+      >
+        ×
+      </button>
     </div>
+  ))}
+</div>
 
     {errors.documents && (
       <p className="text-red-500 text-sm mt-1">
@@ -1749,8 +1879,6 @@ const removeDocument = (index) => {
     )}
   </div>
 </div>
-
-
 
 
                     {/* Button */}
@@ -1799,13 +1927,13 @@ const removeDocument = (index) => {
   
   {/* Profile Picture Display */}
   <div className="flex flex-col items-center mr-16">
-    {viewRow.profile_image ? (
+    {viewRow.profile_picture ? (
       <img
-        src={
-          viewRow.profile_image instanceof File 
-            ? URL.createObjectURL(viewRow.profile_image) 
-            : viewRow.profile_image
-        }
+         src={
+      viewRow.profile_picture.startsWith("http")
+        ? viewRow.profile_picture
+        : `${API_URL}${viewRow.profile_picture}`
+    }
         alt="Profile"
         className="w-24 h-28 rounded-md object-cover border-2 border-gray-200 shadow-sm"
       />
@@ -1865,32 +1993,35 @@ const removeDocument = (index) => {
                       <b>Employee ID:</b> {viewRow.employee_id || "-"}
                     </p>
 
-                    <div className="col-span-2  pt-4 ">
+                <div className="col-span-2 pt-4">
   <b className="block mb-2 text-gray-700">Documents:</b>
-  {viewRow.document_path ? (
-    <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-      <span className="text-gray-600 truncate flex-1">
-        {viewRow.document_name || "candidate_document.pdf"}
-      </span>
-      
-      <div className="flex gap-2">
-        {/* Print Button */}
-        <button
-          onClick={() => window.open(viewRow.document_path, "_blank").print()}
-          className="flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1 rounded hover:bg-blue-100 transition"
-        >
-          Print
-        </button>
-
-        {/* Download Button */}
-        <a
-          href={viewRow.document_path}
-          download
-          className="flex items-center gap-1 bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-green-100 transition"
-        >
-          Download
-        </a>
-      </div>
+  {/* Check if documents is an array and has items */}
+  {viewRow.documents && viewRow.documents.length > 0 ? (
+    <div className="space-y-2">
+      {viewRow.documents.map((doc, index) => (
+        <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+          <span className="text-gray-600 truncate flex-1">
+            {doc.original_name || `Document ${index + 1}`}
+          </span>
+          
+          <div className="flex gap-2">
+            <button
+              onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+              className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+            >
+              View/Print
+            </button>
+            {/* <button
+    onClick={() =>
+      window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
+    }
+    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-green-100"
+  >
+    Download
+  </button> */}
+          </div>
+        </div>
+      ))}
     </div>
   ) : (
     <p className="text-gray-500 italic">No documents uploaded.</p>
