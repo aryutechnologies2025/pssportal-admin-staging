@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { Column } from "primereact/column";
@@ -16,6 +16,11 @@ import { MdOutlineDeleteOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { MultiSelect } from "primereact/multiselect";
+import { useRef } from "react";
+import { IoCloseCircle } from "react-icons/io5";
+import customise from "../../assets/customise.svg";
+
 import {
   IoIosArrowDown,
   IoIosArrowForward,
@@ -25,10 +30,13 @@ import { FiSearch } from "react-icons/fi";
 import { FaEye } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io"
 import { AiFillDelete } from "react-icons/ai";
+import { Capitalise } from "../../hooks/useCapitalise";
+import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 
 
 const LeadManagement_Details = () => {
   let navigate = useNavigate();
+  const multiSelectRef = useRef(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -36,12 +44,12 @@ const LeadManagement_Details = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  console.log("....erors.... : ", errors);
+  // console.log("....erors.... : ", errors);
   const [leads, setLeads] = useState([]);
-  console.log("leads :", leads)
+  // console.log("leads :", leads)
   const [totalRecords, setTotalRecords] = useState(0);
   const [editLeadForm, setEditLeadForm] = useState(null);
-  console.log("edit value", editLeadForm);
+  // console.log("edit value", editLeadForm);
   const storedDetatis = localStorage.getItem("pssuser");
   const parsedDetails = JSON.parse(storedDetatis);
   const userid = parsedDetails ? parsedDetails.id : null;
@@ -55,18 +63,25 @@ const LeadManagement_Details = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isViewStatusOpen, setIsViewStatusOpen] = useState(false);
   const [viewStatus, setViewStatus] = useState(null);
+  const [cityOptions, setCityOptions] = useState([]);
+  const [isStatusViewOpen, setIsStatusViewOpen] = useState(false);
+  const [statusViewLead, setStatusViewLead] = useState(null);
 
 
-  const formatToDDMMYYYY = (date) => {
-    if (!date) return "-";
 
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
+  console.log("viewStatus", viewStatus);
 
-    return `${day}-${month}-${year}`;
-  };
+
+  // const formatToDDMMYYYY = (date) => {
+  //   if (!date) return "-";
+
+  //   const d = new Date(date);
+  //   const day = String(d.getDate()).padStart(2, "0");
+  //   const month = String(d.getMonth() + 1).padStart(2, "0");
+  //   const year = d.getFullYear();
+
+  //   return `${day}-${month}-${year}`;
+  // };
 
   const formatIndianDateTime12Hr = (date) => {
     if (!date) return "-";
@@ -119,13 +134,33 @@ const LeadManagement_Details = () => {
   const [filters, setFilters] = useState({
     gender: "",
     platform: "",
+    age: "",
+    city: "",
     from_date: "",
     to_date: ""
   });
   // apply filter
   const handleApplyFilter = () => {
-    fetchLead();
+    fetchLead(filters);
   };
+
+  const handleResetFilter = () => {
+    const reset = {
+      gender: "",
+      platform: "",
+      age: "",
+      city: "",
+      from_date: "",
+      to_date: ""
+    };
+
+    setFilters(reset);
+    fetchLead(reset);
+  };
+
+  useEffect(() => {
+    fetchLead(filters);
+  }, [filters]);
   // open view
   const openViewModal = (row) => {
     setViewContact(row);
@@ -140,6 +175,18 @@ const LeadManagement_Details = () => {
       setViewContact(null);
     }, 500);
   };
+  // status list open
+  const openStatusView = async (row) => {
+    setStatusViewLead(row);
+    setIsStatusViewOpen(true);
+    await fetchStatusList(row.id);
+  };
+  // status list close 
+  const closeStatusView = () => {
+    setIsStatusViewOpen(false);
+    setStatusViewLead(null);
+  };
+
 
   const handleFileChange = (e) => {
     setSelectedFiles(e.target.files);
@@ -265,12 +312,12 @@ const LeadManagement_Details = () => {
   const handleStatusSubmit = async () => {
     try {
       if (!statusForm.status) {
-        alert("Please select status");
+        toast.warning("Please select status");
         return;
       }
 
       if (statusForm.followUp === "yes" && !statusForm.followUpDate) {
-        alert("Please select follow up date");
+        toast.warning("Please select follow up date");
         return;
       }
 
@@ -290,10 +337,11 @@ const LeadManagement_Details = () => {
         payload
       );
 
-      console.log("Status Updated:", response.data);
+      toast.success("Lead status updated successfully");
 
-      setIsViewStatusOpen(false);
+      await fetchStatusList(viewStatus.id);
 
+      // reset form
       setStatusForm({
         status: "",
         notes: "",
@@ -301,12 +349,14 @@ const LeadManagement_Details = () => {
         followUpDate: "",
       });
 
-      fetchLead();
+      fetchLead(); // optional (datatable refresh)
+
     } catch (error) {
       console.error("Status update failed", error);
-      alert("Failed to update status");
+      toast.error("Failed to update lead status");
     }
   };
+
 
   // create
   const handleAddLeadSubmit = async () => {
@@ -354,36 +404,72 @@ const LeadManagement_Details = () => {
     fetchLead();
   }, []);
   // list
-  const fetchLead = async () => {
+  const fetchLead = async (customFilters) => {
+    const appliedFilters = customFilters ?? filters;
+
     try {
       setLoading(true);
 
       const params = {};
 
-      if (filters.gender) params.gender = filters.gender;
-      if (filters.platform) params.platform = filters.platform;
-      if (filters.from_date) params.from_date = filters.from_date;
-      if (filters.to_date) params.to_date = filters.to_date;
+      if (appliedFilters.gender) params.gender = appliedFilters.gender;
+      if (appliedFilters.platform) params.platform = appliedFilters.platform;
+      if (appliedFilters.age) params.age = appliedFilters.age;
+      if (appliedFilters.city) params.city = appliedFilters.city;
+      if (appliedFilters.from_date) params.from_date = appliedFilters.from_date;
+      if (appliedFilters.to_date) params.to_date = appliedFilters.to_date;
 
       const res = await axiosInstance.get(
         `${API_URL}api/lead-management`,
         { params }
       );
 
-      console.log("Filtered List", res.data);
-
       if (res.data.success) {
         setLeads(res.data.data || []);
         setTotalRecords(res.data.data?.length || 0);
         setGenderOptions(res.data.gender || []);
         setPlatformOptions(res.data.platforms || {});
+        setCityOptions(res.data.cities || []);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch leads");
     } finally {
       setLoading(false);
     }
   };
+  // status api get showing fetching
+  const [statusList, setStatusList] = useState([]);
+  // console.log("statusList", statusList);
+  // const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (viewStatus?.id) {
+      fetchStatusList(viewStatus.id);
+    }
+  }, [viewStatus?.id]);
+
+  // status view (view Api)
+  const fetchStatusList = async (id) => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.post(
+        `${API_URL}api/lead-management/status-list/${id}`
+      );
+
+      // console.log("Status List", res.data);
+
+
+      setStatusList(res.data.leadstatus.notes);
+
+    } catch (error) {
+      toast.error("Failed to fetch status list");
+    } finally {
+      setLoading(false);
+
+    }
+  };
+
   // Open import
   const openImportAddModal = () => {
     setIsImportAddModalOpen(true);
@@ -394,29 +480,12 @@ const LeadManagement_Details = () => {
     setIsAnimating(false);
     setTimeout(() => setIsImportAddModalOpen(false), 250);
   };
-  //  reset filter
-  const handleResetFilter = async () => {
-    const reset = {
-      gender: "",
-      platform: "",
-      from_date: "",
-      to_date: ""
-    };
 
-    setFilters(reset);
-
-    const res = await axiosInstance.get(`${API_URL}api/lead-management`);
-
-    setLeads(res.data.data || []);
-    setTotalRecords(res.data.data?.length || 0);
-    setGenderOptions(res.data.gender || []);
-    setPlatformOptions(res.data.platforms || {});
-  };
 
   // import
   const handleFileSubmit = async () => {
     if (!selectedFiles || selectedFiles.length === 0) {
-      setErrors({ file: "Please select a file" });
+      toast.warning("Please select a file");
       return;
     }
 
@@ -497,15 +566,13 @@ const LeadManagement_Details = () => {
   const columns = [
     {
       header: "S.No",
-      body: (_, options) => options.rowIndex + 1
-    },
-    {
-      field: "lead_id",
-      header: "Lead ID",
+      body: (_, options) => options.rowIndex + 1,
+      fixed: true,
     },
     {
       field: "full_name",
-      header: "Full Name"
+      header: "Full Name",
+      body: (row) => Capitalise(row.full_name),
     },
     {
       header: "Date Of Birth",
@@ -514,59 +581,82 @@ const LeadManagement_Details = () => {
     {
       field: "post_code",
       header: "Post Code",
+      body: (rowData) => (
+        <div className="">
+          {rowData.post_code
+            ? rowData.post_code.replace(/^[a-zA-Z]:/, "") // removes prefix like z: or x:
+            : "-"}
+        </div>
+      ),
     },
     {
       field: "gender",
-      header: "Gender"
+      header: "Gender",
+      body: (row) => Capitalise(row.gender),
+      //  body: (row) => Capitalise(row.gender),
     },
     {
       field: "phone",
       header: "Phone"
     },
     {
+      field: "age",
+      header: "Age",
+    },
+    {
       field: "city",
-      header: "City"
+      header: "City",
+      body: (row) => Capitalise(row.city),
     },
     {
       field: "state",
-      header: "State"
+      header: "State",
+      body: (row) => Capitalise(row.state),
     },
     {
-      header: "Created Time",
-      body: (row) => formatIndianDateTime12Hr(row.created_time),
+      field: "created_time",
+      header: "Date",
+      body: (row) => formatToDDMMYYYY(row.created_time),
     },
     {
       header: "Status",
       body: (row) => (
-        <select
-          className="border p-1"
-          value={row.status || ""}
-          onChange={(e) => {
-            const selectedStatus = e.target.value;
+        <div className="flex items-center gap-2">
+          <select
+            className="border p-1"
+            value={row.status || ""}
+            onChange={(e) => {
+              setViewStatus(row);
+              setIsViewStatusOpen(true);
+              setStatusForm({
+                status: e.target.value,
+                notes: "",
+                followUp: "no",
+                followUpDate: ""
+              });
+            }}
+          >
+            <option value="">Select Status</option>
+            <option value="open">Open</option>
+            <option value="contacted">Contacted</option>
+            <option value="interested">Interested</option>
+            <option value="not_interested">Not Interested</option>
+            <option value="customer">Customer</option>
+            <option value="bad_timing">Bad Timing</option>
+            <option value="not_picked">Not Picked</option>
+            <option value="future_lead">Future Lead</option>
+          </select>
 
-            setViewStatus(row);
-            setIsViewStatusOpen(true);
-
-            setStatusForm({
-              status: selectedStatus,
-              notes: "",
-              followUp: "no",
-              followUpDate: ""
-            });
-          }}
-        >
-          <option value="">Select</option>
-          <option value="open">Open</option>
-          <option value="contacted">Contacted</option>
-          <option value="interested">Interested</option>
-          <option value="not_interested">Not Interested</option>
-          <option value="customer">Customer</option>
-          <option value="bad_timing">Bad Timing</option>
-          <option value="not_picked">Not Picked</option>
-          <option value="future_lead">Future Lead</option>
-        </select>
+          {/* VIEW STATUS HISTORY */}
+          <button
+            onClick={() => openStatusView(row)}
+            className="text-blue-600 hover:scale-110 transition"
+            title="View Status History"
+          >
+            <FaEye />
+          </button>
+        </div>
       ),
-      style: { width: "150px" }
     },
     {
       field: "Action",
@@ -595,10 +685,25 @@ const LeadManagement_Details = () => {
         </div>
       ),
       style: { textAlign: "center", fontWeight: "medium" },
+      fixed: true
     },
   ];
 
-  console.log("columns", columns)
+  const [visibleColumnFields, setVisibleColumnFields] = useState(
+    columns.filter(col => col.fixed || ["full_name", "date_of_birth", "gender", "phone", "age", "qualification", "city", "created_time", "status", "Action"].includes(col.field)).map(col => col.field)
+  );
+
+  const onColumnToggle = (event) => {
+    let selectedFields = event.value;
+    const fixedFields = columns.filter(col => col.fixed).map(col => col.field);
+    const validatedSelection = Array.from(new Set([...fixedFields, ...selectedFields]));
+
+    setVisibleColumnFields(validatedSelection);
+  };
+  const dynamicColumns = useMemo(() => {
+    return columns.filter(col => visibleColumnFields.includes(col.field));
+  }, [visibleColumnFields]);
+
 
 
   return (
@@ -664,15 +769,12 @@ const LeadManagement_Details = () => {
                     }
                   >
                     <option value="">Gender</option>
-
-                    {genderOptions.map((gender, index) => (
-                      <option key={index} value={gender}>
-                        {gender}
-                      </option>
-                    ))}
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
                   </select>
-
                 </div>
+
 
                 {/* Platform */}
                 <div className="flex flex-col gap-1">
@@ -684,11 +786,51 @@ const LeadManagement_Details = () => {
                       setFilters(prev => ({ ...prev, platform: e.target.value }))
                     }
                   >
-                    <option value="">Platform</option>
-
+                    <option value="">Select</option>
                     {Object.entries(platformOptions).map(([key, label]) => (
                       <option key={key} value={key}>
                         {label}
+                      </option>
+                    ))}
+                  </select>
+
+
+                </div>
+
+                {/* age */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">Age</label>
+                  <select
+                    className="h-10 px-3 rounded-md border"
+                    value={filters.age}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, age: e.target.value }))
+                    }
+                  >
+                    <option value="">Select Age</option>
+                    <option value="18-25">18 - 25</option>
+                    <option value="26-35">26 - 35</option>
+                    <option value="36-45">36 - 45</option>
+                    <option value="46+">46+</option>
+                  </select>
+
+
+                </div>
+
+                {/* city */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">City</label>
+                  <select
+                    className="h-10 px-3 rounded-md border"
+                    value={filters.city}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, city: e.target.value }))
+                    }
+                  >
+                    <option value="">Select City</option>
+                    {cityOptions.map((city, index) => (
+                      <option key={index} value={city}>
+                        {city}
                       </option>
                     ))}
                   </select>
@@ -721,15 +863,50 @@ px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
-                  <div className="flex items-center gap-2">
-                    <Dropdown
-                      value={rows}
-                      options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                      onChange={(e) => setRows(e.value)}
-                      className="w-20 border"
-                    />
+                  <div className="flex items-center gap-5">
+                    <div>
+                      <Dropdown
+                        value={rows}
+                        options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
+                        onChange={(e) => setRows(e.value)}
+                        className="w-20 border"
+                      />
 
-                    <span className=" text-sm text-[#6B7280]">Entries per page</span>
+                      <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
+
+                    </div>
+                    <div>
+                      <div className="relative inline-block">
+                        <MultiSelect
+                          ref={multiSelectRef}
+                          value={visibleColumnFields}
+                          options={columns}
+                          optionLabel="header"
+                          optionValue="field"
+                          onChange={onColumnToggle}
+                          display="checkbox"
+                          className="absolute opacity-0 pointer-events-none"
+                          style={{ bottom: 0, left: 0, width: '100%' }}
+                          panelClassName="custom-column-panel"
+                          // Disable checkbox for fixed columns
+                          optionDisabled={(option) => option.fixed}
+                        />
+
+                        <p
+                          onClick={() => multiSelectRef.current.show()}
+                          className="flex items-center justify-between gap-2 
+                                 min-w-56 px-3 py-2 
+                                 border border-gray-300 rounded-md 
+                                 cursor-pointer text-[#7c7c7c]
+                                 hover:bg-gray-100 transition-all text-sm"
+                        >
+                          Customize
+                          <img src={customise} alt="columns" className="w-5 h-5" />
+                        </p>
+
+
+                      </div>
+                    </div>
                   </div>
 
                   <div className="flex justify-between items-center gap-5">
@@ -786,7 +963,7 @@ px-2 py-2 md:px-6 md:py-6">
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     loading={loading}
                   >
-                    {columns.map((col, index) => (
+                    {dynamicColumns.map((col, index) => (
                       <Column
                         key={index}
                         field={col.field}
@@ -946,10 +1123,12 @@ px-2 py-2 md:px-6 md:py-6">
 
 
                     {/* Gender */}
+                    {/* Gender */}
                     <div className="mt-6 flex justify-between items-center">
                       <label className="text-md font-medium">
                         Gender <span className="text-red-500">*</span>
                       </label>
+
                       <div className="w-[50%]">
                         <select
                           value={leadForm.gender}
@@ -957,15 +1136,13 @@ px-2 py-2 md:px-6 md:py-6">
                           className="w-full px-3 py-2 border rounded-lg"
                         >
                           <option value="">Select</option>
-                          {genderOptions.map((gender, index) => (
-                            <option key={index} value={gender}>
-                              {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                            </option>
-                          ))}
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
                         </select>
-
                       </div>
                     </div>
+
 
                     {/* Phone */}
                     <div className="mt-6 flex justify-between items-center">
@@ -1179,6 +1356,7 @@ px-2 py-2 md:px-6 md:py-6">
                       <label className="text-md font-medium">
                         Gender <span className="text-red-500">*</span>
                       </label>
+
                       <div className="w-[50%]">
                         <select
                           value={editLeadForm?.gender || ""}
@@ -1188,15 +1366,13 @@ px-2 py-2 md:px-6 md:py-6">
                           className="w-full px-3 py-2 border rounded-lg"
                         >
                           <option value="">Select</option>
-                          {genderOptions.map((gender, index) => (
-                            <option key={index} value={gender}>
-                              {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                            </option>
-                          ))}
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
                         </select>
-
                       </div>
                     </div>
+
 
                     {/* Phone */}
                     <div className="mt-6 flex justify-between items-center">
@@ -1391,8 +1567,8 @@ px-2 py-2 md:px-6 md:py-6">
                       </thead>
 
                       <tbody>
-                        {viewStatus.history?.length ? (
-                          viewStatus.history.map((item, index) => (
+                        {statusList?.length ? (
+                          statusList?.map((item, index) => (
                             <tr key={index} className="hover:bg-gray-50">
                               <td className="border px-3 py-2 text-center">
                                 {index + 1}
@@ -1404,10 +1580,10 @@ px-2 py-2 md:px-6 md:py-6">
                                 {item.followUp ? "Yes" : "No"}
                               </td>
                               <td className="border px-3 py-2">
-                                {item.notes || "-"}
+                                {Capitalise(item.notes || "-")}
                               </td>
                               <td className="border px-3 py-2">
-                                {item.created_at}
+                                {formatToDDMMYYYY(item.followup_date)}
                               </td>
                             </tr>
                           ))
@@ -1428,6 +1604,76 @@ px-2 py-2 md:px-6 md:py-6">
                 </div>
               </div>
             )}
+
+            {/*status list view  */}
+            {isStatusViewOpen && statusViewLead && (
+              <div
+                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
+                onClick={closeStatusView}
+              >
+                <div
+                  className="bg-white rounded-xl w-[900px] p-6 shadow-lg relative"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={closeStatusView}
+                    className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+                  >
+                    <IoCloseCircle size={22} />
+                  </button>
+
+                  <h2 className="text-lg font-semibold mb-4">
+                    Status History – {statusViewLead.full_name}
+                  </h2>
+
+                  {/* STATUS TABLE */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="border px-3 py-2">S.No</th>
+                          <th className="border px-3 py-2">Status</th>
+                          <th className="border px-3 py-2">Follow Up</th>
+                          <th className="border px-3 py-2">Notes</th>
+                          <th className="border px-3 py-2">Date</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {statusList?.length ? (
+                          statusList.map((item, index) => (
+                            <tr key={index}>
+                              <td className="border px-3 py-2 text-center">
+                                {index + 1}
+                              </td>
+                              <td className="border px-3 py-2 capitalize">
+                                {item.status}
+                              </td>
+                              <td className="border px-3 py-2 text-center">
+                                {item.followUp ? "Yes" : "No"}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {item.notes || "-"}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {formatToDDMMYYYY(item.followup_date)}
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan="5" className="text-center py-4 text-gray-500">
+                              No status history found
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
 
             {/* view modal */}
             {isViewModalOpen && viewContact && (

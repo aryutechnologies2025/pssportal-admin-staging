@@ -40,26 +40,35 @@ import Activity from "./pages/Activity";
 import AssetManagement_mainbar from "./pages/Asset Pages/AssetManagement_mainbar";
 import AssetCategory_mainbar from "./pages/Asset Pages/AssetCategory_mainbar";
 import AssetSubCategory_mainbar from "./pages/Asset Pages/AssetSubCategory_mainbar";
-import { ToastContainer } from "react-toastify";
+
 import Reports_Mainbar from "./pages/Report_Mainbar";
 import LeadManagement from "./pages/LeadManagement";
-
+import Pss_company_Mainbar from "./pages/Pss_company_Mainbar";
+import DailyWork_Report_Main from "./pages/DailyWork_Report_Main";
+import Finance_Request from "./pages/Finance_Request";
+import Holiday from "./pages/Holiday";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import PSS_Attendance from "./pages/Pss_Attendance";
 
 function App() {
   return (
     <>
-    <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        newestOnTop
-        closeOnClick
-        draggable
-        pauseOnHover
-         style={{ zIndex: 999999 }}
-      />
+     
 
 
       <BrowserRouter>
+
+      <ToastContainer
+  position="top-right"
+  autoClose={3000}
+ closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+/>
+      
         <Routes>
           <Route path="*" element={<PageNotFound />} />
           <Route path="/" element={<Login />} />
@@ -70,15 +79,19 @@ function App() {
           <Route path="/branches" element={<Branch />} />
           <Route path="/shift" element={<Shift />} />
           <Route path="/job-form" element={<Job_form />} />
-          <Route path="/activity" element={<Activity/>} />
-          <Route path="/reports" element={<Reports_Mainbar/>} />
-          <Route path="/assetmanagement" element={<AssetManagement_mainbar/>} />
-          <Route path="/assetcategory" element={<AssetCategory_mainbar/>} />
-          <Route path="/assetsubcategory" element={<AssetSubCategory_mainbar/>} />
+          <Route path="/activity" element={<Activity />} />
+          <Route path="/reports" element={<Reports_Mainbar />} />
+          <Route path="/pssdailyattendance" element={<PSS_Attendance />} />
+          <Route path="/assetmanagement" element={<AssetManagement_mainbar />} />
+          <Route path="/assetcategory" element={<AssetCategory_mainbar />} />
+          <Route path="/assetsubcategory" element={<AssetSubCategory_mainbar />} />
 
           <Route path="/company" element={<Company />} />
+          <Route path="/psscompany" element={<Pss_company_Mainbar />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/contractcandidates" element={<ContractCandidates />} />
+          <Route path="/holiday" element={<Holiday />} />
+
           <Route
             path="/employeecontract"
             element={<Employee_contract_main />}
@@ -106,6 +119,7 @@ function App() {
 
           <Route path="leaves" element={<Leaves />} />
           <Route path="finance" element={<Finance />} />
+          <Route path="finance-details" element={<Finance_Request />} />
           <Route path="finance/incomehistory" element={<Income_History />} />
           <Route path="finance/expensehistory" element={<Expense_History />} />
           <Route path="payroll" element={<Payroll />} />
@@ -113,6 +127,7 @@ function App() {
           <Route path="sitemap" element={<Sitemap />} />
           <Route path="setting" element={<Setting />} />
           <Route path="lead-engine" element={<LeadManagement />} />
+          <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
         </Routes>
       </BrowserRouter>
     </>

@@ -25,7 +25,7 @@ import "primeicons/primeicons.css";
 import { FiSearch } from "react-icons/fi";
 import axiosInstance from "../../axiosConfig.js";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -108,10 +108,11 @@ const Company_Mainbar = () => {
 
   console.log("editFormData", editFormData);
 
-  const user = localStorage.getItem("pssuser");
+  const user = JSON.parse(localStorage.getItem("pssuser") || "null");
 
-  const userId = JSON.parse(user).id;
-  const userRole = JSON.parse(user).role_id;
+const userId = user?.id;
+const userRole = user?.role_id;
+
   // console.log("user", user);
 
   // Open and close modals
@@ -416,7 +417,7 @@ const Company_Mainbar = () => {
       }
 
       const mappedCompanies = list.map((item) => ({
-        id: item._id || item.id,
+        id: item?._id || item?.id,
         companyName: item.company_name || "",
         address: item.address || "",
         gstNumber: item.gst_number || "",
@@ -451,44 +452,44 @@ const handlesubmit = async (e) => {
 
   const newErrors = {};
 
-  // ✅ Company Name
+  //  Company Name
   if (!companyName.trim())
     newErrors.companyName = "Company Name is required";
   else if (!validateCompanyName(companyName))
     newErrors.companyName = "Enter a valid Company Name";
 
-  // ✅ Address
+  //  Address
   if (!address.trim())
     newErrors.address = "Address is required";
   else if (!validateAddress(address))
     newErrors.address = "Enter a valid address";
 
-// ✅ GST Number
+//  GST Number
 if (!gstNumber.trim()) {
   newErrors.gstNumber = "GST Number is required";
 } else if (!validateGST(gstNumber)) {
   newErrors.gstNumber = "Enter a valid GST number";
 }
 
-  // ✅ Support Email
+  //  Support Email
   if (!supportEmail.trim())
     newErrors.supportEmail = "Support Email is required";
   else if (!validateEmail(supportEmail))
     newErrors.supportEmail = "Enter a valid email";
 
-  // ✅ Billing Email
+  //  Billing Email
   if (!billingEmail.trim())
     newErrors.billingEmail = "Billing Email is required";
   else if (!validateEmail(billingEmail))
     newErrors.billingEmail = "Enter a valid billing email";
 
-  // ❌ Stop if errors exist
+  //  Stop if errors exist
   if (Object.keys(newErrors).length > 0) {
     setErrors(newErrors);
     return;
   }
 
-  // ✅ CREATE COMPANY (unchanged)
+  //  CREATE COMPANY (unchanged)
   try {
     const response = await axiosInstance.post(
       `${API_URL}api/company/create`,
@@ -744,7 +745,9 @@ if (!gstNumber.trim()) {
           </button>
 
           <button
-            onClick={() => deleteCompany(row.id)}
+            // onClick={() => deleteCompany(row.id)}
+            onClick={() => row?.id && deleteCompany(row.id)}
+
             className="text-[#db2525] bg-[#fff0f0] p-2 rounded-[10px] border cursor-pointer hover:scale-110 transition"
             title="Delete"
           >
@@ -758,7 +761,7 @@ if (!gstNumber.trim()) {
     return (
       <div className="bg-gray-100 flex flex-col justify-between w-full min-h-screen px-5 pt-2 md:pt-5 overflow-x-auto">
         <div>
-          <ToastContainer position="top-right" autoClose={3000} />
+          {/* <ToastContainer position="top-right" autoClose={3000} /> */}
           <Mobile_Sidebar />
           {/* Breadcrumbs */}
 
@@ -823,7 +826,7 @@ if (!gstNumber.trim()) {
                     className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                   <span className=" text-sm text-[#6B7280]">
-                    Entries per page
+                    Entries Per Page
                   </span>
                 </div>
 

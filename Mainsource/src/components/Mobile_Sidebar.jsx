@@ -24,7 +24,7 @@ import { MdLeaderboard } from "react-icons/md";
 import { FaWpforms } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import { RxActivityLog } from "react-icons/rx";
-
+import { TbReport } from "react-icons/tb";
 
 const Mobile_Sidebar = () => {
   let navigate = useNavigate();
@@ -260,13 +260,13 @@ const Mobile_Sidebar = () => {
                         >
                           Employees
                         </button>
-                         <button
+                         {/* <button
                           onClick={() => onClickSidebarMenu("/shift")}
                           className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
 
                         >
                           shifts
-                        </button>
+                        </button> */}
 
                       </div>
                     </div>
@@ -356,6 +356,16 @@ const Mobile_Sidebar = () => {
                       <FaWpforms />
                     </div>
                     <p>Job Form</p>
+                  </div>
+
+                  <div
+                    onClick={() => onClickSidebarMenu("dailywork-report")}
+                    className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
+                  >
+                    <div className="flex items-center justify-center h-5 w-5">
+                      <TbReport />
+                    </div>
+                    <p>Daily Work Report</p>
                   </div>
 
                   <div

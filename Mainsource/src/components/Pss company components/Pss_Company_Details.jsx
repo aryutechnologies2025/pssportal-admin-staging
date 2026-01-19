@@ -8,17 +8,14 @@ import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
-import Loader from "../Loader";
-// import axios from "../../api/axiosConfig";
-import { API_URL } from "../../Config";
-import axiosInstance from "../../axiosConfig.js";
+
 
 import { TfiPencilAlt } from "react-icons/tfi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import ReactDOM from "react-dom";
 import Swal from "sweetalert2";
-import Footer from "../Footer";
-import Mobile_Sidebar from "../Mobile_Sidebar";
+
+
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -32,49 +29,42 @@ import { FiSearch } from "react-icons/fi";
 import { FaEye } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io"
 import { set } from "zod";
+import axiosInstance from "../../axiosConfig";
+import { API_URL } from "../../Config";
+import Loader from "../Loader";
+import Mobile_Sidebar from "../Mobile_Sidebar";
+import Footer from "../Footer";
 
-const Roles_Mainbar = () => {
+const Pss_Company_Details = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [roles, setRoles] = useState([]);
+  const [pssCompany, setPssCompany] = useState([]);
+  
   const [loading, setLoading] = useState(true);
-  const [departments, setDepartments] = useState([]);
-  const [department, setDepartment] = useState("");
- const [pssCompany, setPssCompany] = useState(null); // selected value
-const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
+  
+  const [address, setAddress] = useState("");
 
   // Fetch roles from the API
 
   useEffect(() => {
-    fetchRoles();
+    fetchPssCompanies();
   }, []);
 
 
-  const validateDepartment = (value) => {
+  const validateCompanyName = (value) => {
     const newErrors = { ...errors };
     if (!value) {
-      newErrors.department = ["Department is required"];
+      newErrors.name = ["Company name is required"];
     } else {
-      delete newErrors.department;
+      delete newErrors.name;
     }
     setErrors(newErrors);
   };
 
-  const validatePssCompany = (value) => {
-    const newErrors = { ...errors };
-    if (!value) {
-      newErrors.pssCompany = ["PSS Company is required"];
-    } else {
-      delete newErrors.pssCompany;
-    }
-    setErrors(newErrors);
-  };
-
-  const [role_name, setRole_Name] = useState("");
-
+  const [company_Name, setCompany_Name] = useState("");
   const [status, setStatus] = useState("");
   const [errors, setErrors] = useState({});
-  console.log("....erors.... : ", errors);
+  
 
 
   //local storage 
@@ -86,7 +76,7 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   const userid = parsedDetails ? parsedDetails.id : null;
   // console.log("userid.... : ",userid)
 
-  const [editingRoleId, setEditingRoleId] = useState(null);
+  const [editingCompanyId, setEditingCompanyId] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [rows, setRows] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -97,7 +87,7 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
 
 const openViewModal = async (row) => {
   const response = await axiosInstance.get(
-    `${API_URL}api/role/edit/${row.id}`
+    `${API_URL}api/pss-company/edit/${row.id}`
   );
 
   if (response.data?.status) {
@@ -106,42 +96,29 @@ const openViewModal = async (row) => {
   }
 };
 
-
-  const fetchRoles = async () => {
+  const fetchPssCompanies = async () => {
     try {
-      const response = await axiosInstance.get(`${API_URL}api/role`);
+      const response = await axiosInstance.get(
+        `${API_URL}api/pss-company`
+    );
 
-      console.log("...RoleFetching All.... : ", response.data);
+    //   console.log("...CompanyFetching All.... : ", response.data);
 
-      if (response.data.status === true) {
-        // roles
-        setRoles(response.data.data || []);
+      if (response.data.success === true) {
+        // company
+        setPssCompany(response.data.data || []);
         setTotalRecords(response.data.data.length || 0);
 
-        // departments (from SAME API)
-        const activeDepartments = (response.data.departments || []).filter(
-          (dept) => dept.status === "1" || dept.status === 1
-        );
-
-        setDepartments(activeDepartments);
-          //  set pss company options
-      const pssCompanyOptions = response.data.psscompany.map((company) => ({
-        label: company.name,
-        value: company.id,
-      }));
-
-      setPssCompanyOptions(pssCompanyOptions);
+     
       } else {
-        setRoles([]);
-        setPssCompanyOptions([]);
-        setDepartments([]);
+        setPssCompany([]);
+        
         setTotalRecords(0);
       }
     } catch (err) {
       console.error("Failed to fetch roles", err);
-      setRoles([]);
-      setDepartments([]);
-      setPssCompanyOptions([]);
+      setPssCompany([]);
+     
       setTotalRecords(0);
     } finally {
       setLoading(false);
@@ -161,62 +138,55 @@ const openViewModal = async (row) => {
 
     setTimeout(() => {
       setIsAddModalOpen(false);
-      setRole_Name("");
-      setDepartment("");
-      setPssCompany("");
+      setCompany_Name("");
       setStatus("");
       setErrors({});
     }, 300);
   };
 
 
-  const [roleDetails, setRoleDetails] = useState({
-    role_name: "",
-    department_id: "",
-    company_id: "",
+  const [companyDetails, setCompanyDetails] = useState({
+    company_name: "",
+    address: "",
     status: "",
   });
 
 
-  const openEditModal = async (row) => {
+ 
+   const openEditModal = async (row) => {
 
     try{
-          setEditingRoleId(row.id);
+          setEditingCompanyId(row.id);
     setIsEditModalOpen(true);
     setIsAnimating(true);
 
     const response = await axiosInstance.get(
-      `${API_URL}api/role/edit/${row.id}`
+      `${API_URL}api/pss-company/edit/${row.id}`
     );
 
     if (response.data?.status === true) {
       const data = response.data.data;
 
-       setRoleDetails({
-      role_name: row.role_name,
-    department_id: row.department_id?.toString(),
-    company_id: row.company_id, 
-    status: row.status?.toString(),
+       setCompanyDetails({
+      company_name: row.name || "",
+      address: row.address || "",
+      status: row.status || "1",
     });
     }
     else{
-      toast.error("Failed to load role details"); 
+      toast.error("Failed To Load Company Details"); 
     }
   }catch(err){
       console.error("Edit fetch error:", err);
-      toast.error("Unable to fetch role details");
+      toast.error("Unable To Fetch Company Details");
     }
   };
-  //   setIsEditModalOpen(true);
-  //   setTimeout(() => setIsAnimating(true), 10);
-  // };
-
 
 
   const closeEditModal = () => {
     setIsAnimating(false);
-    setEditingRoleId(null);
-    setRoleDetails({ role_name: "", status: "", department_id: "" , pssCompany: ""});
+    setEditingCompanyId(null);
+    setCompanyDetails({ company_name: "",address: "", status: "" });
     setErrors({});
     setTimeout(() => setIsEditModalOpen(false), 250);
   };
@@ -226,16 +196,13 @@ const openViewModal = async (row) => {
   const validateCreateForm = () => {
     let newErrors = {};
 
-    if (!department) {
-      newErrors.department = ["Department is required"];
+
+    if (!company_Name || company_Name.trim() === "") {
+      newErrors.company_Name = ["Company name is required"];
     }
 
-    if (!pssCompany) {
-      newErrors.pssCompany = ["PSS Company is required"];
-    }
-
-    if (!role_name || role_name.trim() === "") {
-      newErrors.role_name = ["Role name is required"];
+    if (!address || address.trim() === "") {
+      newErrors.address = ["Address is required"];
     }
 
     if (status === "" || status === null) {
@@ -246,28 +213,25 @@ const openViewModal = async (row) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateEditForm = () => {
-    let newErrors = {};
+const validateEditForm = () => {
+  let newErrors = {};
 
-    if (!roleDetails.department_id) {
-      newErrors.department = ["Department is required"];
-    }
+  if (!companyDetails.company_name?.trim()) {
+    newErrors.company_name = ["Company name is required"];
+  }
 
-    if (!roleDetails.company_id) {
-      newErrors.pssCompany = ["PSS Company is required"];
-    }
+  if (!companyDetails.address?.trim()) {
+    newErrors.address = ["Address is required"];
+  }
 
-    if (!roleDetails.role_name || roleDetails.role_name.trim() === "") {
-      newErrors.role_name = ["Role name is required"];
-    }
+  if (companyDetails.status === "" || companyDetails.status === null) {
+    newErrors.status = ["Status is required"];
+  }
 
-    if (roleDetails.status === "" || roleDetails.status === null) {
-      newErrors.status = ["Status is required"];
-    }
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
 
 
@@ -286,28 +250,31 @@ const openViewModal = async (row) => {
 
     try {
       const formdata = {
-        company_id: pssCompany,
-        role_name,
+        name:company_Name.trim(),
+        address,
         status,
-        department_id: department,
         created_by: userid,
       };
 
       const response = await axiosInstance.post(
-        `${API_URL}api/role/create`,
+        `${API_URL}api/pss-company/create`,
         formdata
       );
 
+        console.log("Create Company Response:", response);
+
       if (response.data.status === true || response.data.success === true) {
-        toast.success("Role created successfully");
-        fetchRoles();
-        setDepartment("");
+        toast.success("company created successfully");
+        fetchPssCompanies();
+        setCompany_Name("");
+        setAddress("");
+        setStatus("");
         closeAddModal();
       } else {
-        toast.error("Failed to create role");
+        toast.error("Failed to create company");
       }
     } catch (err) {
-      toast.error("Error creating role");
+      toast.error("Error creating company");
     } finally {
       setSubmitting(false);
     }
@@ -320,48 +287,60 @@ const openViewModal = async (row) => {
       return;
     }
 
+   
+
     try {
       const response = await axiosInstance.post(
-        `${API_URL}api/role/update/${editingRoleId}`,
+        `${API_URL}api/pss-company/update/${editingCompanyId}`,
          {
-      role_name: roleDetails.role_name,
-      department_id: roleDetails.department_id,
-      company_id: roleDetails.company_id, 
-      status: roleDetails.status,
-      updated_by: userid,
-    }
+        name: companyDetails.company_name,
+        address: companyDetails.address,
+        status: companyDetails.status,
+        updated_by: userid,
+      }
       );
 
-      if (response.data.status || response.data.success) {
-        toast.success("Role updated successfully");
+      if ( response.data.success === true || response.data.status === true) {
+        toast.success("Company updated successfully");
         closeEditModal();
-        fetchRoles();
+        fetchPssCompanies();
       } else {
-        toast.error("Failed to update role");
+        toast.error(response.data.message ||"Failed to update company");
+        
       }
     } catch (err) {
-      toast.error("Error updating role");
+        
+      toast.error("Error updating company");
+      
     }
   };
 
 
 
-  // Validate Role Name dynamically
-  const MAX_ROLE_NAME_LENGTH = 255;
-  const validateRoleName = (value) => {
+  // Validate Company Name dynamically
+  const ValidateCompanyName = (value) => {
     const newErrors = { ...errors };
-    if (!value || value.trim() === "") {
-    newErrors.role_name = ["Role name is required"];
-  } else if (value.length > MAX_ROLE_NAME_LENGTH) {
-    newErrors.role_name = [
-      `Role name cannot exceed ${MAX_ROLE_NAME_LENGTH} characters`
-    ];
+    if (!value) {
+      newErrors.company_name = ["Company name is required"];
+    } else {
+      delete newErrors.company_name;
+    }
+    setErrors(newErrors);
+  };
+
+    // Validate Address dynamically
+   const validateAddress = (value) => {
+  const newErrors = { ...errors };
+
+  if (!value?.trim()) {
+    newErrors.address = ["Address is required"];
   } else {
-    delete newErrors.role_name;
+    delete newErrors.address;
   }
 
   setErrors(newErrors);
-  };
+};
+
 
   // Validate Status dynamically
   const validateStatus = (value) => {
@@ -375,57 +354,70 @@ const openViewModal = async (row) => {
   };
 
 
+  const deleteCompany = async (companyId) => {
+ 
 
+    if (!companyId) {
+    toast.error("Company ID missing");
+    return;
+  }
 
-
-  const deleteRoles = (roleId) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to delete this role?",
+   const result =  await Swal.fire({
+      title: "Are You Sure?",
+      text: "Do You Want To Delete This Company?",
       icon: "warning",
       showCancelButton: true,
 
       cancelButtonText: "Cancel",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes, Delete It!",
 
-      //    confirmButtonColor: "#DF3A3A", 
-      // cancelButtonColor: "#ffffff", 
-
-      // customClass: {
-      //   popup: "custom-swal-popup",
-      //   title: "custom-swal-title",
-      //   htmlContainer: "custom-swal-text",
-      //   confirmButton: "custom-swal-confirm",
-      //   cancelButton: "custom-swal-cancel",
-      //   icon: "custom-swal-icon"
-      // }
-    }).then((result) => {
-      if (result.isConfirmed) {
-
-        axiosInstance.delete(`${API_URL}api/role/delete`, {
+    
+   }).then(async (result) => {
+    if (result.isConfirmed) {
+        
+      try {
+        const response = await axiosInstance.delete(
+          `${API_URL}api/pss-company/delete`,{
           data: {
-            record_id: roleId
+            record_id: companyId
           }
         })
-          .then((response) => {
-            console.log("Delete response:", response.data);
-            if (response.data.status === true || response.data.success === true) {
-              toast.success("Role has been deleted.");
-              fetchRoles(); // Refresh the roles list
-
-            } else {
-              Swal.fire("Error!", response.data.message || "Failed to delete role.", "error");
-            }
-          })
-          .catch((error) => {
-            console.error("Error deleting role:", error);
-            Swal.fire("Error!", "Failed to delete role.", "error");
-          });
+        // console.log("Delete Response 👉", response);
+        if (response.data.success === true || response.data.status === true) {
+          toast.success("Company has been deleted");
+          fetchPssCompanies();
+        } else {
+          toast.error(response.data.message || "Delete failed");
+        }
+      } catch (err) {
+        toast.error("Failed to delete company");
+        // console.log("error....:...",err)
       }
-    });
-  };
+    }
+  });
+};
 
-
+const dummyCompanies = [
+  {
+    id: 1,
+    company_name: "Foxconn Honhai Technology India Pvt Ltd",
+    address: "Sriperumbudur, Chennai, Tamil Nadu",
+    status: 1,
+  },
+  {
+    id: 2,
+    company_name: "ABC Technology Solutions",
+    address: "Whitefield, Bengaluru, Karnataka",
+    status: 0,
+  },
+  {
+    id: 3,
+    company_name: "NextGen Automation Pvt Ltd",
+    address: "Hinjewadi Phase 2, Pune, Maharashtra",
+    status: 1,
+  },
+  
+];
 
 
   const columns = [
@@ -436,16 +428,22 @@ const openViewModal = async (row) => {
       fixed: true,
     },
     {
-      header: "Role Name",
-      field: "role_name",
-      // body: (row) => row.role_name,
+      header: "Company Name",
+      field: "name",
+  
       style: { textAlign: "center", fontWeight: "medium" },
     },
     {
-      header: "Department",
-      body: (row) => row.department?.department_name || "-",
-      style: { textAlign: "center", fontWeight: "medium" },
+        header: "Address",
+        field: "address",
+       
+        style: { textAlign: "center", fontWeight: "medium" },
     },
+    // {
+    //   header: "Department",
+    //   body: (row) => row.department?.department_name || "-",
+    //   style: { textAlign: "center", fontWeight: "medium" },
+    // },
     {
       field: "Status",
       header: "Status",
@@ -471,29 +469,34 @@ const openViewModal = async (row) => {
           <button
             onClick={() => {
               // setViewContact(row);
+              openViewModal(row);
               setViewModalOpen(true);
-              openViewModal(row)
             }}
-            className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
+            className="p-2 bg-blue-50 text-[#005AEF] rounded-[10px]  hover:bg-[#DFEBFF]"
           >
             <FaEye />
           </button>
 
-          <TfiPencilAlt
-            onClick={() => {
+<button
+onClick={() => {
 
               openEditModal(row);
 
             }}
-            className="text-[#1ea600] cursor-pointer hover:scale-110 transition"
-            title="Edit"
-          />
-
-          <RiDeleteBin6Line
-            onClick={() => deleteRoles(row.id)}
-            className="text-red-500 cursor-pointer hover:scale-110 transition"
-            title="Delete"
-          />
+            className="text-[#1d6bf2] p-2 rounded-[10px] bg-[#f0f6ff] border cursor-pointer hover:scale-110 transition"
+            title="Edit">
+<TfiPencilAlt/>
+</button>
+          
+<button onClick={() => {
+    
+    deleteCompany(row?.id);
+  }}
+           className="text-[#db2525] bg-[#fff0f0] p-2 rounded-[10px] border cursor-pointer hover:scale-110 transition"
+            title="Delete">
+<RiDeleteBin6Line/>
+</button>
+          
         </div>
       ),
       style: { textAlign: "center", fontWeight: "medium" },
@@ -502,7 +505,7 @@ const openViewModal = async (row) => {
 
   ];
 
-  console.log("columns", columns)
+//   console.log("columns", columns)
 
 
   let navigate = useNavigate();
@@ -525,11 +528,11 @@ const openViewModal = async (row) => {
                 Dashboard
               </p>
               <p>{">"}</p> */}
-              <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/employees")}>
-                Employee
+              <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/dashboard")}>
+                Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">Roles</p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">Pss Company</p>
             </div>
 
             {/* Add Button */}
@@ -560,10 +563,10 @@ px-2 py-2 md:px-6 md:py-6">
                       value={rows}
                       options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
                       onChange={(e) => setRows(e.value)}
-                      className="w-20"
+                      className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
 
-                    <span className=" text-sm text-[#6B7280]">Entries per page</span>
+                    <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
                   </div>
 
                   <div className="flex items-center gap-5">
@@ -589,14 +592,14 @@ px-2 py-2 md:px-6 md:py-6">
                       onClick={openAddModal}
                       className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
                     >
-                      Add Role
+                      Add Company
                     </button>
                   </div>
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
                     className="mt-8"
-                    value={roles}
+                    value={pssCompany}
                     paginator
                     rows={rows}
                     totalRecords={totalRecords}
@@ -636,50 +639,21 @@ px-2 py-2 md:px-6 md:py-6">
                   </div>
 
                   <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
-                    <p className="text-xl md:text-2xl ">Add Role</p>
+                    <p className="text-xl md:text-2xl ">Add Company</p>
 
-                          {/* Pss company */}
-
-                    <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
-
-  <div className="w-[50%]">
-    <Dropdown
-      value={pssCompany}
-      options={pssCompanyOptions}
-      onChange={(e) => {
-        setPssCompany(e.value);
-        validatePssCompany(e.value);
-      }}
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
-
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany[0]}
-      </p>
-    )}
-  </div>
-</div>
-
-                    <div className="mt-2 md:mt-8 flex justify-between items-center">
+                    {/* <div className="mt-2 md:mt-8 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Department <span className="text-red-500">*</span>
+                        Company Name <span className="text-red-500">*</span>
                       </label>
                       <div className="w-[50%]">
                         <select
-                          name="department"
-                          id="department"
-                          value={department}
+                          name="company_Name"
+                          id="company_Name"
+                          value={company_Name}
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           onChange={(e) => {
-                            setDepartment(e.target.value);
-                            validateDepartment(e.target.value);
+                            setCompany_Name(e.target.value);
+                            validateCompanyName(e.target.value);
                           }}
                         >
                           <option value="">Select Department</option>
@@ -698,30 +672,76 @@ px-2 py-2 md:px-6 md:py-6">
                         )}
 
                       </div>
-                    </div>
+                    </div> */}
 
 
 
-                    <div className="mt-2 md:mt-8 flex justify-between items-center">
+                    {/* <div className="mt-2 md:mt-8 flex justify-between items-center">
                       <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
-                        Role Name <span className="text-red-500">*</span>
+                        Company Name <span className="text-red-500">*</span>
                       </label>
                       <div className="w-[50%]">
                         <input
                           type="text"
-                          id="role_name"
-                          name="role_name"
-                          maxLength={255}
-                          value={role_name}
-                          placeholder="Enter Role Name"
+                          id="company_Name"
+                          name="company_Name"
+                          value={company_Name}
+                          placeholder="Enter Company Name"
                           onChange={(e) => {
-                            setRole_Name(e.target.value);
-                            validateRoleName(e.target.value);
+                            setCompany_Name(e.target.value);
+                            validateCompanyName(e.target.value);
                           }}
                           className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                         />
-                        {errors.role_name && (
-                          <p className="text-red-500 text-sm mb-4 mt-1">{errors.role_name[0]}</p>
+                        {errors.company_Name && (
+                          <p className="text-red-500 text-sm mb-4 mt-1">{errors.company_Name[0]}</p>
+                        )}
+                      </div>
+                    </div> */}
+
+                    <div className="mt-2 md:mt-8 flex justify-between items-center">
+                      <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
+                        Company Name <span className="text-red-500">*</span>
+                      </label>
+                      <div className="w-[50%]">
+                        <input
+                          type="text"
+                          id="company_Name"
+                          name="company_Name"
+                          value={company_Name}
+                          placeholder="Enter Company Name"
+                          onChange={(e) => {
+                            setCompany_Name(e.target.value);
+                            validateCompanyName(e.target.value);
+                          }}
+                          className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                        />
+                        {errors.company_Name && (
+                          <p className="text-red-500 text-sm mb-4 mt-1">{errors.company_Name[0]}</p>
+                        )}
+                      </div>
+                    </div>
+
+{/* Address */}
+                                        <div className="mt-2 md:mt-8 flex justify-between items-center">
+                      <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
+                        Address <span className="text-red-500">*</span>
+                      </label>
+                      <div className="w-[50%]">
+                        <input
+                          type="text"
+                          id="address"
+                          name="address"
+                          value={address}
+                          placeholder="Enter Address"
+                          onChange={(e) => {
+                            setAddress(e.target.value);
+                            validateAddress(e.target.value);
+                          }}
+                          className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                        />
+                        {errors.address && (
+                          <p className="text-red-500 text-sm mb-4 mt-1">{errors.address[0]}</p>
                         )}
                       </div>
                     </div>
@@ -741,7 +761,7 @@ px-2 py-2 md:px-6 md:py-6">
                           }}
                           className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                         >
-                          <option value="">Select A Status</option>
+                          <option value="">Select a status</option>
                           <option value="1">Active</option>
                           <option value="0">InActive</option>
                         </select>
@@ -777,44 +797,11 @@ px-2 py-2 md:px-6 md:py-6">
                   </div>
 
                   <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
-                    <p className="text-xl md:text-2xl ">Edit Role</p>
-
-    {/* Pss company */}
-
-                    <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
-
-  <div className="w-[50%]">
-    <Dropdown
-       value={roleDetails.company_id}
-      options={pssCompanyOptions}
-      onChange={(e) => {
-        setRoleDetails({
-          ...roleDetails,
-         company_id: e.value,
-        });
-        validatePssCompany(e.value);
-      }}
-     
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
-
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany[0]}
-      </p>
-    )}
-  </div>
-</div>
+                    <p className="text-xl md:text-2xl ">Edit Company</p>
 
                     <div className="mt-10">
                       <div className="bg-white rounded-xl w-full">
-                        <div className="mt-8 flex justify-between items-center">
+                        {/* <div className="mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2">
                             Department <span className="text-red-500">*</span>
                           </label>
@@ -847,34 +834,60 @@ px-2 py-2 md:px-6 md:py-6">
                               </p>
                             )}
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
-                            Role Name <span className="text-red-500">*</span>
+                            Company Name <span className="text-red-500">*</span>
                           </label>
                           <div className="w-[50%]">
                             <input
                               type="text"
-                              value={roleDetails.role_name}
-                              maxLength={255}
+                              value={companyDetails.company_name}
                               onChange={(e) => {
-                                setRoleDetails({
-                                  ...roleDetails,
-                                  role_name: e.target.value,
+                                setCompanyDetails({
+                                  ...companyDetails,
+                                  company_name: e.target.value,
                                 });
-                                validateRoleName(e.target.value);
+                                validateCompanyName(e.target.value);
                               }}
                               className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                             />
 
-                            {errors?.role_name && (
-                              <p className="text-red-500 text-sm mb-4">{errors?.role_name}</p>
+                            {errors?.company_name && (
+                              <p className="text-red-500 text-sm mb-4">{errors?.company_name}</p>
                             )}
                           </div>
                         </div>
 
+{/* address */}
+ <div className="mt-2 md:mt-8 flex justify-between items-center">
+                      <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
+                        Address <span className="text-red-500">*</span>
+                      </label>
+                      <div className="w-[50%]">
+                        <input
+                          type="text"
+                          id="address"
+                          name="address"
+                          value={companyDetails.address}
+                          placeholder="Enter Address"
+                          onChange={(e) => {
+    setCompanyDetails({
+      ...companyDetails,
+      address: e.target.value,
+    });
+    validateAddress(e.target.value);
+  }}
+                          className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                        />
+                        {errors.address && (
+                          <p className="text-red-500 text-sm mb-4 mt-1">{errors.address[0]}</p>
+                        )}
+                      </div>
+                    </div>
 
+{/* status */}
                         <div className="mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Status <span className="text-red-500">*</span>
@@ -883,10 +896,10 @@ px-2 py-2 md:px-6 md:py-6">
                             <select
                               name="status"
                               id="status"
-                              value={roleDetails.status}
+                              value={companyDetails.status}
                               onChange={(e) => {
-                                setRoleDetails({
-                                  ...roleDetails,
+                                setCompanyDetails({
+                                  ...companyDetails,
                                   status: e.target.value,
                                 });
                                 validateStatus(e.target.value);
@@ -908,7 +921,7 @@ px-2 py-2 md:px-6 md:py-6">
                             Cancel
                           </button>
                           <button onClick={handleSave}
-                            className="bg-[#1ea600] hover:bg-[#4BB452] hover:text-white border border-[#7C7C7C] text-base md:text-xl text-white px-4 md:px-5 py-2 font-medium rounded-[10px]">
+                            className="text-white bg-[#1ea600] hover:bg-[#4BB452] hover:text-white border border-[#7C7C7C] text-base md:text-xl  px-4 md:px-5 py-2 font-medium rounded-[10px]">
                             Update
                           </button>
                         </div>
@@ -933,20 +946,20 @@ px-2 py-2 md:px-6 md:py-6">
                   </button>
 
                   <h2 className="text-xl font-semibold mb-6 text-[#1ea600]">
-                    Role Details
+                    Company Details
                   </h2>
 
                   <div className="space-y-4 text-sm text-gray-700">
 
                     <div className="flex justify-between">
-                      <span className="font-medium">Role Name</span>
-                      <span>{viewContact.role_name || "-"}</span>
+                      <span className="font-medium">Company Name</span>
+                      <span>{viewContact.company_name || "-"}</span>
                     </div>
 
                     <div className="flex justify-between">
-                      <span className="font-medium">Department</span>
+                      <span className="font-medium">Address</span>
                       <span>
-                        {viewContact.department?.department_name || "-"}
+                        {viewContact.address || "-"}
                       </span>
                     </div>
 
@@ -980,4 +993,4 @@ px-2 py-2 md:px-6 md:py-6">
     </div >
   );
 };
-export default Roles_Mainbar;
+export default Pss_Company_Details;

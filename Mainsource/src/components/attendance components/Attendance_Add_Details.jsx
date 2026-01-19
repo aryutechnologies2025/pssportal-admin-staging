@@ -418,7 +418,7 @@ const Attendance_add_details = () => {
                     handleSelectAll("present");
                     setOpenDropdown(null);
                   }}
-                  className="px-4 py-2 bg-[#7C7C7C]  text-white hover:bg-[#9C9C9C] rounded-[10px] text-sm border-b cursor-pointer font-medium"
+                  className="px-2 py-2 bg-[#7C7C7C]  text-white hover:bg-[#9C9C9C] rounded-[10px] text-sm border-b cursor-pointer font-medium"
                 >
                   Select All
                 </div>
@@ -428,7 +428,7 @@ const Attendance_add_details = () => {
                     handleClear("present");
                     setOpenDropdown(null);
                   }}
-                  className="px-4 py-2 bg-[#7C7C7C]  text-white hover:bg-[#9C9C9C] rounded-[10px] text-sm cursor-pointer"
+                  className="px-4 py-2 bg-[#7C7C7C]  text-white hover:bg-[#9C9C9C] rounded-[10px] text-sm cursor-pointer font-medium"
                 >
                   Clear
                 </div>
@@ -480,7 +480,7 @@ const Attendance_add_details = () => {
                     handleClear("absent");
                     setOpenDropdown(null);
                   }}
-                  className="px-4 py-2 bg-[#7C7C7C]  text-white hover:bg-[#9C9C9C] rounded-[10px] text-sm cursor-pointer"
+                  className="px-4 py-2 bg-[#7C7C7C]  text-white hover:bg-[#9C9C9C] rounded-[10px] text-sm cursor-pointer font-medium"
                 >
                   Clear
                 </div>
@@ -498,11 +498,11 @@ const Attendance_add_details = () => {
               type="radio"
               id="present"
               name={`attend-${rowData.id}`}
-              className="w-4 h-4 accent-blue-600 cursor-pointer"
+              className="w-4 h-4 accent-green-600 cursor-pointer"
               checked={rowData.attendance === "present"}
               onChange={() => handleAttendanceChange(rowData.id, "present")}
             />
-            <label className="text-sm text-gray-600" htmlFor="present">Present</label>
+            <label className="text-sm text-gray-600" htmlFor={`present-${rowData.id}`}>Present</label>
           </div>
 
           {/* RADIO ABSENT */}
@@ -511,11 +511,11 @@ const Attendance_add_details = () => {
               type="radio"
               id="absent"
               name={`attend-${rowData.id}`}
-              className="w-4 h-4 accent-blue-600 cursor-pointer"
+              className="w-4 h-4 accent-green-600 cursor-pointer"
               checked={rowData.attendance === "absent"}
               onChange={() => handleAttendanceChange(rowData.id, "absent")}
             />
-            <label className="text-sm text-gray-600" htmlFor="absent">Absent</label>
+            <label className="text-sm text-gray-600" htmlFor={`absent-${rowData.id}`}>Absent</label>
           </div>
         </div>
       ),

@@ -25,11 +25,14 @@ import {
 import { FiSearch } from "react-icons/fi";
 import { FaEye } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io"
+import { ps } from "zod/v4/locales";
 
 const Department_Mainbar = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
+  const [pssCompany, setPssCompany] = useState(null); // selected value
+const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   const [loading, setLoading] = useState(false);
   const [departmentName, setDepartmentName] = useState("");
   const [status, setStatus] = useState("");
@@ -69,7 +72,20 @@ const Department_Mainbar = () => {
   useEffect(() => {
     fetchDepartments();
   }, []);
+
+
   // view
+  const openViewModal = async (row) => {
+  const response = await axiosInstance.get(
+    `${API_URL}api/department/edit/${row.id}`
+  );
+
+  if (response.data?.status) {
+    setViewContact(response.data.data);
+    setViewModalOpen(true);
+  }
+};
+
   const fetchDepartments = async () => {
     setLoading(true);
     try {
@@ -78,6 +94,13 @@ const Department_Mainbar = () => {
       if (response.data.status === true) {
         setDepartments(response.data.data);
         setTotalRecords(response.data.data.length);
+                      //  set pss company options
+      const pssCompanyOptions = response.data.psscompany.map((company) => ({
+        label: company.name,
+        value: company.id,
+      }));
+
+      setPssCompanyOptions(pssCompanyOptions);
       } else {
         setDepartments([]);
         setTotalRecords(0);
@@ -85,6 +108,7 @@ const Department_Mainbar = () => {
     } catch (err) {
       console.error(err);
       setDepartments([]);
+
       setTotalRecords(0);
     } finally {
       setLoading(false);
@@ -104,9 +128,11 @@ const Department_Mainbar = () => {
     setTimeout(() => {
       setIsAddModalOpen(false);
       setDepartmentName("");
+      setPssCompany("");
       setStatus("");
       setErrors({
         departmentName: "",
+        pssCompany: "",
         status: ""
       });
     }, 300);
@@ -114,20 +140,38 @@ const Department_Mainbar = () => {
 
   const [departmentDetails, setDepartmentDetails] = useState({
     departmentName: "",
+    company_id: "",
     status: "",
   });
 
-  const openEditModal = (id, department_name, status) => {
-    setEditingDeptId(id);
-
-    setDepartmentDetails({
-      departmentName: department_name, // backend field
-      status: String(status),           // convert to string for select
-    });
-
+ const openEditModal = async (row) => {
+  console.log("EDit Row...:...",row)
+  try {
+    setEditingDeptId(row.id);
     setIsEditModalOpen(true);
-    setTimeout(() => setIsAnimating(true), 10);
-  };
+    setIsAnimating(true);
+
+    const response = await axiosInstance.get(
+      `${API_URL}api/department/edit/${row.id}`
+    );
+
+    if (response.data?.status === true) {
+      const data = response.data.data;
+
+      setDepartmentDetails({
+        departmentName: data.department_name,
+        company_id: Number(data.company_id), 
+        status: data.status?.toString(),
+      });
+    } else {
+      toast.error("Failed to load department details");
+    }
+  } catch (error) {
+    console.error("Edit fetch error:", error);
+    toast.error("Unable to fetch department details");
+  }
+};
+
 
 
   const closeEditModal = () => {
@@ -140,9 +184,10 @@ const Department_Mainbar = () => {
   const handleCreateDepartment = async () => {
     let valid = true;
 
-    setErrors({ departmentName: "", status: "" });
+    setErrors({ departmentName: "", status: "", pssCompany: "" });
 
     if (!validateDepartmentName(departmentName)) valid = false;
+    if (!validatePssCompany(pssCompany)) valid = false;
 
     if (status === "") {
       setErrors((prev) => ({
@@ -161,10 +206,13 @@ const Department_Mainbar = () => {
         `${API_URL}api/department/create`,
         {
           department_name: departmentName.trim(),
+          company_id: pssCompany,
           status,
           created_by: userid,
         }
       );
+
+      console.log("Create Department Response:", response);
 
       if (response.data.status === true) {
         toast.success("Department created successfully");
@@ -208,6 +256,10 @@ const Department_Mainbar = () => {
       valid = false;
     }
 
+    if (!validatePssCompany(departmentDetails.company_id)) {
+      valid = false;
+    }
+
     if (departmentDetails.status === "") {
       setErrors((prev) => ({
         ...prev,
@@ -223,6 +275,7 @@ const Department_Mainbar = () => {
         `${API_URL}api/department/update/${editingDeptId}`,
         {
           department_name: departmentDetails.departmentName.trim(),
+          company_id: departmentDetails.company_id,
           status: (departmentDetails.status),
           updated_by: userid,
         }
@@ -276,6 +329,11 @@ const Department_Mainbar = () => {
     return error === "";
   };
 
+const validatePssCompany = (value) => {
+  const error = !value ? "PSS Company is required" : "";
+  setErrors(prev => ({ ...prev, pssCompany: error }));
+  return error === "";
+};
 
   const validateStatus = (value) => {
     setErrors(prev => ({
@@ -362,8 +420,9 @@ const Department_Mainbar = () => {
         <div className="flex justify-center gap-3">
           <button
             onClick={() => {
-              setViewContact(row);
+              // setViewContact(row);
               setViewModalOpen(true);
+              openViewModal(row)
             }}
             className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
           >
@@ -373,7 +432,7 @@ const Department_Mainbar = () => {
           <TfiPencilAlt
             onClick={() => {
 
-              openEditModal(row.id, row.department_name, row.status);
+              openEditModal(row);
 
             }}
             className="text-[#1ea600] cursor-pointer hover:scale-110 transition"
@@ -526,6 +585,36 @@ px-2 py-2 md:px-6 md:py-6">
                   <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl ">Add Department</p>
 
+                          {/* Pss company */}
+
+                    <div className="mt-2 md:mt-8 flex justify-between items-center">
+  <label className="block text-md font-medium mb-2">
+    Pss Company <span className="text-red-500">*</span>
+  </label>
+
+  <div className="w-[50%]">
+    <Dropdown
+      value={pssCompany}
+      options={pssCompanyOptions}
+      // optionLabel="name"
+      onChange={(e) => {
+        setPssCompany(e.value);
+        // validatePssCompany(e.value);
+      }}
+      placeholder="Select Pss Company"
+      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+      // showClear
+      filter
+    />
+
+    {errors.pssCompany && (
+      <p className="text-red-500 text-sm mt-1">
+        {errors.pssCompany}
+      </p>
+    )}
+  </div>
+</div>
+
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
                       <label htmlFor="roleName"
                         className="block text-md font-medium mb-2 mt-3">
@@ -587,7 +676,7 @@ px-2 py-2 md:px-6 md:py-6">
                       </button>
                       <button disabled={submitting}
                         onClick={handleCreateDepartment}
-                        className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200">
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200">
                         {submitting ? "Submitting..." : "Submit"}
                       </button>
                     </div>
@@ -608,6 +697,41 @@ px-2 py-2 md:px-6 md:py-6">
 
                   <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
                     <p className="text-xl md:text-2xl ">Edit Department</p>
+
+                          {/* Pss company */}
+
+                    <div className="mt-2 md:mt-8 flex justify-between items-center">
+  <label className="block text-md font-medium mb-2">
+    Pss Company <span className="text-red-500">*</span>
+  </label>
+
+  <div className="w-[50%]">
+    <Dropdown
+       value={departmentDetails.company_id}
+      options={pssCompanyOptions}
+       optionLabel="label"
+  optionValue="value"  
+      onChange={(e) => {
+        setDepartmentDetails({
+          ...departmentDetails,
+          company_id: e.value,
+        });
+        validatePssCompany(e.value);
+      }}
+     
+      placeholder="Select Pss Company"
+      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+      // showClear
+      filter
+    />
+
+    {errors.pssCompany && (
+      <p className="text-red-500 text-sm mt-1">
+        {errors.pssCompany}
+      </p>
+    )}
+  </div>
+</div>
 
                     <div className="mt-10">
                       <div className="bg-white rounded-xl w-full">
@@ -670,7 +794,7 @@ px-2 py-2 md:px-6 md:py-6">
                             Cancel
                           </button>
                           <button onClick={handleSave}
-                            className="hover:bg-[#1ea600] hover:text-white border border-[#7C7C7C] text-base md:text-xl text-[#7C7C7C] px-4 md:px-5 py-2 font-medium rounded-lg">
+                            className="bg-[#1ea600] hover:bg-[#4BB452] hover:text-white border border-[#7C7C7C] text-base md:text-xl text-white px-4 md:px-5 py-2 font-medium rounded-lg">
                             Update
                           </button>
                         </div>

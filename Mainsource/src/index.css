@@ -370,3 +370,8 @@ tbody {
 .react-datepicker-popper {
   z-index: 9999;
 }
+
+
+.Toastify__toast-container {
+  z-index: 2147483647 !important;
+}

@@ -1,7 +1,28 @@
 // UI DISPLAY → DD-MM-YYYY
+// export const formatToDDMMYYYY = (dateString) => {
+//   if (!dateString) return "-";
+
+//   const date = new Date(dateString);
+//   if (isNaN(date.getTime())) return "-";
+
+//   const day = String(date.getDate()).padStart(2, "0");
+//   const month = String(date.getMonth() + 1).padStart(2, "0");
+//   const year = date.getFullYear();
+
+//   return `${day}-${month}-${year}`;
+// };
+
 export const formatToDDMMYYYY = (dateString) => {
   if (!dateString) return "-";
 
+  // Case 1: DD/MM/YYYY
+  if (dateString.includes("/")) {
+    const [day, month, year] = dateString.split("/");
+    if (!day || !month || !year) return "-";
+    return `${day.padStart(2, "0")}-${month.padStart(2, "0")}-${year}`;
+  }
+
+  // Case 2: ISO or valid JS date
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "-";
 
@@ -11,6 +32,7 @@ export const formatToDDMMYYYY = (dateString) => {
 
   return `${day}-${month}-${year}`;
 };
+
 
 // BACKEND SEND → YYYY-MM-DD
 export const formatToYYYYMMDD = (date) => {

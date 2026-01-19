@@ -25,6 +25,9 @@ import axiosInstance from "../axiosConfig";
 import { API_URL } from "../Config";
 import { TbReportSearch } from "react-icons/tb";
 import { MdLeaderboard } from "react-icons/md";
+import { HiOutlineBuildingOffice } from "react-icons/hi2";
+import { BsBuildingUp } from "react-icons/bs";
+import { TbReport } from "react-icons/tb";
 
 
 
@@ -104,7 +107,7 @@ const Sidebar = () => {
       >
         <ToastContainer position="top-right" autoClose={3000} />
         <div
-          className={`fixed flex flex-col h-screen ${arrowClicked ? "w-[50px]" : "w-48"
+          className={`fixed flex flex-col h-screen ${arrowClicked ? "w-[60px]" : "w-48"
             }`}
         >
           {/* Toggle Button */}
@@ -183,6 +186,8 @@ const Sidebar = () => {
                       currentPath === "/permission" ||
                       currentPath === "/branches" ||
                       currentPath === "/shift" ||
+                      currentPath === "/psscompany" ||
+                      currentPath === "/pssdailyattendance" ||
                       currentPath === "/employees"
                       ? "bg-[#4BB452] text-white"
                       : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
@@ -195,7 +200,9 @@ const Sidebar = () => {
                       currentPath === "/permission" ||
                       currentPath === "/departments" ||
                       currentPath === "/branches" ||
+                      currentPath === "/psscompany" ||
                       currentPath === "/shift" ||
+                      currentPath === "/pssdailyattendance" ||
                       currentPath === "/employees"
                       ? "brightness-0 invert pointer-events-none"
                       : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
@@ -206,11 +213,13 @@ const Sidebar = () => {
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">PSS</span>
                       {currentOpen === "employee" ||
+                      currentPath === "/psscompany" ||
                         currentPath === "/roles" ||
                         currentPath === "/departments" ||
                         currentPath === "/permission" ||
                         currentPath === "/branches" ||
                         currentPath === "/shift" ||
+                        currentPath === "/pssdailyattendance" ||
                         currentPath === "/employees" ? (
                         <IoIosArrowUp />
                       ) : (
@@ -224,17 +233,35 @@ const Sidebar = () => {
                 {!arrowClicked && (
                   <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "employee" ||
+                      currentPath === "/psscompany" ||
                       currentPath === "/roles" ||
                       currentPath === "/departments" ||
                       currentPath === "/permission" ||
                       currentPath === "/employees" ||
                       currentPath === "/shift" ||
+                      currentPath === "/pssdailyattendance" ||
                       currentPath === "/branches"
                       ? "max-h-50 opacity-100 mt-1"
                       : "max-h-0 opacity-0"
                       }`}
                   >
                     <div className="flex gap-2  items-start  ms-8 flex-col text-sm font-medium text-gray-500">
+                      <button
+                        onClick={() => {
+                          navigate("/psscompany");
+                          if (currentOpen !== "employee") {
+                            setCurrentOpen("employee");
+                          }
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition 
+                          ${currentPath === "/psscompany"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                       Pss Company
+                      </button>
+
                       <button
                         onClick={() => {
                           navigate("/branches");
@@ -313,7 +340,26 @@ const Sidebar = () => {
                       >
                         Employees
                       </button>
-                      <button
+
+
+{/* daily work report */}
+<button
+                        onClick={() => {
+                          navigate("/pssdailyattendance");
+                          if (currentOpen !== "pssdailyattendance") {
+                            setCurrentOpen("dailywork-report");
+                          }
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition
+                          ${currentPath === "/pssdailyattendance"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Attendance
+                      </button>
+
+                      {/* <button
                         onClick={() => {
                           navigate("/shift");
                           if (currentOpen !== "employee") {
@@ -327,11 +373,31 @@ const Sidebar = () => {
                           }`}
                       >
                         shifts
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 )}
               </div>
+
+              {/* Pss company */}
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("psscompany")}
+                  className={`flex items-center w-full flex-grow
+    ${arrowClicked ? "justify-center" : "justify-normal"}
+    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+    ${currentPath === "/psscompany"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+                  <BsBuildingUp className="w-5 "/>
+
+                  {!arrowClicked && (
+                    <p className="text-sm font-medium">PSS Company</p>
+                  )}
+                </div>
+              </div> */}
 
               {/* Company  */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -360,6 +426,8 @@ const Sidebar = () => {
                   )}
                 </div>
               </div>
+
+
 
               {/* interview */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -644,7 +712,7 @@ const Sidebar = () => {
               </div>
 
               {/* attendance reports */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("reports")}
                   className={`flex items-center w-full flex-grow
@@ -655,14 +723,7 @@ const Sidebar = () => {
                       : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                     }`}
                 >
-                  {/* <img
-                    src={activity}
-                    alt="activity"
-                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/activity"
-                        ? "brightness-0 invert pointer-events-none"
-                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                      }`}
-                  /> */}
+                  
 
                   <TbReportSearch className="w-5" />
 
@@ -670,6 +731,27 @@ const Sidebar = () => {
 
                   {!arrowClicked && (
                     <p className="text-sm font-medium">Reports</p>
+                  )}
+                </div>
+              </div> */}
+
+              {/* daily work report */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("dailywork-report")}
+                  className={`flex items-center w-full flex-grow
+    ${arrowClicked ? "justify-center" : "justify-normal"}
+    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+    ${currentPath === "/dailywork-report"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+             
+                 <TbReport className='w-5' />
+
+                  {!arrowClicked && (
+                    <p className="text-sm font-medium">Daily Work Report</p>
                   )}
                 </div>
               </div>
@@ -694,6 +776,8 @@ const Sidebar = () => {
                   )}
                 </div>
               </div>
+
+              
 
 
             </div>

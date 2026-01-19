@@ -10,13 +10,13 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import Footer from "../Footer";
 import Mobile_Sidebar from "../Mobile_Sidebar";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { IoIosArrowForward } from "react-icons/io";
 import { FiSearch } from "react-icons/fi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import z from "zod";
+import z, { set, string } from "zod";
 import Swal from "sweetalert2";
 import { Capitalise } from "../../hooks/useCapitalise.jsx";
 import { FaEye } from "react-icons/fa6";
@@ -26,6 +26,9 @@ const Branch_Mainbar = () => {
   const [modalOpen, setIsModalOpen] = useState(false);
   const [branches, setBranches] = useState([]);
   const [branchEditData, setBranchEditData] = useState(null);
+  const [pssCompany, setPssCompany] = useState(null); // selected value
+const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
+
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   // const [page, setPage] = useState(1);
@@ -46,6 +49,10 @@ const Branch_Mainbar = () => {
       .string()
       .min(1, "Branch name is required")
       .max(100, "Branch name is too long"),
+      pssCompany: z
+      .string()
+      .min(1, "Pss Company is required")
+      .max(100, "Pss Company is too long"),
     address: z
       .string()
       .min(1, "Address is required")
@@ -76,12 +83,14 @@ const Branch_Mainbar = () => {
   // React Hook Form setup
   const {
     register,
+    setValue,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting: submitting },
   } = useForm({
     resolver: zodResolver(branchSchema),
     defaultValues: {
+      pssCompany: "",
       branch_name: "",
       address: "",
       city: "",
@@ -106,13 +115,27 @@ const Branch_Mainbar = () => {
       if (response.data.success === true) {
         setBranches(response.data.data);
         // setTotalRecords(response.data.data.length);
+
+              //  set pss company options
+      const pssCompanyOptions = response.data.psscompany.map((company) => ({
+        label: company.name,
+        value: company.id,
+      }));
+
+      setPssCompanyOptions(pssCompanyOptions);
+        
       } else {
         setBranches([]);
+        setPssCompanyOptions([]);
         // setTotalRecords(0);
       }
+
+ 
+
     } catch (err) {
       console.error(err);
       setBranches([]);
+      setPssCompanyOptions([]);
       //   setTotalRecords(0);
     } finally {
       setLoading(false);
@@ -127,7 +150,11 @@ const Branch_Mainbar = () => {
   const openModal = async (row) => {
     if (row) {
       setBranchEditData(row);
-      reset(row);
+      setPssCompany(row.company_id);
+      reset({
+        ...row,
+        pssCompany: String(row.company_id) 
+      });
       setIsModalOpen(true);
       setTimeout(() => setIsAnimating(true), 10);
     } else {
@@ -157,6 +184,7 @@ const Branch_Mainbar = () => {
   const onSubmit = async (data) => {
     try {
       const payload = {
+        company_id: Number(data.pssCompany),
         branch_name: data.branch_name.trim(),
         address: data.address.trim(),
         city: data.city.trim(),
@@ -235,12 +263,15 @@ const Branch_Mainbar = () => {
     }
   };
 
+  
+
   const columns = [
     {
       header: "S.No",
       body: (rowData, options) => options.rowIndex + 1,
       style: { textAlign: "center", width: "80px", fontWeight: "medium" },
     },
+ 
     {
       field: "city", 
       field: "branch_name",
@@ -369,7 +400,7 @@ const globalFields = columns
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
-                      Entries per page
+                      Entries Per Page
                     </span>
                   </div>
 
@@ -457,7 +488,40 @@ const globalFields = columns
                       {" "}
                       {branchEditData ? "Edit Branch" : "Add Branch"}
                     </p>
-                    <form onSubmit={handleSubmit(onSubmit)}>
+                    <form onSubmit={handleSubmit(onSubmit,(error)=>{
+                      console.log("Form Errors:",error)
+                    })}>
+
+                      {/* Pss company */}
+
+                    <div className="mt-2 md:mt-8 flex justify-between items-center">
+  <label className="block text-md font-medium mb-2">
+    Pss Company <span className="text-red-500">*</span>
+  </label>
+
+  <div className="w-[50%]">
+    <Dropdown
+      value={pssCompany}
+      options={pssCompanyOptions}
+      onChange={(e) => {
+        setPssCompany(e.value);
+        console.log(e.value);
+        setValue("pssCompany", String(e.value)); // Update RHF value
+      }}
+      placeholder="Select Pss Company"
+      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+     
+      filter
+    />
+
+    {errors.pssCompany && (
+      <p className="text-red-500 text-sm mt-1">
+        {errors.pssCompany.message}
+      </p>
+    )}
+  </div>
+</div>
+
                       {/* Address Field */}
                       <div className="mt-2 md:mt-8 flex justify-between items-center">
                         <label
@@ -632,7 +696,7 @@ const globalFields = columns
                         <button
                           type="submit"
                           disabled={submitting}
-                          className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                          className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         >
                           {submitting
                             ? "Submitting..."
