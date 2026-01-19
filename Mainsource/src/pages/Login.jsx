@@ -171,7 +171,7 @@ const inactiveClass = "hover:underline";
         <div className="flex items-center flex-wrap-reverse justify-center mt-20 md:mt-10 ">
           <div className="lg:basis-[50%] flex flex-col items-center justify-center gap-3">
             <p className="text-black font-semibold text-xl md:text-2xl">
-             ADMIN LOGIN
+             welcome to ADMIN LOGIN
             </p>
             
 
