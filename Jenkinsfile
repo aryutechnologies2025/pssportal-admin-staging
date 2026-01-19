@@ -11,7 +11,7 @@ pipeline {
         IMAGE_NAME = "staging_portal-ui"
         PORT = "3001"
         DEPLOY_PATH = "/var/www/staging/pssportal-admin"
-        SOURCE_PATH = "mainsource"
+        SOURCE_PATH = "Mainsource"
         HEALTH_URL = "http://127.0.0.1:3001"
         NODE_IMAGE = "node:18"
     }
@@ -32,7 +32,7 @@ pipeline {
         stage('Verify Source Structure') {
             steps {
                 sh '''
-                    echo "Checking mainsource exists..."
+                    echo "Checking Mainsource exists..."
                     test -d ${SOURCE_PATH} || (echo "ERROR: mainsource folder not found" && exit 1)
                     test -f ${SOURCE_PATH}/package.json || (echo "ERROR: package.json not found" && exit 1)
                 '''
