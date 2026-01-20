@@ -157,37 +157,56 @@ const Job_form_details = () => {
   const exportToCSV = async () => {
     try {
       //  fetch ALL data (no pagination)
-      const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
+      const response = await axiosInstance.get(`${API_URL}api/job-form/export`, {
         params: {
           from_date: filterStartDate || "",
           to_date: filterEndDate || "",
-          reference: selectedReference || "",
-          district: selectedDistrict || "",
-          gender: selectedGender || "",
-          limit: 10000, //  large number OR backend ignore pagination
-          page: 1,
-          export: true // optional (backend can use)
-        }
+          // reference: selectedReference || "",
+          // district: selectedDistrict || "",
+          // gender: selectedGender || "",
+          // limit: 10000, //  large number OR backend ignore pagination
+          // page: 1,
+          // export: true // optional (backend can use)
+        },
+        responseType: "blob", //  IMPORTANT
       });
 
-      if (!response.data.success) {
-        toast.error("Failed to export data");
-        return;
-      }
+       // Create downloadable file
+    const blob = new Blob([response.data], {
+      type: "text/csv;charset=utf-8;",
+    });
 
-      const listData = response.data.data;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `job_form_${filterStartDate}_${filterEndDate}.csv`;
+
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("CSV exported successfully");
+
+      // if (!response.data.success) {
+      //   toast.error("Failed to export data");
+      //   return;
+      // }
+
+      // const listData = response.data.data;
 
       //  Fetch remarks for each student
-      const allData = await Promise.all(
-        listData.map(async (item) => {
-          const remarks = await fetchRemarksById(item.id);
-          return {
-            ...item,
-            remarks,
-          };
-        })
-      );
-      generateCSV(allData);
+      // const allData = await Promise.all(
+      //   listData.map(async (item) => {
+      //     const remarks = await fetchRemarksById(item.id);
+      //     return {
+      //       ...item,
+      //       remarks,
+      //     };
+      //   })
+      // );
+      // generateCSV(allData);
     } catch (error) {
       console.error(error);
       toast.error("Error exporting CSV");
