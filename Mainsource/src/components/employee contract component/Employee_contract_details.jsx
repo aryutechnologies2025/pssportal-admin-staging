@@ -39,10 +39,10 @@ const Employee_contract_details = () => {
   const [error, setError] = useState(null);
   const [employeesList, setEmployeesList] = useState([]);
   const [backendValidationError, setBackendValidationError] = useState(null);
-  const user = localStorage.getItem("pssuser");
+  const user = JSON.parse(localStorage.getItem("pssuser") || "null");
 
-  const userId = JSON.parse(user).id;
-  const userRole = JSON.parse(user).role_id;
+  const userId = user?.id;
+  const userRole = user?.role_id;
 
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];
@@ -65,12 +65,12 @@ const Employee_contract_details = () => {
       esciNumber: z.string().min(1, "ESCI number is required"),
       status: z.string().min(1, "Status is required"),
       manual_value: z.string().optional(),
-       profile_picture: z.any().optional(), 
-  documents: z.array(z.any()).optional(),
+      profile_picture: z.any().optional(),
+      documents: z.array(z.any()).optional(),
     })
 
 
-const [employeeIds, setEmployeeIds] = useState([]);
+  const [employeeIds, setEmployeeIds] = useState([]);
 
   const {
     register,
@@ -102,10 +102,10 @@ const [employeeIds, setEmployeeIds] = useState([]);
 
     },
   });
-  
-useEffect(() => {
-  setValue("manual_value", employeeIds);
-}, [employeeIds, setValue]);
+
+  useEffect(() => {
+    setValue("manual_value", employeeIds);
+  }, [employeeIds, setValue]);
   const joined_date = watch("joinedDate");
   const company_name = watch("company");
 
@@ -130,7 +130,7 @@ useEffect(() => {
 
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
-  // console.log("companyEmpType", companyEmpType);
+  console.log("companyEmpType", companyEmpType);
 
   // Table states
   // const [page, setPage] = useState(1);
@@ -289,11 +289,12 @@ useEffect(() => {
       status: "",
       profile_picture: "",
       documents: [],
+      employee_id: "",
     };
     reset(mappedData);
     setPhoto(null);
-     setSelectedCompany(null);  
-  setDocuments([]);
+    setSelectedCompany(null);
+    setDocuments([]);
 
     setTimeout(() => {
       setIsModalOpen(false);
@@ -313,80 +314,80 @@ useEffect(() => {
   };
 
   const handlePhotoChange = (e) => {
-  const file = e.target.files[0];
-  
-  if (file) {
+    const file = e.target.files[0];
+
+    if (file) {
+      setPhoto(file);
+      setValue("profile_picture", file, { shouldValidate: true });
+    }
+  };
+
+  // image and document state handling
+  const [photo, setPhoto] = useState(null);
+  const [openCamera, setOpenCamera] = useState(false);
+  const [documents, setDocuments] = useState([]);
+
+  useEffect(() => {
+    register("profile_picture", { required: !editData });
+  }, [register, editData]);
+
+  const handleCameraCapture = (fileOrBlob) => {
+    let file = fileOrBlob;
+
+    // If camera gives Blob → convert to File
+    if (!(fileOrBlob instanceof File)) {
+      file = new File(
+        [fileOrBlob],
+        `camera-${Date.now()}.png`,
+        { type: fileOrBlob.type || "image/png" }
+      );
+    }
+
     setPhoto(file);
-    setValue("profile_picture", file,{ shouldValidate: true });
-  }
-};
-
-// image and document state handling
- const [photo, setPhoto] = useState(null);
-    const [openCamera, setOpenCamera] = useState(false);
-    const [documents, setDocuments] = useState([]);
-
-    useEffect(() => {
-      register("profile_picture", { required: !editData });
-    }, [register, editData]);
-    
-const handleCameraCapture = (fileOrBlob) => {
-  let file = fileOrBlob;
-
-  // If camera gives Blob → convert to File
-  if (!(fileOrBlob instanceof File)) {
-    file = new File(
-      [fileOrBlob],
-      `camera-${Date.now()}.png`, 
-      { type: fileOrBlob.type || "image/png" }
-    );
-  }
-
-  setPhoto(file);
-  setValue("profile_picture", file,{ shouldValidate: true });
-};
+    setValue("profile_picture", file, { shouldValidate: true });
+  };
 
 
 
-const handleDocumentChange = (e) => {
-  const files = Array.from(e.target.files);
+  const handleDocumentChange = (e) => {
+    const files = Array.from(e.target.files);
 
-  const updatedDocs = [...documents, ...files];
+    const updatedDocs = [...documents, ...files];
 
-  setDocuments(updatedDocs);
-  setValue("documents", updatedDocs);
-};
+    setDocuments(updatedDocs);
+    setValue("documents", updatedDocs);
+  };
 
-const removeDocument = (index) => {
-  const updatedDocs = documents.filter((_, i) => i !== index);
-  setDocuments(updatedDocs);
-  setValue("documents", updatedDocs);
-};
+  const removeDocument = (index) => {
+    const updatedDocs = documents.filter((_, i) => i !== index);
+    setDocuments(updatedDocs);
+    setValue("documents", updatedDocs);
+  };
   const handleView = async (row) => {
 
-  try {
-    const res = await axiosInstance.get(
-      `${API_URL}api/contract-employee/edit/${row.id}`
-    );
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/contract-employee/edit/${row.id}`
+      );
 
-    const normalizedDocs = normalizeDocuments(res.data.data);
-setViewRow({
-  ...res.data.data,
-  documents: normalizedDocs,
-});
+      const normalizedDocs = normalizeDocuments(res.data.data);
+      setViewRow({
+        ...res.data.data,
+        documents: normalizedDocs,
+      });
 
 
-    console.log("view res....:....", res);
-    console.log("view res....:....", res.data);
+      console.log("view res....:....", res);
+      console.log("view res....:....", res.data);
 
-    if (res.data.success) {
-      setViewRow(res.data.data); 
-      setIsViewModalOpen(true);
+      if (res.data.success) {
+        setViewRow(res.data.data);
+        setIsViewModalOpen(true);
+      }
+    } catch (err) {
+      console.error("View fetch failed", err);
     }
-  } catch (err) {
-    console.error("View fetch failed", err);
-  }
-};
+  };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
@@ -587,28 +588,28 @@ setViewRow({
   };
 
   const normalizeDocuments = (rowData) => {
-  if (rowData.document_groups?.length) {
-    return rowData.document_groups.flatMap(group =>
-      group.documents.map(doc => ({
+    if (rowData.document_groups?.length) {
+      return rowData.document_groups.flatMap(group =>
+        group.documents.map(doc => ({
+          id: doc.id,
+          original_name: doc.original_name,
+          document_path: doc.document_path,
+          existing: true,
+        }))
+      );
+    }
+
+    if (rowData.documents?.length) {
+      return rowData.documents.map(doc => ({
         id: doc.id,
         original_name: doc.original_name,
         document_path: doc.document_path,
         existing: true,
-      }))
-    );
-  }
+      }));
+    }
 
-  if (rowData.documents?.length) {
-    return rowData.documents.map(doc => ({
-      id: doc.id,
-      original_name: doc.original_name,
-      document_path: doc.document_path,
-      existing: true,
-    }));
-  }
-
-  return [];
-};
+    return [];
+  };
 
 
   const normalizeEditData = (row) => {
@@ -644,79 +645,79 @@ setViewRow({
             : "",
       // selectedJoiningDate: row.joining_date || "",
       // joinedDate: row.joined_date || "",
- profile_picture: row.profile_picture || "",
+      profile_picture: row.profile_picture || "",
       documents: row.documents || [],
     };
   };
 
 
   const openEditModal = async (row) => {
-    console.log("open edit row",row)
-   
+    console.log("open edit row", row)
+
     setIsModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
 
-     const response = await axiosInstance.get(
-    `/api/contract-employee/edit/${row.id}`
-  );
-   console.log("openeditmodal:",response.data);
+    const response = await axiosInstance.get(
+      `/api/contract-employee/edit/${row.id}`
+    );
+    console.log("openeditmodal:", response.data);
 
-  if (response.data.success) {
+    if (response.data.success) {
       const rowData = response.data.data; // Get fresh data from API
       const normalizedData = normalizeEditData(rowData);
-      
-      setEditData(normalizedData);
-      
 
-   if (normalizedData.profile_picture) {
+      setEditData(normalizedData);
+
+
+      if (normalizedData.profile_picture) {
         // If it's already a full URL, use it; otherwise, append base URL
-        const imageUrl = normalizedData.profile_picture.startsWith('http') 
-          ? normalizedData.profile_picture 
+        const imageUrl = normalizedData.profile_picture.startsWith('http')
+          ? normalizedData.profile_picture
           : `${API_URL}/${normalizedData.profile_picture}`;
         setPhoto(imageUrl);
-         setValue("profile_picture", normalizedData.profile_picture);
+        setValue("profile_picture", normalizedData.profile_picture);
         // setValue("profile_picture", null);
       } else {
         setPhoto(null);
       }
 
-  //     let normalizedDocs = [];
-  //   if (rowData.document_groups) {
-  //     normalizedDocs = rowData.document_groups.flatMap(group => 
-  //       group.documents.map(doc => ({
-  //         ...doc,
-  //         id: doc.id,
-  //         title: group.title,
-  //         existing: true // marker for your UI
-  //       }))
-  //     );
-  //   } else if (rowData.documents) {
-  //     normalizedDocs = rowData.documents.map(doc => ({
-  //   ...doc,
-  //   existing: true
-  // }));
-  //   }
+      //     let normalizedDocs = [];
+      //   if (rowData.document_groups) {
+      //     normalizedDocs = rowData.document_groups.flatMap(group => 
+      //       group.documents.map(doc => ({
+      //         ...doc,
+      //         id: doc.id,
+      //         title: group.title,
+      //         existing: true // marker for your UI
+      //       }))
+      //     );
+      //   } else if (rowData.documents) {
+      //     normalizedDocs = rowData.documents.map(doc => ({
+      //   ...doc,
+      //   existing: true
+      // }));
+      //   }
 
-  //   setDocuments(normalizedDocs); // Update local state for the file list UI
-  //   setValue("documents", normalizedDocs);
+      //   setDocuments(normalizedDocs); // Update local state for the file list UI
+      //   setValue("documents", normalizedDocs);
 
-  const normalizedDocs = normalizeDocuments(rowData);
-setDocuments(normalizedDocs);
-setValue("documents", normalizedDocs);
+      const normalizedDocs = normalizeDocuments(rowData);
+      setDocuments(normalizedDocs);
+      setValue("documents", normalizedDocs);
 
 
 
-   const selectedCompanyObj = companyDropdown.find(
-  c => c.value === String(normalizedData.company)
-);
+      const selectedCompanyObj = companyDropdown.find(
+        c => c.value === String(normalizedData.company)
+      );
 
-setSelectedCompany(selectedCompanyObj?.value || "");
+      setSelectedCompany(selectedCompanyObj?.value || "");
 
-    reset({
-      ...normalizedData,
-      company: String(normalizedData.company),
-    });
-  }
+      reset({
+        ...normalizedData,
+        company: String(normalizedData.company),
+      });
+    }
 
   };
 
@@ -784,13 +785,13 @@ setSelectedCompany(selectedCompanyObj?.value || "");
       );
 
       console.log("Success:", response.data.employee_id);
-       const generatedId = response.data.employee_id;
+      const generatedId = response.data.employee_id;
 
-    setEmployeeIds(generatedId);
+      setEmployeeIds(generatedId);
 
-     setValue("manual_value", generatedId, {
-      shouldValidate: true,
-    });
+      setValue("manual_value", generatedId, {
+        shouldValidate: true,
+      });
 
     } catch (error) {
       if (error.response) {
@@ -820,10 +821,10 @@ setSelectedCompany(selectedCompanyObj?.value || "");
 
     try {
       await axiosInstance.delete(`${API_URL}api/contract-employee/delete/${id}`);
-     
-     setTimeout(() => toast.success("Contract Candidates deleted successfully"),300)
-       await fetchContractCandidates();
-      
+
+      setTimeout(() => toast.success("Contract Candidates deleted successfully"), 300)
+      await fetchContractCandidates();
+
     } catch (error) {
       toast.error("Failed to delete Contract Candidates");
     }
@@ -918,14 +919,14 @@ setSelectedCompany(selectedCompanyObj?.value || "");
   // create
   const onSubmit = async (data) => {
     try {
-     console.log('Form data before submit:', {
-      profile_picture: data.profile_picture,
-      profile_image_type: typeof data.profile_picture,
-      isFile: data.profile_picture instanceof File,
-      documents: data.documents,
-      documents_length: data.documents?.length
-    });
-     const createCandidate = {
+      console.log('Form data before submit:', {
+        profile_picture: data.profile_picture,
+        profile_image_type: typeof data.profile_picture,
+        isFile: data.profile_picture instanceof File,
+        documents: data.documents,
+        documents_length: data.documents?.length
+      });
+      const createCandidate = {
         name: data.name,
         address: data.address || "test",
 
@@ -951,63 +952,63 @@ setSelectedCompany(selectedCompanyObj?.value || "");
       const formData = new FormData();
 
 
-Object.entries(createCandidate).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formData.append(
-          key,
-          typeof value === "object" ? JSON.stringify(value) : value
-        );
+      Object.entries(createCandidate).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : value
+          );
+        }
+      });
+
+      //  Profile image
+      if (data.profile_picture instanceof File) {
+        formData.append("profile_picture", data.profile_picture);
+      } else if (typeof data.profile_picture === "string") {
+
+        formData.append("existing_profile_picture", data.profile_picture);
       }
-    });
-
- //  Profile image
-    if (data.profile_picture instanceof File) {
-      formData.append("profile_picture", data.profile_picture);
-    }else if (typeof data.profile_picture === "string") {
-            
-            formData.append("existing_profile_picture", data.profile_picture);
-          }
-    
 
 
-// Documents (NEW FILES ONLY)
-      console.log("on submit doc",documents);
-      
-            if (documents && documents.length > 0) {
-              documents.forEach((doc,index) => {
-                if (doc instanceof File) {
-                  formData.append("documents[]", doc);
-                }else if (doc.id) {
-          
+
+      // Documents (NEW FILES ONLY)
+      console.log("on submit doc", documents);
+
+      if (documents && documents.length > 0) {
+        documents.forEach((doc, index) => {
+          if (doc instanceof File) {
+            formData.append("documents[]", doc);
+          } else if (doc.id) {
+
             // formData.append(`existing_document_ids[${index}]`, doc.id);
-             formData.append("existing_document_ids[]", doc.id);
+            formData.append("existing_document_ids[]", doc.id);
             // formData.append("documents[]", doc.id);
           }
-              });
-            }
+        });
+      }
 
-      console.log("Create candidate ,.... : .....",createCandidate)
+      console.log("Create candidate ,.... : .....", createCandidate)
       setLoading(true);
 
-       const url = editData
-      ? `/api/contract-employee/update/${editData.id}`
-      : `/api/contract-employee/create`;
+      const url = editData
+        ? `/api/contract-employee/update/${editData.id}`
+        : `/api/contract-employee/create`;
 
-    await axiosInstance.post(url, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+      await axiosInstance.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-     setTimeout(() => toast.success(editData ? "Updated Successfully" : "Created Successfully"),300)
-     fetchContractCandidates();
-    closeAddModal();
-    
+      setTimeout(() => toast.success(editData ? "Updated Successfully" : "Created Successfully"), 300)
+      fetchContractCandidates();
+      closeAddModal();
 
-  } catch (error) {
-    console.error(" Error creating candidate:", error);
-    toast.error("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
+
+    } catch (error) {
+      console.error(" Error creating candidate:", error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
 
   };
 
@@ -1281,7 +1282,7 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                       </label>
 
                       <div className="w-[60%] md:w-[50%]">
-                        <Dropdown
+                        {/* <Dropdown
                           value={selectedCompany}
                           onChange={(e) => setSelectedCompany(e.value)}
                           options={companyOptions}
@@ -1289,6 +1290,25 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                           placeholder="Select Company"
                           filter
                           className="w-full border border-gray-300 rounded-lg"
+                        /> */}
+                        <Dropdown
+                          value={selectedCompany}
+                          options={companyDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Company"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedCompany(e.value);
+                            const obj = companyDropdown.find(
+                              (item) => item.value === e.value
+                            );
+                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setValue("company", Number(e.value), {
+                              shouldValidate: true,
+                            });
+                          }}
                         />
                       </div>
                     </div>
@@ -1403,85 +1423,91 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                       </span>
                     )}
 
-                 {/* Upload Photo */}
-<div className="flex justify-end">
-  <div className="flex flex-col items-center gap-2">
+                    {/* Upload Photo */}
+                    <div className="flex justify-end">
+                      <div className="flex flex-col items-center gap-2">
 
-    <p className="font-medium">
-      {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
-    </p>
+                        <p className="font-medium">
+                          {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
+                        </p>
 
-    {/* Preview */}
-    <div className="relative">
-      {photo ? (
-        <img
-          src={photo instanceof File ? URL.createObjectURL(photo) : photo}
-          className="w-32 h-40 rounded-md object-cover border"
-        />
-      ) : (
-        <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
-          Upload
-        </div>
-      )}
-    </div>
+                        {/* Preview */}
+                        <div className="relative">
+                          {photo ? (
+                            <img
+                              src={photo instanceof File ? URL.createObjectURL(photo) : photo}
+                              className="w-32 h-40 rounded-md object-cover border"
+                            />
+                          ) : (
+                            <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
+                              Upload
+                            </div>
+                          )}
+                        </div>
 
-    {/* Buttons */}
-    <div className="flex gap-2">
-      <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
-        Upload
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handlePhotoChange}
-        />
-      </label>
+                        {/* Buttons */}
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
+                            Upload
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={handlePhotoChange}
+                            />
+                          </label>
 
-      <button
-        type="button"
-        onClick={() => setOpenCamera(true)}
-        className="bg-gray-200 px-3 py-1 rounded"
-      >
-        Camera
-      </button>
-    </div>
+                          <button
+                            type="button"
+                            onClick={() => setOpenCamera(true)}
+                            className="bg-gray-200 px-3 py-1 rounded"
+                          >
+                            Camera
+                          </button>
+                        </div>
 
-    {errors.profile_picture && (
-      <p className="text-red-500 text-sm">{errors.profile_picture.message}</p>
-    )}
-  </div>
-</div>
+                        {errors.profile_picture && (
+                          <p className="text-red-500 text-sm">{errors.profile_picture.message}</p>
+                        )}
+                      </div>
+                    </div>
 
-{openCamera && (
-  <CameraPhoto
-    onCapture={handleCameraCapture}
-    onClose={() => setOpenCamera(false)}
-  />
-)}
-                    
+                    {openCamera && (
+                      <CameraPhoto
+                        onCapture={handleCameraCapture}
+                        onClose={() => setOpenCamera(false)}
+                      />
+                    )}
 
-             
-                   {/* Company */}
+
+
+                    {/* Company */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
                         Company Name <span className="text-red-500">*</span>
                       </label>
 
                       <div className="w-[50%] md:w-[60%]">
-                        <Dropdown
+                         <Dropdown
                           value={selectedCompany}
                           options={companyDropdown}
                           optionLabel="label"
                           optionValue="value"
-                         
-                          onChange={(e) => {
-                            setSelectedCompany(e.value);
-                            setValue("company", String(e.value), { shouldValidate: true });
-                          }}
                           placeholder="Select Company"
                           filter
                           className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedCompany(e.value);
+                            const obj = companyDropdown.find(
+                              (item) => item.value === e.value
+                            );
+                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setValue("company", String(e.value), {
+                              shouldValidate: true,
+                            });
+                          }}
                         />
+                        
 
                         {errors.company && (
                           <p className="text-red-500 text-sm">
@@ -1660,7 +1686,7 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                       </div>
                     </div>
 
-                  
+
 
                     {/* joinedDate date */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1692,31 +1718,31 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                       </div>
                     </div>
 
-                 {companyEmpType && (
-  <div className="mt-5 flex justify-between items-center">
-    <label className="block text-md font-medium">
-      Employee Id <span className="text-red-500">*</span>
-    </label>
+                    {companyEmpType && (
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium">
+                          Employee Id <span className="text-red-500">*</span>
+                        </label>
 
-    <div className="w-[50%] md:w-[60%] rounded-lg">
-      <input
-        type="text"
-        {...register("manual_value")}
-        readOnly={companyEmpType === "automatic"}
-        placeholder={
-          companyEmpType === "manual"
-            ? "Enter Employee ID"
-            : "Enter Employee ID"
-        }
-        className={`w-full px-2 py-2 border rounded-[10px]
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            {...register("manual_value")}
+                            readOnly={companyEmpType === "automatic"}
+                            placeholder={
+                              companyEmpType === "manual"
+                                ? " Employee ID"
+                                : "Employee ID"
+                            }
+                            className={`w-full px-2 py-2 border rounded-[10px]
           ${companyEmpType === "automatic"
-            ? "bg-gray-100 cursor-not-allowed"
-            : "bg-white"
-          }`}
-      />
-    </div>
-  </div>
-)}
+                                ? "bg-gray-100 cursor-not-allowed"
+                                : "bg-white"
+                              }`}
+                          />
+                        </div>
+                      </div>
+                    )}
 
 
 
@@ -1832,53 +1858,53 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                       </div>
                     </div>
 
-{/* Documents */}
+                    {/* Documents */}
 
-<div className="mt-5 flex justify-between items-start">
-  <label className="block text-md font-medium">
-    Documents 
-    {/* <span className="text-red-500">*</span> */}
-  </label>
+                    <div className="mt-5 flex justify-between items-start">
+                      <label className="block text-md font-medium">
+                        Documents
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
 
-  <div className="w-[50%] md:w-[60%]">
-    {/* Upload button */}
-    <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded inline-block mb-2">
-      Select Documents
-      <input
-        type="file"
-        multiple
-        accept=".pdf,.jpg,.png"
-        hidden
-        onChange={handleDocumentChange}
-      />
-    </label>
+                      <div className="w-[50%] md:w-[60%]">
+                        {/* Upload button */}
+                        <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded inline-block mb-2">
+                          Select Documents
+                          <input
+                            type="file"
+                            multiple
+                            accept=".pdf,.jpg,.png"
+                            hidden
+                            onChange={handleDocumentChange}
+                          />
+                        </label>
 
-    {/* Selected documents list */}
-  
-<div className="mt-4 space-y-2">
-  {documents.map((doc, index) => (
-    <div key={index} className="flex justify-between items-center p-2 border rounded">
-      <span className="text-sm truncate">
-        {doc instanceof File ? doc.name : (doc.original_name || "Existing Document")}
-      </span>
-      <button
-        type="button"
-        onClick={() => removeDocument(index)}
-        className="text-red-500 font-bold px-2"
-      >
-        ×
-      </button>
-    </div>
-  ))}
-</div>
+                        {/* Selected documents list */}
 
-    {errors.documents && (
-      <p className="text-red-500 text-sm mt-1">
-        Documents are required
-      </p>
-    )}
-  </div>
-</div>
+                        <div className="mt-4 space-y-2">
+                          {documents.map((doc, index) => (
+                            <div key={index} className="flex justify-between items-center p-2 border rounded">
+                              <span className="text-sm truncate">
+                                {doc instanceof File ? doc.name : (doc.original_name || "Existing Document")}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeDocument(index)}
+                                className="text-red-500 font-bold px-2"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {errors.documents && (
+                          <p className="text-red-500 text-sm mt-1">
+                            Documents are required
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
 
                     {/* Button */}
@@ -1909,7 +1935,7 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                 <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative animate-fadeIn">
                   {/* Close Button */}
                   <button className="absolute top-4 right-12 text-gray-500 hover:text-green-500">
-                   <IoMdDownload size={28} />
+                    <IoMdDownload size={28} />
                   </button>
                   <button
                     onClick={closeViewModal}
@@ -1921,29 +1947,29 @@ Object.entries(createCandidate).forEach(([key, value]) => {
 
                   {/* Title and profile image */}
                   <div className="flex justify-between items-center mb-6 border-b pb-4">
-  <h2 className="text-xl font-semibold text-[#1ea600]">
-    Employee Details
-  </h2>
-  
-  {/* Profile Picture Display */}
-  <div className="flex flex-col items-center mr-16">
-    {viewRow.profile_picture ? (
-      <img
-         src={
-      viewRow.profile_picture.startsWith("http")
-        ? viewRow.profile_picture
-        : `${API_URL}${viewRow.profile_picture}`
-    }
-        alt="Profile"
-        className="w-24 h-28 rounded-md object-cover border-2 border-gray-200 shadow-sm"
-      />
-    ) : (
-      <div className="w-24 h-28 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
-        No Photo
-      </div>
-    )}
-  </div>
-</div>
+                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                      Employee Details
+                    </h2>
+
+                    {/* Profile Picture Display */}
+                    <div className="flex flex-col items-center mr-16">
+                      {viewRow.profile_picture ? (
+                        <img
+                          src={
+                            viewRow.profile_picture.startsWith("http")
+                              ? viewRow.profile_picture
+                              : `${API_URL}${viewRow.profile_picture}`
+                          }
+                          alt="Profile"
+                          className="w-24 h-28 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-24 h-28 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+                          No Photo
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   {/* Candidate Info */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <p>
@@ -1993,25 +2019,25 @@ Object.entries(createCandidate).forEach(([key, value]) => {
                       <b>Employee ID:</b> {viewRow.employee_id || "-"}
                     </p>
 
-                <div className="col-span-2 pt-4">
-  <b className="block mb-2 text-gray-700">Documents:</b>
-  {/* Check if documents is an array and has items */}
-  {viewRow.documents && viewRow.documents.length > 0 ? (
-    <div className="space-y-2">
-      {viewRow.documents.map((doc, index) => (
-        <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-          <span className="text-gray-600 truncate flex-1">
-            {doc.original_name || `Document ${index + 1}`}
-          </span>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
-              className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
-            >
-              View/Print
-            </button>
-            {/* <button
+                    <div className="col-span-2 pt-4">
+                      <b className="block mb-2 text-gray-700">Documents:</b>
+                      {/* Check if documents is an array and has items */}
+                      {viewRow.documents && viewRow.documents.length > 0 ? (
+                        <div className="space-y-2">
+                          {viewRow.documents.map((doc, index) => (
+                            <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                              <span className="text-gray-600 truncate flex-1">
+                                {doc.original_name || `Document ${index + 1}`}
+                              </span>
+
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+                                  className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+                                >
+                                  View/Print
+                                </button>
+                                {/* <button
     onClick={() =>
       window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
     }
@@ -2019,15 +2045,15 @@ Object.entries(createCandidate).forEach(([key, value]) => {
   >
     Download
   </button> */}
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-gray-500 italic">No documents uploaded.</p>
-  )}
-</div>
-                   
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 italic">No documents uploaded.</p>
+                      )}
+                    </div>
+
                   </div>
 
                 </div>

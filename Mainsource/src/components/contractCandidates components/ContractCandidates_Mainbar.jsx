@@ -44,10 +44,10 @@ const ContractCandidates_Mainbar = () => {
   const [employeeIds, setEmployeeIds] = useState([]);
    console.log("toast object .........:.......... ", toast);
 
-  const user = localStorage.getItem("pssuser");
+const user = JSON.parse(localStorage.getItem("pssuser") || "null");
 
-  const userId = JSON.parse(user).id;
-  const userRole = JSON.parse(user).role_id;
+const userId = user?.id;
+const userRole = user?.role_id;
 
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];

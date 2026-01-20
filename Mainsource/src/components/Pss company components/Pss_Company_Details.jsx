@@ -83,6 +83,33 @@ const Pss_Company_Details = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewContact, setViewContact] = useState(null);
+const [first, setFirst] = useState(0);
+  const onPageChange = (e) => {
+    setPage(e.first ); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (newRows) => {
+  const totalPages = Math.ceil(totalRecords / newRows);
+
+  const currentPage = Math.floor(first / rows) + 1;
+
+  // If current page exceeds new total pages → move to last page
+  const safePage = Math.min(currentPage, totalPages);
+
+  const newFirst = (safePage - 1) * newRows;
+
+  setRows(newRows);
+  setFirst(newFirst);
+};
+
+useEffect(() => {
+  if (first >= totalRecords && totalRecords > 0) {
+    const lastPageFirst = Math.max(totalRecords - rows, 0);
+    setFirst(lastPageFirst);
+  }
+}, [totalRecords]);
 
 
 const openViewModal = async (row) => {
@@ -192,14 +219,25 @@ const openViewModal = async (row) => {
   };
 
 
+  const isDuplicateCompany = (name) => {
+  return pssCompany.some(
+    (company) =>
+      company.name?.trim().toLowerCase() === name.trim().toLowerCase()
+  );
+};
+
 
   const validateCreateForm = () => {
     let newErrors = {};
 
+    const trimmedName = company_Name?.trim();
 
-    if (!company_Name || company_Name.trim() === "") {
-      newErrors.company_Name = ["Company name is required"];
-    }
+     if (!trimmedName) {
+    newErrors.company_Name = ["Company name is required"];
+  } else if (isDuplicateCompany(trimmedName)) {
+    newErrors.company_Name = ["Company name already exists"];
+  }
+
 
     if (!address || address.trim() === "") {
       newErrors.address = ["Address is required"];
@@ -213,11 +251,22 @@ const openViewModal = async (row) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const isDuplicateCompanyEdit = (name) => {
+  return pssCompany.some(
+    (company) =>
+      company.id !== editingCompanyId &&
+      company.name?.trim().toLowerCase() === name.trim().toLowerCase()
+  );
+};
+
 const validateEditForm = () => {
   let newErrors = {};
 
-  if (!companyDetails.company_name?.trim()) {
+  const trimmedName = companyDetails.company_name?.trim();
+ if (!trimmedName) {
     newErrors.company_name = ["Company name is required"];
+  } else if (isDuplicateCompanyEdit(trimmedName)) {
+    newErrors.company_name = ["Company name already exists"];
   }
 
   if (!companyDetails.address?.trim()) {
@@ -562,7 +611,7 @@ px-2 py-2 md:px-6 md:py-6">
                     <Dropdown
                       value={rows}
                       options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
 
@@ -602,6 +651,7 @@ px-2 py-2 md:px-6 md:py-6">
                     value={pssCompany}
                     paginator
                     rows={rows}
+                    onPage={onPageChange}
                     totalRecords={totalRecords}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
@@ -949,36 +999,45 @@ px-2 py-2 md:px-6 md:py-6">
                     Company Details
                   </h2>
 
-                  <div className="space-y-4 text-sm text-gray-700">
+                 <div className="space-y-4 text-sm">
 
-                    <div className="flex justify-between">
-                      <span className="font-medium">Company Name</span>
-                      <span>{viewContact.company_name || "-"}</span>
-                    </div>
+  <div className="flex gap-4">
+    <span className="w-32 font-medium text-gray-700">
+      Company Name
+    </span>
+    <span className="flex-1 text-gray-600 break-words">
+      {viewContact.name || "-"}
+    </span>
+  </div>
 
-                    <div className="flex justify-between">
-                      <span className="font-medium">Address</span>
-                      <span>
-                        {viewContact.address || "-"}
-                      </span>
-                    </div>
+  <div className="flex gap-4">
+    <span className="w-32 font-medium text-gray-700">
+      Address
+    </span>
+    <span className="flex-1 text-gray-600 break-words leading-relaxed">
+      {viewContact.address || "-"}
+    </span>
+  </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Status</span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold
-              ${viewContact.status === "0" || viewContact.status === 0
-                            ? "bg-red-100 text-red-600"
-                            : "bg-green-100 text-green-600"
-                          }`}
-                      >
-                        {viewContact.status === "0" || viewContact.status === 0
-                          ? "Inactive"
-                          : "Active"}
-                      </span>
-                    </div>
+  <div className="flex gap-4 items-center">
+    <span className="w-32 font-medium text-gray-700">
+      Status
+    </span>
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold
+        ${viewContact.status === "0" || viewContact.status === 0
+          ? "bg-red-100 text-red-600"
+          : "bg-green-100 text-green-600"
+        }`}
+    >
+      {viewContact.status === "0" || viewContact.status === 0
+        ? "Inactive"
+        : "Active"}
+    </span>
+  </div>
 
-                  </div>
+</div>
+
                 </div>
               </div>
             )}
