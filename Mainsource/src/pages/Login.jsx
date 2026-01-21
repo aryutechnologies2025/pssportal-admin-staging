@@ -1,4 +1,5 @@
 import login_image from "../assets/login_image.svg";
+import login_img_pss from "../assets/login_img_pss.png";
 import { SlLock } from "react-icons/sl";
 import { useNavigate } from "react-router-dom";
 import medics_logo from "../assets/medics_logo.svg";
@@ -251,7 +252,8 @@ const inactiveClass = "hover:underline";
           </div>
 
           <div className="basis-[50%]  ">
-            <img src={login_image} alt="" />
+            {/* <img src={login_image} alt="" /> */}
+            <img src={login_img_pss} alt="" />
           </div>
         </div>
       </div>

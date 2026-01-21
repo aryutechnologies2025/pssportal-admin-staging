@@ -167,7 +167,9 @@ education: z.string().optional(),
     watch,
     setValue,
     reset,
+    setErrors,
     formState: { errors },
+    
   } = useForm({
     resolver: zodResolver(candidateContractSchema),
     defaultValues: {
@@ -1167,12 +1169,39 @@ setLoading(true);
      closeAddModal();
    
 
-        
+        } 
+        catch (error) {
+          console.log("Backend error:", error.response?.data);
+  if (error.response?.data?.errors) {
+    const backendErrors = error.response.data.errors;
 
-        } catch (error) {
-          console.error(error);
-          toast.error("Something went wrong");
-        } finally {
+    if (backendErrors.aadhar_number) {
+      const msg = backendErrors.aadhar_number[0];
+      setErrors("aadhar", {
+        type: "server",
+        // message: backendErrors.aadhar_number[0],
+        message: msg,
+        shouldFocus: true,
+      });
+     setTimeout(() => toast.error(msg), 300);
+    }
+
+    if (backendErrors.phone_number) {
+       const msg = backendErrors.phone_number[0];
+      setErrors("phone", {
+        type: "server",
+        // message: backendErrors.phone_number[0],
+        message: msg,
+      });
+      toast.error(msg);
+    }
+  }
+  else {
+    toast.error(error.response?.data?.message || "Something went wrong");
+  }
+}
+
+        finally {
           setLoading(false);
         }
       //       if (editData) {
@@ -1710,7 +1739,8 @@ setLoading(true);
   <div className="flex flex-col items-center gap-2">
 
     <p className="font-medium">
-      {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
+      {photo ? "Change Photo" : "Upload Photo"} 
+      {/* <span className="text-red-500">*</span> */}
     </p>
 
     {/* Preview */}

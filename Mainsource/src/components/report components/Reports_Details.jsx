@@ -321,30 +321,30 @@ function Reports_Details() {
                   <span className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.total_working_days}</span>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                {/* <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Late Login</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.lateLogin}</p>
-                </div>
+                </div> */}
 
                 <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Present Days</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.present_days}</p>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
-                  <p className="text-sm md:text-base text-[#4A4A4A]">Last Thon & Hours</p>
+                {/* <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                  <p className="text-sm md:text-base text-[#4A4A4A]">Less Than 8 Hours</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.lateThonHours}</p>
-                </div>
+                </div> */}
 
                 <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Absent Days</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.absent_days}</p>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                {/* <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Holidays</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.holidays}</p>
-                </div>
+                </div> */}
               </div>
             </div>
 
