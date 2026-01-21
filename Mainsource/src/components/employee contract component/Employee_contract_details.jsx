@@ -60,6 +60,7 @@ const Employee_contract_details = () => {
       company: z.string().min(1, "Company is required"),
       joinedDate: z.string().min(1, "Joined date is required"),
       accountName: z.string().min(1, "Account name is required"),
+      accountNumber: z.string().min(1, "Account number is required"),
       ifsccode: z.string().min(1, "IFSC code is required"),
       uannumber: z.string().min(1, "UAN number is required"),
       esciNumber: z.string().min(1, "ESCI number is required"),
@@ -93,6 +94,7 @@ const Employee_contract_details = () => {
       gender: editData ? editData.gender : "",
       joinedDate: editData ? editData.joinedDate : "",
       accountName: editData ? editData.accountName : "",
+      accountNumber: editData ? editData.accountNumber : "",
       ifsccode: editData ? editData.ifsccode : "",
       uannumber: editData ? editData.uannumber : "",
       esciNumber: editData ? editData.esciNumber : "",
@@ -282,6 +284,7 @@ const Employee_contract_details = () => {
       dob: "",
       address: "",
       accountName: "",
+      accountNumber: "",
       ifsccode: "",
       uannumber: "",
       esciNumber: "",
@@ -628,6 +631,7 @@ const Employee_contract_details = () => {
       // companyLabel: row.company?.company_name || "",
       joinedDate: row.joining_date || "",
       accountName: row.acc_no || "",
+      accountNumber: row.account_number || "",
       ifsccode: row.ifsc_code || "",
       uannumber: row.uan_number || "",
       esciNumber: row.esic || "",
@@ -938,6 +942,7 @@ const Employee_contract_details = () => {
         company_id: Number(data.company),
         joining_date: formatDateToYMD(data.joinedDate),
         acc_no: data.accountName,
+        account_number: data.accountNumber,
         ifsc_code: data.ifsccode,
         uan_number: data.uannumber,
         esic: data.esciNumber,
@@ -1746,9 +1751,7 @@ const Employee_contract_details = () => {
 
 
 
-                    {/* account */}
-
-
+                    {/* account name */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Account Name <span className="text-red-500">*</span>
@@ -1763,6 +1766,26 @@ const Employee_contract_details = () => {
                         />
                         <span className="text-red-500 text-sm">
                           {errors.accountName?.message}
+                        </span>
+                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      </div>
+                    </div>
+
+                    {/* account number */}
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Account Number <span className="text-red-500">*</span>
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <input
+                          type="text"
+                          name="accountNumber"
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          {...register("accountNumber")}
+                          placeholder="Enter Account Number"
+                        />
+                        <span className="text-red-500 text-sm">
+                          {errors.accountNumber?.message}
                         </span>
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
@@ -1986,7 +2009,10 @@ const Employee_contract_details = () => {
                       <b>Aadhar:</b> {viewRow.aadhar_number || "-"}
                     </p>
                     <p>
-                      <b>Account No:</b> {viewRow.acc_no || "-"}
+                      <b>Account Name:</b> {viewRow.acc_no || "-"}
+                    </p>
+                    <p>
+                      <b>Account Number:</b> {viewRow.account_number || "-"}
                     </p>
                     <p>
                       <b>Address:</b> {viewRow.address || "-"}

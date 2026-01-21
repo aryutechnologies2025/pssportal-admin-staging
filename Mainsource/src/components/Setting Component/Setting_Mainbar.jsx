@@ -24,6 +24,7 @@ const Setting_Mainbar = () => {
         admin_email: "",
         gst_number: "",
         address: "",
+        date_format: "",
         created_by: "",
     });
 
@@ -45,6 +46,7 @@ const Setting_Mainbar = () => {
         formData.append("admin_email", settings.admin_email);
         formData.append("gst_number", settings.gst_number);
         formData.append("address", settings.address);
+        formData.append("date_format", settings.date_format);
         formData.append("created_by", String(userId));
         if (favicon instanceof File) formData.append("fav_icon", favicon);
         if (logo instanceof File) formData.append("site_logo", logo);
@@ -89,6 +91,7 @@ const Setting_Mainbar = () => {
                     admin_email: data.admin_email ?? "",
                     gst_number: data.gst_number ?? "",
                     address: data.address ?? "",
+                    date_format: data.date_format ?? "",
                     created_by: data.created_by ?? "",
                 });
 
@@ -113,13 +116,13 @@ const Setting_Mainbar = () => {
 
     return (
         <div className="flex  flex-col bg-gray-50  px-3 md:px-5 pt-2 w-full min-h-screen overflow-x-auto">
-            <ToastContainer
+            {/* <ToastContainer
                 position="top-right"
                 autoClose={3000}
                 newestOnTop
                 closeOnClick
                 pauseOnHover
-            />
+            /> */}
             {loading ? (
                 <Loader />
             ) : (
@@ -279,6 +282,48 @@ const Setting_Mainbar = () => {
                                         />
 
                                     </div>
+                                    {/* Date Format */}
+                                    <div className="flex flex-col gap-3 w-full md:w-[40%]">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Date Format
+                                        </label>
+
+                                        <div className="flex flex-col gap-2">
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="date_format"
+                                                    value="yyyy-mm-dd"
+                                                    checked={settings.date_format === "yyyy-mm-dd"}
+                                                    onChange={handleChange}
+                                                />
+                                                <span className="text-sm">YYYY-MM-DD</span>
+                                            </label>
+
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="date_format"
+                                                    value="mm-dd-yyyy"
+                                                    checked={settings.date_format === "mm-dd-yyyy"}
+                                                    onChange={handleChange}
+                                                />
+                                                <span className="text-sm">MM-DD-YYYY</span>
+                                            </label>
+
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="date_format"
+                                                    value="dd-mm-yyyy"
+                                                    checked={settings.date_format === "dd-mm-yyyy"}
+                                                    onChange={handleChange}
+                                                />
+                                                <span className="text-sm">DD-MM-YYYY</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <div className="flex justify-end items-center">
                                     <button
