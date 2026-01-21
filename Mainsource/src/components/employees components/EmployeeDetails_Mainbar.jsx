@@ -17,6 +17,7 @@ const EmployeeDetails_Mainbar = () => {
   const { id } = useParams();
 
   const [employeeData, setEmployeeData] = useState(null);
+  console.log("employeeData",employeeData)
   const [roles, setRoles] = useState([]);
 
   const [loading, setLoading] = useState(true);
@@ -111,6 +112,7 @@ const EmployeeDetails_Mainbar = () => {
 
                   <div className="flex flex-col  gap-3">
                     <p className="font-semibold text-2xl">{employeeData?.full_name || "-"}</p>
+                    <p className="font-semibold px-2 py-1 text-sm border rounded-full w-fit">ID:{employeeData?.gen_employee_id || "-"}</p>
                     <p className="bg-green-100  px-3 py-1 rounded-full w-fit">{roles?.find(role => role.id == employeeData?.role_id)?.role_name || "-"}</p>
                   </div>
                 </div>

@@ -49,6 +49,7 @@ const DailyWorkReport_Details = () => {
     const [viewMessage, setViewMessage] = useState(null);
     const [workReports, setWorkReports] = useState([]);
     const [employees, setEmployees] = useState([]);
+    console.log("employees", employees);
     const [allWorkReports, setAllWorkReports] = useState([]);
     const [dailyForm, setDailyForm] = useState({
         report_date: "",
@@ -70,31 +71,32 @@ const DailyWorkReport_Details = () => {
     const applyFilters = () => {
         let filtered = [...allWorkReports];
 
-        // 🔹 Start Date
+        // Start Date
         if (filters.from_date) {
             filtered = filtered.filter(item =>
                 new Date(item.report_date) >= new Date(filters.from_date)
             );
         }
 
-        // 🔹 End Date
+        // End Date
         if (filters.to_date) {
             filtered = filtered.filter(item =>
                 new Date(item.report_date) <= new Date(filters.to_date)
             );
         }
 
-        // 🔹 Employee
+        // Employee
         if (filters.employee_id) {
             filtered = filtered.filter(
-                item => item.employee?.gen_employee_id === filters.employee_id
+                item => item.employee?.id === filters.employee_id
             );
         }
+
 
         setWorkReports(filtered);
         setTotalRecords(filtered.length);
     };
-    
+
 
 
 
@@ -102,23 +104,19 @@ const DailyWorkReport_Details = () => {
     const fetchWorkReports = async () => {
         try {
             setLoading(true);
-            const res = await axiosInstance.get(`${API_URL}api/work-reports`);
-            const reports = res.data?.data || [];
 
-            setAllWorkReports(reports);   // 🔹 original data
-            setWorkReports(reports);      // 🔹 display data
+            const res = await axiosInstance.get(`${API_URL}api/work-reports`);
+
+            const reports = res.data?.data || [];
+            const employeeList = res.data?.employees || [];
+
+            // table data
+            setAllWorkReports(reports);
+            setWorkReports(reports);
             setTotalRecords(reports.length);
 
-            const empMap = new Map();
-            reports.forEach(item => {
-                if (item.employee) {
-                    empMap.set(item.employee.gen_employee_id, {
-                        gen_employee_id: item.employee.gen_employee_id,
-                        full_name: item.employee.full_name
-                    });
-                }
-            });
-            setEmployees(Array.from(empMap.values()));
+            //  dropdown data (ALL employees)
+            setEmployees(employeeList);
 
         } catch (err) {
             toast.error("Failed to fetch Daily work reports");
@@ -126,6 +124,7 @@ const DailyWorkReport_Details = () => {
             setLoading(false);
         }
     };
+
 
 
 
@@ -374,27 +373,22 @@ const DailyWorkReport_Details = () => {
                                 {/* employee (pss-emp) */}
                                 <div className="flex flex-col gap-1">
                                     <label className="text-sm font-medium text-[#6B7280]">Employee</label>
-                                    <select
-                                        className="h-10 px-3 rounded-md border"
+                                    <Dropdown
                                         value={filters.employee_id}
+                                        options={employees}
+                                        optionLabel="full_name"
+                                        optionValue="id"   // ✅ IMPORTANT
+                                        placeholder="Select Employee"
+                                        className="h-10 w-48 border"
                                         onChange={(e) =>
                                             setFilters(prev => ({
                                                 ...prev,
-                                                employee_id: e.target.value
+                                                employee_id: e.value
                                             }))
                                         }
-                                    >
-                                        <option value="">Select Employee</option>
+                                    />
 
-                                        {employees.map(emp => (
-                                            <option
-                                                key={emp.gen_employee_id}
-                                                value={emp.gen_employee_id}
-                                            >
-                                                {emp.full_name}
-                                            </option>
-                                        ))}
-                                    </select>
+
 
 
                                 </div>
