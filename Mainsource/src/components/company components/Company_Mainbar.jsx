@@ -51,7 +51,7 @@ const Company_Mainbar = () => {
     { name: "", role: "", phone_number: "" },
   ]);
   const [shifts, setShifts] = useState([
-    { shift_name: "", start_time: "", end_time: "" },
+    { company_shift_id: "", shift_name: "", start_time: "", end_time: "" },
   ]);
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("");
@@ -110,8 +110,8 @@ const Company_Mainbar = () => {
 
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
 
-const userId = user?.id;
-const userRole = user?.role_id;
+  const userId = user?.id;
+  const userRole = user?.role_id;
 
   // console.log("user", user);
 
@@ -446,93 +446,93 @@ const userRole = user?.role_id;
   };
 
   // create
-const handlesubmit = async (e) => {
-  e.preventDefault();
-  setErrors({});
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
 
-  const newErrors = {};
+    const newErrors = {};
 
-  //  Company Name
-  if (!companyName.trim())
-    newErrors.companyName = "Company Name is required";
-  else if (!validateCompanyName(companyName))
-    newErrors.companyName = "Enter a valid Company Name";
+    //  Company Name
+    if (!companyName.trim())
+      newErrors.companyName = "Company Name is required";
+    else if (!validateCompanyName(companyName))
+      newErrors.companyName = "Enter a valid Company Name";
 
-  //  Address
-  if (!address.trim())
-    newErrors.address = "Address is required";
-  else if (!validateAddress(address))
-    newErrors.address = "Enter a valid address";
+    //  Address
+    if (!address.trim())
+      newErrors.address = "Address is required";
+    else if (!validateAddress(address))
+      newErrors.address = "Enter a valid address";
 
-//  GST Number
-if (!gstNumber.trim()) {
-  newErrors.gstNumber = "GST Number is required";
-} else if (!validateGST(gstNumber)) {
-  newErrors.gstNumber = "Enter a valid GST number";
-}
-
-  //  Support Email
-  if (!supportEmail.trim())
-    newErrors.supportEmail = "Support Email is required";
-  else if (!validateEmail(supportEmail))
-    newErrors.supportEmail = "Enter a valid email";
-
-  //  Billing Email
-  if (!billingEmail.trim())
-    newErrors.billingEmail = "Billing Email is required";
-  else if (!validateEmail(billingEmail))
-    newErrors.billingEmail = "Enter a valid billing email";
-
-  //  Stop if errors exist
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
-
-  //  CREATE COMPANY (unchanged)
-  try {
-    const response = await axiosInstance.post(
-      `${API_URL}api/company/create`,
-      {
-        company_name: companyName.trim(),
-        address: address.trim(),
-        gst_number: gstNumber.trim(),
-        website_url: website?.trim() || null,
-        phone_number: phone.trim(),
-        support_email: supportEmail.trim(),
-        billing_email: billingEmail.trim(),
-
-        contact_details: contacts || [],
-        shiftdetails: shifts || [],
-
-        notes: notes?.trim() || "",
-        status: status ? Number(status) : 1,
-        created_by: userId,
-        role_id: userRole,
-        company_emp_id: mode || null,
-        prefix: automaticName || null,
-      }
-    );
-
-    if (
-      response.status === 200 ||
-      response.data?.status === true ||
-      response.data?.success === true
-    ) {
-      toast.success("Company created successfully");
-      fetchCompanies();
-      resetForm();
-      closeAddModal();
-    } else {
-      toast.error(response.data?.message || "Failed to create company");
+    //  GST Number
+    if (!gstNumber.trim()) {
+      newErrors.gstNumber = "GST Number is required";
+    } else if (!validateGST(gstNumber)) {
+      newErrors.gstNumber = "Enter a valid GST number";
     }
-  } catch (error) {
-    console.error("Error adding company:", error);
-    toast.error(
-      error.response?.data?.message || "Server error. Company not created."
-    );
-  }
-};
+
+    //  Support Email
+    if (!supportEmail.trim())
+      newErrors.supportEmail = "Support Email is required";
+    else if (!validateEmail(supportEmail))
+      newErrors.supportEmail = "Enter a valid email";
+
+    //  Billing Email
+    if (!billingEmail.trim())
+      newErrors.billingEmail = "Billing Email is required";
+    else if (!validateEmail(billingEmail))
+      newErrors.billingEmail = "Enter a valid billing email";
+
+    //  Stop if errors exist
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    //  CREATE COMPANY (unchanged)
+    try {
+      const response = await axiosInstance.post(
+        `${API_URL}api/company/create`,
+        {
+          company_name: companyName.trim(),
+          address: address.trim(),
+          gst_number: gstNumber.trim(),
+          website_url: website?.trim() || null,
+          phone_number: phone.trim(),
+          support_email: supportEmail.trim(),
+          billing_email: billingEmail.trim(),
+
+          contact_details: contacts || [],
+          shiftdetails: shifts || [],
+
+          notes: notes?.trim() || "",
+          status: status ? Number(status) : 1,
+          created_by: userId,
+          role_id: userRole,
+          company_emp_id: mode || null,
+          prefix: automaticName || null,
+        }
+      );
+
+      if (
+        response.status === 200 ||
+        response.data?.status === true ||
+        response.data?.success === true
+      ) {
+        toast.success("Company created successfully");
+        fetchCompanies();
+        resetForm();
+        closeAddModal();
+      } else {
+        toast.error(response.data?.message || "Failed to create company");
+      }
+    } catch (error) {
+      console.error("Error adding company:", error);
+      toast.error(
+        error.response?.data?.message || "Server error. Company not created."
+      );
+    }
+  };
 
 
   //edit contacts
@@ -572,7 +572,7 @@ if (!gstNumber.trim()) {
       ...editFormData,
       shifts: [
         ...editFormData.shifts,
-        { shift_name: "", start_time: "", end_time: "" },
+        { company_shift_id: "", shift_name: "", start_time: "", end_time: "" },
       ],
     });
   };
@@ -712,10 +712,9 @@ if (!gstNumber.trim()) {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -758,1444 +757,1465 @@ if (!gstNumber.trim()) {
     },
   ];
 
-    return (
-      <div className="bg-gray-100 flex flex-col justify-between w-full min-h-screen px-5 pt-2 md:pt-5 overflow-x-auto">
-        <div>
-          {/* <ToastContainer position="top-right" autoClose={3000} /> */}
-          <Mobile_Sidebar />
-          {/* Breadcrumbs */}
+  return (
+    <div className="bg-gray-100 flex flex-col justify-between w-full min-h-screen px-5 pt-2 md:pt-5 overflow-x-auto">
+      <div>
+        {/* <ToastContainer position="top-right" autoClose={3000} /> */}
+        <Mobile_Sidebar />
+        {/* Breadcrumbs */}
 
-          <div className="flex gap-2 items-center cursor-pointer">
-            <p
-              className="text-sm md:text-md text-gray-500  cursor-pointer"
-              onClick={() => navigate("/dashboard")}
+        <div className="flex gap-2 items-center cursor-pointer">
+          <p
+            className="text-sm md:text-md text-gray-500  cursor-pointer"
+            onClick={() => navigate("/dashboard")}
+          >
+            Dashboard
+          </p>
+          <p>{">"}</p>
+
+          <p className="text-sm  md:text-md  text-[#1ea600]">Company</p>
+        </div>
+
+        {/* filter */}
+        <div className="flex flex-wrap justify-between w-full mt-1 md:mt-5 h-auto gap-2 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)]  px-2 py-2 md:px-6 md:py-6 ">
+          <div className="flex gap-1 items-center">
+            <label className="text-sm font-medium text-[#6B7280]">Status</label>
+            <Dropdown
+              value={filterStatus}
+              options={statusOptions}
+              onChange={(e) => setFilterStatus(e.value)}
+              placeholder="Select Status "
+              className="w-fit border border-gray-300  text-[#7C7C7C] text-sm rounded-md placeholder:text-gray-400"
+            />
+          </div>
+          {/* Buttons */}
+          <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
+            <button
+              onClick={handleApplyFilter}
+              className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
             >
-              Dashboard
-            </p>
-            <p>{">"}</p>
-
-            <p className="text-sm  md:text-md  text-[#1ea600]">Company</p>
+              Apply
+            </button>
+            <button
+              onClick={handleResetFilter}
+              className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
+            >
+              Reset
+            </button>
           </div>
+        </div>
 
-          {/* filter */}
-          <div className="flex flex-wrap justify-between w-full mt-1 md:mt-5 h-auto gap-2 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)]  px-2 py-2 md:px-6 md:py-6 ">
-            <div className="flex gap-1 items-center">
-              <label className="text-sm font-medium text-[#6B7280]">Status</label>
-              <Dropdown
-                value={filterStatus}
-                options={statusOptions}
-                onChange={(e) => setFilterStatus(e.value)}
-                placeholder="Select Status "
-                className="w-fit border border-gray-300  text-[#7C7C7C] text-sm rounded-md placeholder:text-gray-400"
-              />
-            </div>
-            {/* Buttons */}
-            <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
-              <button
-                onClick={handleApplyFilter}
-                className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
-              >
-                Apply
-              </button>
-              <button
-                onClick={handleResetFilter}
-                className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-
-          <div
-            className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
+        <div
+          className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
   shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
   px-2 py-2 md:px-6 md:py-6"
-          >
-            <div className="datatable-container">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                {/* Entries per page */}
-                <div className="flex items-center gap-2">
-                  {/* <span className="font-semibold text-base text-[#6B7280]">Show</span> */}
-                  <Dropdown
-                    value={rows}
-                    options={[10, 25, 50, 100].map((v) => ({
-                      label: v,
-                      value: v,
-                    }))}
-                    onChange={(e) => setRows(e.value)}
-                    className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                  />
-                  <span className=" text-sm text-[#6B7280]">
-                    Entries Per Page
-                  </span>
-                </div>
-
-                <div className="flex flex-col md:flex-row flex-wrap items-center gap-5">
-                  {/* Search box */}
-                  <div className="relative w-64">
-                    <FiSearch
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                      size={18}
-                    />
-
-                    <InputText
-                      value={globalFilter}
-                      onChange={(e) => setGlobalFilter(e.target.value)}
-                      placeholder="Search......"
-                      className="w-full pl-10 pr-3 py-2 rounded-md border border-[#D9D9D9] 
-                          focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                    />
-                  </div>
-
-                  <button
-                    onClick={openAddModal}
-                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
-                  >
-                    Add Company
-                  </button>
-                </div>
+        >
+          <div className="datatable-container">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+              {/* Entries per page */}
+              <div className="flex items-center gap-2">
+                {/* <span className="font-semibold text-base text-[#6B7280]">Show</span> */}
+                <Dropdown
+                  value={rows}
+                  options={[10, 25, 50, 100].map((v) => ({
+                    label: v,
+                    value: v,
+                  }))}
+                  onChange={(e) => setRows(e.value)}
+                  className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                />
+                <span className=" text-sm text-[#6B7280]">
+                  Entries Per Page
+                </span>
               </div>
-              {/* Responsive wrapper for the table */}
-              <div className="table-scroll-container">
-                <DataTable
-                  className="mt-8"
-                  value={companies}
-                  dataKey="id"
-                  paginator
-                  rows={rows}
-                  rowsPerPageOptions={[10, 25, 50, 100]}
-                  globalFilter={globalFilter}
-                  globalFilterFields={[
-                    "companyName",
-                    "website",
-                    "supportEmail",
-                    "billingEmail",
-                  ]}
-                  showGridlines
-                  resizableColumns
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+
+              <div className="flex flex-col md:flex-row flex-wrap items-center gap-5">
+                {/* Search box */}
+                <div className="relative w-64">
+                  <FiSearch
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    size={18}
+                  />
+
+                  <InputText
+                    value={globalFilter}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    placeholder="Search......"
+                    className="w-full pl-10 pr-3 py-2 rounded-md border border-[#D9D9D9] 
+                          focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                </div>
+
+                <button
+                  onClick={openAddModal}
+                  className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
                 >
-                  {/* Render only selected columns */}
-                  {columns.map((col, index) => (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={col.body}
-                      style={col.style}
-                    />
-                  ))}
-                </DataTable>
+                  Add Company
+                </button>
               </div>
             </div>
-          </div>
-
-          {/* Add Modal */}
-          {isAddModalOpen && (
-            <div className="fixed inset-0 bg-black/10 backdrop-blur-sm  bg-opacity-50 z-50">
-              {/* Overlay */}
-              <div className="absolute inset-0 " onClick={closeAddModal}></div>
-
-              <div
-                className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out
-                      ${isAnimating ? "translate-x-0" : "translate-x-full"}`}
+            {/* Responsive wrapper for the table */}
+            <div className="table-scroll-container">
+              <DataTable
+                className="mt-8"
+                value={companies}
+                dataKey="id"
+                paginator
+                rows={rows}
+                rowsPerPageOptions={[10, 25, 50, 100]}
+                globalFilter={globalFilter}
+                globalFilterFields={[
+                  "companyName",
+                  "website",
+                  "supportEmail",
+                  "billingEmail",
+                ]}
+                showGridlines
+                resizableColumns
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
               >
-                <div
-                  className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
-                  title="Toggle Sidebar"
-                  onClick={closeAddModal}
-                >
-                  <IoIosArrowForward className="w-3 h-3" />
+                {/* Render only selected columns */}
+                {columns.map((col, index) => (
+                  <Column
+                    key={index}
+                    field={col.field}
+                    header={col.header}
+                    body={col.body}
+                    style={col.style}
+                  />
+                ))}
+              </DataTable>
+            </div>
+          </div>
+        </div>
+
+        {/* Add Modal */}
+        {isAddModalOpen && (
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm  bg-opacity-50 z-50">
+            {/* Overlay */}
+            <div className="absolute inset-0 " onClick={closeAddModal}></div>
+
+            <div
+              className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out
+                      ${isAnimating ? "translate-x-0" : "translate-x-full"}`}
+            >
+              <div
+                className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
+                title="Toggle Sidebar"
+                onClick={closeAddModal}
+              >
+                <IoIosArrowForward className="w-3 h-3" />
+              </div>
+
+              <div className="p-2 md:p-5">
+                <p className="text-xl md:text-2xl">Company</p>
+
+                {/* company name */}
+                <div className="mt-5 flex  justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Company Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
+                    <input
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => {
+                        setCompanyName(e.target.value);
+                        clearError("companyName");
+                      }}
+                      placeholder="Enter Company Name"
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors?.companyName && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors?.companyName}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="p-2 md:p-5">
-                  <p className="text-xl md:text-2xl">Company</p>
+                {/* id generted */}
 
-                  {/* company name */}
-                  <div className="mt-5 flex  justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Company Name <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
-                      <input
-                        type="text"
-                        value={companyName}
-                        onChange={(e) => {
-                          setCompanyName(e.target.value);
-                          clearError("companyName");
-                        }}
-                        placeholder="Enter Company Name"
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors?.companyName && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors?.companyName}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                <div className="mt-5 flex  justify-between items-center">
+                  {/* Radio buttons to select mode */}
 
-                  {/* id generted */}
-
-                  <div className="mt-5 flex  justify-between items-center">
-                    {/* Radio buttons to select mode */}
-
-                    <label className="block text-md font-medium mb-2">
-                      Employee ID Generation{" "}
-                      {/* <span className="text-red-500">*</span> */}
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
-                      <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="mode"
-                            value="manual"
-                            checked={mode === "manual"}
-                            onChange={() => {
-                              setMode("manual");
-                              clearError("mode");
-                            }}
-                            className="w-4 h-4 accent-green-600 cursor-pointer"
-                          />
-                          Manual
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="mode"
-                            value="automatic"
-                            checked={mode === "automatic"}
-                            onChange={() => {
-                              setMode("automatic");
-                              clearError("mode");
-                            }}
-                            className="w-4 h-4 cursor-pointer"
-                          />
-                          Automatic
-                        </label>
-                      </div>
-                      {errors.mode && (
-                        <p className="text-red-500 text-sm mb-4">{errors.mode}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* prefix */}
-                  {mode === "automatic" && (
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Prefix <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                  <label className="block text-md font-medium mb-2">
+                    Employee ID Generation{" "}
+                    {/* <span className="text-red-500">*</span> */}
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
                         <input
-                          type="text"
-                          value={automaticName}
-                          onChange={(e) => {
-                            setAutomaticName(e.target.value);
-                            clearError("automaticName");
+                          type="radio"
+                          name="mode"
+                          value="manual"
+                          checked={mode === "manual"}
+                          onChange={() => {
+                            setMode("manual");
+                            clearError("mode");
                           }}
-                          placeholder="Enter Prefix"
-                          className="w-[100%] px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          className="w-4 h-4 accent-green-600 cursor-pointer"
                         />
-
-                        {errors.automaticName && (
-                          <p className="text-red-500 text-sm mb-4">
-                            {errors.automaticName}
-                          </p>
-                        )}
-                      </div>
+                        Manual
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="mode"
+                          value="automatic"
+                          checked={mode === "automatic"}
+                          onChange={() => {
+                            setMode("automatic");
+                            clearError("mode");
+                          }}
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                        Automatic
+                      </label>
                     </div>
-                  )}
-
-                  {/* address */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Address <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <textarea
-                        type="address"
-                        value={address}
-                        id="address"
-                        rows="4"
-                        onChange={(e) => {
-                          setAddress(e.target.value);
-                          clearError("address");
-                        }}
-                        placeholder="Enter Your Address "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.address && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.address}
-                        </p>
-                      )}
-                    </div>
+                    {errors.mode && (
+                      <p className="text-red-500 text-sm mb-4">{errors.mode}</p>
+                    )}
                   </div>
+                </div>
 
-                  {/* gst number */}
+                {/* prefix */}
+                {mode === "automatic" && (
                   <div className="mt-5 flex justify-between items-center">
                     <label className="block text-md font-medium mb-2">
-                      GST Number <span className="text-red-500">*</span>
+                      Prefix <span className="text-red-500">*</span>
                     </label>
                     <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                       <input
                         type="text"
-                        value={gstNumber}
+                        value={automaticName}
                         onChange={(e) => {
-                          setGstNumber(e.target.value);
-                          // clearError("gstNumber");
+                          setAutomaticName(e.target.value);
+                          clearError("automaticName");
                         }}
-                        placeholder="Enter Your GST Number "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                        placeholder="Enter Prefix"
+                        className="w-[100%] px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
-                      {errors.gstNumber && (
+
+                      {errors.automaticName && (
                         <p className="text-red-500 text-sm mb-4">
-                          {errors.gstNumber}
+                          {errors.automaticName}
                         </p>
                       )}
                     </div>
                   </div>
+                )}
 
-                  {/* website */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Website 
-                      {/* <span className="text-red-500">*</span> */}
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="text"
-                        value={website}
-                        onChange={(e) => {
-                          setWebsite(e.target.value);
-                          clearError("website");
-                        }}
-                        placeholder="Enter Your Website "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.website && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.website}
-                        </p>
-                      )}
-                    </div>
+                {/* address */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <textarea
+                      type="address"
+                      value={address}
+                      id="address"
+                      rows="4"
+                      onChange={(e) => {
+                        setAddress(e.target.value);
+                        clearError("address");
+                      }}
+                      placeholder="Enter Your Address "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.address && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.address}
+                      </p>
+                    )}
                   </div>
+                </div>
 
-                  {/* phone */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Phone 
-                      {/* <span className="text-red-500">*</span> */}
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="text"
-                        value={phone}
-                        // onChange={(e) => setPhone(e.target.value)}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, ""); // digits only
-                          if (value.length <= 10) {
-                            setPhone(value);
-                            clearError("phone");
-                          }
-                        }}
-                        maxLength={10}
-                        placeholder="Enter Your Phone "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {/* {errors.phone && (
+                {/* gst number */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    GST Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      value={gstNumber}
+                      onChange={(e) => {
+                        setGstNumber(e.target.value);
+                        // clearError("gstNumber");
+                      }}
+                      placeholder="Enter Your GST Number "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.gstNumber && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.gstNumber}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* website */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Website
+                    {/* <span className="text-red-500">*</span> */}
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      value={website}
+                      onChange={(e) => {
+                        setWebsite(e.target.value);
+                        clearError("website");
+                      }}
+                      placeholder="Enter Your Website "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.website && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.website}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* phone */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Phone
+                    {/* <span className="text-red-500">*</span> */}
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      value={phone}
+                      // onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ""); // digits only
+                        if (value.length <= 10) {
+                          setPhone(value);
+                          clearError("phone");
+                        }
+                      }}
+                      maxLength={10}
+                      placeholder="Enter Your Phone "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {/* {errors.phone && (
                         <p className="text-red-500 text-sm mb-4">
                           {errors.phone}
                         </p>
                       )} */}
-                    </div>
                   </div>
+                </div>
 
-                  {/* support email */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Support Email <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="email"
-                        value={supportEmail}
-                        onChange={(e) => {
-                          setSupportEmail(e.target.value);
-                          if (errors.supportEmail) {
-                            setErrors((prev) => ({ ...prev, supportEmail: "" }));
-                          }
-                        }}
-                        placeholder="Enter Your Support Email "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.supportEmail && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.supportEmail}
-                        </p>
-                      )}
-                    </div>
+                {/* support email */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Support Email <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="email"
+                      value={supportEmail}
+                      onChange={(e) => {
+                        setSupportEmail(e.target.value);
+                        if (errors.supportEmail) {
+                          setErrors((prev) => ({ ...prev, supportEmail: "" }));
+                        }
+                      }}
+                      placeholder="Enter Your Support Email "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.supportEmail && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.supportEmail}
+                      </p>
+                    )}
                   </div>
+                </div>
 
-                  {/* billing email */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Billing Email <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="email"
-                        value={billingEmail}
-                        onChange={(e) => {
-                          setBillingEmail(e.target.value);
-                          if (errors.billingEmail) {
-                            setErrors((prev) => ({ ...prev, billingEmail: "" }));
-                          }
-                        }}
-                        placeholder="Enter Your Billing Email "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.billingEmail && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.billingEmail}
-                        </p>
-                      )}
-                    </div>
+                {/* billing email */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Billing Email <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="email"
+                      value={billingEmail}
+                      onChange={(e) => {
+                        setBillingEmail(e.target.value);
+                        if (errors.billingEmail) {
+                          setErrors((prev) => ({ ...prev, billingEmail: "" }));
+                        }
+                      }}
+                      placeholder="Enter Your Billing Email "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.billingEmail && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.billingEmail}
+                      </p>
+                    )}
                   </div>
+                </div>
 
-                  {/* notes */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Notes
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <textarea
-                        type="text"
-                        value={notes}
-                        name="notes"
-                        id=" notes"
-                        rows="4"
-                        onChange={(e) => {
-                          setNotes(e.target.value);
-                          // clearError("notes");
-                        }}
-                        placeholder="Enter Your Notes "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {/* {errors.notes && (
+                {/* notes */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Notes
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <textarea
+                      type="text"
+                      value={notes}
+                      name="notes"
+                      id=" notes"
+                      rows="4"
+                      onChange={(e) => {
+                        setNotes(e.target.value);
+                        // clearError("notes");
+                      }}
+                      placeholder="Enter Your Notes "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {/* {errors.notes && (
                         <p className="text-red-500 text-sm mb-4">
                           {errors.notes}
                         </p>
                       )} */}
-                    </div>
                   </div>
+                </div>
 
-                  {/* status */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <div className="">
-                      <label
-                        htmlFor="status"
-                        className="block text-md font-medium mb-2 mt-3"
-                      >
-                        Status
-                         {/* <span className="text-red-500">*</span> */}
-                      </label>
-                    </div>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <select
-                        name="status"
-                        id="status"
-                        onChange={(e) => {
-                          setStatus(e.target.value);
-                          clearError("status");
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 text-[#4A4A4A] text-base font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      >
-                        <option value="">Select a status</option>
-                        <option value="1">Active</option>
-                        <option value="0">InActive</option>
-                      </select>
-                      {/* {errors.status && (
+                {/* status */}
+                <div className="mt-5 flex justify-between items-center">
+                  <div className="">
+                    <label
+                      htmlFor="status"
+                      className="block text-md font-medium mb-2 mt-3"
+                    >
+                      Status
+                      {/* <span className="text-red-500">*</span> */}
+                    </label>
+                  </div>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <select
+                      name="status"
+                      id="status"
+                      onChange={(e) => {
+                        setStatus(e.target.value);
+                        clearError("status");
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 text-[#4A4A4A] text-base font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    >
+                      <option value="">Select a status</option>
+                      <option value="1">Active</option>
+                      <option value="0">InActive</option>
+                    </select>
+                    {/* {errors.status && (
                         <p className="text-red-500 text-sm mb-4 mt-1">
                           {errors.status}
                         </p>
                       )} */}
-                    </div>
-                  </div>
-
-                  {/* contacts */}
-                  <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg md:text-xl font-semibold">
-                        Company Contacts
-                      </p>
-                      <IoAddCircleSharp
-                        className="text-[#1ea600] text-3xl cursor-pointer"
-                        onClick={addCompanyContact}
-                      />
-                    </div>
-                    <div className="mt-4">
-                      <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
-                        <span className="">Name</span>
-                        <span>Role</span>
-                        <span>Phone No</span>
-                      </div>
-
-                      {contacts.map((item, index) => (
-                        <div
-                          key={index}
-                          className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-                        >
-                          {/* Remove */}
-                          {index > 0 && (
-                            <IoIosCloseCircle
-                              className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-                              onClick={() => removeCompanyContact(index)}
-                            />
-                          )}
-                          {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
-
-                          {/* Full Name */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">FULL NAME</label> */}
-
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="text"
-                                placeholder="Contact Name"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.name}
-                                onChange={(e) =>
-                                  updateCompanyContact(
-                                    index,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {errors.companyContacts?.[index]?.name && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyContacts[index].name}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Role */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">Role</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="text"
-                                placeholder="Role Name"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.role}
-                                onChange={(e) =>
-                                  updateCompanyContact(
-                                    index,
-                                    "role",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {errors.companyContacts?.[index]?.role && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyContacts[index].role}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Phone */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">CONTACT</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="number"
-                                placeholder="Phone Number"
-                                value={item.phone_number}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/\D/g, ""); //
-                                  if (value.length <= 10) {
-                                    updateCompanyContact(
-                                      index,
-                                      "phone_number",
-                                      value
-                                    );
-                                  }
-                                }}
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                              />
-                              {errors.companyContacts?.[index]?.phone && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyContacts[index].phone}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Remove */}
-                          {/* {index > 0 && (
-                            <button
-                              className="text-red-500 text-sm underline col-span-3"
-                              onClick={() => removeCompanyContact(index)}
-                            >
-                              Remove Contact
-                            </button>
-                          )} */}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Add More */}
-                    {/* <button
-                      onClick={addCompanyContact}
-                      className="mt-4 bg-[#1ea600] hover:bg-green-700 font-medium text-white px-4 py-2 rounded-lg"
-                    >
-                      + Add Contact
-                    </button> */}
-                  </div>
-
-                  {/* shift allocation */}
-                  <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg md:text-xl font-semibold">
-                        shift Allocation
-                      </p>
-                      <IoAddCircleSharp
-                        className="text-[#1ea600] text-3xl cursor-pointer"
-                        onClick={addShifts}
-                      />
-                    </div>
-                    <div className="mt-4">
-                      <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
-                        <span className="">Shift Name</span>
-                        <span>Start Time</span>
-                        <span>End Time</span>
-                      </div>
-
-                      {shifts.map((item, index) => (
-                        <div
-                          key={index}
-                          className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-                        >
-                          {/* Remove */}
-                          {index > 0 && (
-                            <IoIosCloseCircle
-                              className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-                              onClick={() => removeshifts(index)}
-                            />
-                          )}
-                          {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
-
-                          {/* Shift Name */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">FULL NAME</label> */}
-
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="text"
-                                placeholder="Shift Name"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.name}
-                                onChange={(e) =>
-                                  updateShifts(
-                                    index,
-                                    "shift_name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {errors.companyShifts?.[index]?.shift_name && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyShifts[index].shift_name}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Start Time */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">Role</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="Time"
-                                placeholder="Start Time"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.start_time}
-                                onChange={(e) =>
-                                  updateShifts(
-                                    index,
-                                    "start_time",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {errors.companyShifts?.[index]?.start_time && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyShifts[index].start_time}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* End Time */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">CONTACT</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="Time"
-                                placeholder="End Time"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.end_time}
-                                onChange={(e) =>
-                                  updateShifts(index, "end_time", e.target.value)
-                                }
-                              />
-                              {errors.companyShifts?.[index]?.end_time && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyShifts[index].end_time}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Remove */}
-                          {/* {index > 0 && (
-                            <button
-                              className="text-red-500 text-sm underline col-span-3"
-                              onClick={() => removeCompanyContact(index)}
-                            >
-                              Remove Contact
-                            </button>
-                          )} */}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Add More */}
-                    {/* <button
-                      onClick={addCompanyContact}
-                      className="mt-4 bg-[#1ea600] hover:bg-green-700 font-medium text-white px-4 py-2 rounded-lg"
-                    >
-                      + Add Contact
-                    </button> */}
-                  </div>
-
-                  <div className="flex  justify-end gap-2 mt-6 md:mt-14">
-                    <button
-                      onClick={closeAddModal}
-                      className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                      onClick={handlesubmit}
-                    >
-                      Submit
-                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-          {/* Edit Modal */}
-          {isEditModalOpen && (
-            <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
-              {/* Overlay */}
-              <div className="absolute inset-0 " onClick={closeEditModal}></div>
 
-              <div
-                onClick={(e) => e.stopPropagation()}
-                className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out
-                      ${isEditAnimating ? "translate-x-0" : "translate-x-full"}`}
-              >
-                <div
-                  className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
-                  title="Toggle Sidebar"
-                  onClick={closeEditModal}
-                >
-                  <IoIosArrowForward className="w-3 h-3" />
-                </div>
-
-                <div className="p-2 md:p-5">
-                  <p className="text-xl md:text-2xl font-medium">Company Edit</p>
-
-                  {/* company name */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Company Name <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="text"
-                        // value={companyNameEdit}
-                        value={editFormData.companyName}
-                        id="companyNameEdit"
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            companyName: e.target.value,
-                          })
-                        }
-                        // onChange={(e) => setCompanyNameEdit(e.target.value)}
-                        placeholder="Enter Company Name"
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors?.companyNameEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors?.companyNameEdit}
-                        </p>
-                      )}
-                    </div>
+                {/* contacts */}
+                <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg md:text-xl font-semibold">
+                      Company Contacts
+                    </p>
+                    <IoAddCircleSharp
+                      className="text-[#1ea600] text-3xl cursor-pointer"
+                      onClick={addCompanyContact}
+                    />
                   </div>
-
-                  {/* id generted */}
-
-                  <div className="mt-5 flex  justify-between items-center">
-                    {/* Radio buttons to select mode */}
-
-                    <label className="block text-md font-medium mb-2">
-                      Employee ID Generation{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
-                      <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="mode"
-                            value="manual"
-                            checked={editFormData.mode === "manual"}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                mode: e.target.value,
-                              })
-                            }
-                            className="w-4 h-4 accent-green-600 cursor-pointer"
-                          />
-                          Manual
-                        </label>
-
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="mode"
-                            value="automatic"
-                            checked={editFormData.mode === "automatic"}
-                            onChange={(e) =>
-                              setEditFormData({
-                                ...editFormData,
-                                mode: e.target.value,
-                              })
-                            }
-                            className="w-4 h-4 cursor-pointer"
-                          />
-                          Automatic
-                        </label>
-                      </div>
-
-                      {errors.mode && (
-                        <p className="text-red-500 text-sm mb-4">{errors.mode}</p>
-                      )}
+                  <div className="mt-4">
+                    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
+                      <span className="">Name</span>
+                      <span>Role</span>
+                      <span>Phone No</span>
                     </div>
-                  </div>
 
-                  {/* prefix */}
-                  {editFormData?.mode === "automatic" && (
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Employee ID <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                        <input
-                          type="text"
-                          value={editFormData?.automaticName}
-                          id="automaticName"
-                          onChange={(e) =>
-                            setEditFormData({
-                              ...editFormData,
-                              automaticName: e.target.value,
-                            })
-                          }
-                          placeholder="Enter Prefix"
-                          className="w-[100%] px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                        />
-
-                        {errors.automaticName && (
-                          <p className="text-red-500 text-sm mb-4">
-                            {errors.automaticName}
-                          </p>
+                    {contacts.map((item, index) => (
+                      <div
+                        key={index}
+                        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                      >
+                        {/* Remove */}
+                        {index > 0 && (
+                          <IoIosCloseCircle
+                            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+                            onClick={() => removeCompanyContact(index)}
+                          />
                         )}
-                      </div>
-                    </div>
-                  )}
+                        {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
 
-                  {/* address */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      address <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <textarea
-                        type="address"
-                        value={editFormData?.address}
-                        id="addressEdit"
-                        rows="4"
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            address: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your Address "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.addressEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.addressEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                        {/* Full Name */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                  {/* gst number */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      GST Number <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="text"
-                        value={editFormData?.gstNumber}
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            gstNumber: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your GST Number "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.gstNumberEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.gstNumberEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* website */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Website <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="text"
-                        value={editFormData.website}
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            website: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your Website "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.websiteEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.websiteEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* phone */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Phone <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="text"
-                        value={editFormData.phone}
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            phone: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your Phone "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.phoneEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.phoneEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* support email */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Support Email <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="email"
-                        value={editFormData.supportEmail}
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            supportEmail: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your Support Email "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.supportEmailEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.supportEmailEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* billing email */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Billing Email <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <input
-                        type="email"
-                        value={editFormData.billingEmail}
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            billingEmail: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your Billing Email "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.billingEmailEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.billingEmailEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* notes */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <label className="block text-md font-medium mb-2">
-                      Notes <span className="text-red-500">*</span>
-                    </label>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <textarea
-                        type="text"
-                        value={editFormData.notes}
-                        name="notes"
-                        id=" notes"
-                        rows="4"
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            notes: e.target.value,
-                          })
-                        }
-                        placeholder="Enter Your Notes "
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {errors.notesEdit && (
-                        <p className="text-red-500 text-sm mb-4">
-                          {errors.notesEdit}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* status */}
-                  <div className="mt-5 flex justify-between items-center">
-                    <div className="">
-                      <label
-                        htmlFor="status"
-                        className="block text-md font-medium mb-2 mt-3"
-                      >
-                        Status <span className="text-red-500">*</span>
-                      </label>
-                    </div>
-                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
-                      <select
-                        name="status"
-                        id="status"
-                        value={editFormData.status}
-                        onChange={(e) =>
-                          setEditFormData({
-                            ...editFormData,
-                            status: e.target.value,
-                          })
-                        }
-                        className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      >
-                        <option value="">Select a status</option>
-                        <option value="1">Active</option>
-                        <option value="0">InActive</option>
-                      </select>
-                      {errors.status && (
-                        <p className="text-red-500 text-sm mb-4 mt-1">
-                          {errors.status}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* contacts */}
-                  <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg md:text-xl font-semibold">
-                        Company Contacts
-                      </p>
-                      <IoAddCircleSharp
-                        className="text-[#1ea600] text-3xl cursor-pointer"
-                        onClick={addEditContact}
-                      />
-                    </div>
-                    <div className="mt-4">
-                      <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
-                        <span className="">Name</span>
-                        <span>Role</span>
-                        <span>Phone No</span>
-                      </div>
-
-                      {editFormData.contacts.map((item, index) => (
-                        <div
-                          key={index}
-                          className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-                        >
-                          {/* Remove */}
-                          {index > 0 && (
-                            <IoIosCloseCircle
-                              className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-                              onClick={() => removeEditContact(index)}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              placeholder="Contact Name"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.name}
+                              onChange={(e) =>
+                                updateCompanyContact(
+                                  index,
+                                  "name",
+                                  e.target.value
+                                )
+                              }
                             />
-                          )}
-                          {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
-
-                          {/* Full Name */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">FULL NAME</label> */}
-
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="text"
-                                placeholder="Contact Name"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.name}
-                                onChange={(e) =>
-                                  updateEditContact(index, "name", e.target.value)
-                                }
-                              />
-                              {errors.companyContacts?.[index]?.name && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyContacts[index].name}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Role */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">Role</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="text"
-                                placeholder="Role Name"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.role}
-                                onChange={(e) =>
-                                  updateEditContact(index, "role", e.target.value)
-                                }
-                              />
-                              {errors.companyContacts?.[index]?.role && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyContacts[index].role}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Phone */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">CONTACT</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="number"
-                                placeholder="Phone Number"
-                                value={item.phone_number}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(/\D/g, ""); //
-                                  if (value.length <= 10) {
-                                    updateEditContact(
-                                      index,
-                                      "phone_number",
-                                      value
-                                    );
-                                  }
-                                }}
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                              />
-                              {errors.companyContacts?.[index]?.phone && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyContacts[index].phone}
-                                </p>
-                              )}
-                            </div>
+                            {errors.companyContacts?.[index]?.name && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyContacts[index].name}
+                              </p>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* shift allocation */}
-                  <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
-                    <div className="flex justify-between items-center">
-                      <p className="text-lg md:text-xl font-semibold">
-                        Shift Allocation
-                      </p>
-                      <IoAddCircleSharp
-                        className="text-[#1ea600] text-3xl cursor-pointer"
-                        onClick={addEditShifts}
-                      />
-                    </div>
-                    <div className="mt-4">
-                      <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
-                        <span className="">Shift Name</span>
-                        <span>start Time</span>
-                        <span>End Time</span>
-                      </div>
-
-                      {editFormData.shifts.map((item, index) => (
-                        <div
-                          key={index}
-                          className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-                        >
-                          {/* Remove */}
-                          {index > 0 && (
-                            <IoIosCloseCircle
-                              className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-                              onClick={() => removeEditShifts(index)}
+                        {/* Role */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">Role</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              placeholder="Role Name"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.role}
+                              onChange={(e) =>
+                                updateCompanyContact(
+                                  index,
+                                  "role",
+                                  e.target.value
+                                )
+                              }
                             />
-                          )}
-                          {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
-
-                          {/* Full Name */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">FULL NAME</label> */}
-
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="text"
-                                placeholder="shift Name"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.shift_name}
-                                onChange={(e) =>
-                                  updateEditShifts(
-                                    index,
-                                    "shift_name",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {errors.companyShifts?.[index]?.shift_name && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyShifts[index].shift_name}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Role */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">Role</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="time"
-                                placeholder="Start Time"
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                                value={item.start_time}
-                                onChange={(e) =>
-                                  updateEditShifts(
-                                    index,
-                                    "start_time",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {errors.companyShifts?.[index]?.start_time && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyShifts[index].start_time}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Phone */}
-                          <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
-                            {/* <label className="font-medium text-sm">CONTACT</label> */}
-                            <div className="w-[60%] md:w-[90%] rounded-[10px]">
-                              <input
-                                type="time"
-                                placeholder="End Time"
-                                value={item.end_time}
-                                onChange={(e) =>
-                                  updateEditShifts(
-                                    index,
-                                    "end_time",
-                                    e.target.value
-                                  )
-                                }
-                                className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
-                              />
-                              {errors.companyShifts?.[index]?.end_time && (
-                                <p className="text-red-500 text-sm">
-                                  {errors.companyShifts[index].end_time}
-                                </p>
-                              )}
-                            </div>
+                            {errors.companyContacts?.[index]?.role && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyContacts[index].role}
+                              </p>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
+
+                        {/* Phone */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">CONTACT</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="number"
+                              placeholder="Phone Number"
+                              value={item.phone_number}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); //
+                                if (value.length <= 10) {
+                                  updateCompanyContact(
+                                    index,
+                                    "phone_number",
+                                    value
+                                  );
+                                }
+                              }}
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                            />
+                            {errors.companyContacts?.[index]?.phone && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyContacts[index].phone}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Remove */}
+                        {/* {index > 0 && (
+                            <button
+                              className="text-red-500 text-sm underline col-span-3"
+                              onClick={() => removeCompanyContact(index)}
+                            >
+                              Remove Contact
+                            </button>
+                          )} */}
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="flex  justify-end gap-2 mt-6 md:mt-14">
-                    <button
-                      onClick={closeEditModal}
-                      className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                  {/* Add More */}
+                  {/* <button
+                      onClick={addCompanyContact}
+                      className="mt-4 bg-[#1ea600] hover:bg-green-700 font-medium text-white px-4 py-2 rounded-lg"
                     >
-                      Cancel
-                    </button>
-                    <button
-                      className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                      onClick={handleSubmitEdit}
-                    >
-                      Submit
-                    </button>
-                  </div>
+                      + Add Contact
+                    </button> */}
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {isViewModalOpen && viewRow && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative animate-fadeIn">
-              {/* Close Button */}
-              <button
-                onClick={closeViewModal}
-                className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
-              >
-                <IoIosCloseCircle size={28} />
-              </button>
+                {/* shift allocation */}
+                <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg md:text-xl font-semibold">
+                      shift Allocation
+                    </p>
+                    <IoAddCircleSharp
+                      className="text-[#1ea600] text-3xl cursor-pointer"
+                      onClick={addShifts}
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
+                      <span>Shift Name</span>
+                      <span>Start Time</span>
+                      <span>End Time</span>
+                    </div>
 
-              <h2 className="text-xl font-semibold mb-4 text-[#1ea600] hover:text-[#4BB452]">
-                Company Details
-              </h2>
 
-              {/* Company Info */}
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <p>
-                  <b>Company Name:</b> {viewRow.companyName}
-                </p>
-                <p>
-                  <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
-                </p>
-                <p>
-                  <b>Phone:</b> {viewRow.phone}
-                </p>
-                <p>
-                  <b>Support Email:</b> {viewRow.supportEmail}
-                </p>
-                <p>
-                  <b>Billing Email:</b> {viewRow.billingEmail}
-                </p>
-                <p>
-                  <b>Website:</b> {viewRow.website}
-                </p>
+                    {shifts.map((item, index) => (
+                      <div
+                        key={index}
+                        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                      >
+                        {/* Remove */}
+                        {index > 0 && (
+                          <IoIosCloseCircle
+                            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+                            onClick={() => removeshifts(index)}
+                          />
+                        )}
+                        {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
 
-                <p>
-                  <b>GST Number:</b> {viewRow.gstNumber}
-                </p>
-                <p>
-                  <b>Employee ID Generation:</b> {Capitalise(viewRow?.mode)}
-                </p>
+                        {/* Shift Name */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                <p className="">
-                  <b>Address:</b> {viewRow.address}
-                </p>
-                {viewRow?.automaticName && (
-                  <p>
-                    <b>Employee ID:</b> {viewRow.automaticName}
-                  </p>
-                )}
-                
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              placeholder="Shift Name"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.name}
+                              onChange={(e) =>
+                                updateShifts(
+                                  index,
+                                  "shift_name",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            {errors.companyShifts?.[index]?.shift_name && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].shift_name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                <p className="col-span-2">
-                  <b>Shifts:</b> {viewRow.shifts.map(shift => `${shift.shift_name}`).join(", ")}
-                </p>
-                <p className="col-span-2">
-                  <b>Notes:</b> {viewRow.notes}
-                </p>
-              </div>
+                        {/* Start Time */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">Role</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="Time"
+                              placeholder="Start Time"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.start_time}
+                              onChange={(e) =>
+                                updateShifts(
+                                  index,
+                                  "start_time",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            {errors.companyShifts?.[index]?.start_time && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].start_time}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-              {/* Contacts */}
-              <div className="mt-4">
-                <h3 className="font-semibold mb-2">Contacts</h3>
+                        {/* End Time */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">CONTACT</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="Time"
+                              placeholder="End Time"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.end_time}
+                              onChange={(e) =>
+                                updateShifts(index, "end_time", e.target.value)
+                              }
+                            />
+                            {errors.companyShifts?.[index]?.end_time && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].end_time}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                {viewRow.contacts?.length > 0 ? (
-                  <table className="w-full border text-sm">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="border p-2">Name</th>
-                        <th className="border p-2">Role</th>
-                        <th className="border p-2">Phone</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {viewRow.contacts
-                        ?.filter((c) => c.name && c.role && c.phone_number)
-                        .map((c, i) => (
-                          <tr key={i}>
-                            <td className="border p-2">{c.name}</td>
-                            <td className="border p-2">{c.role}</td>
-                            <td className="border p-2">{c.phone_number}</td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                ) : (
-                  <p className="text-gray-500">No contacts available</p>
-                )}
+                        {/* Remove */}
+                        {/* {index > 0 && (
+                            <button
+                              className="text-red-500 text-sm underline col-span-3"
+                              onClick={() => removeCompanyContact(index)}
+                            >
+                              Remove Contact
+                            </button>
+                          )} */}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Add More */}
+                  {/* <button
+                      onClick={addCompanyContact}
+                      className="mt-4 bg-[#1ea600] hover:bg-green-700 font-medium text-white px-4 py-2 rounded-lg"
+                    >
+                      + Add Contact
+                    </button> */}
+                </div>
+
+                <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                  <button
+                    onClick={closeAddModal}
+                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                    onClick={handlesubmit}
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
+        {/* Edit Modal */}
+        {isEditModalOpen && (
+          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
+            {/* Overlay */}
+            <div className="absolute inset-0 " onClick={closeEditModal}></div>
 
-        <div>
-          <Footer />
-        </div>
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out
+                      ${isEditAnimating ? "translate-x-0" : "translate-x-full"}`}
+            >
+              <div
+                className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
+                title="Toggle Sidebar"
+                onClick={closeEditModal}
+              >
+                <IoIosArrowForward className="w-3 h-3" />
+              </div>
+
+              <div className="p-2 md:p-5">
+                <p className="text-xl md:text-2xl font-medium">Company Edit</p>
+
+                {/* company name */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Company Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      // value={companyNameEdit}
+                      value={editFormData.companyName}
+                      id="companyNameEdit"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          companyName: e.target.value,
+                        })
+                      }
+                      // onChange={(e) => setCompanyNameEdit(e.target.value)}
+                      placeholder="Enter Company Name"
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors?.companyNameEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors?.companyNameEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* id generted */}
+
+                <div className="mt-5 flex  justify-between items-center">
+                  {/* Radio buttons to select mode */}
+
+                  <label className="block text-md font-medium mb-2">
+                    Employee ID Generation{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="mode"
+                          value="manual"
+                          checked={editFormData.mode === "manual"}
+                          onChange={(e) =>
+                            setEditFormData({
+                              ...editFormData,
+                              mode: e.target.value,
+                            })
+                          }
+                          className="w-4 h-4 accent-green-600 cursor-pointer"
+                        />
+                        Manual
+                      </label>
+
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="mode"
+                          value="automatic"
+                          checked={editFormData.mode === "automatic"}
+                          onChange={(e) =>
+                            setEditFormData({
+                              ...editFormData,
+                              mode: e.target.value,
+                            })
+                          }
+                          className="w-4 h-4 cursor-pointer"
+                        />
+                        Automatic
+                      </label>
+                    </div>
+
+                    {errors.mode && (
+                      <p className="text-red-500 text-sm mb-4">{errors.mode}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* prefix */}
+                {editFormData?.mode === "automatic" && (
+                  <div className="mt-5 flex justify-between items-center">
+                    <label className="block text-md font-medium mb-2">
+                      Employee ID <span className="text-red-500">*</span>
+                    </label>
+                    <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                      <input
+                        type="text"
+                        value={editFormData?.automaticName}
+                        id="automaticName"
+                        onChange={(e) =>
+                          setEditFormData({
+                            ...editFormData,
+                            automaticName: e.target.value,
+                          })
+                        }
+                        placeholder="Enter Prefix"
+                        className="w-[100%] px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                      />
+
+                      {errors.automaticName && (
+                        <p className="text-red-500 text-sm mb-4">
+                          {errors.automaticName}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* address */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <textarea
+                      type="address"
+                      value={editFormData?.address}
+                      id="addressEdit"
+                      rows="4"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          address: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Address "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.addressEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.addressEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* gst number */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    GST Number <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      value={editFormData?.gstNumber}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          gstNumber: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your GST Number "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.gstNumberEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.gstNumberEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* website */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Website <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      value={editFormData.website}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          website: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Website "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.websiteEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.websiteEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* phone */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Phone <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      value={editFormData.phone}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          phone: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Phone "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.phoneEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.phoneEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* support email */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Support Email <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="email"
+                      value={editFormData.supportEmail}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          supportEmail: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Support Email "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.supportEmailEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.supportEmailEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* billing email */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Billing Email <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="email"
+                      value={editFormData.billingEmail}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          billingEmail: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Billing Email "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.billingEmailEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.billingEmailEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* notes */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Notes <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <textarea
+                      type="text"
+                      value={editFormData.notes}
+                      name="notes"
+                      id=" notes"
+                      rows="4"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          notes: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Notes "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors.notesEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.notesEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* status */}
+                <div className="mt-5 flex justify-between items-center">
+                  <div className="">
+                    <label
+                      htmlFor="status"
+                      className="block text-md font-medium mb-2 mt-3"
+                    >
+                      Status <span className="text-red-500">*</span>
+                    </label>
+                  </div>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <select
+                      name="status"
+                      id="status"
+                      value={editFormData.status}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          status: e.target.value,
+                        })
+                      }
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    >
+                      <option value="">Select a status</option>
+                      <option value="1">Active</option>
+                      <option value="0">InActive</option>
+                    </select>
+                    {errors.status && (
+                      <p className="text-red-500 text-sm mb-4 mt-1">
+                        {errors.status}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* contacts */}
+                <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg md:text-xl font-semibold">
+                      Company Contacts
+                    </p>
+                    <IoAddCircleSharp
+                      className="text-[#1ea600] text-3xl cursor-pointer"
+                      onClick={addEditContact}
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
+                      <span className="">Name</span>
+                      <span>Role</span>
+                      <span>Phone No</span>
+                    </div>
+
+                    {editFormData.contacts.map((item, index) => (
+                      <div
+                        key={index}
+                        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                      >
+                        {/* Remove */}
+                        {index > 0 && (
+                          <IoIosCloseCircle
+                            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+                            onClick={() => removeEditContact(index)}
+                          />
+                        )}
+                        {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
+
+                        {/* Full Name */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">FULL NAME</label> */}
+
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              placeholder="Contact Name"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.name}
+                              onChange={(e) =>
+                                updateEditContact(index, "name", e.target.value)
+                              }
+                            />
+                            {errors.companyContacts?.[index]?.name && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyContacts[index].name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Role */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">Role</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              placeholder="Role Name"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.role}
+                              onChange={(e) =>
+                                updateEditContact(index, "role", e.target.value)
+                              }
+                            />
+                            {errors.companyContacts?.[index]?.role && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyContacts[index].role}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Phone */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">CONTACT</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="number"
+                              placeholder="Phone Number"
+                              value={item.phone_number}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); //
+                                if (value.length <= 10) {
+                                  updateEditContact(
+                                    index,
+                                    "phone_number",
+                                    value
+                                  );
+                                }
+                              }}
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                            />
+                            {errors.companyContacts?.[index]?.phone && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyContacts[index].phone}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* shift allocation */}
+                <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
+                  <div className="flex justify-between items-center">
+                    <p className="text-lg md:text-xl font-semibold">
+                      Shift Allocation
+                    </p>
+                    <IoAddCircleSharp
+                      className="text-[#1ea600] text-3xl cursor-pointer"
+                      onClick={addEditShifts}
+                    />
+                  </div>
+                  <div className="mt-4">
+                    <div className="grid grid-cols-4 font-semibold text-sm md:text-base bg-gray-50 p-2 rounded-[10px] text-center">
+                      <span>Shift Unique ID</span>
+                      <span>Shift Name</span>
+                      <span>Start Time</span>
+                      <span>End Time</span>
+                    </div>
+
+                    {editFormData.shifts.map((item, index) => (
+                      <div
+                        key={index}
+                        className="relative grid grid-cols-4 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                      >
+                        {/* Remove */}
+                        {index > 0 && (
+                          <IoIosCloseCircle
+                            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+                            onClick={() => removeEditShifts(index)}
+                          />
+                        )}
+                        {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
+
+                        {/* shift unique ID */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">FULL NAME</label> */}
+
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              value={item.company_shift_id}
+                              disabled
+                              title={item.company_shift_id}
+                              className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px]
+             bg-gray-100 cursor-not-allowed overflow-x-auto whitespace-nowrap"/>
+                            {errors.companyShifts?.[index]?.company_shift_id && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].company_shift_id}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        {/* Full Name */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">FULL NAME</label> */}
+
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="text"
+                              placeholder="shift Name"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.shift_name}
+                              onChange={(e) =>
+                                updateEditShifts(
+                                  index,
+                                  "shift_name",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            {errors.companyShifts?.[index]?.shift_name && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].shift_name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Role */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">Role</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="time"
+                              placeholder="Start Time"
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                              value={item.start_time}
+                              onChange={(e) =>
+                                updateEditShifts(
+                                  index,
+                                  "start_time",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            {errors.companyShifts?.[index]?.start_time && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].start_time}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Phone */}
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                          {/* <label className="font-medium text-sm">CONTACT</label> */}
+                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                            <input
+                              type="time"
+                              placeholder="End Time"
+                              value={item.end_time}
+                              onChange={(e) =>
+                                updateEditShifts(
+                                  index,
+                                  "end_time",
+                                  e.target.value
+                                )
+                              }
+                              className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                            />
+                            {errors.companyShifts?.[index]?.end_time && (
+                              <p className="text-red-500 text-sm">
+                                {errors.companyShifts[index].end_time}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                  <button
+                    onClick={closeEditModal}
+                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                    onClick={handleSubmitEdit}
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-    );
+
+      {isViewModalOpen && viewRow && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative animate-fadeIn">
+            {/* Close Button */}
+            <button
+              onClick={closeViewModal}
+              className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+            >
+              <IoIosCloseCircle size={28} />
+            </button>
+
+            <h2 className="text-xl font-semibold mb-4 text-[#1ea600] hover:text-[#4BB452]">
+              Company Details
+            </h2>
+
+            {/* Company Info */}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <p>
+                <b>Company Name:</b> {viewRow.companyName}
+              </p>
+              <p>
+                <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
+              </p>
+              <p>
+                <b>Phone:</b> {viewRow.phone}
+              </p>
+              <p>
+                <b>Support Email:</b> {viewRow.supportEmail}
+              </p>
+              <p>
+                <b>Billing Email:</b> {viewRow.billingEmail}
+              </p>
+              <p>
+                <b>Website:</b> {viewRow.website}
+              </p>
+
+              <p>
+                <b>GST Number:</b> {viewRow.gstNumber}
+              </p>
+              <p>
+                <b>Employee ID Generation:</b> {Capitalise(viewRow?.mode)}
+              </p>
+
+              <p className="">
+                <b>Address:</b> {viewRow.address}
+              </p>
+              {viewRow?.automaticName && (
+                <p>
+                  <b>Employee ID:</b> {viewRow.automaticName}
+                </p>
+              )}
+
+
+              <p className="col-span-2">
+                <b>Shifts:</b> {viewRow.shifts.map(shift => `${shift.shift_name}`).join(", ")}
+              </p>
+              <p className="col-span-2">
+                <b>Notes:</b> {viewRow.notes}
+              </p>
+            </div>
+
+            {/* Contacts */}
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">Contacts</h3>
+
+              {viewRow.contacts?.length > 0 ? (
+                <table className="w-full border text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border p-2">Name</th>
+                      <th className="border p-2">Role</th>
+                      <th className="border p-2">Phone</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewRow.contacts
+                      ?.filter((c) => c.name && c.role && c.phone_number)
+                      .map((c, i) => (
+                        <tr key={i}>
+                          <td className="border p-2">{c.name}</td>
+                          <td className="border p-2">{c.role}</td>
+                          <td className="border p-2">{c.phone_number}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No contacts available</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div>
+        <Footer />
+      </div>
+    </div>
+  );
 };
 
 export default Company_Mainbar;

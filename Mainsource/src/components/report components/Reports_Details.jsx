@@ -14,7 +14,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
 import { Capitalise } from "../../hooks/useCapitalise";
-import { formatIndianDateTime12Hr, formatToDDMMYYYY,  } from "../../Utils/dateformat";
+import { formatIndianDateTime12Hr, formatToDDMMYYYY, } from "../../Utils/dateformat";
 import Footer from "../Footer";
 import Loader from "../Loader";
 import Mobile_Sidebar from "../Mobile_Sidebar";
@@ -29,7 +29,7 @@ function Reports_Details() {
   const [selectedEmployeeName, setSelectedEmployeeName] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tasklist, setTasklist] = useState([]);
-  const [selectedEmployeeDeatils, setSelectedEmployeeDetails] = useState(null);
+  const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
   const [selectedTask, setSelectedTask] = useState(false);
   const [data, setData] = useState([]);
   console.log("data", data)
@@ -49,29 +49,38 @@ function Reports_Details() {
   });
 
   // search submit
+
   const handleSubmit = () => {
-    let filteredData = [...data];
-
-    if (selectedEmployeeDeatils) {
-      filteredData = filteredData.filter(
-        (item) => item.employee_name === selectedEmployeeDeatils.label
-      );
-    }
-
-    setData(filteredData);
+    fetchAttendanceReport();
   };
 
+
   // search reset
+  // const handleReset = () => {
+  //   setSelectedMonth(new Date());
+  //   setSelectedEmployeeDetails(null);
+
+  //   setFilters({
+  //     global: { value: null, matchMode: "contains" },
+  //   });
+
+  //   fetchAttendanceReport();
+  // };
+
   const handleReset = () => {
     setSelectedMonth(new Date());
     setSelectedEmployeeDetails(null);
-
-    setFilters({
-      global: { value: null, matchMode: "contains" },
-    });
-
     fetchAttendanceReport();
   };
+
+
+  const getMonthPayload = () => {
+    const month = String(selectedMonth.getMonth() + 1).padStart(2, "0");
+    const year = selectedMonth.getFullYear();
+
+    return `${year}-${month}`;
+  };
+
 
 
   useEffect(() => {
@@ -83,14 +92,17 @@ function Reports_Details() {
     try {
       setLoading(true);
 
-      const month = selectedMonth.getMonth() + 1;
-      const year = selectedMonth.getFullYear();
+      const payload = {
+        month: getMonthPayload(),
+        employee_id: selectedEmployeeDetails || null,
+      };
 
       const response = await axiosInstance.get(
         `${API_URL}api/attendance-report`,
-        
+        { params: payload }
       );
 
+      console.log("API Payload:", payload);
       console.log("response check", response.data);
 
       setSummary(response.data.summary);
@@ -104,8 +116,7 @@ function Reports_Details() {
       const formattedData = response.data.data.map((item, index) => ({
         id: index + 1,
         employee_name: item.employee_name,
-        // date: formatToDDMMYYYY(item.date),
-        date: item.date, 
+        date: item.date,
         status: item.status,
         login_time: item.login_time || "-",
         logout_time: item.logout_time || "-",
@@ -116,13 +127,13 @@ function Reports_Details() {
 
       setData(formattedData);
 
-
     } catch (error) {
       console.error("Attendance API Error:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
 
   const exportToCSV = () => {
@@ -182,7 +193,7 @@ function Reports_Details() {
     {
       header: "DATE",
       field: "date",
-      body: (row) =>formatToDDMMYYYY(row.date),
+      body: (row) => formatToDDMMYYYY(row.date),
     },
     {
       header: "STATUS",
@@ -276,7 +287,7 @@ function Reports_Details() {
 
                   {/* Global Search Input */}
                   <Dropdown
-                    value={selectedEmployeeDeatils}
+                    value={selectedEmployeeDetails}
                     onChange={(e) => setSelectedEmployeeDetails(e.value)}
                     options={selectedEmployee}
                     optionLabel="label"
@@ -362,14 +373,18 @@ function Reports_Details() {
                       size={18}
                     />
                     <InputText
-                      value={globalFilter}
-                      onChange={(e) => setGlobalFilter(e.target.value)}
-
+                      value={filters.global.value || ""}
+                      onChange={(e) =>
+                        setFilters({
+                          ...filters,
+                          global: { value: e.target.value, matchMode: "contains" },
+                        })
+                      }
                       placeholder="Search......"
                       className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
-                            focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-[#7C7C7C]  "
-
+    focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
+
                   </div>
 
                   <div className="">

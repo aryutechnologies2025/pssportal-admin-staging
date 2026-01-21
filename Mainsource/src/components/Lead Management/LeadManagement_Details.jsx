@@ -143,6 +143,8 @@ const LeadManagement_Details = () => {
   const handleApplyFilter = () => {
     fetchLead(filters);
   };
+  console.log("filter check",handleApplyFilter)
+
 
   const handleResetFilter = () => {
     const reset = {
@@ -158,9 +160,6 @@ const LeadManagement_Details = () => {
     fetchLead(reset);
   };
 
-  useEffect(() => {
-    fetchLead(filters);
-  }, [filters]);
   // open view
   const openViewModal = (row) => {
     setViewContact(row);
@@ -403,7 +402,83 @@ const LeadManagement_Details = () => {
   useEffect(() => {
     fetchLead();
   }, []);
+
+const applyFrontendFilters = (data, filters) => {
+  let result = [...data];
+
+  // CITY
+  if (filters.city) {
+    result = result.filter(item =>
+      item.city?.toLowerCase() === filters.city.toLowerCase()
+    );
+  }
+
+  // PLATFORM
+  if (filters.platform) {
+    result = result.filter(item =>
+      item.platform?.toLowerCase() === filters.platform.toLowerCase()
+    );
+  }
+
+  // AGE
+  if (filters.age) {
+    const [min, max] = filters.age.split("-");
+
+    result = result.filter(item => {
+      const age = Number(item.age);
+      if (filters.age === "46+") return age >= 46;
+      return age >= Number(min) && age <= Number(max);
+    });
+  }
+
+  return result;
+};
+
+
+
+
   // list
+  // const fetchLead = async (customFilters) => {
+  //   const appliedFilters = customFilters ?? filters;
+
+  //   try {
+  //     setLoading(true);
+  //     const params = {};
+
+  //     if (appliedFilters.gender) params.gender = appliedFilters.gender;
+  //     if (appliedFilters.platform) params.platform = appliedFilters.platform;
+  //     if (appliedFilters.city) params.city = appliedFilters.city;
+  //     if (appliedFilters.from_date) params.from_date = appliedFilters.from_date;
+  //     if (appliedFilters.to_date) params.to_date = appliedFilters.to_date;
+
+  //     const res = await axiosInstance.get(
+  //       `${API_URL}api/lead-management`,
+  //       { params }
+  //     );
+
+  //     console.log("API list", res.data.data);
+
+  //     if (res.data.success) {
+  //       let data = res.data.data || [];
+
+  //       //  FRONTEND FILTERING
+  //       data = applyFrontendFilters(data, appliedFilters);
+
+  //       setLeads(data);
+  //       setTotalRecords(data.length);
+  //       setGenderOptions(res.data.gender || []);
+  //       setPlatformOptions(res.data.platforms || {});
+  //       setCityOptions(res.data.cities || []);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to fetch leads");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // new
   const fetchLead = async (customFilters) => {
     const appliedFilters = customFilters ?? filters;
 
@@ -412,31 +487,49 @@ const LeadManagement_Details = () => {
 
       const params = {};
 
-      if (appliedFilters.gender) params.gender = appliedFilters.gender;
-      if (appliedFilters.platform) params.platform = appliedFilters.platform;
-      if (appliedFilters.age) params.age = appliedFilters.age;
-      if (appliedFilters.city) params.city = appliedFilters.city;
-      if (appliedFilters.from_date) params.from_date = appliedFilters.from_date;
-      if (appliedFilters.to_date) params.to_date = appliedFilters.to_date;
+      if (appliedFilters.gender)
+        params.gender = appliedFilters.gender.toLowerCase();
+
+      if (appliedFilters.platform)
+        params.platform = appliedFilters.platform.toLowerCase();
+
+      if (appliedFilters.city)
+        params.city = appliedFilters.city.toLowerCase();
+
+      if (appliedFilters.from_date)
+        params.from_date = appliedFilters.from_date;
+
+      if (appliedFilters.to_date)
+        params.to_date = appliedFilters.to_date;
 
       const res = await axiosInstance.get(
         `${API_URL}api/lead-management`,
         { params }
       );
 
+      console.log("API LIST", res.data.data);
+
       if (res.data.success) {
-        setLeads(res.data.data || []);
-        setTotalRecords(res.data.data?.length || 0);
+        let data = res.data.data || [];
+
+        //  FRONTEND FILTERING
+        data = applyFrontendFilters(data, appliedFilters);
+
+        setLeads(data);
+        setTotalRecords(data.length);
         setGenderOptions(res.data.gender || []);
         setPlatformOptions(res.data.platforms || {});
         setCityOptions(res.data.cities || []);
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error("Failed to fetch leads");
     } finally {
       setLoading(false);
     }
   };
+
+
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
   // console.log("statusList", statusList);
@@ -638,13 +731,13 @@ const LeadManagement_Details = () => {
           >
             <option value="">Select Status</option>
             <option value="open">Open</option>
-            <option value="contacted">Contacted</option>
+            <option value="joined">Joined</option>
             <option value="interested">Interested</option>
             <option value="not_interested">Not Interested</option>
-            <option value="customer">Customer</option>
+            <option value="follow_up">Follow Up</option>
             <option value="bad_timing">Bad Timing</option>
             <option value="not_picked">Not Picked</option>
-            <option value="future_lead">Future Lead</option>
+            <option value="interview_scheduled">Interview Scheduled</option>
           </select>
 
           {/* VIEW STATUS HISTORY */}
@@ -1135,7 +1228,7 @@ px-2 py-2 md:px-6 md:py-6">
                           onChange={(e) => handleChange("gender", e.target.value)}
                           className="w-full px-3 py-2 border rounded-lg"
                         >
-                          <option value="">Select</option>
+                          <option value="">Select Gender</option>
                           <option value="male">Male</option>
                           <option value="female">Female</option>
                           <option value="other">Other</option>
@@ -1175,7 +1268,7 @@ px-2 py-2 md:px-6 md:py-6">
                           }
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         >
-                          <option value="">Select</option>
+                          <option value="">Select Status</option>
                           <option value="1">Active</option>
                           <option value="0">Inactive</option>
                         </select>
@@ -1365,7 +1458,7 @@ px-2 py-2 md:px-6 md:py-6">
                           }
                           className="w-full px-3 py-2 border rounded-lg"
                         >
-                          <option value="">Select</option>
+                          <option value="">Select Gender</option>
                           <option value="male">Male</option>
                           <option value="female">Female</option>
                           <option value="other">Other</option>
@@ -1405,7 +1498,7 @@ px-2 py-2 md:px-6 md:py-6">
                           }
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         >
-                          <option value="">Select</option>
+                          <option value="">Select Status</option>
                           <option value="1">Active</option>
                           <option value="0">Inactive</option>
                         </select>
@@ -1457,13 +1550,13 @@ px-2 py-2 md:px-6 md:py-6">
                         }
                       >
                         <option value="open">Open</option>
-                        <option value="contacted">Contacted</option>
+                        <option value="joined">Joined</option>
                         <option value="interested">Interested</option>
                         <option value="not_interested">Not Interested</option>
-                        <option value="customer">Customer</option>
+                        <option value="follow_up">Follow Up</option>
                         <option value="bad_timing">Bad Timing</option>
                         <option value="not_picked">Not Picked</option>
-                        <option value="future_lead">Future Lead</option>
+                        <option value="interview_scheduled">Interview Scheduled</option>
                       </select>
                     </div>
 
