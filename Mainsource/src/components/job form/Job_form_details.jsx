@@ -154,64 +154,109 @@ const Job_form_details = () => {
   };
 
 
-  const exportToCSV = async () => {
-    try {
-      //  fetch ALL data (no pagination)
-      const response = await axiosInstance.get(`${API_URL}api/job-form/export`, {
+  // const exportToCSV = async () => {
+  //   try {
+  //     //  fetch ALL data (no pagination)
+  //     const response = await axiosInstance.get(`${API_URL}api/job-form/export`, {
+  //       params: {
+  //         from_date: filterStartDate || "",
+  //         to_date: filterEndDate || "",
+  //         // reference: selectedReference || "",
+  //         // district: selectedDistrict || "",
+  //         // gender: selectedGender || "",
+  //         // limit: 10000, //  large number OR backend ignore pagination
+  //         // page: 1,
+  //         // export: true // optional (backend can use)
+  //       },
+  //      
+  //     });
+
+  
+  //     // if (!response.data.success) {
+  //     //   toast.error("Failed to export data");
+  //     //   return;
+  //     // }
+
+  //     // const listData = response.data.data;
+
+  //     //  Fetch remarks for each student
+  //     // const allData = await Promise.all(
+  //     //   listData.map(async (item) => {
+  //     //     const remarks = await fetchRemarksById(item.id);
+  //     //     return {
+  //     //       ...item,
+  //     //       remarks,
+  //     //     };
+  //     //   })
+  //     // );
+  //     // generateCSV(allData);
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Error exporting CSV");
+  //   }
+  // };
+
+const exportToCSV = async () => {
+  try {
+    const response = await axiosInstance.get(
+      `${API_URL}api/job-form/export`,
+      {
         params: {
           from_date: filterStartDate || "",
           to_date: filterEndDate || "",
-          // reference: selectedReference || "",
-          // district: selectedDistrict || "",
-          // gender: selectedGender || "",
-          // limit: 10000, //  large number OR backend ignore pagination
-          // page: 1,
-          // export: true // optional (backend can use)
         },
-        responseType: "blob", //  IMPORTANT
-      });
+        responseType: "blob",
+      }
+    );
 
-       // Create downloadable file
-    const blob = new Blob([response.data], {
+    //  Convert blob to text
+    const csvText = await response.data.text();
+
+    //  Parse CSV
+    const rows = csvText.split("\n").map(r => r.split(","));
+
+    const headers = rows[0].map(h => h.replace(/"/g, "").trim());
+    const dataRows = rows.slice(1);
+
+    //  Convert to objects
+    const parsedData = dataRows.map(row => {
+      const obj = {};
+      headers.forEach((h, i) => {
+        const value = row[i]?.replace(/"/g, "").trim();
+        obj[h] = value === "" ? null : value;
+      });
+      return obj;
+    });
+
+    //  CHECK REMARKS 
+    parsedData.forEach((row, i) => {
+      console.log(`Row ${i + 1} Remarks:`, row["Remarks"]);
+    });
+
+    //  show toast if remarks missing
+    // const hasEmptyRemarks = parsedData.some(r => !r["Remarks"]);
+    // if (hasEmptyRemarks) {
+    //   toast.warn("Some records have empty remarks");
+    // }
+
+    //   download the file
+    const blob = new Blob([csvText], {
       type: "text/csv;charset=utf-8;",
     });
 
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
-
     link.href = url;
     link.download = `job_form_${filterStartDate}_${filterEndDate}.csv`;
-
-    
-    document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
 
     toast.success("CSV exported successfully");
+  } catch (error) {
+    console.error(error);
+    toast.error("Error exporting CSV");
+  }
+};
 
-      // if (!response.data.success) {
-      //   toast.error("Failed to export data");
-      //   return;
-      // }
-
-      // const listData = response.data.data;
-
-      //  Fetch remarks for each student
-      // const allData = await Promise.all(
-      //   listData.map(async (item) => {
-      //     const remarks = await fetchRemarksById(item.id);
-      //     return {
-      //       ...item,
-      //       remarks,
-      //     };
-      //   })
-      // );
-      // generateCSV(allData);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error exporting CSV");
-    }
-  };
 
   const generateCSV = (data) => {
     const csvHeader = [
