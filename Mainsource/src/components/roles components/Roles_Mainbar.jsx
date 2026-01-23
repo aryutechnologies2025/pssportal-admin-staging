@@ -180,6 +180,7 @@ const openViewModal = async (row) => {
 
   const openEditModal = async (row) => {
 
+
     try{
           setEditingRoleId(row.id);
     setIsEditModalOpen(true);
@@ -189,15 +190,29 @@ const openViewModal = async (row) => {
       `${API_URL}api/role/edit/${row.id}`
     );
 
+    console.log("openEditModal response", response.data);
+
     if (response.data?.status === true) {
       const data = response.data.data;
 
-       setRoleDetails({
-      role_name: row.role_name,
-    department_id: row.department_id?.toString(),
-    company_id: row.company_id, 
-    status: row.status?.toString(),
-    });
+          console.log(
+  "Edit dept value:",
+  roleDetails.department_id,
+  typeof roleDetails.department_id
+);
+
+    //    setRoleDetails({
+    //   role_name: row.role_name,
+    // department_id: row.department_id?.toString(),
+    // company_id: row.company_id, 
+    // status: row.status?.toString(),
+    // });
+    setRoleDetails({
+    role_name: data.role_name,
+    department_id: Number(data.department_id), // ✅ force number
+    company_id: data.company_id,
+    status: Number(data.status),
+  });
     }
     else{
       toast.error("Failed to load role details"); 
@@ -502,7 +517,12 @@ const openViewModal = async (row) => {
 
   ];
 
-  console.log("columns", columns)
+  // console.log("columns", columns)
+
+  const departmentOptions = departments.map((dept) => ({
+  label: dept.name || dept.department_name,
+  value: dept.id || dept._id.toString(),
+}));
 
 
   let navigate = useNavigate();
@@ -560,10 +580,10 @@ px-2 py-2 md:px-6 md:py-6">
                       value={rows}
                       options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
                       onChange={(e) => setRows(e.value)}
-                      className="w-20"
+                      className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
 
-                    <span className=" text-sm text-[#6B7280]">Entries per page</span>
+                    <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
                   </div>
 
                   <div className="flex items-center gap-5">
@@ -672,24 +692,21 @@ px-2 py-2 md:px-6 md:py-6">
                         Department <span className="text-red-500">*</span>
                       </label>
                       <div className="w-[50%]">
-                        <select
+                        <Dropdown
                           name="department"
                           id="department"
                           value={department}
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           onChange={(e) => {
-                            setDepartment(e.target.value);
-                            validateDepartment(e.target.value);
+                            setDepartment(e.value);
+                            validateDepartment(e.value);
                           }}
-                        >
-                          <option value="">Select Department</option>
-
-                          {departments.map((dept) => (
-                            <option key={dept.id || dept._id} value={dept.id || dept._id}>
-                              {dept.name || dept.department_name}
-                            </option>
-                          ))}
-                        </select>
+                           options={departmentOptions}
+                            placeholder="Select Department"
+                            filter
+                        />
+                          
+                        
 
                         {errors.department && (
                           <p className="text-red-500 text-sm mt-1">
@@ -819,34 +836,30 @@ px-2 py-2 md:px-6 md:py-6">
                             Department <span className="text-red-500">*</span>
                           </label>
 
-                          <div className="w-[50%]">
-                            <select
-                              value={roleDetails.department_id}
-                              onChange={(e) => {
-                                setRoleDetails({
-                                  ...roleDetails,
-                                  department_id: e.target.value,
-                                });
-                                validateDepartment(e.target.value);
-                              }}
-                              className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                            >
-                              <option value="">Select Department</option>
+                        <div className="w-[50%]">
+    <Dropdown
+       value={roleDetails.department_id}
+      options={departmentOptions}
+      onChange={(e) => {
+        setRoleDetails({
+          ...roleDetails,
+         department_id: e.value,
+        });
+        validateDepartment(e.value);
+      }}
+     
+      placeholder="Select Department"
+      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+      // showClear
+      filter
+    />
 
-                              {departments.map((dept) => (
-                                <option key={dept.id} value={dept.id.toString()}>
-                                  {dept.department_name}
-                                </option>
-                              ))}
-                            </select>
-
-
-                            {errors.department && (
-                              <p className="text-red-500 text-sm mt-1">
-                                {errors.department[0]}
-                              </p>
-                            )}
-                          </div>
+    {errors.department && (
+      <p className="text-red-500 text-sm mt-1">
+        {errors.department[0]}
+      </p>
+    )}
+  </div>
                         </div>
 
                         <div className="mt-8 flex justify-between items-center">

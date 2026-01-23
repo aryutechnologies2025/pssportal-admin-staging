@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { TfiPencilAlt } from "react-icons/tfi";
+import { TfiPencilAlt, TfiPrinter } from "react-icons/tfi";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { IoIosArrowForward } from "react-icons/io";
 import Footer from "../Footer";
@@ -28,6 +28,7 @@ import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import { Capitalise } from "../../hooks/useCapitalise";
 import { IoMdDownload } from "react-icons/io";
 import CameraPhoto from "../../Utils/cameraPhoto";
+import { IoAddCircleSharp } from "react-icons/io5";
 
 const Employee_contract_details = () => {
   //navigation
@@ -54,11 +55,18 @@ const Employee_contract_details = () => {
       dob: z.string().min(1, "Date of birth is required"),
       fatherName: z.string().min(1, "Father's name is required"),
       address: z.string().min(1, "Address is required"),
+      currentAddress: z.string().optional(),
+      state: z.string().optional(),
+      city: z.string().optional(),
+      bankName: z.string().optional(),
+      branch: z.string().optional(),
+      emergency_contact: z.string().optional(),
       gender: z.string().min(1, "Gender is required"),
       phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
       aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
       company: z.string().min(1, "Company is required"),
       joinedDate: z.string().min(1, "Joined date is required"),
+      panNumber: z.string().optional(),
       accountName: z.string().min(1, "Account name is required"),
       accountNumber: z.string().min(1, "Account number is required"),
       ifsccode: z.string().min(1, "IFSC code is required"),
@@ -70,7 +78,9 @@ const Employee_contract_details = () => {
       documents: z.array(z.any()).optional(),
     })
 
-
+ const [emergencyContacts, setEmergencyContacts] = useState([
+    { name: "", phone: "", relation: "" },
+  ]);
   const [employeeIds, setEmployeeIds] = useState([]);
 
   const {
@@ -91,6 +101,13 @@ const Employee_contract_details = () => {
       dob: editData ? editData.dob : "",
       fatherName: editData ? editData.fatherName : "",
       address: editData ? editData.address : "",
+      currentAddress: editData ? editData.currentAddress : "",
+      state: editData ? editData.state : "",
+      city: editData ? editData.city : "",
+      bankName: editData ? editData.bankName : "",
+      branch: editData ? editData.branch : "",
+      emergency_contact: editData ? editData.emergency_contact : "",
+      panNumber: editData ? editData.pan : "",
       gender: editData ? editData.gender : "",
       joinedDate: editData ? editData.joinedDate : "",
       accountName: editData ? editData.accountName : "",
@@ -101,6 +118,7 @@ const Employee_contract_details = () => {
       status: editData ? editData.status : "",
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
+      
 
     },
   });
@@ -238,12 +256,11 @@ const Employee_contract_details = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
 
   console.log("selectedCompany", selectedCompany);
-
-
-
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions", companyOptions);
+  const [branchOptions, setBranchOptions] = useState([]);
 
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
@@ -270,6 +287,13 @@ const Employee_contract_details = () => {
       phone: "",
       aadhar: "",
       company: null,
+      branch:null,
+      pan_number: "",
+      currentAddress: "",
+      state: "",
+      city: "",
+      bankName: "",
+      emergency_contact: "",
       interviewDate: "",
       interviewStatus: "",
       candidateStatus: "",
@@ -297,6 +321,7 @@ const Employee_contract_details = () => {
     reset(mappedData);
     setPhoto(null);
     setSelectedCompany(null);
+    setSelectedBranch(null);
     setDocuments([]);
 
     setTimeout(() => {
@@ -399,6 +424,7 @@ const Employee_contract_details = () => {
 
   const resetImportForm = () => {
     setSelectedCompany(null);
+    setSelectedBranch(null);
     setSelectedFile(null);
     setAttachment(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
@@ -717,6 +743,12 @@ const Employee_contract_details = () => {
 
       setSelectedCompany(selectedCompanyObj?.value || "");
 
+      // const selectedBranchObj = branchDropdown.find(
+      //   c => c.value === String(normalizedData.company)
+      // );
+
+      // setSelectedBranch(selectedBranchObj?.value || "");
+
       reset({
         ...normalizedData,
         company: String(normalizedData.company),
@@ -833,6 +865,39 @@ const Employee_contract_details = () => {
       toast.error("Failed to delete Contract Candidates");
     }
   };
+
+    const relationOptions = [
+    { label: "Father", value: "Father" },
+    { label: "Mother", value: "Mother" },
+    { label: "Spouse", value: "Spouse" },
+    { label: "Sibling", value: "Sibling" },
+    { label: "Friend", value: "Friend" },
+  ];
+
+  const branchDropdown = [
+    { label: "Branch 1", value: "Branch 1" },
+    { label: "Branch 2", value: "Branch 2" },
+    { label: "Branch 3", value: "Branch 3" },
+  ];
+
+  const addEmergencyContact = () => {
+      const last = emergencyContacts[emergencyContacts.length - 1];
+      // Only add if last contact is filled
+      if (last.name && last.phone && last.relation) {
+        setEmergencyContacts([...emergencyContacts, { name: "", phone: "", relation: "" }]);
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Incomplete Contact",
+          text: "Please complete the current contact before adding a new one",
+        });
+      }
+    };
+
+
+    const handleDownload = () => {
+  window.print(); // user selects "Save as PDF"
+};
 
   const columns = [
     {
@@ -1026,7 +1091,7 @@ const Employee_contract_details = () => {
   console.log("companyDropdown", companyDropdown)
 
   return (
-    <div className="bg-gray-100 flex flex-col justify-between w-screen min-h-screen px-5 pt-2 md:pt-10">
+    <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
       {loading ? (
         <Loader />
       ) : (
@@ -1522,6 +1587,43 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
+                    {/* branch */}
+                      <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        Branch Name
+                         {/* <span className="text-red-500">*</span> */}
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%]">
+                         <Dropdown
+                          value={selectedBranch}
+                          options={branchDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Branch"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedBranch(e.value);
+                            const branchObj = branchDropdown.find(
+                              (item) => item.value === e.value
+                            );
+                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setValue("company", String(e.value), {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                        
+
+                        {/* {errors.branch && (
+                          <p className="text-red-500 text-sm">
+                            {errors.branch.message}
+                          </p>
+                        )} */}
+                      </div>
+                    </div>
+
                     {/* NAME */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1575,7 +1677,7 @@ const Employee_contract_details = () => {
                           {...register("fatherName")}
 
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter the Father Name"
+                          placeholder="Enter The Father Name"
                         />
                         <span className="text-red-500 text-sm">
                           {errors.fatherName?.message}
@@ -1598,11 +1700,76 @@ const Employee_contract_details = () => {
                           {...register("address")}
 
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter the Address"
+                          placeholder="Enter The Address"
                         />
                         <span className="text-red-500 text-sm">
                           {errors.address?.message}
                         </span>
+                      </div>
+                    </div>
+
+                    {/* city */}
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        City 
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <input
+                          type="text"
+                          name="city"
+                          {...register("city")}
+
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          placeholder="Enter The City"
+                        />
+                        {/* <span className="text-red-500 text-sm">
+                          {errors.city?.message}
+                        </span> */}
+                      </div>
+                    </div>
+
+{/* state */}
+
+<div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        State 
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <input
+                          type="text"
+                          name="state"
+                          {...register("state")}
+
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          placeholder="Enter The State"
+                        />
+                        {/* <span className="text-red-500 text-sm">
+                          {errors.state?.message}
+                        </span> */}
+                      </div>
+                    </div>
+
+{/* current address */}
+
+<div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                       Current Address 
+                       {/* <span className="text-red-500">*</span> */}
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <textarea
+                          type="text"
+                          name="currentaddress"
+                          {...register("currentaddress")}
+
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          placeholder="Enter The Address"
+                        />
+                        {/* <span className="text-red-500 text-sm">
+                          {errors.current_address?.message}
+                        </span> */}
                       </div>
                     </div>
 
@@ -1691,6 +1858,34 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
+                    {/* pan number */}
+             <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Pan Number 
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <input
+                          type="text"
+                          name="pan"
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          {...register("pan")}
+                          
+                          maxLength={10}
+                          onInput={(e) => {
+    e.target.value = e.target.value
+      .toUpperCase()              // convert to uppercase
+      .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
+      .slice(0, 10);              // max 10 chars
+  }}
+                          placeholder="Enter Pan Number"
+                        />
+                        {/* <span className="text-red-500 text-sm">
+                          {errors.pan?.message}
+                        </span> */}
+                      </div>
+                    </div>
+
 
 
                     {/* joinedDate date */}
@@ -1749,7 +1944,27 @@ const Employee_contract_details = () => {
                       </div>
                     )}
 
+{/* bank name */}
 
+  <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Bank Name
+                         {/* <span className="text-red-500">*</span> */}
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <input
+                          type="text"
+                          name="bankName"
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          {...register("bankName")}
+                          placeholder="Enter Bank Name"
+                        />
+                        {/* <span className="text-red-500 text-sm">
+                          {errors.bankName?.message}
+                        </span> */}
+                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      </div>
+                    </div>
 
                     {/* account name */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1881,6 +2096,95 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
+{/* Emergency Contacts */}
+<div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
+
+  {/* Header */}
+  <div className="flex justify-between items-center">
+    <p className="text-lg md:text-xl font-semibold">
+      Emergency Contacts
+    </p>
+    <IoAddCircleSharp
+      className="text-[#1ea600] text-3xl cursor-pointer"
+      onClick={addEmergencyContact}
+    />
+  </div>
+
+  {/* Table Head */}
+  <div className="mt-4">
+    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
+      <span>Name</span>
+      <span>Relation</span>
+      <span>Phone No</span>
+    </div>
+
+    {/* Rows */}
+    {emergencyContacts.map((item, index) => (
+      <div
+        key={index}
+        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+      >
+
+        {/* Remove */}
+        {index > 0 && (
+          <IoIosCloseCircle
+            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+            onClick={() => removeEmergencyContact(index)}
+          />
+        )}
+
+        {/* Name */}
+        <div className="flex flex-col mt-1">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={item.name}
+            onChange={(e) =>
+              updateEmergencyContact(index, "name", e.target.value)
+            }
+            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+          />
+        </div>
+
+        {/* Relation */}
+        <div className="flex flex-col mt-1">
+          <select
+            value={item.relation}
+            onChange={(e) =>
+              updateEmergencyContact(index, "relation", e.target.value)
+            }
+            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+          >
+            <option value="">Select Relation</option>
+            {relationOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Phone */}
+        <div className="flex flex-col mt-1">
+          <input
+            type="text"
+            placeholder="Phone Number"
+            value={item.phone}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "");
+              if (value.length <= 10) {
+                updateEmergencyContact(index, "phone", value);
+              }
+            }}
+            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+          />
+        </div>
+
+      </div>
+    ))}
+  </div>
+</div>
+
                     {/* Documents */}
 
                     <div className="mt-5 flex justify-between items-start">
@@ -1954,50 +2258,95 @@ const Employee_contract_details = () => {
             )}
 
             {isViewModalOpen && viewRow && (
-              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative animate-fadeIn">
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
                   {/* Close Button */}
-                  <button className="absolute top-4 right-12 text-gray-500 hover:text-green-500">
+                  {/* <button className="absolute top-4 right-20 text-gray-500 hover:text-green-500">
                     <IoMdDownload size={28} />
+                  </button>
+                  <button className="absolute top-4 right-12 text-gray-500 hover:text-green-500">
+                    <TfiPrinter size={28} />
                   </button>
                   <button
                     onClick={closeViewModal}
                     className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
                   >
                     <IoIosCloseCircle size={28} />
-                  </button>
+                  </button> */}
 
 
                   {/* Title and profile image */}
-                  <div className="flex justify-between items-center mb-6 border-b pb-4">
-                    <h2 className="text-xl font-semibold text-[#1ea600]">
-                      Employee Details
-                    </h2>
+                  {/* Header */}
+<div className="flex items-center justify-between mb-6 border-b pb-4">
 
-                    {/* Profile Picture Display */}
-                    <div className="flex flex-col items-center mr-16">
-                      {viewRow.profile_picture ? (
-                        <img
-                          src={
-                            viewRow.profile_picture.startsWith("http")
-                              ? viewRow.profile_picture
-                              : `${API_URL}${viewRow.profile_picture}`
-                          }
-                          alt="Profile"
-                          className="w-24 h-28 rounded-md object-cover border-2 border-gray-200 shadow-sm"
-                        />
-                      ) : (
-                        <div className="w-24 h-28 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
-                          No Photo
-                        </div>
-                      )}
-                    </div>
-                  </div>
+  {/* Title */}
+  <h2 className="text-xl font-semibold text-[#1ea600]">
+    Employee Details
+  </h2>
+
+  {/* Profile Picture */}
+  <div className="flex items-center gap-6">
+
+    {viewRow.profile_picture ? (
+      <img
+        src={
+          viewRow.profile_picture.startsWith("http")
+            ? viewRow.profile_picture
+            : `${API_URL}${viewRow.profile_picture}`
+        }
+        alt="Profile"
+        className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+      />
+    ) : (
+      <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+        No Photo
+      </div>
+    )}
+
+    {/* Action Icons */}
+    <div className="flex items-center gap-4">
+      {/* Download */}
+      {/* <button
+        title="Download"
+        onClick={() => handleDownload(viewRow)}
+        className="text-gray-500 hover:text-green-600"
+      >
+        <IoMdDownload size={26} />
+      </button> */}
+
+      {/* Print */}
+      <button
+        title="Print"
+        onClick={() => window.print()}
+        className="text-gray-500 hover:text-green-600"
+      >
+        <TfiPrinter size={24} />
+      </button>
+
+      {/* Close */}
+      <button
+        title="Close"
+        onClick={closeViewModal}
+        className="text-gray-500 hover:text-red-500"
+      >
+        <IoIosCloseCircle size={26} />
+      </button>
+    </div>
+
+  </div>
+</div>
+
+{/* body */}
+<div className="pr-2 overflow-y-auto ">
                   {/* Candidate Info */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <p>
                       <b>Company:</b>{" "}
                       {companyOptions.find(c => c.value === viewRow.company_id)?.label || "-"}
+                    </p>
+                     <p>
+                      <b>Branch:</b>{" "}
+                      {branchOptions.find(b => b.value === viewRow.company_id)?.label || "-"}
                     </p>
                     <p>
                       <b>Name:</b> {viewRow.name || "-"}
@@ -2006,7 +2355,13 @@ const Employee_contract_details = () => {
                       <b>Phone:</b> {viewRow.phone_number || "-"}
                     </p>
                     <p>
-                      <b>Aadhar:</b> {viewRow.aadhar_number || "-"}
+                      <b>Aadhar Number:</b> {viewRow.aadhar_number || "-"}
+                    </p>
+                    <p>
+                      <b>Pan Number:</b> {viewRow.pan_number || "-"}
+                    </p>
+                    <p>
+                      <b>Bank Name:</b> {viewRow.bank_name || "-"}
                     </p>
                     <p>
                       <b>Account Name:</b> {viewRow.acc_no || "-"}
@@ -2017,6 +2372,16 @@ const Employee_contract_details = () => {
                     <p>
                       <b>Address:</b> {viewRow.address || "-"}
                     </p>
+                    <p>
+                      <b>City:</b> {viewRow.city || "-"}
+                    </p>
+                    <p>
+                      <b>State:</b> {viewRow.state || "-"}
+                    </p>
+                    <p>
+                      <b>Current Address:</b> {viewRow.current_address || "-"}
+                    </p>
+                    
                     <p>
                       <b>Date of Birth:</b> {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
                     </p>
@@ -2045,6 +2410,36 @@ const Employee_contract_details = () => {
                       <b>Employee ID:</b> {viewRow.employee_id || "-"}
                     </p>
 
+                  {/* emergency contact */}
+
+            <div className="mt-4">
+              <h3 className="font-semibold mb-2">Emergency Contacts</h3>
+
+              {viewRow.emergency_contacts?.length > 0 ? (
+                <table className="w-full border text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border p-2">Name</th>
+                      <th className="border p-2">Relation</th>
+                      <th className="border p-2">Phone Number</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewRow.emergency_contacts
+                      ?.filter((c) => e.name && e.relation && e.phone_number)
+                      .map((e, i) => (
+                        <tr key={i}>
+                          <td className="border p-2">{c.name || "-"}</td>
+                          <td className="border p-2">{c.relation || "-"}</td>
+                          <td className="border p-2">{c.phone_number || "-"}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No contacts available</p>
+              )}
+            </div>
                     <div className="col-span-2 pt-4">
                       <b className="block mb-2 text-gray-700">Documents:</b>
                       {/* Check if documents is an array and has items */}
@@ -2081,7 +2476,7 @@ const Employee_contract_details = () => {
                     </div>
 
                   </div>
-
+</div>
                 </div>
               </div>
             )}

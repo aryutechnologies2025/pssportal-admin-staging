@@ -372,6 +372,33 @@ tbody {
 }
 
 
-.Toastify__toast-container {
+/* .Toastify__toast-container {
   z-index: 2147483647 !important;
+} */
+
+@media print {
+  /* Hide everything */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only print area */
+  #print-area,
+  #print-area * {
+    visibility: visible;
+  }
+
+  /* Position print area properly */
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Hide buttons & sidebar explicitly */
+  .sidebar,
+  .print-hide {
+    display: none !important;
+  }
 }

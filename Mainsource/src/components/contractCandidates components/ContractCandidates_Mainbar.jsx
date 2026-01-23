@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { TfiPencilAlt } from "react-icons/tfi";
+import { TfiPencilAlt, TfiPrinter } from "react-icons/tfi";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { IoIosArrowForward } from "react-icons/io";
 import Footer from "../Footer";
@@ -42,8 +42,7 @@ const ContractCandidates_Mainbar = () => {
   const [employeesList, setEmployeesList] = useState([]);
   const [backendValidationError, setBackendValidationError] = useState(null);
   const [employeeIds, setEmployeeIds] = useState([]);
-   console.log("toast object .........:.......... ", toast);
-
+   
 const user = JSON.parse(localStorage.getItem("pssuser") || "null");
 
 const userId = user?.id;
@@ -228,6 +227,7 @@ education: z.string().optional(),
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
   console.log("filterCandidateStatus", filterCandidateStatus)
   const [selectedReference, setSelectedReference] = useState("");
+   const [selectedReferenceForm, setSelectedReferenceForm] = useState(""); 
   const [selectedEducation, setSelectedEducation] = useState("");
   const [filterEducation, setFilterEducation] = useState("");
 
@@ -1024,13 +1024,13 @@ setLoading(true);
   // create
         const onSubmit = async (data) => {
           try {
-            console.log('Form data before submit:', {
-            profile_picture: data.profile_picture,
-            profile_image_type: typeof data.profile_picture,
-            isFile: data.profile_picture instanceof File,
-            documents: data.documents,
-            documents_length: data.documents?.length
-          });
+          //   console.log('Form data before submit:', {
+          //   profile_picture: data.profile_picture,
+          //   profile_image_type: typeof data.profile_picture,
+          //   isFile: data.profile_picture instanceof File,
+          //   documents: data.documents,
+          //   documents_length: data.documents?.length
+          // });
             const createCandidate = {
               name: data.name,
               address: data.address || "test",
@@ -1295,8 +1295,25 @@ setLoading(true);
                             { label: "Vocational / Skill Certificate / ITI / Trade", value: "vocational_certificate" }
                           ];
 
+                          const referenceFilterOptions = [
+  ...employeesList.map(emp => ({
+    label: emp.full_name,
+    value: emp.full_name,
+  })),
+  { label: "Other", value: "other" },
+];
+
+const referenceFormOptions = [
+    { label: "Select Reference", value: "" },
+    ...employeesList.map(emp => ({
+      label: emp.full_name,
+      value: emp.full_name,
+    })),
+    { label: "Other", value: "other" },
+  ];
+
   return (
-    <div className="bg-gray-100 flex flex-col justify-between w-screen min-h-screen px-5 pt-2 md:pt-10">
+    <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
       {loading ? (
         <Loader />
       ) : (
@@ -1361,21 +1378,16 @@ setLoading(true);
                       Reference
                     </label>
 
-                    <select
+                    <Dropdown
                       value={selectedReference}
-                      onChange={(e) => setSelectedReference(e.target.value)}
-                      className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C]
-               focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                    >
+                      onChange={(e) => setSelectedReference(e.value)}
+                      className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
+               options={referenceFilterOptions}
+               placeholder="Select Reference"
+               filter
+                    />
 
-                      <option value="">Select Reference</option>
-                      {employeesList.map((emp) => (
-                        <option key={emp.id} value={emp.full_name}>
-                          {emp.full_name}
-                        </option>
-                      ))}
-                      <option value="other">Other</option>
-                    </select>
+                      
                   </div>
 
                   {/* Interview Status */}
@@ -1388,6 +1400,7 @@ setLoading(true);
                       options={interviewStatusOptions}
                       onChange={(e) => setFilterInterviewStatus(e.value)}
                       placeholder="Select Status "
+                      filter
                       className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
                     />
                   </div>
@@ -1402,6 +1415,7 @@ setLoading(true);
                       options={candidateStatusOptions}
                       onChange={(e) => setFilterCandidateStatus(e.value)}
                       placeholder="Select Status "
+                      filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md placeholder:text-gray-400"
                     />
                   </div>
@@ -1995,13 +2009,16 @@ setLoading(true);
                           
                           maxLength={10}
                           onInput={(e) => {
-                            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                          }}
+    e.target.value = e.target.value
+      .toUpperCase()              // convert to uppercase
+      .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
+      .slice(0, 10);              // max 10 chars
+  }}
                           placeholder="Enter Pan Number"
                         />
-                        <span className="text-red-500 text-sm">
+                        {/* <span className="text-red-500 text-sm">
                           {errors.pan?.message}
-                        </span>
+                        </span> */}
                       </div>
                     </div>
 
@@ -2270,10 +2287,10 @@ setLoading(true);
                     )}
 
                     {/* Reference */}
-                    <div className="mt-5 flex justify-between items-center">
+                    {/* <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Reference 
-                        {/* <span className="text-red-500">*</span> */}
+                    
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
                         <select
@@ -2291,15 +2308,11 @@ setLoading(true);
                         <span className="text-red-500 text-sm">
                           {errors.reference?.message}
                         </span>
-                        {/* {errors.reference && (
-                                <p className="text-red-500 text-sm mt-1">
-                                  {errors.reference.message}
-                                </p>
-                              )} */}
+                        
                       </div>
-                    </div>
+                    </div> */}
 
-                    {reference === "other" && (
+                      {/* {reference === "other" && (
                       <div className="mt-5 flex justify-end items-center">
                         <div className="w-[50%] md:w-[60%] rounded-lg">
                           <input
@@ -2315,7 +2328,54 @@ setLoading(true);
                           )}
                         </div>
                       </div>
-                    )}
+                    )} */}
+
+                      <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Reference 
+                    
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                      <Dropdown
+                       value={selectedReferenceForm}
+                     onChange={(e) => {
+                    setSelectedReferenceForm(e.value);
+                    setValue("reference", e.value, { shouldValidate: true });
+                  }}
+                          className="uniform-field w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                        options={referenceFormOptions}
+                        optionLabel="label"
+                  optionValue="value"
+               placeholder="Select Reference"
+               filter
+                        />
+                         
+                        <span className="text-red-500 text-sm">
+                          {errors.reference?.message}
+                        </span>
+                        
+                      </div>
+                    </div>
+
+                   {selectedReferenceForm === "other" && (
+              <div className="mt-5 flex justify-between items-center">
+                <label className="block text-md font-medium mb-2">
+                  Other Reference <span className="text-red-500">*</span>
+                </label>
+                <div className="w-[50%] md:w-[60%] rounded-lg">
+                  <input
+                    type="text"
+                    {...register("otherReference")}
+                    placeholder="Specify Reference"
+                    className="w-full px-3 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                  <span className="text-red-500 text-sm">
+                    {errors.otherReference?.message}
+                  </span>
+                </div>
+              </div>
+            )}
+      
 
 {/* Documents */}
 
@@ -2390,42 +2450,79 @@ setLoading(true);
             )}
 
             {isViewModalOpen && viewRow && (
-              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative animate-fadeIn">
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
                   {/* Close Button */}
-                  <button
+                  {/* <button
                     onClick={closeViewModal}
                     className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
                   >
                     <IoIosCloseCircle size={28} />
-                  </button>
+                  </button> */}
 
                   {/* Title and profile picture */}
-          <div className="flex justify-between items-center mb-6 border-b pb-4">
+                            {/* Header */}
+<div className="flex items-center justify-between mb-6 border-b pb-4">
+
+  {/* Title */}
   <h2 className="text-xl font-semibold text-[#1ea600]">
-    Contract Candidate Details
+   Contract Candidate Details
   </h2>
-  
-  {/* Profile Picture Display */}
-  <div className="flex flex-col items-center mr-10">
+
+  {/* Profile Picture */}
+  <div className="flex items-center gap-6">
+
     {viewRow.profile_picture ? (
       <img
-         src={
-      viewRow.profile_picture.startsWith("http")
-        ? viewRow.profile_picture
-        : `${API_URL}${viewRow.profile_picture}`
-    }
+        src={
+          viewRow.profile_picture.startsWith("http")
+            ? viewRow.profile_picture
+            : `${API_URL}${viewRow.profile_picture}`
+        }
         alt="Profile"
-        className="w-24 h-28 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+        className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
       />
     ) : (
-      <div className="w-24 h-28 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+      <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
         No Photo
       </div>
     )}
+
+    {/* Action Icons */}
+    <div className="flex items-center gap-4">
+      {/* Download */}
+      {/* <button
+        title="Download"
+        onClick={() => handleDownload(viewRow)}
+        className="text-gray-500 hover:text-green-600"
+      >
+        <IoMdDownload size={26} />
+      </button> */}
+
+      {/* Print */}
+      <button
+        title="Print"
+        onClick={() => window.print()}
+        className="text-gray-500 hover:text-green-600"
+      >
+        <TfiPrinter size={24} />
+      </button>
+
+      {/* Close */}
+      <button
+        title="Close"
+        onClick={closeViewModal}
+        className="text-gray-500 hover:text-red-500"
+      >
+        <IoIosCloseCircle size={26} />
+      </button>
+    </div>
+
   </div>
 </div>
 
+{/* body */}
+<div className="pr-2 overflow-y-auto ">
                   {/* Candidate Info */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
 
@@ -2442,9 +2539,12 @@ setLoading(true);
                     </p>
 
                     <p>
-                      <b>Aadhar:</b> {viewRow.aadhar_number}
+                      <b>Aadhar Number:</b> {viewRow.aadhar_number}
                     </p>
 
+<p>
+                      <b>Pan Number:</b> {viewRow.pan_number || "-"}
+                    </p>
 <p>
   <b>Education:</b>{" "}
   {educationOptions.find(e => e.value === viewRow.education)?.label || "-"}
@@ -2524,6 +2624,7 @@ setLoading(true);
   )}
 </div>
                   </div>
+                </div>
                 </div>
               </div>
             )}

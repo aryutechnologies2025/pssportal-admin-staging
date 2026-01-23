@@ -11,6 +11,7 @@ import Mobile_Sidebar from "../Mobile_Sidebar";
 import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
 import { formatToDDMMYYYY } from "../../Utils/dateformat";
+import { TfiPrinter } from "react-icons/tfi";
 
 const EmployeeDetails_Mainbar = () => {
   let navigate = useNavigate();
@@ -71,7 +72,7 @@ const EmployeeDetails_Mainbar = () => {
   };
 
   return (
-    <div className="flex flex-col justify-between w-screen min-h-screen bg-gray-100 px-3 md:px-5 pt-2 md:pt-5">
+    <div className="flex flex-col justify-between w-screen min-h-screen bg-gray-100 px-3 md:px-5 pt-2 md:pt-5 ">
       <div>
 
         <Mobile_Sidebar />
@@ -89,12 +90,21 @@ const EmployeeDetails_Mainbar = () => {
           <p>{">"}</p>
         </div>
 
-        <div className="flex gap-8 items-center justify-end mt-5">
+        <div className="flex gap-8 items-center justify-end mt-5 ">
+          {/* Print */}
+                <button
+    title="Print"
+    onClick={() => window.print()}
+    className="text-gray-500 hover:text-green-600"
+  >
+    <TfiPrinter size={24} />
+  </button>
+
           <p className="text-sm font-medium">STATUS</p>
-          <p className="border px-8 py-2 text-sm bg-white rounded-xl">Active</p>
+          <p className="border px-8 py-2 text-sm bg-green-100 rounded-xl">Active</p>
         </div>
 
-        <div className="flex flex-col xl:flex-row md:gap-3 mt-3">
+        <div className="flex flex-col xl:flex-row md:gap-3 mt-3 " id="print-area">
           {/* leftsidebar */}
           <div className="basis-[70%] pb-3 md:pb-0">
             <div className="flex flex-col md:flex-row flex-grow gap-3">

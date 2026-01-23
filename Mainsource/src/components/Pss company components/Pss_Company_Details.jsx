@@ -54,7 +54,7 @@ const Pss_Company_Details = () => {
   const validateCompanyName = (value) => {
     const newErrors = { ...errors };
     if (!value) {
-      newErrors.name = ["Company name is required"];
+      newErrors.name = ["Company Name Is Required"];
     } else {
       delete newErrors.name;
     }
@@ -83,33 +83,18 @@ const Pss_Company_Details = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewContact, setViewContact] = useState(null);
-const [first, setFirst] = useState(0);
-  const onPageChange = (e) => {
-    setPage(e.first ); // PrimeReact is 0-based
+const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
     setRows(e.rows);
 
   };
 
-  const onRowsChange = (newRows) => {
-  const totalPages = Math.ceil(totalRecords / newRows);
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
 
-  const currentPage = Math.floor(first / rows) + 1;
-
-  // If current page exceeds new total pages → move to last page
-  const safePage = Math.min(currentPage, totalPages);
-
-  const newFirst = (safePage - 1) * newRows;
-
-  setRows(newRows);
-  setFirst(newFirst);
-};
-
-useEffect(() => {
-  if (first >= totalRecords && totalRecords > 0) {
-    const lastPageFirst = Math.max(totalRecords - rows, 0);
-    setFirst(lastPageFirst);
-  }
-}, [totalRecords]);
 
 
 const openViewModal = async (row) => {
@@ -143,7 +128,7 @@ const openViewModal = async (row) => {
         setTotalRecords(0);
       }
     } catch (err) {
-      console.error("Failed to fetch roles", err);
+      console.error("Failed To Fetch Roles", err);
       setPssCompany([]);
      
       setTotalRecords(0);
@@ -233,18 +218,18 @@ const openViewModal = async (row) => {
     const trimmedName = company_Name?.trim();
 
      if (!trimmedName) {
-    newErrors.company_Name = ["Company name is required"];
+    newErrors.company_Name = ["Company Name Is Required"];
   } else if (isDuplicateCompany(trimmedName)) {
-    newErrors.company_Name = ["Company name already exists"];
+    newErrors.company_Name = ["Company Name Already Exists"];
   }
 
 
     if (!address || address.trim() === "") {
-      newErrors.address = ["Address is required"];
+      newErrors.address = ["Address Is Required"];
     }
 
     if (status === "" || status === null) {
-      newErrors.status = ["Status is required"];
+      newErrors.status = ["Status Is Required"];
     }
 
     setErrors(newErrors);
@@ -264,17 +249,17 @@ const validateEditForm = () => {
 
   const trimmedName = companyDetails.company_name?.trim();
  if (!trimmedName) {
-    newErrors.company_name = ["Company name is required"];
+    newErrors.company_name = ["Company Name Is Required"];
   } else if (isDuplicateCompanyEdit(trimmedName)) {
-    newErrors.company_name = ["Company name already exists"];
+    newErrors.company_name = ["Company Name Already Exists"];
   }
 
   if (!companyDetails.address?.trim()) {
-    newErrors.address = ["Address is required"];
+    newErrors.address = ["Address Is Required"];
   }
 
   if (companyDetails.status === "" || companyDetails.status === null) {
-    newErrors.status = ["Status is required"];
+    newErrors.status = ["Status Is Required"];
   }
 
   setErrors(newErrors);
@@ -313,17 +298,17 @@ const validateEditForm = () => {
         console.log("Create Company Response:", response);
 
       if (response.data.status === true || response.data.success === true) {
-        toast.success("company created successfully");
+        toast.success("Company Created Successfully");
         fetchPssCompanies();
         setCompany_Name("");
         setAddress("");
         setStatus("");
         closeAddModal();
       } else {
-        toast.error("Failed to create company");
+        toast.error("Failed To Create Company");
       }
     } catch (err) {
-      toast.error("Error creating company");
+      toast.error("Error Creating Company");
     } finally {
       setSubmitting(false);
     }
@@ -350,16 +335,16 @@ const validateEditForm = () => {
       );
 
       if ( response.data.success === true || response.data.status === true) {
-        toast.success("Company updated successfully");
+        toast.success("Company Updated Successfully");
         closeEditModal();
         fetchPssCompanies();
       } else {
-        toast.error(response.data.message ||"Failed to update company");
+        toast.error(response.data.message ||"Failed To Update Company");
         
       }
     } catch (err) {
         
-      toast.error("Error updating company");
+      toast.error("Error Updating Company");
       
     }
   };
@@ -370,7 +355,7 @@ const validateEditForm = () => {
   const ValidateCompanyName = (value) => {
     const newErrors = { ...errors };
     if (!value) {
-      newErrors.company_name = ["Company name is required"];
+      newErrors.company_name = ["Company Name Is Required"];
     } else {
       delete newErrors.company_name;
     }
@@ -382,7 +367,7 @@ const validateEditForm = () => {
   const newErrors = { ...errors };
 
   if (!value?.trim()) {
-    newErrors.address = ["Address is required"];
+    newErrors.address = ["Address Is Required"];
   } else {
     delete newErrors.address;
   }
@@ -395,7 +380,7 @@ const validateEditForm = () => {
   const validateStatus = (value) => {
     const newErrors = { ...errors };
     if (!value) {
-      newErrors.status = ["Status is required"];
+      newErrors.status = ["Status Is Required"];
     } else {
       delete newErrors.status;
     }
@@ -407,7 +392,7 @@ const validateEditForm = () => {
  
 
     if (!companyId) {
-    toast.error("Company ID missing");
+    toast.error("Company ID Missing");
     return;
   }
 
@@ -433,13 +418,13 @@ const validateEditForm = () => {
         })
         // console.log("Delete Response 👉", response);
         if (response.data.success === true || response.data.status === true) {
-          toast.success("Company has been deleted");
+          toast.success("Company Has Been Deleted");
           fetchPssCompanies();
         } else {
-          toast.error(response.data.message || "Delete failed");
+          toast.error(response.data.message || "Delete Failed");
         }
       } catch (err) {
-        toast.error("Failed to delete company");
+        toast.error("Failed To Delete Company");
         // console.log("error....:...",err)
       }
     }
@@ -560,7 +545,7 @@ onClick={() => {
   let navigate = useNavigate();
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen ">
+    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-full overflow-x-auto min-h-screen ">
       {loading ? (
         <Loader />
       ) : (
@@ -651,6 +636,8 @@ px-2 py-2 md:px-6 md:py-6">
                     value={pssCompany}
                     paginator
                     rows={rows}
+                    first={(page - 1) * rows}
+                    
                     onPage={onPageChange}
                     totalRecords={totalRecords}
                     rowsPerPageOptions={[10, 25, 50, 100]}
