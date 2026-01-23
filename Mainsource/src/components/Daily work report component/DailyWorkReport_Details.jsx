@@ -51,6 +51,7 @@ const DailyWorkReport_Details = () => {
     const [employees, setEmployees] = useState([]);
     console.log("employees", employees);
     const [allWorkReports, setAllWorkReports] = useState([]);
+    const today = new Date().toISOString().split("T")[0];
     const [dailyForm, setDailyForm] = useState({
         report_date: "",
         report: ""
@@ -62,9 +63,9 @@ const DailyWorkReport_Details = () => {
         report: ""
     });
     const [filters, setFilters] = useState({
-        from_date: "",
-        to_date: "",
-        employee_id: ""
+        from_date: today,
+        to_date: today,
+        employee_id: "",
     });
 
 
