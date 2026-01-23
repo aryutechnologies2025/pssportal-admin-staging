@@ -71,6 +71,7 @@ const userRole = user?.role_id;
       // gender: z.string().min(1, "Gender is required"),
       phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
       aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
+      pan_number: z.string().optional(),
       company: z.string().min(1, "Company is required"),
       
       interviewDate: z.string().min(1, "Interview date is required"),
@@ -174,6 +175,7 @@ education: z.string().optional(),
       name: editData ? editData.name : "",
       phone: editData ? editData.phone_number : "",
       aadhar: editData ? editData.aadhar_number : "",
+      pan_number: editData ? editData.pan_number : "",
       company: editData ? editData.company_name : "",
       interviewDate: editData ? editData.interview_date : getTodayDate(),
       interviewStatus: editData ? editData.interview_status : "",
@@ -376,6 +378,7 @@ education: z.string().optional(),
       name: "",
       phone: "",
       aadhar: "",
+      pan_number: "",
       // company: null,
       company: "",
       education: "",
@@ -698,6 +701,7 @@ const removeDocument = (index) => {
       // dob: row.date_of_birth || "",
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
+      pan_number: row.pan_number || "",
       education: row.education || "",
       company: String(row.company_id),
       interviewDate: row.interview_date || "",
@@ -1036,6 +1040,7 @@ setLoading(true);
               // gender: data.gender,
               phone_number: data.phone,
               aadhar_number: data.aadhar,
+              pan_number: data.pan_number,
               company_id: Number(data.company),
           education: data.education, 
 
@@ -1971,6 +1976,31 @@ setLoading(true);
                         />
                         <span className="text-red-500 text-sm">
                           {errors.aadhar?.message}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* pan no */}
+  <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Pan Number 
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <input
+                          type="text"
+                          name="pan"
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          {...register("pan")}
+                          
+                          maxLength={10}
+                          onInput={(e) => {
+                            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          }}
+                          placeholder="Enter Pan Number"
+                        />
+                        <span className="text-red-500 text-sm">
+                          {errors.pan?.message}
                         </span>
                       </div>
                     </div>
