@@ -48,6 +48,8 @@ const Activity_Mainbar = () => {
   
   const [attendanceData, setAttendanceData] = useState([]);
   const [createdbyData, setCreatedbyData] = useState([]);
+  const [previewImage, setPreviewImage] = useState(null);
+
 
     const fetchActivity = async () => {
     try {
@@ -71,42 +73,145 @@ console.log("ACTIVITY Response.....: ",res)
     fetchActivity();
   }, []);
 
-  const columns = [
-    {
-      header: "S.No",
-      body: ( _,options) => options.rowIndex + 1,
-      style: { textAlign: "center", width: "80px" },
-      fixed: true,
-    },
-    // {
-    //   header: "Employee ID",
-    //   field: "employee_id",
-    //   body: (row) => row?.employee_id || "_",
-    // },
-    {
-      header: "Employee Name",
-      field: "employeeName",
-    body: (row) => row?.employee_name || "_",
-    },
-    {
-      header: "Role",
-      field: "role",
-      body: (row) => row.role_name || "_",
-    },
+  // const columns = [
+  //   {
+  //     header: "S.No",
+  //     body: ( _,options) => options.rowIndex + 1,
+  //     style: { textAlign: "center", width: "80px" },
+  //     fixed: true,
+  //   },
+  //   // {
+  //   //   header: "Employee ID",
+  //   //   field: "employee_id",
+  //   //   body: (row) => row?.employee_id || "_",
+  //   // },
+  //   {
+  //     header: "Employee Name",
+  //     field: "employeeName",
+  //   body: (row) => row?.employee_name || "_",
+  //   },
+  //   {
+  //     header: "Role",
+  //     field: "role",
+  //     body: (row) => row.role_name || "_",
+  //   },
    
-    {
-      header: "Reason",
-      field: "reason",
-      body: (row) => Capitalise(row.reason || "_")  ,
+  //   {
+  //     header: "Reason",
+  //     field: "reason",
+  //     body: (row) => Capitalise(row.reason || "_")  ,
+  //   },
+  //   {
+  //       header: "Date & Time",
+  //       field: "dateTime",
+  //       body: (row) =>
+  //   row.created_at ? formatIndianDateTime12Hr(row.created_at) : "-",
+  //   }
+  // ];
+  const parseLocationDetails = (location) => {
+  if (!location) return "-";
+
+  try {
+    const parsed =
+      typeof location === "string" ? JSON.parse(location) : location;
+
+    return parsed.fullAddress ||
+      `${parsed.address || ""}, ${parsed.city || ""}`.trim() ||
+      "-";
+  } catch (err) {
+    return "-";
+  }
+};
+const getLocationLines = (locationDetails) => {
+  if (!locationDetails) return { line1: "-", line2: "" };
+
+  try {
+    const loc =
+      typeof locationDetails === "string"
+        ? JSON.parse(locationDetails)
+        : locationDetails;
+
+    return {
+      line1: [loc.address, loc.locality].filter(Boolean).join(", "),
+      line2: [loc.city, loc.state, loc.country, loc.pincode]
+        .filter(Boolean)
+        .join(", "),
+    };
+  } catch (err) {
+    return { line1: "-", line2: "" };
+  }
+};
+
+
+
+const columns = [
+  {
+    header: "S.No",
+    body: (_, options) => options.rowIndex + 1,
+    style: { textAlign: "center", width: "80px" },
+  },
+  {
+    header: "Employee Name",
+    body: (row) => row?.employee_name || "_",
+  },
+  {
+    header: "Role",
+    body: (row) => row.role_name || "_",
+  },
+  {
+    header: "Reason",
+    body: (row) => Capitalise(row.reason || "_"),
+  },
+  {
+    header: "Date & Time",
+    body: (row) =>
+      row.created_at ? formatIndianDateTime12Hr(row.created_at) : "-",
+  },
+
+  // 📍 LOCATION (2 ROWS)
+  {
+    header: "Location",
+    body: (row) => {
+      const { line1, line2 } = getLocationLines(row.location_details);
+
+      return (
+        <div className="text-xs text-left leading-tight">
+          <div className="font-medium text-gray-700">
+            {line1 || "-"}
+          </div>
+          {line2 && (
+            <div className="text-gray-500 mt-1">
+              {line2}
+            </div>
+          )}
+        </div>
+      );
     },
-    {
-        header: "Date & Time",
-        field: "dateTime",
-        body: (row) =>
-    row.created_at ? formatIndianDateTime12Hr(row.created_at) : "-",
-    }
-  ];
-   return (
+  },
+
+  // 📷 PHOTO (CLICK TO VIEW)
+  {
+    header: "Photo",
+    body: (row) =>
+      row.profile_image ? (
+        <img
+          src={`${API_URL}${row.profile_image}`}
+          alt="selfie"
+          className="w-12 h-12 rounded-full object-cover mx-auto cursor-pointer hover:scale-105 transition"
+          onClick={() =>
+            setPreviewImage(`${API_URL}${row.profile_image}`)
+          }
+          onError={(e) => (e.target.src = "/user-placeholder.png")}
+        />
+      ) : (
+        "-"
+      ),
+    style: { textAlign: "center", width: "120px" },
+  },
+];
+
+
+  return (
       <div className="bg-gray-100 flex flex-col justify-between w-full min-h-screen px-5 pt-2 md:pt-5 overflow-x-auto">
         <div>
           
@@ -233,6 +338,34 @@ console.log("ACTIVITY Response.....: ",res)
 
          
         </div>
+        {previewImage && (
+  <div
+    className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+    onClick={() => setPreviewImage(null)}
+  >
+    <div
+      className="relative"
+      onClick={(e) => e.stopPropagation()} // prevent close when clicking image
+    >
+      {/* ❌ Close Icon */}
+      <button
+        onClick={() => setPreviewImage(null)}
+        className="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-red-500 hover:text-white transition"
+      >
+        ×
+      </button>
+
+      {/* 🖼️ Image */}
+      <img
+        src={previewImage}
+        alt="Preview"
+        className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-xl"
+      />
+    </div>
+  </div>
+)}
+
+
 
      
 

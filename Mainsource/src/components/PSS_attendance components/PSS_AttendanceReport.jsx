@@ -21,19 +21,22 @@ import {
   IoIosArrowForward,
   IoIosArrowUp,
 } from "react-icons/io";
-import { FiSearch } from "react-icons/fi";
+import { FiEye, FiSearch } from "react-icons/fi";
 import { FaEye } from "react-icons/fa6";
-import { IoIosCloseCircle } from "react-icons/io"
+import { IoIosCloseCircle } from "react-icons/io";
 import { Editor } from "primereact/editor";
 import Loader from "../Loader.jsx";
 import Mobile_Sidebar from "../Mobile_Sidebar.jsx";
 import Footer from "../Footer.jsx";
-import { formatToYYYYMMDD, formatToDDMMYYYY, formatDateTimeDDMMYYYY } from "../../Utils/dateformat.js";
+import {
+  formatToYYYYMMDD,
+  formatToDDMMYYYY,
+  formatDateTimeDDMMYYYY,
+} from "../../Utils/dateformat.js";
 import DatePicker from "react-datepicker";
 import WFH from "../../assets/WFH.svg";
 import { IoClose } from "react-icons/io5";
 import { Capitalise } from "../../hooks/useCapitalise.jsx";
-
 
 const DailyWorkReport_Details = () => {
   let navigate = useNavigate();
@@ -50,13 +53,13 @@ const DailyWorkReport_Details = () => {
   const parsedDetails = JSON.parse(storedDetatis);
   const userid = parsedDetails ? parsedDetails.id : null;
   const [rows, setRows] = useState(10);
-  const [globalFilter, setGlobalFilter] = useState("");;
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const [workReports, setWorkReports] = useState([]);
   const [employees, setEmployees] = useState([]);
 
   const [absentlistIsOpen, setAbsentlistIsOpen] = useState(false);
-  const [absentlistData,setAbsentlistData]=useState([]);
+  const [absentlistData, setAbsentlistData] = useState([]);
   const [attendanceCount, setAttendanceCount] = useState({});
   const [attendanceData, setAttendanceData] = useState({});
   const today = new Date().toISOString().split("T")[0];
@@ -67,25 +70,28 @@ const DailyWorkReport_Details = () => {
 
   const [dailyForm, setDailyForm] = useState({
     report_date: "",
-    report: ""
+    report: "",
   });
+  const [previewImage, setPreviewImage] = useState(null);
+
 
   const [editDailyForm, setEditDailyForm] = useState({
     id: null,
     report_date: "",
-    report: ""
+    report: "",
   });
   const [filters, setFilters] = useState({
     from_date: "",
     to_date: "",
-    employee_id: ""
+    employee_id: "",
   });
   const [summary, setSummary] = useState({
     total_working_days: 0,
     present_days: 0,
     absent_days: 0,
   });
-
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
 
   // Fetch attendance report
   // const fetchDailyAttendanceReport = async () => {
@@ -113,7 +119,7 @@ const DailyWorkReport_Details = () => {
   //       id: index + 1,
   //       employee_name: item.employee_name,
   //       // date: formatToDDMMYYYY(item.date),
-  //       date: item.date, 
+  //       date: item.date,
   //       status: item.status,
   //       login_time: item.login_time || "-",
   //       logout_time: item.logout_time || "-",
@@ -124,7 +130,6 @@ const DailyWorkReport_Details = () => {
 
   //     setData(formattedData);
 
-
   //   } catch (error) {
   //     console.error("Attendance API Error:", error);
   //   } finally {
@@ -132,51 +137,44 @@ const DailyWorkReport_Details = () => {
   //   }
   // };
 
+  useEffect(() => {
+    if (selectedDate) {
+      getAttendanceData();
+    }
+  }, [selectedDate]);
 
+  const getAttendanceData = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/attendance-report/attendance`,
+        {
+          params: { month: selectedDate },
+        },
+      );
 
+      setAttendanceCount(res.data.summary || {});
 
-useEffect(() => {
-  if (selectedDate) {
-    getAttendanceData();
-  }
-}, [selectedDate]);
+      const formattedData = res.data.data.map((item, index) => ({
+        id: index + 1,
+        employee_name: item.employee_name,
+        date: item.date,
+        status: item.status,
+        login_time: item.login_time || "-",
+        logout_time: item.logout_time || "-",
+        break_time: item.break_time || "-",
+        total_hours: item.total_hours || "-",
+        payable_time: item.payable_time || "-",
+        attendance_details: item.attendance_details || [],
+      }));
 
-
-
-const getAttendanceData = async () => {
-  try {
-    const res = await axiosInstance.get(
-      `${API_URL}api/attendance-report/attendance`,
-      {
-        params: { month: selectedDate },
-      }
-    );
-
-    setAttendanceCount(res.data.summary || {});
-
-    const formattedData = res.data.data.map((item, index) => ({
-      id: index + 1,
-      employee_name: item.employee_name,
-      date: item.date,
-      status: item.status,
-      login_time: item.login_time || "-",
-      logout_time: item.logout_time || "-",
-      break_time: item.break_time || "-",
-      total_hours: item.total_hours || "-",
-      payable_time: item.payable_time || "-",
-    }));
-
-    setData(formattedData);
-    setAbsentlistData(
-      res.data.data.filter(item => item.status === "Absent")
-    );
-
-  } catch (err) {
-    console.error("Attendance API Error:", err);
-  }
-};
-
-
+      setData(formattedData);
+      setAbsentlistData(
+        res.data.data.filter((item) => item.status === "Absent"),
+      );
+    } catch (err) {
+      console.error("Attendance API Error:", err);
+    }
+  };
 
   function onClickMonthlyDetails() {
     navigate("/reports");
@@ -186,6 +184,18 @@ const getAttendanceData = async () => {
       behavior: "instant",
     });
   }
+
+  const parseLocationDetails = (location_details) => {
+    if (!location_details) return "-";
+
+    try {
+      const loc = JSON.parse(location_details);
+      return loc.fullAddress || "-";
+    } catch (err) {
+      console.error("Invalid location_details:", location_details);
+      return "-";
+    }
+  };
 
   const columns = [
     {
@@ -197,6 +207,7 @@ const getAttendanceData = async () => {
     //     field: "employee.gen_employee_id",
     //     header: "Employee ID",
     // },
+
     {
       field: "employee_name",
       header: "EMPLOYEE NAME",
@@ -211,12 +222,15 @@ const getAttendanceData = async () => {
       header: "STATUS",
       field: "status",
       body: (row) => (
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${row.status === "Present"
-          ? "bg-green-100 text-green-700"
-          : row.status === "Absent"
-            ? "bg-red-100 text-red-700"
-            : "bg-gray-100 text-gray-600"
-          }`}>
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium ${
+            row.status === "Present"
+              ? "bg-green-100 text-green-700"
+              : row.status === "Absent"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-600"
+          }`}
+        >
           {row.status}
         </span>
       ),
@@ -245,6 +259,22 @@ const getAttendanceData = async () => {
       header: "PAYABLE TIME",
       field: "payable_time",
       body: (row) => row.payable_time || "-",
+    },
+    {
+      header: "DETAILS",
+      body: (row) => (
+        <button
+          className="text-blue-600 hover:text-blue-800 hover:scale-110 transition"
+          onClick={() => {
+            setSelectedAttendance(row);
+            setShowDetails(true);
+          }}
+          title="View Attendance Details"
+        >
+          <FiEye size={18} />
+        </button>
+      ),
+      style: { textAlign: "center" },
     },
 
     // {
@@ -276,11 +306,6 @@ const getAttendanceData = async () => {
     // { field: "employeeId", header: "ID" },
   ];
 
-
-
-
-
-
   return (
     <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-full min-h-screen overflow-x-auto ">
       {loading ? (
@@ -295,18 +320,22 @@ const getAttendanceData = async () => {
             <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
               <ToastContainer position="top-right" autoClose={3000} />
 
-              <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/dashboard")}>
+              <p
+                className="text-sm md:text-md text-gray-500  cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              >
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">Daily Work Report</p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">
+                Daily Work Report
+              </p>
             </div>
 
             {/* Filter Section */}
             <div className="w-full  mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
               <div className="flex flex-col md:flex-row items-center justify-between ">
                 <div className="flex flex-wrap  items-end gap-4">
-
                   <p className="text-xl md:text-3xl font-semibold  ">
                     Attendance
                   </p>
@@ -322,13 +351,11 @@ const getAttendanceData = async () => {
                     portalId="root"
                   /> */}
                   <input
-                  type="date"
-                  value={selectedDate}
-                  className="w-full md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-
-
+                    type="date"
+                    value={selectedDate}
+                    className="w-full md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
                 </div>
                 <div className="">
                   <button
@@ -343,9 +370,7 @@ const getAttendanceData = async () => {
 
             {/* Cards */}
             <div className="hidden md:flex flex-col sm:flex-row mt-5 flex-grow gap-3">
-              <div
-                className="flex flex-grow gap-2 w-full sm:w-1/4  transition-all duration-100 flex-col justify-between bg-white px-5 py-5 rounded-xl"
-              >
+              <div className="flex flex-grow gap-2 w-full sm:w-1/4  transition-all duration-100 flex-col justify-between bg-white px-5 py-5 rounded-xl">
                 <div className="flex items-center justify-between gap-3 text-4xl">
                   <img src={WFH} alt="" className="h-12 w-12" />
                   {summary?.present}
@@ -364,7 +389,8 @@ const getAttendanceData = async () => {
                 </p>
               </div>
 
-              <div onClick={() => setAbsentlistIsOpen(true)}
+              <div
+                onClick={() => setAbsentlistIsOpen(true)}
                 className="flex flex-grow gap-2 w-full sm:w-1/4  transition-all duration-100 flex-col justify-between bg-white px-5 py-5 rounded-xl"
               >
                 <div className="flex items-center justify-between gap-3 text-4xl">
@@ -388,40 +414,48 @@ const getAttendanceData = async () => {
 
             {/* MOBILE — Combined Absent + WFH Card */}
             <div className="flex md:hidden flex-row justify-between items-center gap-2 bg-white px-5 py-3 rounded-xl mt-5">
-
               <div className="flex flex-1 gap-2 justify-center cursor-pointer">
-                <p className="text-xl font-bold text-green-500">{attendanceCount?.present}</p>
-                <p className="text-lg font-semibold text-gray-500 uppercase">Present</p>
+                <p className="text-xl font-bold text-green-500">
+                  {attendanceCount?.present}
+                </p>
+                <p className="text-lg font-semibold text-gray-500 uppercase">
+                  Present
+                </p>
               </div>
 
-
-              <div onClick={() => setAbsentlistIsOpen(true)} className="flex flex-1 gap-2 justify-center cursor-pointer">
-                <p className="text-xl font-bold text-green-500">{attendanceCount?.absent}</p>
-                <p className="text-lg font-semibold text-gray-500 uppercase">Absent</p>
+              <div
+                onClick={() => setAbsentlistIsOpen(true)}
+                className="flex flex-1 gap-2 justify-center cursor-pointer"
+              >
+                <p className="text-xl font-bold text-green-500">
+                  {attendanceCount?.absent}
+                </p>
+                <p className="text-lg font-semibold text-gray-500 uppercase">
+                  Absent
+                </p>
               </div>
-
-
-
             </div>
-            <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
+            <div
+              className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
-px-2 py-2 md:px-6 md:py-6">
+px-2 py-2 md:px-6 md:py-6"
+            >
               <div className="datatable-container mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
-
                     <Dropdown
                       value={rows}
-                      options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
+                      options={[10, 25, 50, 100].map((v) => ({
+                        label: v,
+                        value: v,
+                      }))}
                       onChange={(e) => setRows(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-
                     />
-                    <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
-
-
-
+                    <span className=" text-sm text-[#6B7280]">
+                      Entries Per Page
+                    </span>
                   </div>
 
                   <div className="flex justify-between items-center gap-5">
@@ -435,15 +469,11 @@ px-2 py-2 md:px-6 md:py-6">
                       <InputText
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
-
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
                focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-
                       />
                     </div>
-
-
                   </div>
                 </div>
                 <div className="table-scroll-container" id="datatable">
@@ -480,7 +510,6 @@ px-2 py-2 md:px-6 md:py-6">
                       />
                     ))}
                   </DataTable>
-
                 </div>
               </div>
             </div>
@@ -533,15 +562,128 @@ px-2 py-2 md:px-6 md:py-6">
                 </div>
               </div>
             )}
+            {showDetails && selectedAttendance && (
+              <div
+                className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+                onClick={() => setShowDetails(false)}
+              >
+                <div
+                  className="bg-white w-[90vw] max-w-4xl rounded-xl p-5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* HEADER */}
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">
+                      Attendance Details – {selectedAttendance.employee_name}
+                    </h3>
+                    <button
+                      className="text-xl font-bold text-gray-500 hover:text-red-500"
+                      onClick={() => setShowDetails(false)}
+                    >
+                      ×
+                    </button>
+                  </div>
 
+                  {/* TABLE */}
+                  <div className="overflow-auto max-h-[70vh]">
+                    <table className="w-full border text-sm">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="border p-2">Reason</th>
+                          <th className="border p-2">Time</th>
+                          <th className="border p-2">Location</th>
+                          <th className="border p-2">Selfie</th>
+                        </tr>
+                      </thead>
 
+                      <tbody>
+                        {selectedAttendance.attendance_details &&
+                        selectedAttendance.attendance_details.length > 0 ? (
+                          selectedAttendance.attendance_details.map(
+                            (item, idx) => (
+                              <tr key={idx} className="text-center">
+                                <td className="border p-2 capitalize">
+                                  {item.reason || "-"}
+                                </td>
 
+                                <td className="border p-2">
+                                  {item.attendance_time || "-"}
+                                </td>
+
+                                <td className="border p-2 text-left">
+                                  {parseLocationDetails(item.location_details)}
+                                </td>
+
+                                <td className="border p-2">
+                                  {item.profile_photo ? (
+                                    <img
+                                      src={`${API_URL}${item.profile_photo}`}
+                                      alt="selfie"
+                                      className="w-14 h-14 rounded-full object-cover mx-auto cursor-pointer hover:scale-105 transition"
+                                      onClick={() =>
+                                        setPreviewImage(
+                                          `${API_URL}${item.profile_photo}`,
+                                        )
+                                      }
+                                      onError={(e) =>
+                                        (e.target.src = "/user-placeholder.png")
+                                      }
+                                    />
+                                  ) : (
+                                    "-"
+                                  )}
+                                </td>
+                              </tr>
+                            ),
+                          )
+                        ) : (
+                          <tr>
+                            <td
+                              colSpan={4}
+                              className="border p-6 text-center text-gray-500"
+                            >
+                              No attendance details found
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+          {previewImage && (
+  <div
+    className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+    onClick={() => setPreviewImage(null)}
+  >
+    <div
+      className="relative"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Close */}
+      <button
+        onClick={() => setPreviewImage(null)}
+        className="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-red-500 hover:text-white transition"
+      >
+        ×
+      </button>
+
+      {/* Full Image */}
+      <img
+        src={previewImage}
+        alt="Preview"
+        className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-xl"
+      />
+    </div>
+  </div>
+)}
+
         </>
-      )
-      }
+      )}
       <Footer />
-    </div >
+    </div>
   );
 };
 export default DailyWorkReport_Details;
