@@ -664,7 +664,7 @@ const Employees_Card = () => {
                           <input
                             type="checkbox"
                             checked={selectedCompanies.includes(company.value)}
-                            disabled={selectedCompanies.includes(company.value) ? false : company.assign_status == "already_assign"}
+                            // disabled={selectedCompanies.includes(company.value) ? false : company.assign_status == "already_assign"}
                             onChange={(e) =>
                               handleCompanyToggle(company, e.target.checked)
                             }

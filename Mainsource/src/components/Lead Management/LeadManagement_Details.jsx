@@ -71,7 +71,7 @@ const LeadManagement_Details = () => {
 
   console.log("viewStatus", viewStatus);
 
-
+const today = new Date().toISOString().split("T")[0];
   // const formatToDDMMYYYY = (date) => {
   //   if (!date) return "-";
 
@@ -131,14 +131,15 @@ const LeadManagement_Details = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const [filters, setFilters] = useState({
-    gender: "",
-    platform: "",
-    age: "",
-    city: "",
-    from_date: "",
-    to_date: ""
-  });
+const [filters, setFilters] = useState({
+  from_date: today,
+  to_date: today,
+  gender: "",
+  platform: "",
+  age: "",
+  city: ""
+});
+
   // apply filter
   const handleApplyFilter = () => {
     fetchLead(filters);
