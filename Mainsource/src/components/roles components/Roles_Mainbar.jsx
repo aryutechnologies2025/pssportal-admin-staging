@@ -560,10 +560,10 @@ px-2 py-2 md:px-6 md:py-6">
                       value={rows}
                       options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
                       onChange={(e) => setRows(e.value)}
-                      className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                      className="w-20"
                     />
 
-                    <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
+                    <span className=" text-sm text-[#6B7280]">Entries per page</span>
                   </div>
 
                   <div className="flex items-center gap-5">
@@ -654,7 +654,7 @@ px-2 py-2 md:px-6 md:py-6">
         validatePssCompany(e.value);
       }}
       placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-gray-400"
+      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
       // showClear
       filter
     />
@@ -676,7 +676,7 @@ px-2 py-2 md:px-6 md:py-6">
                           name="department"
                           id="department"
                           value={department}
-                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-[#D9D9D9]"
+                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           onChange={(e) => {
                             setDepartment(e.target.value);
                             validateDepartment(e.target.value);
@@ -718,7 +718,7 @@ px-2 py-2 md:px-6 md:py-6">
                             setRole_Name(e.target.value);
                             validateRoleName(e.target.value);
                           }}
-                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                         />
                         {errors.role_name && (
                           <p className="text-red-500 text-sm mb-4 mt-1">{errors.role_name[0]}</p>

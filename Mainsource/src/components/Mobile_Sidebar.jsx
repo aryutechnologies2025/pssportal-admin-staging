@@ -260,6 +260,13 @@ const Mobile_Sidebar = () => {
                         >
                           Employees
                         </button>
+                        <button
+                          onClick={() => onClickSidebarMenu("dailywork-report")}
+                          className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
+
+                        >
+                          Work Report
+                        </button>
                          {/* <button
                           onClick={() => onClickSidebarMenu("/shift")}
                           className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
@@ -358,7 +365,7 @@ const Mobile_Sidebar = () => {
                     <p>Job Form</p>
                   </div>
 
-                  <div
+                  {/* <div
                     onClick={() => onClickSidebarMenu("dailywork-report")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
                   >
@@ -366,7 +373,7 @@ const Mobile_Sidebar = () => {
                       <TbReport />
                     </div>
                     <p>Daily Work Report</p>
-                  </div>
+                  </div> */}
 
                   <div
                     onClick={() => onClickSidebarMenu("lead-engine")}
@@ -402,7 +409,7 @@ const Mobile_Sidebar = () => {
                   </div>
 
 {/* asset management */}
-                    <div
+                    {/* <div
                     onClick={() => onClickSidebarMenu("assetmanagement")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
                   >
@@ -411,7 +418,7 @@ const Mobile_Sidebar = () => {
 
                     </div>
                     <p>Asset</p>
-                  </div>
+                  </div> */}
 
 {/* attendance report */}
                     <div

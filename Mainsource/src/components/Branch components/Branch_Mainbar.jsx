@@ -182,6 +182,20 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
 
   // Handle form submission
   const onSubmit = async (data) => {
+
+    const isDuplicate = branches.some((branch) => {
+    // If editing, exclude the current branch being edited from the check
+    if (branchEditData && branch.id === branchEditData.id) {
+      return false;
+    }
+    return branch.branch_name.toLowerCase() === data.branch_name.trim().toLowerCase();
+  });
+
+  if (isDuplicate) {
+    toast.error("A branch with this name already exists!");
+    return; // Stop the submission
+  }
+    
     try {
       const payload = {
         company_id: Number(data.pssCompany),

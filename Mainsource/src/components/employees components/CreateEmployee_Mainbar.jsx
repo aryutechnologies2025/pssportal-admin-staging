@@ -2274,7 +2274,7 @@ const CreateEmployee_Mainbar = () => {
                   </button>
                   <button type="button"
                     onClick={educationForm.handleSubmit(handleSaveEducationInfo)}
-                    className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                    className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                   >
                     Save
                   </button>
@@ -2401,7 +2401,7 @@ const CreateEmployee_Mainbar = () => {
                   </button>
                   <button
                     onClick={experienceForm.handleSubmit(handleSaveExperience)}
-                    className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                    className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                   >
                     Save
                   </button>
@@ -2697,7 +2697,7 @@ const CreateEmployee_Mainbar = () => {
                   </button>
                   <button
                     onClick={saveUploadedFile}
-                    className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                    className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                   >
                     Save
                   </button>

@@ -169,7 +169,7 @@ const inactiveClass = "hover:underline";
 
         
 
-        <div className="flex items-center flex-wrap-reverse justify-center mt-20 md:mt-10 ">
+        <div className="flex items-center flex-wrap-reverse justify-center mt-20 md:mt-5 ">
           <div className="lg:basis-[50%] flex flex-col items-center justify-center gap-3">
             <p className="text-black font-semibold text-xl md:text-2xl">
              ADMIN LOGIN
@@ -251,9 +251,9 @@ const inactiveClass = "hover:underline";
             </button>
           </div>
 
-          <div className="basis-[50%]  ">
+           <div className="basis-[50%]  ">
             {/* <img src={login_image} alt="" /> */}
-            <img src={login_img_pss} alt="" />
+            <img src={login_img_pss} alt="" className="h-[500px] "/>
           </div>
         </div>
       </div>

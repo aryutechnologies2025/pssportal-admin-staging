@@ -1754,7 +1754,8 @@ const exportToCSV = async () => {
                   onClick={() => setShowRemarkModal(false)}
                 ></div>
 
-                <div className=" bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative ">
+                <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col relative">
+
 
                   {/* Header */}
                   <div className="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -1805,6 +1806,7 @@ const exportToCSV = async () => {
 
                   {/* Input Section */}
                   {/* ADD REMARK */}
+                  
                   {!editingRemarkId && (
                     <div className="p-6 border-b">
                       <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -1878,7 +1880,8 @@ const exportToCSV = async () => {
 
                   {/* Remarks List */}
                   {/* <div className="p-6 overflow-y-auto max-h-[calc(90vh-350px)]"> */}
-                  <div className="flex flex-col max-h-[70vh] overflow-y-auto scrollbar-stable">
+                 <div className="flex-1 overflow-y-auto scrollbar-stable">
+
 
                     <div className="flex justify-between items-center mb-4 p-6 pb-2">
                       <h3 className="text-lg font-semibold text-gray-800">

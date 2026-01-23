@@ -24,6 +24,8 @@ import { FiSearch } from "react-icons/fi";
 import { InputText } from "primereact/inputtext";
 import { FaEye } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io"
+import { Capitalise } from "../../hooks/useCapitalise";
+import { formatToDDMMYYYY } from "../../Utils/dateformat";
 
 
 const ContactCandidate = () => {
@@ -49,6 +51,9 @@ const ContactCandidate = () => {
     const [allContacts, setAllContacts] = useState([]);
     const [contacts, setContacts] = useState([]);
     const [selectedContact, setSelectedContact] = useState(null);
+     const [selectedGender, setSelectedGender] = useState("");
+     const [selectedRequirement, setSelectedRequirement] = useState("");
+
 
     const [filterStartDate, setFilterStartDate] = useState(() => {
         return new Date().toISOString().split("T")[0];
@@ -69,6 +74,7 @@ const ContactCandidate = () => {
     const handleResetFilter = () => {
         setFilterStartDate("");
         setFilterEndDate("");
+        setSelectedGender("");
         fetchContact();
     };
 
@@ -89,6 +95,24 @@ const ContactCandidate = () => {
                 },
             });
 
+    //         let data = response.data.data;
+
+    // // Gender filter
+    // if (selectedGender) {
+    //   data = data.filter(
+    //     (item) =>
+    //       item.gender?.toLowerCase() === selectedGender.toLowerCase()
+    //   );
+    // }
+
+    // //  Requirement filter
+    // if (selectedRequirement) {
+    //   data = data.filter((item) =>
+    //     item.subject
+    //       ?.toLowerCase()
+    //       .includes(selectedRequirement.toLowerCase())
+    //   );
+    // }
             setcontact(response.data.data);
         } catch (err) {
             toast.error("Failed to fetch contacts");
@@ -155,6 +179,7 @@ const ContactCandidate = () => {
         {
             field: "name",
             header: "Name",
+            body: (row) => Capitalise(row.name || "-"),
             style: { textAlign: "center" },
         },
         {
@@ -167,14 +192,23 @@ const ContactCandidate = () => {
             header: "Phone",
             style: { textAlign: "center" },
         },
+        // {
+        //     field : "gender",
+        //     header: "Gender",
+        //     body: (row) => Capitalise(row.gender || "-"),
+        //     style: { textAlign: "center" },
+        // },
         {
             field: "subject",
             header: "Requirement",
+            body: (row) => Capitalise(row.subject || "-"),
             style: { textAlign: "center" },
         },
         {
             header: "Created",
-            body: (row) => new Date(row.created_at).toLocaleDateString(),
+            // body: (row) => new Date(row.created_at).toLocaleDateString(),
+            body : (row) => formatToDDMMYYYY(row.created_at),
+            style: { textAlign: "center" },
         },
         {
             header: "Action",
@@ -253,6 +287,63 @@ const ContactCandidate = () => {
                                         className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                     />
                                 </div>
+
+                                    {/* gender */}
+
+                  {/* <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Gender
+                    </label>
+
+                    <select
+                      value={selectedGender}
+                      onChange={(e) => setSelectedGender(e.target.value)}
+                      className="px-2 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+
+
+                    </select>
+                  </div> */}
+
+                  {/* requirement */}
+
+                  <div className="flex flex-col gap-1">
+  <label className="text-sm font-medium text-[#6B7280]">
+    Requirement
+  </label>
+
+  <select
+    value={selectedRequirement}
+    onChange={(e) => setSelectedRequirement(e.target.value)}
+    className="px-2 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] text-sm
+               focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+  >
+    <option value="">All Requirements</option>
+    <option value="Job">Hiring Inquiry</option>
+    <option value="Internship">Support</option>
+    <option value="Support">General Questions</option>
+  </select>
+</div>
+
+{/* <div className="flex flex-col gap-1">
+  <label className="text-sm font-medium text-[#6B7280]">
+    Requirement
+  </label>
+
+  <input
+    type="text"
+    value={selectedRequirement}
+    onChange={(e) => setSelectedRequirement(e.target.value)}
+    placeholder="Search requirement"
+    className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm
+               focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+  />
+</div> */}
+
+
                             </div>
 
                             {/* Buttons */}
@@ -292,10 +383,10 @@ const ContactCandidate = () => {
                                                 setRows(e.value);
                                                 setFirst(0); // reset to first page
                                             }}
-                                            className="w-20"
+                                           className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                         />
 
-                                        <span className=" text-sm text-[#6B7280]">Entries per page</span>
+                                        <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
                                     </div>
                                     <div className="flex items-center gap-11">
                                         {/* Search box */}
@@ -368,13 +459,15 @@ const ContactCandidate = () => {
                                     </h2>
 
                                     <div className="space-y-2 text-sm">
-                                        <p><b>Name:</b> {viewContact.name}</p>
-                                        <p><b>Email:</b> {viewContact.email}</p>
-                                        <p><b>Phone:</b> {viewContact.phone_number}</p>
-                                        <p><b>Subject:</b> {viewContact.subject}</p>
+                                        <p><b>Name:</b> {Capitalise (viewContact.name || "-")}</p>
+                                        <p><b>Email:</b> {viewContact.email || "-"}</p>
+                                        <p><b>Phone:</b> {viewContact.phone_number || "-"}</p>
+                                        <p><b>Gender:</b> {Capitalise(viewContact.gender || "-")}</p>
+                                        <p><b>Subject:</b> {Capitalise(viewContact.subject || "-") }</p>
                                         <p>
                                             <b>Created Date:</b>{" "}
-                                            {new Date(viewContact.created_at).toLocaleDateString()}
+                                            {/* {new Date(viewContact.created_at).toLocaleDateString()} */}
+                                            {formatToDDMMYYYY(viewContact.created_at)}
                                         </p>
 
                                         <div>
