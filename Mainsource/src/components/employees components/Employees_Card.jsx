@@ -485,6 +485,11 @@ const Employees_Card = () => {
   // const location = useLocation();
   // console.log(location.state.employee);
 
+  const roleDropdownOptions = roleOptions.map(role => ({
+  label: role.name,
+  value: role.id
+}));
+
   return (
     <div className="flex flex-col justify-between bg-gray-100 w-full min-h-screen px-3 md:px-5 pt-1 md:pt-5 overflow-x-auto">
       <>
@@ -515,23 +520,16 @@ const Employees_Card = () => {
             </div>
             <div className="flex items-center justify-between gap-3">
               {/* ROLE FILTER */}
-              <select
+              <Dropdown
                 value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
+                onChange={(e) => setRoleFilter(e.value)}
+                options={roleDropdownOptions}
+                 placeholder="All Roles"
+                 filter
                 className="h-10 px-3 rounded-md border border-gray-300 text-sm focus:outline-none"
-              >
-                <option value="">All Roles</option>
-
-                {roleOptions.length > 0 ? (
-                  roleOptions.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))
-                ) : (
-                  <option disabled>No roles available</option>
-                )}
-              </select>
+              />
+                
+             
 
               {/* ADD BUTTON */}
               <button
@@ -582,10 +580,11 @@ const Employees_Card = () => {
                         label: v,
                         value: v,
                       }))}
+                     
                       onChange={(e) => setRows(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
-                    <span>Entries per page</span>
+                    <span>Entries Per Page</span>
                   </div>
 
                   {/* Search box */}

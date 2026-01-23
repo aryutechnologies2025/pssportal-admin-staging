@@ -21,6 +21,7 @@ import { EmployeeEducationSchema, EmployeeSchema, EducationItemSchema, Experienc
 import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
 import CameraPhoto from "../../Utils/cameraPhoto";
+import { Dropdown } from "primereact/dropdown";
 
 
 
@@ -188,7 +189,8 @@ const CreateEmployee_Mainbar = () => {
       const rolesData = response?.data?.data || [];
 
       const formattedRoles = rolesData.filter((role) => role.status === "1").map((role) => ({
-        id: role.id,
+        // id: role.id,
+        id: String(role.id),
         role_name: role.role_name
       }));
 
@@ -210,10 +212,24 @@ const CreateEmployee_Mainbar = () => {
       if (response.data.success === true) {
         console.log(response.data.data);
 
-        const branchesData = response?.data?.data.filter((branch) => branch.status === "1") || [];
+        // const branchesData = response?.data?.data
+        // .filter((branch) => branch.status === "1") || [];
+
+        const branchesData = response?.data?.data
+          .filter((branch) => branch.status === "1")
+          .map((branch) => ({
+            id: String(branch.id), // Convert to string for consistency
+            branch_name: branch.branch_name
+          })) || [];
 
         setBranches(branchesData);
         // setTotalRecords(response.data.data.length);
+
+         // If editing, set the selected branch
+        if (editEmployeeData?.branch_id) {
+          const branch = branchesData.find(b => b.id === String(editEmployeeData.branch_id));
+          setSelectedBranch(branch || null);
+        }
       } else {
         setBranches([]);
         // setTotalRecords(0);
@@ -248,6 +264,8 @@ const CreateEmployee_Mainbar = () => {
     fetchBranches();
   }, []);
 
+    const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
     if (editEmployeeData) {
@@ -369,6 +387,16 @@ const CreateEmployee_Mainbar = () => {
         const found = editEmployeeData.verifications.find(
           v => v.document_type === opt
         );
+
+         if (editEmployeeData.role_id) {
+        const role = roles.find(r => String(r.id) === String(editEmployeeData.role_id));
+        setSelectedRole(role || null);
+      }
+      
+      if (editEmployeeData.branch_id) {
+        const branch = branches.find(b => String(b.id) === String(editEmployeeData.branch_id));
+        setSelectedBranch(branch || null);
+      }
 
         return {
           type: opt,
@@ -1115,7 +1143,7 @@ const CreateEmployee_Mainbar = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col xl:flex-row justify-between gap-1">
+                  {/* <div className="flex flex-col xl:flex-row justify-between gap-1">
                     <div className="flex flex-col w-full sm:w-auto">
                       <label
                         className="font-medium text-sm"
@@ -1138,8 +1166,36 @@ const CreateEmployee_Mainbar = () => {
                       </select>
                       <span className="text-red-500 text-sm">{errors.role_id?.message}</span>
                     </div>
+                  </div> */}
+
+<div className="flex flex-col xl:flex-row justify-between gap-1">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <label
+                        className="font-medium text-sm"
+                        htmlFor="role"
+                      >
+                        Role <span className="text-red-500">*</span>
+                      </label>
+                    </div>
+                    <div className="w-full lg:w-72">
+                      <Dropdown
+                       value={watch("role_id")}
+  options={roles}
+  optionLabel="role_name"
+  optionValue="id"
+  // Convert number id to string here
+  onChange={(e) => setValue("role_id", String(e.value), { shouldValidate: true })}
+  placeholder="Select A Role"
+  filter
+                        className={`border-2 rounded-xl ps-4 h-10 w-full outline-none ${errors.role_id?.message ? "border-red-500" : "border-gray-300"}`}
+                      />
+                        
+                     
+                      <span className="text-red-500 text-sm">{errors.role_id?.message}</span>
+                    </div>
                   </div>
-                  <div className="flex flex-col xl:flex-row justify-between gap-1">
+
+                  {/* <div className="flex flex-col xl:flex-row justify-between gap-1">
                     <div className="flex flex-col w-full sm:w-auto">
                       <label
                         className="font-medium text-sm"
@@ -1160,6 +1216,32 @@ const CreateEmployee_Mainbar = () => {
                           </option>
                         ))}
                       </select>
+                      <span className="text-red-500 text-sm">{errors.branch_id?.message}</span>
+                    </div>
+                  </div> */}
+
+  <div className="flex flex-col xl:flex-row justify-between gap-1">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <label
+                        className="font-medium text-sm"
+                        htmlFor="branches"
+                      >
+                        Branches <span className="text-red-500">*</span>
+                      </label>
+                    </div>
+                    <div className="w-full lg:w-72">
+                      <Dropdown
+                       value={watch("branch_id")}
+          options={branches}
+          optionLabel="branch_name" 
+    optionValue="id"
+          onChange={(e) => setValue("branch_id", String(e.value), { shouldValidate: true })}
+          placeholder="Select A Branch"
+          filter
+                        
+                        className={`border-2 rounded-xl ps-4 h-10 w-full outline-none ${errors.branch_id?.message ? "border-red-500" : "border-gray-300"}`}
+                      />
+                      
                       <span className="text-red-500 text-sm">{errors.branch_id?.message}</span>
                     </div>
                   </div>
@@ -1694,16 +1776,20 @@ const CreateEmployee_Mainbar = () => {
                     <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                       <label className="font-medium text-sm">Relation</label>
                       <div className="">
-                        <select
-                          value={item.relation}
-                          onChange={(e) => updateEmergencyContact(index, "relation", e.target.value)}
-                          className="border-2 rounded-xl ps-3 border-gray-300 outline-none h-10 w-full lg:w-72"
-                        >
-                          <option value="">Select Relation</option>
-                          {relationOptions.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
-                        </select>
+                       <Dropdown
+  value={item.relation || null}
+  options={relationOptions}
+  optionLabel="label"
+  optionValue="value"
+  placeholder="Select Relation"
+  filter               
+  // showClear
+  className="w-full lg:w-72 h-10 border-2 rounded-xl"
+  onChange={(e) =>
+    updateEmergencyContact(index, "relation", e.value)
+  }
+/>
+
                         {errors.emergencyContacts ? errors.emergencyContacts[index]?.relation && <p className="text-red-500 text-sm mt-1">{errors.emergencyContacts[index]?.relation.message}</p> : ""}
                       </div>
                     </div>
