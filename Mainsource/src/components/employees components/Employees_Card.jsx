@@ -100,14 +100,14 @@ const Employees_Card = () => {
       setFilteredEmployees(response.data.data);
 
 
-      const roleOptions = response?.data
-      // .filter((role) => role.status === "1") // filter only active
-      // .map((role) => ({
-      //   id: role.id,
-      //   name: role.role_name,
-      // }));
-      console.log("Active Roles:", roleOptions);
-      setRoleOptions(roleOptions);
+      // const roleOptions = response?.data
+      // // .filter((role) => role.status === "1") // filter only active
+      // // .map((role) => ({
+      // //   id: role.id,
+      // //   name: role.role_name,
+      // // }));
+      // console.log("Active Roles:", roleOptions);
+      // setRoleOptions(roleOptions);
 
       setCompanyOptions(
         response?.data?.companies.map((emp) => ({

@@ -693,18 +693,22 @@ const Company_Mainbar = () => {
     {
       header: "Website",
       field: "website",
+      body:(row) => row.website || "-"
     },
     {
       header: "Phone",
       field: "phone",
+      body:(row) => row.phone || "-"
     },
     {
       header: "Support Email",
       field: "supportEmail",
+      body:(row) => row.supportEmail || "-"
     },
     {
       header: "GST Number",
       field: "gstNumber",
+      body:(row) => row.gstNumber || "-"
     },
     {
       field: "status",
@@ -1011,7 +1015,8 @@ const Company_Mainbar = () => {
                 {/* address */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Address <span className="text-red-500">*</span>
+                    Address 
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <textarea
@@ -1037,7 +1042,8 @@ const Company_Mainbar = () => {
                 {/* gst number */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    GST Number <span className="text-red-500">*</span>
+                    GST Number 
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
@@ -1075,11 +1081,11 @@ const Company_Mainbar = () => {
                       placeholder="Enter Your Website "
                       className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
-                    {errors.website && (
+                    {/* {errors.website && (
                       <p className="text-red-500 text-sm mb-4">
                         {errors.website}
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </div>
 
@@ -1087,7 +1093,7 @@ const Company_Mainbar = () => {
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
                     Phone
-                    {/* <span className="text-red-500">*</span> */}
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
@@ -1116,7 +1122,8 @@ const Company_Mainbar = () => {
                 {/* support email */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Support Email <span className="text-red-500">*</span>
+                    Support Email 
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
@@ -1142,7 +1149,8 @@ const Company_Mainbar = () => {
                 {/* billing email */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Billing Email <span className="text-red-500">*</span>
+                    Billing Email 
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
@@ -1200,7 +1208,7 @@ const Company_Mainbar = () => {
                       className="block text-md font-medium mb-2 mt-3"
                     >
                       Status
-                      {/* <span className="text-red-500">*</span> */}
+                      <span className="text-red-500">*</span>
                     </label>
                   </div>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1217,11 +1225,11 @@ const Company_Mainbar = () => {
                       <option value="1">Active</option>
                       <option value="0">InActive</option>
                     </select>
-                    {/* {errors.status && (
+                    {errors.status && (
                         <p className="text-red-500 text-sm mb-4 mt-1">
                           {errors.status}
                         </p>
-                      )} */}
+                      )}
                   </div>
                 </div>
 
@@ -1561,7 +1569,7 @@ const Company_Mainbar = () => {
 
                   <label className="block text-md font-medium mb-2">
                     Employee ID Generation{" "}
-                    <span className="text-red-500">*</span>
+                    {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
                     <div className="flex items-center gap-4">
@@ -1693,7 +1701,8 @@ const Company_Mainbar = () => {
                 {/* website */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Website <span className="text-red-500">*</span>
+                    Website 
+                    {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
@@ -1708,18 +1717,19 @@ const Company_Mainbar = () => {
                       placeholder="Enter Your Website "
                       className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
-                    {errors.websiteEdit && (
+                    {/* {errors.websiteEdit && (
                       <p className="text-red-500 text-sm mb-4">
                         {errors.websiteEdit}
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </div>
 
                 {/* phone */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Phone <span className="text-red-500">*</span>
+                    Phone 
+                    {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
@@ -1734,11 +1744,11 @@ const Company_Mainbar = () => {
                       placeholder="Enter Your Phone "
                       className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
-                    {errors.phoneEdit && (
+                    {/* {errors.phoneEdit && (
                       <p className="text-red-500 text-sm mb-4">
                         {errors.phoneEdit}
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </div>
 
@@ -1797,7 +1807,8 @@ const Company_Mainbar = () => {
                 {/* notes */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Notes <span className="text-red-500">*</span>
+                    Notes 
+                    {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <textarea
@@ -1815,11 +1826,11 @@ const Company_Mainbar = () => {
                       placeholder="Enter Your Notes "
                       className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
-                    {errors.notesEdit && (
+                    {/* {errors.notesEdit && (
                       <p className="text-red-500 text-sm mb-4">
                         {errors.notesEdit}
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </div>
 
@@ -2118,20 +2129,26 @@ const Company_Mainbar = () => {
       </div>
 
       {isViewModalOpen && viewRow && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative animate-fadeIn">
-            {/* Close Button */}
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+
+  <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
+ 
+ {/* Header */}
+ <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+            <h2 className="text-xl font-semibold mb-4 text-[#1ea600] hover:text-[#4BB452]">
+              Company Details
+            </h2>
+             {/* Close Button */}
             <button
               onClick={closeViewModal}
               className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
             >
               <IoIosCloseCircle size={28} />
             </button>
+            </div>
 
-            <h2 className="text-xl font-semibold mb-4 text-[#1ea600] hover:text-[#4BB452]">
-              Company Details
-            </h2>
-
+{/* body */}
+<div className="p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
             {/* Company Info */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <p>
@@ -2170,9 +2187,9 @@ const Company_Mainbar = () => {
               )}
 
 
-              <p className="col-span-2">
+              {/* <p className="col-span-2">
                 <b>Shifts:</b> {viewRow.shifts.map(shift => `${shift.shift_name}`).join(", ")}
-              </p>
+              </p> */}
               <p className="col-span-2">
                 <b>Notes:</b> {viewRow.notes}
               </p>
@@ -2207,7 +2224,45 @@ const Company_Mainbar = () => {
                 <p className="text-gray-500">No contacts available</p>
               )}
             </div>
+
+            {/* shifts */}
+
+             <div className="mt-4">
+              <h3 className="font-semibold mb-2">Shifts</h3>
+
+              {viewRow.shifts?.length > 0 ? (
+                <table className="w-full border text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border p-2">Shift Unique ID
+</th>
+                      <th className="border p-2">Shift Name
+</th>
+                      <th className="border p-2">Start Time
+</th>
+                      <th className="border p-2">End Time
+</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewRow.shifts
+                      ?.filter((shift) => shift.company_shift_id && shift.shift_name || shift.start_time ||shift.end_time )
+                      .map((shift, i) => (
+                        <tr key={i}>
+                          <td className="border p-2">{shift.company_shift_id || "-"}</td>
+                          <td className="border p-2">{shift.shift_name || "-"}</td>
+                          <td className="border p-2">{shift.start_time || "-"}</td>
+                          <td className="border p-2">{shift.end_time || "-"}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No Shifts available</p>
+              )}
+            </div>
           </div>
+        </div>
         </div>
       )}
 

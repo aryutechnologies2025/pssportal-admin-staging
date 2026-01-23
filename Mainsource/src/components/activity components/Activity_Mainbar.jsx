@@ -23,6 +23,7 @@ import { API_URL } from "../../Config";
 import { set } from "zod";
 import Swal from "sweetalert2";
 import { formatDateTimeDDMMYYYY, formatIndianDateTime12Hr } from "../../Utils/dateformat";
+import { Capitalise } from "../../hooks/useCapitalise";
 const Activity_Mainbar = () => {
 
     const [globalFilter, setGlobalFilter] = useState("");
@@ -77,11 +78,11 @@ console.log("ACTIVITY Response.....: ",res)
       style: { textAlign: "center", width: "80px" },
       fixed: true,
     },
-    {
-      header: "Employee ID",
-      field: "employee_id",
-      body: (row) => row?.employee_id || "_",
-    },
+    // {
+    //   header: "Employee ID",
+    //   field: "employee_id",
+    //   body: (row) => row?.employee_id || "_",
+    // },
     {
       header: "Employee Name",
       field: "employeeName",
@@ -96,7 +97,7 @@ console.log("ACTIVITY Response.....: ",res)
     {
       header: "Reason",
       field: "reason",
-      body: (row) => row.reason || "_",
+      body: (row) => Capitalise(row.reason || "_")  ,
     },
     {
         header: "Date & Time",
@@ -173,7 +174,7 @@ console.log("ACTIVITY Response.....: ",res)
                     className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                   <span className=" text-sm text-[#6B7280]">
-                    Entries per page
+                    Entries Per Page
                   </span>
                 </div>
 
@@ -208,6 +209,7 @@ console.log("ACTIVITY Response.....: ",res)
                   totalRecords={activity.length}
                   rowsPerPageOptions={[10, 25, 50, 100]}
                   globalFilter={globalFilter}
+                  globalFilterFields={["role_name", "reason", "created_at"]}
                   emptyMessage="No data found"
                   showGridlines
                   resizableColumns

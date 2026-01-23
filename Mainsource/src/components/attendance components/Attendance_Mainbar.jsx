@@ -1,13 +1,13 @@
 
 import { MdArrowForwardIos, MdOutlineDeleteOutline } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-
+import { useEffect, useRef, useState } from "react";
+import { IoIosArrowForward } from "react-icons/io";
 import Footer from "../Footer";
 import {
   FaEye,
 } from "react-icons/fa";
-
+import { AiFillDelete } from "react-icons/ai";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import "primereact/resources/themes/saga-blue/theme.css"; // PrimeReact theme
@@ -48,9 +48,15 @@ const Attendance_Mainbar = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [companies, setCompanies] = useState([]);
   const [attendanceData, setAttendanceData] = useState([]);
-  
   const [createdbyData, setCreatedbyData] = useState([]);
-
+  const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
+  const fileInputRef = useRef(null);
+  const fileInputRefEdit = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [attachment, setAttachment] = useState(null);
+  const user = JSON.parse(localStorage.getItem("pssuser") || "null");
+  const userId = user?.id;
+  // const userRole = user?.role_id;
 
   const fetchCompaniesAttendance = async () => {
     try {
@@ -72,8 +78,8 @@ const Attendance_Mainbar = () => {
         name: company.company?.company_name || "-",
         attendanceDate: company.attendance_date,
 
-       shifts: company.
-company?.shifts?.map((shift) => shift.shift_name) || [],
+        shifts: company.
+          company?.shifts?.map((shift) => shift.shift_name) || [],
         employee: company.employee
       }));
 
@@ -289,7 +295,66 @@ company?.shifts?.map((shift) => shift.shift_name) || [],
     setIsAddModalOpen(false);
     setTimeout(() => setIsAddModalOpen(false), 250);
   }
+
+  const handleFileChange = (e) => {
+    // if (e.target.files[0]) {
+    //     setSelectedFile(e.target.files[0]);
+    // }
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      ".xlsx",
+      ".xls",
+      ".csv",
+    ];
+
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+
+    if (
+      !allowedTypes.includes(file.type) &&
+      !["xlsx", "xls", "csv"].includes(fileExtension)
+    ) {
+      toast.error("Please upload an Excel file (.xlsx or .xls or .csv)");
+      e.target.value = ""; // Clear the input
+      return;
+    }
+
+    setSelectedFile(file);
+    setAttachment(file);
+
+    // clear previous errors
+    setError((prev) => ({ ...prev, file: "" }));
+  };
+
+  const handleDeleteFile = () => {
+    setAttachment(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const resetImportForm = () => {
+    setSelectedCompany(null);
+    setSelectedFile(null);
+    setAttachment(null);
+    setSelectedDate(new Date().toISOString().split("T")[0]);
+    setError({ file: "", date: "", company: "", import: [] });
+
+    // Clear input fields manually
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    if (fileInputRefEdit.current) {
+      fileInputRefEdit.current.value = "";
+    }
+  };
   const [errors, setErrors] = useState({});
+  const [error, setError] = useState({});
+
   const handleSubmit = async () => {
     const newErrors = {};
 
@@ -335,12 +400,177 @@ company?.shifts?.map((shift) => shift.shift_name) || [],
     }
   };
 
+  // const handleFileSubmit = async (e) => {
+  //   // console.log("selectedAccount:1");
+  //   e.preventDefault();
+
+  //   // Reset errors
+  //   setError({ file: "", date: "", company: "", import: [] });
+
+  //   // Frontend validation
+  //   const newErrors = {};
+  //   let hasError = false;
+
+  //   if (!selectedDate) {
+  //     newErrors.date = "Please select a date";
+  //     hasError = true;
+  //   }
+  //   // console.log("selectedAccount:2");
+
+  //   if (!selectedFile) {
+  //     newErrors.file = "Please select a file";
+  //     hasError = true;
+  //   } else {
+  //     // Validate file type
+  //     const allowedExtensions = [".xlsx", ".xls", ".csv"];
+  //     const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+  //     if (!allowedExtensions.includes(`.${fileExtension}`)) {
+  //       newErrors.file = "Please upload only Excel files (.xlsx, .xls, .csv)";
+  //       hasError = true;
+  //     }
+  //   }
+
+  //   if (!selectedCompany) {
+  //     newErrors.company = "Please select a company";
+  //     hasError = true;
+  //   }
+
+  //   if (hasError) {
+  //     setError((prev) => ({ ...prev, ...newErrors }));
+  //     // Scroll to first error
+  //     setTimeout(() => {
+  //       const errorField = Object.keys(newErrors)[0];
+  //       const element = document.querySelector(`[data-field="${errorField}"]`);
+  //       if (element)
+  //         element.scrollIntoView({ behavior: "smooth", block: "center" });
+  //     }, 100);
+
+  //     return;
+  //   }
+
+  //   try {
+  //     const formData = new FormData();
+
+  //     formData.append("file", selectedFile); // Excel file
+  //     formData.append("created_by", userId);
+  //     formData.append("company_id", Number(selectedCompany)); // Company ID
+
+  //     // Debug: Check FormData contents
+  //     for (let [key, value] of formData.entries()) {
+  //       console.log(key, value);
+  //     }
+
+  //     const response = await axiosInstance.post(
+  //       `${API_URL}api/attendance/import`,
+  //       formData,
+  //       {
+  //         headers: { "Content-Type": "multipart/form-data" },
+  //         // Add timeout for debugging
+  //       }
+
+  //     );
+
+  //     console.log("response:", response.data);
+  //     if (response.data.success) {
+  //       toast.success(response.data.message || "Excel imported successfully!");
+
+  //       if (response.data.total !== undefined) {
+  //         toast.success(`Imported: ${response.data.total} records`);
+  //       }
+  //     }
+
+  //     // Reset fields
+  //     handleDeleteFile();
+  //     setSelectedDate(new Date().toISOString().split("T")[0]);
+  //     setSelectedCompany(null);
+  //     setIsImportAddModalOpen(false);
+  //     fetchContractCandidates();
+  //   } catch (err) {
+  //     console.error("Import error:", err);
+
+  //     const message =
+  //       err.response?.data?.error ||
+  //       err.response?.data?.message ||
+  //       "Upload failed";
+  //     const rowErrors = err.response?.data?.rowErrors || [];
+
+  //     setError((prev) => ({
+  //       ...prev,
+  //       import: rowErrors.length ? rowErrors : message,
+  //     }));
+  //     if (rowErrors.length) {
+  //       toast.error(`Validation failed in ${rowErrors.length} rows`);
+  //     } else {
+  //       toast.error(message);
+  //     }
+  //   }
+  // };
+
+  const handleFileSubmit = async (e) => {
+  e.preventDefault();
+
+  setError({ file: "", date: "", company: "", import: [] });
+
+  if (!selectedFile || !selectedCompany) {
+    toast.error("Company and file are required");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("company_id", Number(selectedCompany));
+    formData.append("created_by", userId);
+
+    const response = await axiosInstance.post(
+      `${API_URL}api/attendance/import`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    //  SUCCESS HANDLING
+    if (response.data.success || response.data.status) {
+      toast.success(response.data.message || "Attendance imported successfully!");
+
+      // Reset UI
+      handleDeleteFile();
+      setSelectedCompany(null);
+      setSelectedDate(new Date().toISOString().split("T")[0]);
+      closeImportAddModal();
+      fetchCompaniesAttendance();
+
+      return; 
+    }
+    toast.error(response.data.message || "Import failed");
+
+  } catch (err) {
+    console.error("Import error:", err);
+
+    const msg =
+      err.response?.data?.message ||
+      err.response?.data?.error ||
+      "Upload failed";
+
+    toast.error(msg);
+  }
+};
+
+
   const resetAttendanceForm = () => {
     setSelectedCompany(null);
     setSelectedDate("");
     setErrors({});
   };
 
+  const openImportAddModal = () => {
+    setIsImportAddModalOpen(true);
+    setTimeout(() => setIsAnimating(true), 10);
+  };
+
+  const closeImportAddModal = () => {
+    setIsAnimating(false);
+    setTimeout(() => setIsImportAddModalOpen(false), 250);
+  };
 
 
   const handleSelectAll = () => {
@@ -755,7 +985,7 @@ company?.shifts?.map((shift) => shift.shift_name) || [],
                 <div className="w-full flex gap-4">
                   <button
                     onClick={handleApplyFilter}
-                    className="px-2 md:px-3 py-2 h-10 rounded-lg bg-[#4BB452] text-white font-medium w-20  hover:bg-[#5FD367] transition "
+                    className="px-2 md:px-3 py-2 h-10 rounded-lg bg-[#1ea600] hover:bg-[#4BB452] text-white font-medium w-20  transition "
                   >
                     Apply
                   </button>
@@ -817,10 +1047,17 @@ px-2 py-2 md:px-6 md:py-6">
 
                       />
                     </div>
-
+                    <div className="flex items-center">
+                      <button
+                        onClick={openImportAddModal}
+                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                      >
+                        Import
+                      </button>
+                    </div>
                     <button
                       onClick={() => navigate('/attendance-add')}
-                      className="px-2 py-2  text-white bg-[#4BB452] hover:bg-[#5FD367] font-medium   w-fit rounded-lg transition-all duration-200"
+                      className="px-2 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium   w-fit rounded-lg transition-all duration-200"
                     >
                       + Add Attendance
                     </button>
@@ -1055,6 +1292,141 @@ px-2 py-2 md:px-6 md:py-6">
                         </button>
 
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* import add modal */}
+            {isImportAddModalOpen && (
+              <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
+                {/* Overlay */}
+                <div
+                  className="absolute inset-0 "
+                  onClick={() => {
+                    closeImportAddModal();
+                    resetImportForm();
+                  }}
+                >
+                  <IoIosArrowForward className="w-3 h-3" />
+                </div>
+
+                <div
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
+                    title="Toggle Sidebar"
+                    onClick={() => {
+                      closeImportAddModal();
+                      resetImportForm();
+                    }}
+                  >
+                    <IoIosArrowForward className="w-3 h-3" />
+                  </div>
+
+                  <div className="p-5">
+                    <p className="text-xl md:text-2xl font-medium">
+                      Attendance
+                    </p>
+
+                    {/* company */}
+                    <div className="mt-3 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        Company<span className="text-red-500">*</span>
+                      </label>
+
+                      <div className="w-[60%] md:w-[50%]">
+
+                        <select
+                          value={selectedCompany}
+                          onChange={(e) => setSelectedCompany(e.target.value)}
+                          className="w-full border px-3 py-2 border-gray-300 rounded-lg"
+                        >
+                          <option value="">Select Company</option>
+                          {companies.map((com) => (
+                            <option key={com.id} value={com.id}>
+                              {com.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* File Upload */}
+                    <div className="mt-3 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        File Upload
+                      </label>
+
+                      <div className="w-[60%] md:w-[50%]">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+                             focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+
+                        {attachment && (
+                          <div className="flex justify-between mt-2 items-center bg-gray-50 px-3 py-2 rounded-lg border">
+                            <span className="text-sm text-gray-700 truncate w-[80%]">
+                              {attachment.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleDeleteFile}
+                              title="Delete"
+                              className="text-red-600 hover:text-red-800 text-[18px]"
+                            >
+                              <AiFillDelete />
+                            </button>
+                          </div>
+                        )}
+                        {errors.file && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.file}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {/* IMPORT ERRORS */}
+                    {errors.import?.length > 0 && (
+                      // <div className="mt-4 bg-red-50 border border-red-300 p-3 rounded-lg max-h-48 overflow-auto">
+                      <div className="mt-4">
+                        <p className="text-red-700 font-semibold mb-2"></p>
+
+                        {Array.isArray(errors.import) ? (
+                          errors.import.map((item, idx) => (
+                            <p key={idx} className="text-sm text-red-600">
+                              Row {item.row}: {item.errors.join(", ")}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="text-red-600">{errors.import}</p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                      <button
+                        onClick={() => {
+                          closeImportAddModal();
+                          resetImportForm();
+                        }}
+                        className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        onClick={handleFileSubmit}
+                      >
+                        Submit
+                      </button>
                     </div>
                   </div>
                 </div>

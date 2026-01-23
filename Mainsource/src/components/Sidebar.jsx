@@ -185,6 +185,7 @@ const Sidebar = () => {
                       currentPath === "/departments" ||
                       currentPath === "/permission" ||
                       currentPath === "/branches" ||
+                      currentPath === "/dailywork-report" ||
                       currentPath === "/shift" ||
                       currentPath === "/psscompany" ||
                       currentPath === "/pssdailyattendance" ||
@@ -200,6 +201,7 @@ const Sidebar = () => {
                       currentPath === "/permission" ||
                       currentPath === "/departments" ||
                       currentPath === "/branches" ||
+                      currentPath === "/dailywork-report" ||
                       currentPath === "/psscompany" ||
                       currentPath === "/shift" ||
                       currentPath === "/pssdailyattendance" ||
@@ -213,11 +215,12 @@ const Sidebar = () => {
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">PSS</span>
                       {currentOpen === "employee" ||
-                      currentPath === "/psscompany" ||
+                        currentPath === "/psscompany" ||
                         currentPath === "/roles" ||
                         currentPath === "/departments" ||
                         currentPath === "/permission" ||
                         currentPath === "/branches" ||
+                        currentPath === "/dailywork-report" ||
                         currentPath === "/shift" ||
                         currentPath === "/pssdailyattendance" ||
                         currentPath === "/employees" ? (
@@ -240,7 +243,8 @@ const Sidebar = () => {
                       currentPath === "/employees" ||
                       currentPath === "/shift" ||
                       currentPath === "/pssdailyattendance" ||
-                      currentPath === "/branches"
+                      currentPath === "/branches" ||
+                      currentPath === "/dailywork-report"
                       ? "max-h-50 opacity-100 mt-1"
                       : "max-h-0 opacity-0"
                       }`}
@@ -259,7 +263,7 @@ const Sidebar = () => {
                             : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
-                       Pss Company
+                        Companies
                       </button>
 
                       <button
@@ -342,8 +346,7 @@ const Sidebar = () => {
                       </button>
 
 
-{/* daily work report */}
-<button
+                      <button
                         onClick={() => {
                           navigate("/pssdailyattendance");
                           if (currentOpen !== "pssdailyattendance") {
@@ -358,6 +361,25 @@ const Sidebar = () => {
                       >
                         Attendance
                       </button>
+
+                      {/* daily work report */}
+                      <button
+                        onClick={() => {
+                          navigate("/dailywork-report");
+                          if (currentOpen !== "dailywork-report") {
+                            setCurrentOpen("dailywork-report");
+                          }
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition
+                          ${currentPath === "/dailywork-report"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Work Report
+                      </button>
+
+  
 
                       {/* <button
                         onClick={() => {
@@ -455,7 +477,7 @@ const Sidebar = () => {
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">Interview</span>
                       {currentOpen === "interview" ||
-                        currentPath === "/contractcandidates"  ? (
+                        currentPath === "/contractcandidates" ? (
                         <IoIosArrowUp />
                       ) : (
                         <IoIosArrowDown />
@@ -468,7 +490,7 @@ const Sidebar = () => {
                 {!arrowClicked && (
                   <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "interview" ||
-                      currentPath === "/contractcandidates" 
+                      currentPath === "/contractcandidates"
                       ? "max-h-40 opacity-100 mt-1"
                       : "max-h-0 opacity-0"
                       }`}
@@ -615,7 +637,7 @@ const Sidebar = () => {
                       : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                     }`}
                 >
-                  <MdLeaderboard className="w-5 "/>
+                  <MdLeaderboard className="w-5 " />
 
                   {!arrowClicked && (
                     <p className="text-sm font-medium">Lead Engine</p>
@@ -682,7 +704,7 @@ const Sidebar = () => {
               </div>
 
               {/* asset management */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("assetmanagement")}
                   className={`flex items-center w-full flex-grow
@@ -693,14 +715,14 @@ const Sidebar = () => {
                       : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                     }`}
                 >
-                  {/* <img
+                  <img
                     src={activity}
                     alt="activity"
                     className={`sidebar-icon transition-all duration-200 ${currentPath === "/activity"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
                       }`}
-                  /> */}
+                  />
 
                   <MdManageAccounts className="w-5" />
 
@@ -709,7 +731,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Asset</p>
                   )}
                 </div>
-              </div>
+              </div>  */}
 
               {/* attendance reports */}
               {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -735,26 +757,7 @@ const Sidebar = () => {
                 </div>
               </div> */}
 
-              {/* daily work report */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
-                <div
-                  onClick={() => onClickSidebarMenu("dailywork-report")}
-                  className={`flex items-center w-full flex-grow
-    ${arrowClicked ? "justify-center" : "justify-normal"}
-    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${currentPath === "/dailywork-report"
-                      ? "bg-[#4BB452] text-white"
-                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                    }`}
-                >
-             
-                 <TbReport className='w-5' />
-
-                  {!arrowClicked && (
-                    <p className="text-sm font-medium">Daily Work Report</p>
-                  )}
-                </div>
-              </div>
+              
 
               {/* setting */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -777,7 +780,7 @@ const Sidebar = () => {
                 </div>
               </div>
 
-              
+
 
 
             </div>

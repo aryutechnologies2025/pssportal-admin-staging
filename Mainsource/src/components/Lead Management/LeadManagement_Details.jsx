@@ -1289,7 +1289,7 @@ px-2 py-2 md:px-6 md:py-6">
                       <button
                         disabled={submitting}
                         onClick={handleAddLeadSubmit}
-                        className="bg-[#005AEF] hover:bg-[#2879FF]
+                        className="bg-[#1ea600] hover:bg-[#4BB452]
             text-white px-5 py-2 rounded-[10px]
             disabled:opacity-50"
                       >
@@ -1518,7 +1518,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                       <button
                         onClick={handleUpdateLead}
-                        className="bg-[#005AEF] hover:bg-[#2879FF]
+                        className="bg-[#1ea600] hover:bg-[#4BB452]
             text-white px-5 py-2 rounded-[10px]"
                       >
                         Update
@@ -1639,7 +1639,7 @@ px-2 py-2 md:px-6 md:py-6">
                     </button>
 
                     <button
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                      className="px-4 py-2 bg-green-600 text-white rounded-md"
                       onClick={handleStatusSubmit}
                     >
                       Submit
@@ -1939,7 +1939,7 @@ px-2 py-2 md:px-6 md:py-6">
                       </button>
                       <button
                         type="button"
-                        className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
                       >
                         Submit

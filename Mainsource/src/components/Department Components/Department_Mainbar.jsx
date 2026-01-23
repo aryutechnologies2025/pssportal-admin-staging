@@ -32,7 +32,7 @@ const Department_Mainbar = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [pssCompany, setPssCompany] = useState(null); // selected value
-const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
+  const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   const [loading, setLoading] = useState(false);
   const [departmentName, setDepartmentName] = useState("");
   const [status, setStatus] = useState("");
@@ -76,15 +76,15 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
 
   // view
   const openViewModal = async (row) => {
-  const response = await axiosInstance.get(
-    `${API_URL}api/department/edit/${row.id}`
-  );
+    const response = await axiosInstance.get(
+      `${API_URL}api/department/edit/${row.id}`
+    );
 
-  if (response.data?.status) {
-    setViewContact(response.data.data);
-    setViewModalOpen(true);
-  }
-};
+    if (response.data?.status) {
+      setViewContact(response.data.data);
+      setViewModalOpen(true);
+    }
+  };
 
   const fetchDepartments = async () => {
     setLoading(true);
@@ -94,13 +94,13 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
       if (response.data.status === true) {
         setDepartments(response.data.data);
         setTotalRecords(response.data.data.length);
-                      //  set pss company options
-      const pssCompanyOptions = response.data.psscompany.map((company) => ({
-        label: company.name,
-        value: company.id,
-      }));
+        //  set pss company options
+        const pssCompanyOptions = response.data.psscompany.map((company) => ({
+          label: company.name,
+          value: company.id,
+        }));
 
-      setPssCompanyOptions(pssCompanyOptions);
+        setPssCompanyOptions(pssCompanyOptions);
       } else {
         setDepartments([]);
         setTotalRecords(0);
@@ -144,33 +144,33 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
     status: "",
   });
 
- const openEditModal = async (row) => {
-  console.log("EDit Row...:...",row)
-  try {
-    setEditingDeptId(row.id);
-    setIsEditModalOpen(true);
-    setIsAnimating(true);
+  const openEditModal = async (row) => {
+    console.log("EDit Row...:...", row)
+    try {
+      setEditingDeptId(row.id);
+      setIsEditModalOpen(true);
+      setIsAnimating(true);
 
-    const response = await axiosInstance.get(
-      `${API_URL}api/department/edit/${row.id}`
-    );
+      const response = await axiosInstance.get(
+        `${API_URL}api/department/edit/${row.id}`
+      );
 
-    if (response.data?.status === true) {
-      const data = response.data.data;
+      if (response.data?.status === true) {
+        const data = response.data.data;
 
-      setDepartmentDetails({
-        departmentName: data.department_name,
-        company_id: Number(data.company_id), 
-        status: data.status?.toString(),
-      });
-    } else {
-      toast.error("Failed to load department details");
+        setDepartmentDetails({
+          departmentName: data.department_name,
+          company_id: Number(data.company_id),
+          status: data.status?.toString(),
+        });
+      } else {
+        toast.error("Failed to load department details");
+      }
+    } catch (error) {
+      console.error("Edit fetch error:", error);
+      toast.error("Unable to fetch department details");
     }
-  } catch (error) {
-    console.error("Edit fetch error:", error);
-    toast.error("Unable to fetch department details");
-  }
-};
+  };
 
 
 
@@ -218,10 +218,10 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
         toast.success("Department created successfully");
 
         setTimeout(() => {
-          closeAddModal();
           fetchDepartments();
-        }, 1000);
-
+          closeAddModal();
+        }, 2000);
+      
       } else {
         const apiErrors = response.data?.errors;
 
@@ -286,7 +286,7 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
         setTimeout(() => {
           closeEditModal();
           fetchDepartments();
-        }, 800);;
+        }, 2000);;
       } else {
         toast.error(response.data.message || "Failed to update department");
       }
@@ -329,11 +329,11 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
     return error === "";
   };
 
-const validatePssCompany = (value) => {
-  const error = !value ? "PSS Company is required" : "";
-  setErrors(prev => ({ ...prev, pssCompany: error }));
-  return error === "";
-};
+  const validatePssCompany = (value) => {
+    const error = !value ? "PSS Company is required" : "";
+    setErrors(prev => ({ ...prev, pssCompany: error }));
+    return error === "";
+  };
 
   const validateStatus = (value) => {
     setErrors(prev => ({
@@ -369,7 +369,7 @@ const validatePssCompany = (value) => {
               toast.success("Department has been deleted.");
               setTimeout(() => {
                 fetchDepartments();
-              }, 800);
+              }, 2000);
             } else {
               Swal.fire("Error!", response.data.message || "Failed to delete Department.", "error");
             }
@@ -457,8 +457,8 @@ const validatePssCompany = (value) => {
   let navigate = useNavigate();
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen ">
-      {/* <ToastContainer position="top-right" autoClose={3000} /> */}
+    <div className="flex flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen ">
+      {/* <ToastContainer position="top-right" autoClose={5000} /> */}
       {loading ? (
         <Loader />
       ) : (
@@ -585,35 +585,35 @@ px-2 py-2 md:px-6 md:py-6">
                   <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl ">Add Department</p>
 
-                          {/* Pss company */}
+                    {/* Pss company */}
 
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
+                      <label className="block text-md font-medium mb-2">
+                        Pss Company <span className="text-red-500">*</span>
+                      </label>
 
-  <div className="w-[50%]">
-    <Dropdown
-      value={pssCompany}
-      options={pssCompanyOptions}
-      // optionLabel="name"
-      onChange={(e) => {
-        setPssCompany(e.value);
-        // validatePssCompany(e.value);
-      }}
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
+                      <div className="w-[50%]">
+                        <Dropdown
+                          value={pssCompany}
+                          options={pssCompanyOptions}
+                          // optionLabel="name"
+                          onChange={(e) => {
+                            setPssCompany(e.value);
+                            // validatePssCompany(e.value);
+                          }}
+                          placeholder="Select Pss Company"
+                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          // showClear
+                          filter
+                        />
 
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany}
-      </p>
-    )}
-  </div>
-</div>
+                        {errors.pssCompany && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.pssCompany}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
                       <label htmlFor="roleName"
@@ -698,40 +698,40 @@ px-2 py-2 md:px-6 md:py-6">
                   <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
                     <p className="text-xl md:text-2xl ">Edit Department</p>
 
-                          {/* Pss company */}
+                    {/* Pss company */}
 
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
+                      <label className="block text-md font-medium mb-2">
+                        Pss Company <span className="text-red-500">*</span>
+                      </label>
 
-  <div className="w-[50%]">
-    <Dropdown
-       value={departmentDetails.company_id}
-      options={pssCompanyOptions}
-       optionLabel="label"
-  optionValue="value"  
-      onChange={(e) => {
-        setDepartmentDetails({
-          ...departmentDetails,
-          company_id: e.value,
-        });
-        validatePssCompany(e.value);
-      }}
-     
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
+                      <div className="w-[50%]">
+                        <Dropdown
+                          value={departmentDetails.company_id}
+                          options={pssCompanyOptions}
+                          optionLabel="label"
+                          optionValue="value"
+                          onChange={(e) => {
+                            setDepartmentDetails({
+                              ...departmentDetails,
+                              company_id: e.value,
+                            });
+                            validatePssCompany(e.value);
+                          }}
 
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany}
-      </p>
-    )}
-  </div>
-</div>
+                          placeholder="Select Pss Company"
+                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          // showClear
+                          filter
+                        />
+
+                        {errors.pssCompany && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.pssCompany}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
                     <div className="mt-10">
                       <div className="bg-white rounded-xl w-full">
