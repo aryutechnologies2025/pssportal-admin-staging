@@ -438,6 +438,7 @@ const handleResetFilter = () => {
                             openViewModal(row)
                         }}
                         className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
+                        title="View"
                     >
                         <FaEye />
                     </button>
@@ -535,7 +536,7 @@ px-2 py-2 md:px-6 md:py-6">
                                             value={rows}
                                             options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
                                             onChange={(e) => setRows(e.value)}
-                                            className="w-20"
+                                            className="w-20 border"
                                         />
 
                                         <span className=" text-sm text-[#6B7280]">Entries per page</span>
