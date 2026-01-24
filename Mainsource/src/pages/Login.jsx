@@ -7,7 +7,7 @@ import Footer from "../components/Footer";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import { LuUser } from "react-icons/lu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../Config";
 import axiosInstance from "../axiosConfig.js";
@@ -134,6 +134,33 @@ const Login = () => {
     }
   };
 
+  // settings api
+
+  const [faviconPreview, setFaviconPreview] = useState("");
+  const [logoPreview, setLogoPreview] = useState("");
+
+  console.log("logoPreview", logoPreview);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await axiosInstance.get(`${API_URL}api/settings`);
+
+      console.log("Fetch Settings Response:", res);
+      if (res.data?.data) {
+        const data = res.data.data;
+
+        setFaviconPreview(data.fav_icon ? `${API_URL}${data.fav_icon}` : "");
+        setLogoPreview(data.site_logo ? `${API_URL}${data.site_logo}` : "");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
   const handleKeyUp = (event) => {
     setError("");
   };
@@ -148,10 +175,16 @@ const Login = () => {
     <div className="min-h-screen flex flex-col justify-between">
       <div>
         <div className="flex  items-center justify-center pt-3">
-          <img
+          {/* <img
             src="/pssAgenciesLogo.svg"
             alt="PSS Logo"
             className="w-40 md:w-72 h-auto mx-auto mb-2 md:mt-7"
+          /> */}
+
+          <img
+            src={logoPreview ? logoPreview : "/pssAgenciesLogo.svg"}
+            alt="PSS Logo"
+            className="w-40 md:w-40 h-auto mx-auto mb-2 md:mt-7"
           />
           {/* <h1 className="font-bold text-2xl md:text-4xl text-blue-500">PSS</h1> */}
         </div>

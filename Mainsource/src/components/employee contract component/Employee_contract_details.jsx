@@ -29,6 +29,7 @@ import { Capitalise } from "../../hooks/useCapitalise";
 import { IoMdDownload } from "react-icons/io";
 import CameraPhoto from "../../Utils/cameraPhoto";
 import { IoAddCircleSharp } from "react-icons/io5";
+import { FiDownload } from "react-icons/fi";
 
 const Employee_contract_details = () => {
   //navigation
@@ -49,35 +50,33 @@ const Employee_contract_details = () => {
     return new Date().toISOString().split("T")[0];
   };
 
-  const candidateContractSchema = z
-    .object({
-      name: z.string().min(1, "Name is required"),
-      dob: z.string().min(1, "Date of birth is required"),
-      fatherName: z.string().min(1, "Father's name is required"),
-      address: z.string().min(1, "Address is required"),
-      currentAddress: z.string().optional(),
-      state: z.string().optional(),
-      city: z.string().optional(),
-      bankName: z.string().optional(),
-      emergency_contact: z.string().optional(),
-      gender: z.string().min(1, "Gender is required"),
-      education: z.string().min(1, "Education is required"),
-      boardingPoint: z.string().min(1, "Boarding Point is required"),
-      phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
-      aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
-      company: z.string().min(1, "Company is required"),
-      joinedDate: z.string().min(1, "Joined date is required"),
-      panNumber: z.string().optional(),
-      accountName: z.string().min(1, "Account name is required"),
-      accountNumber: z.string().min(1, "Account number is required"),
-      ifsccode: z.string().min(1, "IFSC code is required"),
-      uannumber: z.string().min(1, "UAN number is required"),
-      esciNumber: z.string().min(1, "ESCI number is required"),
-      status: z.string().min(1, "Status is required"),
-      manual_value: z.string().optional(),
-      profile_picture: z.any().optional(),
-      documents: z.array(z.any()).optional(),
-    })
+  const candidateContractSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    dob: z.string().min(1, "Date of birth is required"),
+    fatherName: z.string().min(1, "Father's name is required"),
+    address: z.string().min(1, "Address is required"),
+    currentAddress: z.string().optional(),
+    state: z.string().optional(),
+    city: z.string().optional(),
+    bankName: z.string().optional(),
+    branch: z.string().optional(),
+    emergency_contact: z.string().optional(),
+    gender: z.string().min(1, "Gender is required"),
+    phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
+    aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
+    company: z.string().min(1, "Company is required"),
+    joinedDate: z.string().min(1, "Joined date is required"),
+    panNumber: z.string().optional(),
+    accountName: z.string().min(1, "Account name is required"),
+    accountNumber: z.string().min(1, "Account number is required"),
+    ifsccode: z.string().min(1, "IFSC code is required"),
+    uannumber: z.string().min(1, "UAN number is required"),
+    esciNumber: z.string().min(1, "ESCI number is required"),
+    status: z.string().min(1, "Status is required"),
+    manual_value: z.string().optional(),
+    profile_picture: z.any().optional(),
+    documents: z.array(z.any()).optional(),
+  });
 
   const [emergencyContacts, setEmergencyContacts] = useState([
     { name: "", phone: "", relation: "" },
@@ -120,8 +119,6 @@ const Employee_contract_details = () => {
       status: editData ? editData.status : "",
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
-
-
     },
   });
 
@@ -137,12 +134,16 @@ const Employee_contract_details = () => {
 
   console.log("manual_value", manual_value);
 
-
   const [isAnimating, setIsAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // const employees = ["Saravanan", "Ramesh", "Priya"];
+  const employees = ["Saravanan", "Ramesh", "Priya"];
 
+  // Filter states - FIXED: Corrected variable names
+
+  const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
+  const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
+  const [selectedReference, setSelectedReference] = useState("");
 
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
@@ -191,6 +192,23 @@ const Employee_contract_details = () => {
     fetchContractCandidates();
   };
 
+  // const onPageChange = (e) => {
+  //   setPage(e.page + 1); // PrimeReact is 0-based
+  //   setRows(e.rows); // page size
+  // };
+
+  //  const formatToDDMMYYYY = (dateString) => {
+  //   if (!dateString) return "N/A";
+
+  //   const date = new Date(dateString);
+  //   if (isNaN(date)) return "Invalid Date";
+
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const year = date.getFullYear();
+
+  //   return `${day}-${month}-${year}`;
+  // };
 
   const formatDateToYMD = (date) => {
     if (!date) return null;
@@ -223,7 +241,7 @@ const Employee_contract_details = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [attachment, setAttachment] = useState(null);
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -243,8 +261,7 @@ const Employee_contract_details = () => {
       phone: "",
       aadhar: "",
       company: null,
-      boardingPoint: null,
-      education: null,
+      branch: null,
       pan_number: "",
       currentAddress: "",
       state: "",
@@ -322,18 +339,14 @@ const Employee_contract_details = () => {
 
     // If camera gives Blob → convert to File
     if (!(fileOrBlob instanceof File)) {
-      file = new File(
-        [fileOrBlob],
-        `camera-${Date.now()}.png`,
-        { type: fileOrBlob.type || "image/png" }
-      );
+      file = new File([fileOrBlob], `camera-${Date.now()}.png`, {
+        type: fileOrBlob.type || "image/png",
+      });
     }
 
     setPhoto(file);
     setValue("profile_picture", file, { shouldValidate: true });
   };
-
-
 
   const handleDocumentChange = (e) => {
     const files = Array.from(e.target.files);
@@ -350,10 +363,9 @@ const Employee_contract_details = () => {
     setValue("documents", updatedDocs);
   };
   const handleView = async (row) => {
-
     try {
       const res = await axiosInstance.get(
-        `${API_URL}api/contract-employee/edit/${row.id}`
+        `${API_URL}api/contract-employee/edit/${row.id}`,
       );
 
       const normalizedDocs = normalizeDocuments(res.data.data);
@@ -361,7 +373,6 @@ const Employee_contract_details = () => {
         ...res.data.data,
         documents: normalizedDocs,
       });
-
 
       console.log("view res....:....", res);
       console.log("view res....:....", res.data);
@@ -416,13 +427,12 @@ const Employee_contract_details = () => {
         }));
 
         setCompanyOptions(companies);
-
       }
     } catch (error) {
       console.error("Error fetching companies:", error);
     }
   };
-  // file checking 
+  // file checking
   const handleFileChange = (e) => {
     // if (e.target.files[0]) {
     //     setSelectedFile(e.target.files[0]);
@@ -464,8 +474,7 @@ const Employee_contract_details = () => {
     }
   };
 
-
-  // select file 
+  // select file
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
@@ -533,8 +542,7 @@ const Employee_contract_details = () => {
         {
           headers: { "Content-Type": "multipart/form-data" },
           // Add timeout for debugging
-        }
-
+        },
       );
 
       // console.log("response:", response.data);
@@ -575,18 +583,18 @@ const Employee_contract_details = () => {
 
   const normalizeDocuments = (rowData) => {
     if (rowData.document_groups?.length) {
-      return rowData.document_groups.flatMap(group =>
-        group.documents.map(doc => ({
+      return rowData.document_groups.flatMap((group) =>
+        group.documents.map((doc) => ({
           id: doc.id,
           original_name: doc.original_name,
           document_path: doc.document_path,
           existing: true,
-        }))
+        })),
       );
     }
 
     if (rowData.documents?.length) {
-      return rowData.documents.map(doc => ({
+      return rowData.documents.map((doc) => ({
         id: doc.id,
         original_name: doc.original_name,
         document_path: doc.document_path,
@@ -596,7 +604,6 @@ const Employee_contract_details = () => {
 
     return [];
   };
-
 
   const normalizeEditData = (row) => {
     console.log("rowedit", row);
@@ -639,15 +646,14 @@ const Employee_contract_details = () => {
     };
   };
 
-
   const openEditModal = async (row) => {
-    console.log("open edit row", row)
+    console.log("open edit row", row);
 
     setIsModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
 
     const response = await axiosInstance.get(
-      `/api/contract-employee/edit/${row.id}`
+      `/api/contract-employee/edit/${row.id}`,
     );
     console.log("openeditmodal:", response.data);
 
@@ -657,10 +663,9 @@ const Employee_contract_details = () => {
 
       setEditData(normalizedData);
 
-
       if (normalizedData.profile_picture) {
         // If it's already a full URL, use it; otherwise, append base URL
-        const imageUrl = normalizedData.profile_picture.startsWith('http')
+        const imageUrl = normalizedData.profile_picture.startsWith("http")
           ? normalizedData.profile_picture
           : `${API_URL}/${normalizedData.profile_picture}`;
         setPhoto(imageUrl);
@@ -672,7 +677,7 @@ const Employee_contract_details = () => {
 
       //     let normalizedDocs = [];
       //   if (rowData.document_groups) {
-      //     normalizedDocs = rowData.document_groups.flatMap(group => 
+      //     normalizedDocs = rowData.document_groups.flatMap(group =>
       //       group.documents.map(doc => ({
       //         ...doc,
       //         id: doc.id,
@@ -694,10 +699,8 @@ const Employee_contract_details = () => {
       setDocuments(normalizedDocs);
       setValue("documents", normalizedDocs);
 
-
-
       const selectedCompanyObj = companyDropdown.find(
-        c => c.value === String(normalizedData.company)
+        (c) => c.value === String(normalizedData.company),
       );
 
       setSelectedCompany(selectedCompanyObj?.value || "");
@@ -708,10 +711,7 @@ const Employee_contract_details = () => {
         company: String(normalizedData.company),
       });
     }
-
   };
-
-
 
   // useEffect(() => {
   //   if (editData) {
@@ -728,12 +728,10 @@ const Employee_contract_details = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterGender, setFilterGender] = useState("");
 
-  const [selectedCompanyfilter, setSelectedCompanyfilter] = useState('');
+  const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
 
   // contract api
   const fetchContractCandidates = async () => {
-
-
     try {
       setLoading(true);
       const payload = {
@@ -746,7 +744,9 @@ const Employee_contract_details = () => {
       // console.log("Sending payload as params:", payload);
 
       const queryParams = new URLSearchParams(payload).toString();
-      const response = await axiosInstance.get(`api/contract-employee?${queryParams}`);
+      const response = await axiosInstance.get(
+        `api/contract-employee?${queryParams}`,
+      );
       const employees = response?.data?.data?.employees || [];
 
       console.log("response emp check", response);
@@ -765,13 +765,12 @@ const Employee_contract_details = () => {
     fetchCompanyList();
   }, []);
 
-
   const fetchId = async (payload) => {
     console.log("payload", payload);
     try {
       const response = await axiosInstance.post(
         `api/contract-employee/assign-emp-generate`,
-        payload
+        payload,
       );
 
       console.log("Success:", response.data.employee_id);
@@ -782,7 +781,6 @@ const Employee_contract_details = () => {
       setValue("manual_value", generatedId, {
         shouldValidate: true,
       });
-
     } catch (error) {
       if (error.response) {
         console.log("Backend error:", error.response.data);
@@ -793,8 +791,6 @@ const Employee_contract_details = () => {
       }
     }
   };
-
-
 
   const handleDelete = async (id) => {
     console.log("Deleting Contract Candidates ID:", id);
@@ -810,11 +806,15 @@ const Employee_contract_details = () => {
     if (!result.isConfirmed) return;
 
     try {
-      await axiosInstance.delete(`${API_URL}api/contract-employee/delete/${id}`);
+      await axiosInstance.delete(
+        `${API_URL}api/contract-employee/delete/${id}`,
+      );
 
-      setTimeout(() => toast.success("Contract Candidates deleted successfully"), 300)
+      setTimeout(
+        () => toast.success("Contract Candidates deleted successfully"),
+        300,
+      );
       await fetchContractCandidates();
-
     } catch (error) {
       toast.error("Failed to delete Contract Candidates");
     }
@@ -838,7 +838,10 @@ const Employee_contract_details = () => {
     const last = emergencyContacts[emergencyContacts.length - 1];
     // Only add if last contact is filled
     if (last.name && last.phone && last.relation) {
-      setEmergencyContacts([...emergencyContacts, { name: "", phone: "", relation: "" }]);
+      setEmergencyContacts([
+        ...emergencyContacts,
+        { name: "", phone: "", relation: "" },
+      ]);
     } else {
       Swal.fire({
         icon: "warning",
@@ -847,7 +850,6 @@ const Employee_contract_details = () => {
       });
     }
   };
-
 
   const handleDownload = () => {
     window.print(); // user selects "Save as PDF"
@@ -899,9 +901,10 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${row.status === 0 || row.status === "0"
-              ? "text-[#DC2626] bg-[#fff0f0] "
-              : "text-[#16A34A] bg-[#e8fff0] "
+            ${
+              row.status === 0 || row.status === "0"
+                ? "text-[#DC2626] bg-[#fff0f0] "
+                : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -938,16 +941,15 @@ const Employee_contract_details = () => {
     },
   ];
 
-
   // create
   const onSubmit = async (data) => {
     try {
-      console.log('Form data before submit:', {
+      console.log("Form data before submit:", {
         profile_picture: data.profile_picture,
         profile_image_type: typeof data.profile_picture,
         isFile: data.profile_picture instanceof File,
         documents: data.documents,
-        documents_length: data.documents?.length
+        documents_length: data.documents?.length,
       });
       const createCandidate = {
         name: data.name,
@@ -975,12 +977,11 @@ const Employee_contract_details = () => {
 
       const formData = new FormData();
 
-
       Object.entries(createCandidate).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
           formData.append(
             key,
-            typeof value === "object" ? JSON.stringify(value) : value
+            typeof value === "object" ? JSON.stringify(value) : value,
           );
         }
       });
@@ -989,11 +990,8 @@ const Employee_contract_details = () => {
       if (data.profile_picture instanceof File) {
         formData.append("profile_picture", data.profile_picture);
       } else if (typeof data.profile_picture === "string") {
-
         formData.append("existing_profile_picture", data.profile_picture);
       }
-
-
 
       // Documents (NEW FILES ONLY)
       console.log("on submit doc", documents);
@@ -1003,7 +1001,6 @@ const Employee_contract_details = () => {
           if (doc instanceof File) {
             formData.append("documents[]", doc);
           } else if (doc.id) {
-
             // formData.append(`existing_document_ids[${index}]`, doc.id);
             formData.append("existing_document_ids[]", doc.id);
             // formData.append("documents[]", doc.id);
@@ -1011,7 +1008,7 @@ const Employee_contract_details = () => {
         });
       }
 
-      console.log("Create candidate ,.... : .....", createCandidate)
+      console.log("Create candidate ,.... : .....", createCandidate);
       setLoading(true);
 
       const url = editData
@@ -1022,18 +1019,21 @@ const Employee_contract_details = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setTimeout(() => toast.success(editData ? "Updated Successfully" : "Created Successfully"), 300)
+      setTimeout(
+        () =>
+          toast.success(
+            editData ? "Updated Successfully" : "Created Successfully",
+          ),
+        300,
+      );
       fetchContractCandidates();
       closeAddModal();
-
-
     } catch (error) {
       console.error(" Error creating candidate:", error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
-
   };
 
   const companyDropdown = companyOptions.map((c) => ({
@@ -1042,7 +1042,16 @@ const Employee_contract_details = () => {
     company_emp_id: c.company_emp_id,
   }));
 
-  console.log("companyDropdown", companyDropdown)
+  const handlCsvDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/csv/contarctformat.csv";
+    link.download = "contractformat.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  console.log("companyDropdown", companyDropdown);
 
   const boardingDropdown = boardingOptions.map((c) => ({
     label: c.label,
@@ -1078,9 +1087,7 @@ const Employee_contract_details = () => {
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-xs  md:text-sm  text-[#1ea600]">
-                Employee
-              </p>
+              <p className="text-xs  md:text-sm  text-[#1ea600]">Employee</p>
             </div>
 
             {/* Filter Section */}
@@ -1114,7 +1121,9 @@ const Employee_contract_details = () => {
                   </div>
                   {/* Status */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[#6B7280]">Status</label>
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Status
+                    </label>
                     <select
                       value={filterStatus || ""}
                       onChange={(e) => setFilterStatus(e.target.value)}
@@ -1129,7 +1138,9 @@ const Employee_contract_details = () => {
 
                   {/* Gender Dropdown */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[#6B7280]">Gender</label>
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Gender
+                    </label>
                     <select
                       value={filterGender || ""}
                       onChange={(e) => setFilterGender(e.target.value)}
@@ -1143,7 +1154,9 @@ const Employee_contract_details = () => {
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-sm font-medium text-[#6B7280]">Company</label>
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Company
+                    </label>
 
                     <div className="w-[60%] md:w-[100%]">
                       <Dropdown
@@ -1157,7 +1170,6 @@ const Employee_contract_details = () => {
                       />
                     </div>
                   </div>
-
 
                   {/* Buttons */}
                   <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
@@ -1223,6 +1235,24 @@ const Employee_contract_details = () => {
                         Import
                       </button>
                     </div>
+                    {/* sample csv format download */}
+                    <div className="flex items-center">
+                      <button
+                        onClick={handlCsvDownload}
+                        className="
+      flex items-center gap-2
+      px-5 py-2
+      text-sm font-semibold
+      text-green-700
+      bg-green-100
+      rounded-full
+      hover:bg-green-200
+      transition
+    "
+                      >
+                        <FiDownload className="text-lg" /> Demo CSV
+                      </button>
+                    </div>
                     <button
                       onClick={openAddModal}
                       className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
@@ -1276,8 +1306,9 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
-                    }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
+                    isAnimating ? "translate-x-0" : "translate-x-full"
+                  }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -1314,9 +1345,11 @@ const Employee_contract_details = () => {
                           onChange={(e) => {
                             setSelectedCompany(e.value);
                             const obj = companyDropdown.find(
-                              (item) => item.value === e.value
+                              (item) => item.value === e.value,
                             );
-                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setCompanyEmpType(
+                              obj.company_emp_id?.toLowerCase(),
+                            );
                             setValue("company", Number(e.value), {
                               shouldValidate: true,
                             });
@@ -1438,16 +1471,20 @@ const Employee_contract_details = () => {
                     {/* Upload Photo */}
                     <div className="flex justify-end">
                       <div className="flex flex-col items-center gap-2">
-
                         <p className="font-medium">
-                          {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
+                          {photo ? "Change Photo" : "Upload Photo"}{" "}
+                          <span className="text-red-500">*</span>
                         </p>
 
                         {/* Preview */}
                         <div className="relative">
                           {photo ? (
                             <img
-                              src={photo instanceof File ? URL.createObjectURL(photo) : photo}
+                              src={
+                                photo instanceof File
+                                  ? URL.createObjectURL(photo)
+                                  : photo
+                              }
                               className="w-32 h-40 rounded-md object-cover border"
                             />
                           ) : (
@@ -1479,7 +1516,9 @@ const Employee_contract_details = () => {
                         </div>
 
                         {errors.profile_picture && (
-                          <p className="text-red-500 text-sm">{errors.profile_picture.message}</p>
+                          <p className="text-red-500 text-sm">
+                            {errors.profile_picture.message}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -1490,8 +1529,6 @@ const Employee_contract_details = () => {
                         onClose={() => setOpenCamera(false)}
                       />
                     )}
-
-
 
                     {/* Company */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1511,15 +1548,16 @@ const Employee_contract_details = () => {
                           onChange={(e) => {
                             setSelectedCompany(e.value);
                             const obj = companyDropdown.find(
-                              (item) => item.value === e.value
+                              (item) => item.value === e.value,
                             );
-                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setCompanyEmpType(
+                              obj.company_emp_id?.toLowerCase(),
+                            );
                             setValue("company", String(e.value), {
                               shouldValidate: true,
                             });
                           }}
                         />
-
 
                         {errors.company && (
                           <p className="text-red-500 text-sm">
@@ -1529,53 +1567,16 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
-                    {/* boarding point */}
+                    {/* branch */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
-                        Boarding Point
+                        Branch Name
                         {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-[50%] md:w-[60%]">
                         <Dropdown
-                          value={selectedBoarding}
-                          options={branchDropdown}
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Select Boarding Point"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedBoarding(e.value);
-                            const branchObj = branchDropdown.find(
-                              (item) => item.value === e.value
-                            );
-                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
-                            setValue("company", String(e.value), {
-                              shouldValidate: true,
-                            });
-                          }}
-                        />
-
-
-                        {/* {errors.branch && (
-                          <p className="text-red-500 text-sm">
-                            {errors.branch.message}
-                          </p>
-                        )} */}
-                      </div>
-                    </div>
-
-                    {/* Education */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Education
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%]">
-                        <Dropdown
-                          value={selectedEducation}
+                          value={selectedBranch}
                           options={branchDropdown}
                           optionLabel="label"
                           optionValue="value"
@@ -1585,15 +1586,16 @@ const Employee_contract_details = () => {
                           onChange={(e) => {
                             setSelectedEducation(e.value);
                             const branchObj = branchDropdown.find(
-                              (item) => item.value === e.value
+                              (item) => item.value === e.value,
                             );
-                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setCompanyEmpType(
+                              obj.company_emp_id?.toLowerCase(),
+                            );
                             setValue("company", String(e.value), {
                               shouldValidate: true,
                             });
                           }}
                         />
-
 
                         {/* {errors.branch && (
                           <p className="text-red-500 text-sm">
@@ -1632,9 +1634,7 @@ const Employee_contract_details = () => {
                           type="date"
                           name="dob"
                           {...register("dob")}
-
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-
                         />
                         <span className="text-red-500 text-sm">
                           {errors.dob?.message}
@@ -1643,7 +1643,6 @@ const Employee_contract_details = () => {
                     </div>
 
                     {/* fathername */}
-
 
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1654,7 +1653,6 @@ const Employee_contract_details = () => {
                           type="text"
                           name="fatherName"
                           {...register("fatherName")}
-
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           placeholder="Enter The Father Name"
                         />
@@ -1663,9 +1661,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
-
-
 
                     {/* address */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1677,7 +1672,6 @@ const Employee_contract_details = () => {
                           type="text"
                           name="address"
                           {...register("address")}
-
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           placeholder="Enter The Address"
                         />
@@ -1698,7 +1692,6 @@ const Employee_contract_details = () => {
                           type="text"
                           name="city"
                           {...register("city")}
-
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           placeholder="Enter The City"
                         />
@@ -1720,7 +1713,6 @@ const Employee_contract_details = () => {
                           type="text"
                           name="state"
                           {...register("state")}
-
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           placeholder="Enter The State"
                         />
@@ -1742,7 +1734,6 @@ const Employee_contract_details = () => {
                           type="text"
                           name="currentaddress"
                           {...register("currentaddress")}
-
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           placeholder="Enter The Address"
                         />
@@ -1765,7 +1756,9 @@ const Employee_contract_details = () => {
                             <input
                               type="radio"
                               value="Male"
-                              {...register("gender", { required: "Gender is required" })}
+                              {...register("gender", {
+                                required: "Gender is required",
+                              })}
                               className="accent-[#1ea600]"
                             />
                             Male
@@ -1775,7 +1768,9 @@ const Employee_contract_details = () => {
                             <input
                               type="radio"
                               value="Female"
-                              {...register("gender", { required: "Gender is required" })}
+                              {...register("gender", {
+                                required: "Gender is required",
+                              })}
                               className="accent-[#1ea600]"
                             />
                             Female
@@ -1787,7 +1782,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
 
                     {/* PHONE */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1827,7 +1821,9 @@ const Employee_contract_details = () => {
                           inputMode="numeric"
                           maxLength={12}
                           onInput={(e) => {
-                            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 12);
+                            e.target.value = e.target.value
+                              .replace(/\D/g, "")
+                              .slice(0, 12);
                           }}
                           placeholder="Enter AadharNumber"
                         />
@@ -1849,13 +1845,12 @@ const Employee_contract_details = () => {
                           name="pan"
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           {...register("pan")}
-
                           maxLength={10}
                           onInput={(e) => {
                             e.target.value = e.target.value
-                              .toUpperCase()              // convert to uppercase
-                              .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
-                              .slice(0, 10);              // max 10 chars
+                              .toUpperCase() // convert to uppercase
+                              .replace(/[^A-Z0-9]/g, "") // allow only letters & numbers
+                              .slice(0, 10); // max 10 chars
                           }}
                           placeholder="Enter Pan Number"
                         />
@@ -1864,8 +1859,6 @@ const Employee_contract_details = () => {
                         </span> */}
                       </div>
                     </div>
-
-
 
                     {/* joinedDate date */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1914,10 +1907,11 @@ const Employee_contract_details = () => {
                                 : "Employee ID"
                             }
                             className={`w-full px-2 py-2 border rounded-[10px]
-          ${companyEmpType === "automatic"
-                                ? "bg-gray-100 cursor-not-allowed"
-                                : "bg-white"
-                              }`}
+          ${
+            companyEmpType === "automatic"
+              ? "bg-gray-100 cursor-not-allowed"
+              : "bg-white"
+          }`}
                           />
                         </div>
                       </div>
@@ -2050,7 +2044,6 @@ const Employee_contract_details = () => {
                     {/* status */}
 
                     <div className="mt-5 flex justify-between items-center">
-
                       <label
                         htmlFor="status"
                         className="block text-md font-medium mb-2 mt-3"
@@ -2068,16 +2061,15 @@ const Employee_contract_details = () => {
                           <option value="0">InActive</option>
                         </select>
                         {errors.status && (
-                          <p className="text-red-500 text-sm mt-1">{errors.status.message}</p>
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.status.message}
+                          </p>
                         )}
-
-
                       </div>
                     </div>
 
                     {/* Emergency Contacts */}
                     <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
-
                       {/* Header */}
                       <div className="flex justify-between items-center">
                         <p className="text-lg md:text-xl font-semibold">
@@ -2103,7 +2095,6 @@ const Employee_contract_details = () => {
                             key={index}
                             className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
                           >
-
                             {/* Remove */}
                             {index > 0 && (
                               <IoIosCloseCircle
@@ -2119,7 +2110,11 @@ const Employee_contract_details = () => {
                                 placeholder="Full Name"
                                 value={item.name}
                                 onChange={(e) =>
-                                  updateEmergencyContact(index, "name", e.target.value)
+                                  updateEmergencyContact(
+                                    index,
+                                    "name",
+                                    e.target.value,
+                                  )
                                 }
                                 className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                               />
@@ -2130,7 +2125,11 @@ const Employee_contract_details = () => {
                               <select
                                 value={item.relation}
                                 onChange={(e) =>
-                                  updateEmergencyContact(index, "relation", e.target.value)
+                                  updateEmergencyContact(
+                                    index,
+                                    "relation",
+                                    e.target.value,
+                                  )
                                 }
                                 className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                               >
@@ -2150,15 +2149,21 @@ const Employee_contract_details = () => {
                                 placeholder="Phone Number"
                                 value={item.phone}
                                 onChange={(e) => {
-                                  const value = e.target.value.replace(/\D/g, "");
+                                  const value = e.target.value.replace(
+                                    /\D/g,
+                                    "",
+                                  );
                                   if (value.length <= 10) {
-                                    updateEmergencyContact(index, "phone", value);
+                                    updateEmergencyContact(
+                                      index,
+                                      "phone",
+                                      value,
+                                    );
                                   }
                                 }}
                                 className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                               />
                             </div>
-
                           </div>
                         ))}
                       </div>
@@ -2189,9 +2194,14 @@ const Employee_contract_details = () => {
 
                         <div className="mt-4 space-y-2">
                           {documents.map((doc, index) => (
-                            <div key={index} className="flex justify-between items-center p-2 border rounded">
+                            <div
+                              key={index}
+                              className="flex justify-between items-center p-2 border rounded"
+                            >
                               <span className="text-sm truncate">
-                                {doc instanceof File ? doc.name : (doc.original_name || "Existing Document")}
+                                {doc instanceof File
+                                  ? doc.name
+                                  : doc.original_name || "Existing Document"}
                               </span>
                               <button
                                 type="button"
@@ -2212,7 +2222,6 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
-
                     {/* Button */}
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
                       <button
@@ -2225,7 +2234,7 @@ const Employee_contract_details = () => {
                         type="button"
                         className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleSubmit(onSubmit, (errors) =>
-                          console.log(errors)
+                          console.log(errors),
                         )}
                       >
                         Submit
@@ -2253,11 +2262,9 @@ const Employee_contract_details = () => {
                     <IoIosCloseCircle size={28} />
                   </button> */}
 
-
                   {/* Title and profile image */}
                   {/* Header */}
                   <div className="flex items-center justify-between mb-6 border-b pb-4">
-
                     {/* Title */}
                     <h2 className="text-xl font-semibold text-[#1ea600]">
                       Employee Details
@@ -2265,7 +2272,6 @@ const Employee_contract_details = () => {
 
                     {/* Profile Picture */}
                     <div className="flex items-center gap-6">
-
                       {viewRow.profile_picture ? (
                         <img
                           src={
@@ -2311,7 +2317,6 @@ const Employee_contract_details = () => {
                           <IoIosCloseCircle size={26} />
                         </button>
                       </div>
-
                     </div>
                   </div>
 
@@ -2321,15 +2326,15 @@ const Employee_contract_details = () => {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <p>
                         <b>Company:</b>{" "}
-                        {companyOptions.find(c => c.value === viewRow.company_id)?.label || "-"}
+                        {companyOptions.find(
+                          (c) => c.value === viewRow.company_id,
+                        )?.label || "-"}
                       </p>
                       <p>
-                        <b>Boarding Point:</b>{" "}
-                        {boardingOptions.find(b => b.value === viewRow.company_id)?.label || "-"}
-                      </p>
-                      <p>
-                        <b>Education:</b>{" "}
-                        {educationOptions.find(b => b.value === viewRow.company_id)?.label || "-"}
+                        <b>Branch:</b>{" "}
+                        {branchOptions.find(
+                          (b) => b.value === viewRow.company_id,
+                        )?.label || "-"}
                       </p>
                       <p>
                         <b>Name:</b> {viewRow.name || "-"}
@@ -2366,7 +2371,8 @@ const Employee_contract_details = () => {
                       </p>
 
                       <p>
-                        <b>Date of Birth:</b> {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
+                        <b>Date of Birth:</b>{" "}
+                        {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
                       </p>
                       <p>
                         <b>Father Name:</b> {viewRow.father_name || "-"}
@@ -2384,10 +2390,12 @@ const Employee_contract_details = () => {
                         <b>UAN Number:</b> {viewRow.uan_number || "-"}
                       </p>
                       <p>
-                        <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
+                        <b>Status:</b>{" "}
+                        {viewRow.status === 1 ? "Active" : "Inactive"}
                       </p>
                       <p>
-                        <b>Joining Date:</b> {formatToDDMMYYYY(viewRow.joining_date) || "-"}
+                        <b>Joining Date:</b>{" "}
+                        {formatToDDMMYYYY(viewRow.joining_date) || "-"}
                       </p>
                       <p>
                         <b>Employee ID:</b> {viewRow.employee_id || "-"}
@@ -2396,7 +2404,9 @@ const Employee_contract_details = () => {
                       {/* emergency contact */}
 
                       <div className="mt-4">
-                        <h3 className="font-semibold mb-2">Emergency Contacts</h3>
+                        <h3 className="font-semibold mb-2">
+                          Emergency Contacts
+                        </h3>
 
                         {viewRow.emergency_contacts?.length > 0 ? (
                           <table className="w-full border text-sm">
@@ -2409,12 +2419,20 @@ const Employee_contract_details = () => {
                             </thead>
                             <tbody>
                               {viewRow.emergency_contacts
-                                ?.filter((c) => e.name && e.relation && e.phone_number)
+                                ?.filter(
+                                  (c) => e.name && e.relation && e.phone_number,
+                                )
                                 .map((e, i) => (
                                   <tr key={i}>
-                                    <td className="border p-2">{c.name || "-"}</td>
-                                    <td className="border p-2">{c.relation || "-"}</td>
-                                    <td className="border p-2">{c.phone_number || "-"}</td>
+                                    <td className="border p-2">
+                                      {c.name || "-"}
+                                    </td>
+                                    <td className="border p-2">
+                                      {c.relation || "-"}
+                                    </td>
+                                    <td className="border p-2">
+                                      {c.phone_number || "-"}
+                                    </td>
                                   </tr>
                                 ))}
                             </tbody>
@@ -2429,14 +2447,22 @@ const Employee_contract_details = () => {
                         {viewRow.documents && viewRow.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewRow.documents.map((doc, index) => (
-                              <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                              <div
+                                key={index}
+                                className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border"
+                              >
                                 <span className="text-gray-600 truncate flex-1">
                                   {doc.original_name || `Document ${index + 1}`}
                                 </span>
 
                                 <div className="flex gap-2">
                                   <button
-                                    onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+                                    onClick={() =>
+                                      window.open(
+                                        `${API_URL}/${doc.document_path}`,
+                                        "_blank",
+                                      )
+                                    }
                                     className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
                                   >
                                     View/Print
@@ -2454,10 +2480,11 @@ const Employee_contract_details = () => {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-gray-500 italic">No documents uploaded.</p>
+                          <p className="text-gray-500 italic">
+                            No documents uploaded.
+                          </p>
                         )}
                       </div>
-
                     </div>
                   </div>
                 </div>
