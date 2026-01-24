@@ -155,7 +155,6 @@ const Employee_contract_details = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   // const [totalRecords, setTotalRecords] = useState(0);
 
-
   const interviewStatus = watch("interviewStatus");
   const candidateStatus = watch("candidateStatus");
   const reference = watch("reference");
@@ -177,7 +176,6 @@ const Employee_contract_details = () => {
   }, [candidateStatus, setValue]);
 
   const [ModalOpen, setIsModalOpen] = useState(false);
-
 
   // Reset filters
   const handleResetFilter = () => {
@@ -705,7 +703,6 @@ const Employee_contract_details = () => {
 
       setSelectedCompany(selectedCompanyObj?.value || "");
 
-
       reset({
         ...normalizedData,
         company: String(normalizedData.company),
@@ -1059,7 +1056,7 @@ const Employee_contract_details = () => {
     id: c.id,
   }));
 
-  console.log("boardingDropdown", boardingDropdown)
+  console.log("boardingDropdown", boardingDropdown);
 
   const educationDropdown = educationOptions.map((c) => ({
     label: c.label,
@@ -1067,7 +1064,7 @@ const Employee_contract_details = () => {
     id: c.id,
   }));
 
-  console.log("educationDropdown", educationDropdown)
+  console.log("educationDropdown", educationDropdown);
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -1333,7 +1330,6 @@ const Employee_contract_details = () => {
                       </label>
 
                       <div className="w-[60%] md:w-[50%]">
-
                         <Dropdown
                           value={selectedCompany}
                           options={companyDropdown}
@@ -1467,7 +1463,6 @@ const Employee_contract_details = () => {
                         {backendValidationError}
                       </span>
                     )}
-
                     {/* Upload Photo */}
                     <div className="flex justify-end">
                       <div className="flex flex-col items-center gap-2">
@@ -1522,14 +1517,12 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
-
                     {openCamera && (
                       <CameraPhoto
                         onCapture={handleCameraCapture}
                         onClose={() => setOpenCamera(false)}
                       />
                     )}
-
                     {/* Company */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
@@ -1566,17 +1559,56 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
-
-                    {/* branch */}
-                    <div className="mt-5 flex justify-between items-center">
+                    {/* boarding point */}                   <div className="mt-5 flex justify-between items-center">
+                      
                       <label className="block text-md font-medium">
-                        Branch Name
+                      Boarding Point
                         {/* <span className="text-red-500">*</span> */}
+                        
                       </label>
-
+                      
                       <div className="w-[50%] md:w-[60%]">
+                        
                         <Dropdown
-                          value={selectedBranch}
+                          value={selectedBoarding}
+                          options={branchDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Boarding Point"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedBoarding(e.value);
+                            const branchObj = branchDropdown.find(
+                              (item) => item.value === e.value,
+                            );
+                            setCompanyEmpType(
+                              obj.company_emp_id?.toLowerCase(),
+                            );
+                            setValue("company", String(e.value), {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+                        
+                        {/* {errors.branch && (  <p className="text-red-500 text-sm">    {errors.branch.message}  </p>)} */}
+                        
+                      </div>
+                      
+                    </div>
+                    {/* Education */}
+                    <div className="mt-5 flex justify-between items-center">
+                      
+                      <label className="block text-md font-medium">
+                        Education
+                        {/* <span className="text-red-500">*</span> */}
+                        
+                      </label>
+                      
+                      <div className="w-[50%] md:w-[60%]">
+                        
+                        <Dropdown
+                          value={selectedEducation}
                           options={branchDropdown}
                           optionLabel="label"
                           optionValue="value"
@@ -1596,15 +1628,12 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-
-                        {/* {errors.branch && (
-                          <p className="text-red-500 text-sm">
-                            {errors.branch.message}
-                          </p>
-                        )} */}
+                        
+                        {/* {errors.branch && (<p className="text-red-500 text-sm">  {errors.branch.message}</p>    )} */}
+                        
                       </div>
+                      
                     </div>
-
                     {/* NAME */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1623,7 +1652,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* dob */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1641,9 +1669,7 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* fathername */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Father Name <span className="text-red-500">*</span>
@@ -1661,7 +1687,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* address */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1680,7 +1705,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* city */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1700,9 +1724,7 @@ const Employee_contract_details = () => {
                         </span> */}
                       </div>
                     </div>
-
                     {/* state */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         State
@@ -1721,9 +1743,7 @@ const Employee_contract_details = () => {
                         </span> */}
                       </div>
                     </div>
-
                     {/* current address */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Current Address
@@ -1742,9 +1762,7 @@ const Employee_contract_details = () => {
                         </span> */}
                       </div>
                     </div>
-
                     {/* gender */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Gender <span className="text-red-500">*</span>
@@ -1782,7 +1800,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* PHONE */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1806,7 +1823,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* Aadhaar */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1832,7 +1848,6 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-
                     {/* pan number */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1859,7 +1874,6 @@ const Employee_contract_details = () => {
                         </span> */}
                       </div>
                     </div>
-
                     {/* joinedDate date */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1889,7 +1903,6 @@ const Employee_contract_details = () => {
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
-
                     {companyEmpType && (
                       <div className="mt-5 flex justify-between items-center">
                         <label className="block text-md font-medium">
@@ -1916,9 +1929,7 @@ const Employee_contract_details = () => {
                         </div>
                       </div>
                     )}
-
                     {/* bank name */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Bank Name
@@ -1938,7 +1949,6 @@ const Employee_contract_details = () => {
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
-
                     {/* account name */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1958,7 +1968,6 @@ const Employee_contract_details = () => {
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
-
                     {/* account number */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1978,9 +1987,7 @@ const Employee_contract_details = () => {
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
-
                     {/* ifsc code */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         IFSC Code <span className="text-red-500">*</span>
@@ -1999,9 +2006,7 @@ const Employee_contract_details = () => {
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
-
                     {/* uan number */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         UAN Number <span className="text-red-500">*</span>
@@ -2020,9 +2025,7 @@ const Employee_contract_details = () => {
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
-
                     {/* esic  */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         ESIC <span className="text-red-500">*</span>
@@ -2042,7 +2045,6 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
                     {/* status */}
-
                     <div className="mt-5 flex justify-between items-center">
                       <label
                         htmlFor="status"
@@ -2067,7 +2069,6 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
-
                     {/* Emergency Contacts */}
                     <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
                       {/* Header */}
@@ -2168,9 +2169,7 @@ const Employee_contract_details = () => {
                         ))}
                       </div>
                     </div>
-
                     {/* Documents */}
-
                     <div className="mt-5 flex justify-between items-start">
                       <label className="block text-md font-medium">
                         Documents
@@ -2221,7 +2220,6 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
-
                     {/* Button */}
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
                       <button
