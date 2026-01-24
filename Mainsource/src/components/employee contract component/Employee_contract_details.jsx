@@ -62,14 +62,14 @@ const Employee_contract_details = () => {
     bankName: z.string().optional(),
     branch: z.string().optional(),
     emergency_contact: z.string().optional(),
-    education: z.string().min(1, "Education is required"),
-    boardingPoint: z.string().min(1, "Boarding Point is required"),
     gender: z.string().min(1, "Gender is required"),
     phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
     aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
-    maritalStatus: z.string().min(1, "Marital status is required"),
     company: z.string().min(1, "Company is required"),
     joinedDate: z.string().min(1, "Joined date is required"),
+    education: z.string().min(1, "Education is required"),
+    boardingPoint: z.string().min(1, "Boarding Point is required"),
+    maritalStatus: z.string().min(1, "Marital status is required"),
     panNumber: z.string().optional(),
     accountName: z.string().min(1, "Account name is required"),
     accountNumber: z.string().min(1, "Account number is required"),
@@ -110,11 +110,11 @@ const Employee_contract_details = () => {
       state: editData ? editData.state : "",
       city: editData ? editData.city : "",
       bankName: editData ? editData.bankName : "",
-      branch: editData ? editData.branch : "",
       boardingPoint: editData ? editData.boardingPoint : "",
       education: editData ? editData.education : "",
       emergency_contact: editData ? editData.emergency_contact : "",
       panNumber: editData ? editData.pan : "",
+      branch: editData ? editData.branch : "",
       gender: editData ? editData.gender : "",
       joinedDate: editData ? editData.joinedDate : "",
       accountName: editData ? editData.accountName : "",
@@ -163,7 +163,8 @@ const Employee_contract_details = () => {
   const [rows, setRows] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
   // const [totalRecords, setTotalRecords] = useState(0);
-
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [branchOptions, setBranchOptions] = useState([]);
   const interviewStatus = watch("interviewStatus");
   const candidateStatus = watch("candidateStatus");
   const reference = watch("reference");
@@ -235,8 +236,7 @@ const Employee_contract_details = () => {
 
   console.log("selectedCompany", selectedCompany);
   console.log("selectedBoarding", selectedBoarding);
-  const [selectedBranch, setSelectedBranch] = useState(null);
-  const [branchOptions, setBranchOptions] = useState([]);
+
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions", companyOptions);
   const [boardingOptions, setBoardingOptions] = useState([]);
@@ -726,7 +726,6 @@ const Employee_contract_details = () => {
       });
       setSelectedBoarding(normalizedData.boardingPoint);
       setSelectedEducation(normalizedData.education);
-
     }
   };
 
@@ -940,9 +939,10 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${row.status === 0 || row.status === "0"
-              ? "text-[#DC2626] bg-[#fff0f0] "
-              : "text-[#16A34A] bg-[#e8fff0] "
+            ${
+              row.status === 0 || row.status === "0"
+                ? "text-[#DC2626] bg-[#fff0f0] "
+                : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -992,17 +992,18 @@ const Employee_contract_details = () => {
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
+
         date_of_birth: formatDateToYMD(data.dob),
         father_name: data.fatherName,
         gender: data.gender,
         phone_number: data.phone,
         aadhar_number: data.aadhar,
-        marital_status: data.maritalStatus,
         company_id: Number(data.company),
-        boarding_point_id: Number(data.boardingPoint),
-        education_id: Number(data.education),
         joining_date: formatDateToYMD(data.joinedDate),
         acc_no: data.accountName,
+        marital_status: data.maritalStatus,
+        boarding_point_id: Number(data.boardingPoint),
+        education_id: Number(data.education),
         account_number: data.accountNumber,
         ifsc_code: data.ifsccode,
         uan_number: data.uannumber,
@@ -1092,6 +1093,7 @@ const Employee_contract_details = () => {
   };
 
   console.log("companyDropdown", companyDropdown);
+
   const [boardingPoints, setBoardingPoints] = useState([]);
   const [educations, setEducations] = useState([]);
 
@@ -1107,32 +1109,31 @@ const Employee_contract_details = () => {
     value: String(e.id),
   }));
 
-
   console.log("educationDropdown", educationDropdown);
 
 
   const [showLogs, setShowLogs] = useState(false);
-  const logData = [
-    {
-      companyName: "PSS Agencies",
-      boardingPoint: "Chennai",
-      joiningDate: "2023-08-12",
-      employeeId: "EMP001",
-    },
-    {
-      companyName: "PSS Agencies",
-      boardingPoint: "Bangalore",
-      joiningDate: "2024-01-05",
-      employeeId: "EMP045",
-    },
+const logData = [
+  {
+    companyName: "PSS Agencies",
+    boardingPoint: "Chennai",
+    joiningDate: "2023-08-12",
+    employeeId: "EMP001",
+  },
+  {
+    companyName: "PSS Agencies",
+    boardingPoint: "Bangalore",
+    joiningDate: "2024-01-05",
+    employeeId: "EMP045",
+  },
 
-    {
-      companyName: "PSS Agencies",
-      boardingPoint: "Mumbai",
-      joiningDate: "2024-01-05",
-      employeeId: "EMP045",
-    },
-  ];
+  {
+    companyName: "PSS Agencies",
+    boardingPoint: "Mumbai",
+    joiningDate: "2024-01-05",
+    employeeId: "EMP045",
+  },
+];
 
 
   return (
@@ -1372,8 +1373,9 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
-                    }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
+                    isAnimating ? "translate-x-0" : "translate-x-full"
+                  }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -1523,24 +1525,24 @@ const Employee_contract_details = () => {
 
                   <div className="p-2 md:p-5">
                     <div className="flex justify-between items-center">
-                      <p className="text-xl md:text-2xl font-medium">
-                        {" "}
-                        {!editData ? "ADD" : "Edit"} Employee
-                      </p>
-                      {backendValidationError && (
-                        <span className=" text-red-600 text-sm">
-                          {backendValidationError}
-                        </span>
-                      )}
-                      {editData && (
-                        <div
-                          className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
-                          title="View Logs"
-                          onClick={() => setShowLogs(true)}
-                        >
-                          <TbLogs size={20} />
-                        </div>
-                      )}
+                    <p className="text-xl md:text-2xl font-medium">
+                      {" "}
+                      {!editData ? "ADD" : "Edit"} Employee
+                    </p>
+                    {backendValidationError && (
+                      <span className=" text-red-600 text-sm">
+                        {backendValidationError}
+                      </span>
+                    )}
+                  {editData && (
+  <div
+    className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
+    title="View Logs"
+    onClick={() => setShowLogs(true)}
+  >
+    <TbLogs size={20} />
+  </div>
+)}
 
                     </div>
                     {/* Upload Photo */}
@@ -1672,7 +1674,7 @@ const Employee_contract_details = () => {
                         {/* {errors.branch && (  <p className="text-red-500 text-sm">    {errors.branch.message}  </p>)} */}
                       </div>
                     </div>
-                    {/* boarding Point */}{" "}
+                     {/* boarding Point */}{" "}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
                         Boarding Point
@@ -1728,7 +1730,6 @@ const Employee_contract_details = () => {
                             {errors.education.message}
                           </p>
                         )}
-
                       </div>
                     </div>
                     {/* NAME */}
@@ -1784,7 +1785,7 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
-                    {/* marital status */}
+                     {/* marital status */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Marital Status <span className="text-red-500">*</span>
@@ -1820,7 +1821,6 @@ const Employee_contract_details = () => {
                         {errors.maritalStatus.message}
                       </p>
                     )}
-
                     {/* address */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -2054,10 +2054,11 @@ const Employee_contract_details = () => {
                                 : "Employee ID"
                             }
                             className={`w-full px-2 py-2 border rounded-[10px]
-          ${companyEmpType === "automatic"
-                                ? "bg-gray-100 cursor-not-allowed"
-                                : "bg-white"
-                              }`}
+          ${
+            companyEmpType === "automatic"
+              ? "bg-gray-100 cursor-not-allowed"
+              : "bg-white"
+          }`}
                           />
                         </div>
                       </div>
@@ -2425,61 +2426,61 @@ const Employee_contract_details = () => {
             {/* logs details */}
 
             {showLogs && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    
+    {/* Modal box */}
+    <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center border-b pb-2">
+        <h2 className="text-lg font-semibold text-gray-800">
+          Employee Joining Logs
+        </h2>
+        <button
+          onClick={() => setShowLogs(false)}
+          className="text-gray-500 hover:text-red-500 text-xl"
+        >
+          ✕
+        </button>
+      </div>
 
-                {/* Modal box */}
-                <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
+      {/* Body */}
+      <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
+        {logData.map((item, index) => (
+          <div
+            key={index}
+            className="border rounded-xl p-3 hover:border-[#1ea600] transition"
+          >
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <p className="text-gray-500">Company</p>
+              <p className="font-medium">{item.companyName}</p>
 
-                  {/* Header */}
-                  <div className="flex justify-between items-center border-b pb-2">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Employee Joining Logs
-                    </h2>
-                    <button
-                      onClick={() => setShowLogs(false)}
-                      className="text-gray-500 hover:text-red-500 text-xl"
-                    >
-                      ✕
-                    </button>
-                  </div>
+              <p className="text-gray-500">Boarding Point</p>
+              <p className="font-medium">{item.boardingPoint}</p>
 
-                  {/* Body */}
-                  <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
-                    {logData.map((item, index) => (
-                      <div
-                        key={index}
-                        className="border rounded-xl p-3 hover:border-[#1ea600] transition"
-                      >
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <p className="text-gray-500">Company</p>
-                          <p className="font-medium">{item.companyName}</p>
+              <p className="text-gray-500">Joining Date</p>
+              <p className="font-medium">{item.joiningDate}</p>
 
-                          <p className="text-gray-500">Boarding Point</p>
-                          <p className="font-medium">{item.boardingPoint}</p>
+              <p className="text-gray-500">Employee ID</p>
+              <p className="font-medium">{item.employeeId}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-                          <p className="text-gray-500">Joining Date</p>
-                          <p className="font-medium">{item.joiningDate}</p>
+      {/* Footer */}
+      <div className="mt-4 text-right">
+        <button
+          onClick={() => setShowLogs(false)}
+          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
+        >
+          Close
+        </button>
+      </div>
 
-                          <p className="text-gray-500">Employee ID</p>
-                          <p className="font-medium">{item.employeeId}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-4 text-right">
-                    <button
-                      onClick={() => setShowLogs(false)}
-                      className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
-                    >
-                      Close
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-            )}
+    </div>
+  </div>
+)}
 
 
             {isViewModalOpen && viewRow && (
