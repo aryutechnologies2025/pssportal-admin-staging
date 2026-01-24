@@ -66,12 +66,17 @@ const LeadManagement_Details = () => {
   const [cityOptions, setCityOptions] = useState([]);
   const [isStatusViewOpen, setIsStatusViewOpen] = useState(false);
   const [statusViewLead, setStatusViewLead] = useState(null);
+  const cityDropdownOptions = cityOptions.map(city => ({
+    label: city,
+    value: city
+  }));
+
 
 
 
   console.log("viewStatus", viewStatus);
 
-const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
   // const formatToDDMMYYYY = (date) => {
   //   if (!date) return "-";
 
@@ -131,20 +136,20 @@ const today = new Date().toISOString().split("T")[0];
     return Object.keys(newErrors).length === 0;
   };
 
-const [filters, setFilters] = useState({
-  from_date: today,
-  to_date: today,
-  gender: "",
-  platform: "",
-  age: "",
-  city: ""
-});
+  const [filters, setFilters] = useState({
+    from_date: today,
+    to_date: today,
+    gender: "",
+    platform: "",
+    age: "",
+    city: ""
+  });
 
   // apply filter
   const handleApplyFilter = () => {
     fetchLead(filters);
   };
-  console.log("filter check",handleApplyFilter)
+  console.log("filter check", handleApplyFilter)
 
 
   const handleResetFilter = () => {
@@ -404,36 +409,36 @@ const [filters, setFilters] = useState({
     fetchLead();
   }, []);
 
-const applyFrontendFilters = (data, filters) => {
-  let result = [...data];
+  const applyFrontendFilters = (data, filters) => {
+    let result = [...data];
 
-  // CITY
-  if (filters.city) {
-    result = result.filter(item =>
-      item.city?.toLowerCase() === filters.city.toLowerCase()
-    );
-  }
+    // CITY
+    if (filters.city) {
+      result = result.filter(item =>
+        item.city?.toLowerCase() === filters.city.toLowerCase()
+      );
+    }
 
-  // PLATFORM
-  if (filters.platform) {
-    result = result.filter(item =>
-      item.platform?.toLowerCase() === filters.platform.toLowerCase()
-    );
-  }
+    // PLATFORM
+    if (filters.platform) {
+      result = result.filter(item =>
+        item.platform?.toLowerCase() === filters.platform.toLowerCase()
+      );
+    }
 
-  // AGE
-  if (filters.age) {
-    const [min, max] = filters.age.split("-");
+    // AGE
+    if (filters.age) {
+      const [min, max] = filters.age.split("-");
 
-    result = result.filter(item => {
-      const age = Number(item.age);
-      if (filters.age === "46+") return age >= 46;
-      return age >= Number(min) && age <= Number(max);
-    });
-  }
+      result = result.filter(item => {
+        const age = Number(item.age);
+        if (filters.age === "46+") return age >= 46;
+        return age >= Number(min) && age <= Number(max);
+      });
+    }
 
-  return result;
-};
+    return result;
+  };
 
 
 
@@ -479,7 +484,7 @@ const applyFrontendFilters = (data, filters) => {
   //   }
   // };
 
-  // new
+  //  list
   const fetchLead = async (customFilters) => {
     const appliedFilters = customFilters ?? filters;
 
@@ -914,22 +919,21 @@ const applyFrontendFilters = (data, filters) => {
                 {/* city */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">City</label>
-                  <select
-                    className="h-10 px-3 rounded-md border"
-                    value={filters.city}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, city: e.target.value }))
-                    }
-                  >
-                    <option value="">Select City</option>
-                    {cityOptions.map((city, index) => (
-                      <option key={index} value={city}>
-                        {city}
-                      </option>
-                    ))}
-                  </select>
 
+                  <Dropdown
+                    value={filters.city}
+                    options={cityDropdownOptions}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, city: e.value }))
+                    }
+                    placeholder="Select City"
+                    filter
+                    filterPlaceholder="Search city"
+                    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
+                    panelClassName="text-sm"
+                  />
                 </div>
+
 
                 {/* Buttons */}
                 <div className="flex gap-3 mt-6 md:mt-0">
@@ -1290,7 +1294,7 @@ px-2 py-2 md:px-6 md:py-6">
                       <button
                         disabled={submitting}
                         onClick={handleAddLeadSubmit}
-                        className="bg-[#1ea600] hover:bg-[#4BB452]
+                        className="bg-[#005AEF] hover:bg-[#2879FF]
             text-white px-5 py-2 rounded-[10px]
             disabled:opacity-50"
                       >
@@ -1519,7 +1523,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                       <button
                         onClick={handleUpdateLead}
-                        className="bg-[#1ea600] hover:bg-[#4BB452]
+                        className="bg-[#005AEF] hover:bg-[#2879FF]
             text-white px-5 py-2 rounded-[10px]"
                       >
                         Update
@@ -1640,7 +1644,7 @@ px-2 py-2 md:px-6 md:py-6">
                     </button>
 
                     <button
-                      className="px-4 py-2 bg-green-600 text-white rounded-md"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md"
                       onClick={handleStatusSubmit}
                     >
                       Submit
@@ -1940,7 +1944,7 @@ px-2 py-2 md:px-6 md:py-6">
                       </button>
                       <button
                         type="button"
-                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
                       >
                         Submit

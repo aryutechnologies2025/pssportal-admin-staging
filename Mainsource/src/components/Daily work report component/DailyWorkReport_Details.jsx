@@ -378,9 +378,10 @@ const DailyWorkReport_Details = () => {
                                         value={filters.employee_id}
                                         options={employees}
                                         optionLabel="full_name"
-                                        optionValue="id"   // ✅ IMPORTANT
+                                        optionValue="id"   
                                         placeholder="Select Employee"
                                         className="h-10 w-48 border"
+                                        filter
                                         onChange={(e) =>
                                             setFilters(prev => ({
                                                 ...prev,

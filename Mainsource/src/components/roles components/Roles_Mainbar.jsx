@@ -93,6 +93,7 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewContact, setViewContact] = useState(null);
+  console.log("viewMessage",viewContact)
 
 
 const openViewModal = async (row) => {

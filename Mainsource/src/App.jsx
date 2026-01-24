@@ -50,6 +50,8 @@ import Holiday from "./pages/Holiday";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import PSS_Attendance from "./pages/Pss_Attendance";
+import BoardingPoint_Main from "./pages/BoardingPoint_Main";
+import Education_Main from "./pages/Education_Main";
 
 function App() {
   return (
@@ -103,6 +105,8 @@ function App() {
           <Route path="employeedetails/:id" element={<EmployeeDetails />} />
           <Route path="editemployeedetails/:id" element={<CreateEmployee />} />
           <Route path="attendance" element={<Attendance />} />
+          <Route path="boarding-point" element={<BoardingPoint_Main />} />
+          <Route path="education" element={<Education_Main />} />
           <Route
             path="monthlyattendancedetails"
             element={<MonthlyAttendanceDetails />}

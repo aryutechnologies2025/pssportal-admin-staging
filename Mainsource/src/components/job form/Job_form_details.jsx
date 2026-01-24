@@ -38,13 +38,7 @@ import axios from "axios";
 import customise from "../../assets/customise.svg";
 import { FiSearch } from "react-icons/fi";
 import { useRef } from "react";
-
-
-
-
 import { IoIosArrowForward } from 'react-icons/io';
-
-
 
 
 const Job_form_details = () => {
@@ -87,7 +81,6 @@ const Job_form_details = () => {
   });
 
   const [filterType, setFilterType] = useState("");
-
   const today = new Date().toISOString().split("T")[0];
   const [filterStartDate, setFilterStartDate] = useState(today);
   const [filterEndDate, setFilterEndDate] = useState(today);
@@ -133,7 +126,15 @@ const Job_form_details = () => {
 
   const [selectedReference, setSelectedReference] = useState("");
   const [selectedGender, setSelectedGender] = useState("");
-  console.log("Selected Gender....... : ", selectedGender)
+  console.log("Selected Gender....... : ", selectedGender);
+
+  const referenceOptions = [
+    ...new Set(reference?.map(item => item.reference))
+  ].map(ref => ({ label: ref, value: ref }));
+
+  const districtOptions = [
+    ...new Set(districts?.map(item => item.district))
+  ].map(dist => ({ label: dist, value: dist }));
 
   // console.log("reference", reference)
   const onPageChange = (e) => {
@@ -154,109 +155,45 @@ const Job_form_details = () => {
   };
 
 
-  // const exportToCSV = async () => {
-  //   try {
-  //     //  fetch ALL data (no pagination)
-  //     const response = await axiosInstance.get(`${API_URL}api/job-form/export`, {
-  //       params: {
-  //         from_date: filterStartDate || "",
-  //         to_date: filterEndDate || "",
-  //         // reference: selectedReference || "",
-  //         // district: selectedDistrict || "",
-  //         // gender: selectedGender || "",
-  //         // limit: 10000, //  large number OR backend ignore pagination
-  //         // page: 1,
-  //         // export: true // optional (backend can use)
-  //       },
-  //      
-  //     });
-
-  
-  //     // if (!response.data.success) {
-  //     //   toast.error("Failed to export data");
-  //     //   return;
-  //     // }
-
-  //     // const listData = response.data.data;
-
-  //     //  Fetch remarks for each student
-  //     // const allData = await Promise.all(
-  //     //   listData.map(async (item) => {
-  //     //     const remarks = await fetchRemarksById(item.id);
-  //     //     return {
-  //     //       ...item,
-  //     //       remarks,
-  //     //     };
-  //     //   })
-  //     // );
-  //     // generateCSV(allData);
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error("Error exporting CSV");
-  //   }
-  // };
-
-const exportToCSV = async () => {
-  try {
-    const response = await axiosInstance.get(
-      `${API_URL}api/job-form/export`,
-      {
+  const exportToCSV = async () => {
+    try {
+      //  fetch ALL data (no pagination)
+      const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
         params: {
           from_date: filterStartDate || "",
           to_date: filterEndDate || "",
-        },
-        responseType: "blob",
-      }
-    );
-
-    //  Convert blob to text
-    const csvText = await response.data.text();
-
-    //  Parse CSV
-    const rows = csvText.split("\n").map(r => r.split(","));
-
-    const headers = rows[0].map(h => h.replace(/"/g, "").trim());
-    const dataRows = rows.slice(1);
-
-    //  Convert to objects
-    const parsedData = dataRows.map(row => {
-      const obj = {};
-      headers.forEach((h, i) => {
-        const value = row[i]?.replace(/"/g, "").trim();
-        obj[h] = value === "" ? null : value;
+          reference: selectedReference || "",
+          district: selectedDistrict || "",
+          gender: selectedGender || "",
+          limit: 10000, //  large number OR backend ignore pagination
+          page: 1,
+          export: true // optional (backend can use)
+        }
       });
-      return obj;
-    });
 
-    //  CHECK REMARKS 
-    parsedData.forEach((row, i) => {
-      console.log(`Row ${i + 1} Remarks:`, row["Remarks"]);
-    });
+      if (!response.data.success) {
+        toast.error("Failed to export data");
+        return;
+      }
 
-    //  show toast if remarks missing
-    // const hasEmptyRemarks = parsedData.some(r => !r["Remarks"]);
-    // if (hasEmptyRemarks) {
-    //   toast.warn("Some records have empty remarks");
-    // }
+      const listData = response.data.data;
 
-    //   download the file
-    const blob = new Blob([csvText], {
-      type: "text/csv;charset=utf-8;",
-    });
-
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `job_form_${filterStartDate}_${filterEndDate}.csv`;
-    link.click();
-
-    toast.success("CSV exported successfully");
-  } catch (error) {
-    console.error(error);
-    toast.error("Error exporting CSV");
-  }
-};
-
+      //  Fetch remarks for each student
+      const allData = await Promise.all(
+        listData.map(async (item) => {
+          const remarks = await fetchRemarksById(item.id);
+          return {
+            ...item,
+            remarks,
+          };
+        })
+      );
+      generateCSV(allData);
+    } catch (error) {
+      console.error(error);
+      toast.error("Error exporting CSV");
+    }
+  };
 
   const generateCSV = (data) => {
     const csvHeader = [
@@ -752,7 +689,7 @@ const exportToCSV = async () => {
           .delete(`${API_URL}api/job-form/delete/${selectedStudent.id}`)
           .then((response) => {
             // if (response.data) {
-           setTimeout(() => toast.success("Profile Has Been Deleted."),300)
+            setTimeout(() => toast.success("Profile Has Been Deleted."), 300)
             fetchRoles();
 
 
@@ -1336,18 +1273,15 @@ const exportToCSV = async () => {
                     <label className="text-sm font-medium text-[#6B7280]">
                       Reference
                     </label>
-                    <select
+
+                    <Dropdown
                       value={selectedReference}
-                      onChange={(e) => setSelectedReference(e.target.value)}
-                      className="px-2 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                    >
-                      <option value="">All References</option>
-                      {[...new Set(reference?.map(item => item.reference))].map((ref, index) => (
-                        <option key={index} value={ref}>
-                          {ref}
-                        </option>
-                      ))}
-                    </select>
+                      options={referenceOptions}
+                      onChange={(e) => setSelectedReference(e.value)}
+                      placeholder="All References"
+                      filter
+                      className=" rounded-md border border-[#D9D9D9] text-[#7C7C7C] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
                   </div>
 
 
@@ -1357,20 +1291,15 @@ const exportToCSV = async () => {
                     <label className="text-sm font-medium text-[#6B7280]">
                       District
                     </label>
-
-                    <select
+                    <Dropdown
                       value={selectedDistrict}
-                      onChange={(e) => setSelectedDistrict(e.target.value)}
-                      className="px-2 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                    >
-                      <option value="">All Districts</option>
+                      options={districtOptions}
+                      onChange={(e) => setSelectedDistrict(e.value)}
+                      placeholder="All Districts"
+                      filter
+                      className=" rounded-md border border-[#D9D9D9] text-[#7C7C7C] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
 
-                      {[...new Set(districts?.map(item => item.district))].map((district, index) => (
-                        <option key={index} value={district}>
-                          {district}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   {/* gender */}
@@ -1754,8 +1683,7 @@ const exportToCSV = async () => {
                   onClick={() => setShowRemarkModal(false)}
                 ></div>
 
-                <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col relative">
-
+                <div className=" bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden relative ">
 
                   {/* Header */}
                   <div className="flex justify-between items-center p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -1806,7 +1734,6 @@ const exportToCSV = async () => {
 
                   {/* Input Section */}
                   {/* ADD REMARK */}
-                  
                   {!editingRemarkId && (
                     <div className="p-6 border-b">
                       <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -1880,8 +1807,7 @@ const exportToCSV = async () => {
 
                   {/* Remarks List */}
                   {/* <div className="p-6 overflow-y-auto max-h-[calc(90vh-350px)]"> */}
-                 <div className="flex-1 overflow-y-auto scrollbar-stable">
-
+                  <div className="flex flex-col max-h-[70vh] overflow-y-auto scrollbar-stable">
 
                     <div className="flex justify-between items-center mb-4 p-6 pb-2">
                       <h3 className="text-lg font-semibold text-gray-800">
