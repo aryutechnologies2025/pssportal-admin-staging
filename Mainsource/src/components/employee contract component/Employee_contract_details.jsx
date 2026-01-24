@@ -105,7 +105,8 @@ const Employee_contract_details = () => {
       state: editData ? editData.state : "",
       city: editData ? editData.city : "",
       bankName: editData ? editData.bankName : "",
-      branch: editData ? editData.branch : "",
+      boardingPoint: editData ? editData.boardingPoint : "",
+      education: editData ? editData.education : "",
       emergency_contact: editData ? editData.emergency_contact : "",
       panNumber: editData ? editData.pan : "",
       gender: editData ? editData.gender : "",
@@ -154,20 +155,6 @@ const Employee_contract_details = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   // const [totalRecords, setTotalRecords] = useState(0);
 
-  // Filter options
-  const interviewStatusOptions = [
-    { label: "All Status", value: "" },
-    { label: "Selected", value: "Selected" },
-    { label: "Rejected", value: "Rejected" },
-    { label: "Hold", value: "Hold" },
-    { label: "Waiting", value: "Waiting" },
-  ];
-
-  const candidateStatusOptions = [
-    { label: "All Status", value: "" },
-    { label: "Joined", value: "Joined" },
-    { label: "Not Joined", value: "Not Joined" },
-  ];
 
   const interviewStatus = watch("interviewStatus");
   const candidateStatus = watch("candidateStatus");
@@ -191,17 +178,6 @@ const Employee_contract_details = () => {
 
   const [ModalOpen, setIsModalOpen] = useState(false);
 
-  // const handleApplyFilter = () => {
-  //   //  filter logic here
-  //   console.log({
-  //     filterStartDate,
-  //     filterEndDate,
-  //     selectedReference,
-  //     filterInterviewStatus,
-  //     filterCandidateStatus,
-  //   });
-  //   //  applyFilters()
-  // };
 
   // Reset filters
   const handleResetFilter = () => {
@@ -247,13 +223,18 @@ const Employee_contract_details = () => {
 
   const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBoarding, setSelectedBoarding] = useState(null);
+  const [selectedEducation, setSelectedEducation] = useState(null);
 
   console.log("selectedCompany", selectedCompany);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  console.log("selectedBoarding", selectedBoarding);
 
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions", companyOptions);
-  const [branchOptions, setBranchOptions] = useState([]);
+  const [boardingOptions, setBoardingOptions] = useState([]);
+  console.log("boarding option", boardingOptions);
+  const [educationOptions, setEducationOptions] = useState([]);
+  console.log("education option", educationOptions);
 
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
@@ -314,7 +295,8 @@ const Employee_contract_details = () => {
     reset(mappedData);
     setPhoto(null);
     setSelectedCompany(null);
-    setSelectedBranch(null);
+    setSelectedBoarding(null);
+    setSelectedEducation(null);
     setDocuments([]);
 
     setTimeout(() => {
@@ -411,7 +393,6 @@ const Employee_contract_details = () => {
 
   const resetImportForm = () => {
     setSelectedCompany(null);
-    setSelectedBranch(null);
     setSelectedFile(null);
     setAttachment(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
@@ -636,6 +617,8 @@ const Employee_contract_details = () => {
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
       company: String(row.company_id),
+      boardingPoint: String(row.company_id),
+      education: String(row.company_id),
       // company: row.company.id ? Number(row.company.id) : "",
       // companyLabel: row.company?.company_name || "",
       joinedDate: row.joining_date || "",
@@ -722,11 +705,6 @@ const Employee_contract_details = () => {
 
       setSelectedCompany(selectedCompanyObj?.value || "");
 
-      // const selectedBranchObj = branchDropdown.find(
-      //   c => c.value === String(normalizedData.company)
-      // );
-
-      // setSelectedBranch(selectedBranchObj?.value || "");
 
       reset({
         ...normalizedData,
@@ -1075,6 +1053,22 @@ const Employee_contract_details = () => {
 
   console.log("companyDropdown", companyDropdown);
 
+  const boardingDropdown = boardingOptions.map((c) => ({
+    label: c.label,
+    value: String(c.value),
+    id: c.id,
+  }));
+
+  console.log("boardingDropdown", boardingDropdown)
+
+  const educationDropdown = educationOptions.map((c) => ({
+    label: c.label,
+    value: String(c.value),
+    id: c.id,
+  }));
+
+  console.log("educationDropdown", educationDropdown)
+
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
       {loading ? (
@@ -1331,26 +1325,6 @@ const Employee_contract_details = () => {
                     <p className="text-xl md:text-2xl font-medium">
                       Employee Candidates
                     </p>
-                    {/* Date */}
-                    {/* <div className="mt-3 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Date<span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[60%] md:w-[50%]">
-                        <input
-                          type="date"
-                          value={selectedDate}
-                          onChange={(e) => {
-                            setSelectedDate(e.target.value);
-                            handleImportChange(index, "date", e.target.value);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                        {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
-                      </div>
-                    </div> */}
 
                     {/* company */}
                     <div className="mt-3 flex justify-between items-center">
@@ -1359,15 +1333,7 @@ const Employee_contract_details = () => {
                       </label>
 
                       <div className="w-[60%] md:w-[50%]">
-                        {/* <Dropdown
-                          value={selectedCompany}
-                          onChange={(e) => setSelectedCompany(e.value)}
-                          options={companyOptions}
-                          optionLabel="label"
-                          placeholder="Select Company"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                        /> */}
+
                         <Dropdown
                           value={selectedCompany}
                           options={companyDropdown}
@@ -1614,11 +1580,11 @@ const Employee_contract_details = () => {
                           options={branchDropdown}
                           optionLabel="label"
                           optionValue="value"
-                          placeholder="Select Branch"
+                          placeholder="Select Education"
                           filter
                           className="w-full border border-gray-300 rounded-lg"
                           onChange={(e) => {
-                            setSelectedBranch(e.value);
+                            setSelectedEducation(e.value);
                             const branchObj = branchDropdown.find(
                               (item) => item.value === e.value,
                             );
