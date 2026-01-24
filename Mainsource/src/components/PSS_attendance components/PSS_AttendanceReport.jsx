@@ -37,16 +37,18 @@ import DatePicker from "react-datepicker";
 import WFH from "../../assets/WFH.svg";
 import { IoClose } from "react-icons/io5";
 import { Capitalise } from "../../hooks/useCapitalise.jsx";
+import { FilterMatchMode } from "primereact/api";
 
 const DailyWorkReport_Details = () => {
   let navigate = useNavigate();
 
   const [monthlyReportList, setMonthlyReportList] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState([]);
+  console.log("selectedEmployee : ",selectedEmployee);
   const [selectedEmployeeName, setSelectedEmployeeName] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tasklist, setTasklist] = useState([]);
-  const [selectedEmployeeDeatils, setSelectedEmployeeDetails] = useState(null);
+  const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
   const [selectedTask, setSelectedTask] = useState(false);
   const [data, setData] = useState([]);
   const storedDetatis = localStorage.getItem("pssuser");
@@ -80,11 +82,16 @@ const DailyWorkReport_Details = () => {
     report_date: "",
     report: "",
   });
+  // const [filters, setFilters] = useState({
+  //   from_date: "",
+  //   to_date: "",
+  //   employee_id: "",
+  // });
+
   const [filters, setFilters] = useState({
-    from_date: "",
-    to_date: "",
-    employee_id: "",
-  });
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+});
+
   const [summary, setSummary] = useState({
     total_working_days: 0,
     present_days: 0,
@@ -92,6 +99,7 @@ const DailyWorkReport_Details = () => {
   });
   const [showDetails, setShowDetails] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
+  
 
   // Fetch attendance report
   // const fetchDailyAttendanceReport = async () => {
@@ -149,6 +157,7 @@ const DailyWorkReport_Details = () => {
         `${API_URL}api/attendance-report/attendance`,
         {
           params: { month: selectedDate },
+          employee_id: selectedEmployeeDetails || null,
         },
       );
 
@@ -167,10 +176,20 @@ const DailyWorkReport_Details = () => {
         attendance_details: item.attendance_details || [],
       }));
 
+           const employeeOptions = (res.data.employees || []).map(emp => ({
+  label: emp.full_name,
+  value: emp.id,
+}));
+
+setSelectedEmployee(employeeOptions);
+
+
       setData(formattedData);
       setAbsentlistData(
         res.data.data.filter((item) => item.status === "Absent"),
       );
+
+
     } catch (err) {
       console.error("Attendance API Error:", err);
     }
@@ -195,6 +214,19 @@ const DailyWorkReport_Details = () => {
       console.error("Invalid location_details:", location_details);
       return "-";
     }
+  };
+
+  const handleReset = () => {
+   
+    setSelectedEmployeeDetails(null);
+    getAttendanceData();
+  };
+
+    const handleSubmit = () => {
+  //     console.log("✅ Submit button clicked");
+  // console.log("Selected employee ID:", selectedEmployeeDetails);
+  // console.log("Selected date:", selectedDate);
+    getAttendanceData();
   };
 
   const columns = [
@@ -458,6 +490,32 @@ px-2 py-2 md:px-6 md:py-6"
                     </span>
                   </div>
 
+                   <Dropdown
+                                      value={selectedEmployeeDetails}
+                                      onChange={(e) => setSelectedEmployeeDetails(e.value)}
+                                      options={selectedEmployee}
+                                      optionLabel="label"
+                                      placeholder="Select Employee"
+                                      filter
+                                      className="w-full md:w-48 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                    />
+                  
+                                    <div className="flex gap-3">
+                                      <button
+                                        onClick={handleSubmit}
+                                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-md hover:scale-105 duration-300"
+                                      >
+                                        Search
+                                      </button>
+                  
+                                      <button
+                                        onClick={handleReset}
+                                        className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md hover:scale-105 duration-300"
+                                      >
+                                        Reset
+                                      </button>
+                  </div>
+
                   <div className="flex justify-between items-center gap-5">
                     {/* Search box */}
                     <div className="relative w-64">
@@ -468,7 +526,15 @@ px-2 py-2 md:px-6 md:py-6"
 
                       <InputText
                         value={globalFilter}
-                        onChange={(e) => setGlobalFilter(e.target.value)}
+                        onChange={(e) => {
+    const value = e.target.value;
+    let _filters = { ...filters };
+
+    _filters.global.value = value;
+
+    setFilters(_filters);
+    setGlobalFilter(value);
+  }}
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
                focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
@@ -483,6 +549,7 @@ px-2 py-2 md:px-6 md:py-6"
                     paginator
                     rows={rows}
                     showGridlines
+                    
                     filters={filters}
                     filterDisplay="menu"
                     globalFilterFields={[
