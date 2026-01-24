@@ -26,9 +26,11 @@ import { FaEye } from "react-icons/fa6";
 import { IoIosCloseCircle } from "react-icons/io"
 import { Capitalise } from "../../hooks/useCapitalise";
 import { formatToDDMMYYYY } from "../../Utils/dateformat";
+import { useDateUtils } from "../../Utils/useDateUtils";
 
 
 const ContactCandidate = () => {
+    const formatDateTime = useDateUtils();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const storedDetatis = localStorage.getItem("hrmsuser");
     const parsedDetails = JSON.parse(null);
@@ -207,7 +209,7 @@ const ContactCandidate = () => {
         {
             header: "Created",
             // body: (row) => new Date(row.created_at).toLocaleDateString(),
-            body : (row) => formatToDDMMYYYY(row.created_at),
+            body : (row) => formatDateTime(row.created_at),
             style: { textAlign: "center" },
         },
         {
