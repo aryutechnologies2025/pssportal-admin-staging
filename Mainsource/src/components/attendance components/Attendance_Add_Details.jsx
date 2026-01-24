@@ -524,7 +524,11 @@ const Attendance_add_details = () => {
 
   ];
 
-
+const companyOptions = companies.map(company => ({
+    label: company.name,
+    value: company.id,
+    name: company.name // Keep original name for reference
+  }));
 
   return (
     <div className="flex flex-col justify-between bg-gray-100 w-screen min-h-screen px-3 md:px-5 pt-2 md:pt-10">
@@ -582,7 +586,7 @@ const Attendance_add_details = () => {
 
             <div className="bg-white flex justify-between items-center w-full rounded-2xl shadow-md p-4 md:p-6 mt-5">
               <div className="flex flex-col md:flex-row gap-5 md:gap-10">
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Company
                   </label>
@@ -592,7 +596,7 @@ const Attendance_add_details = () => {
                     className="px-3 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   >
                     <option className="text-sm">Select Company</option>
-                    {/* Get unique references from data */}
+                    
                     {companies
                       .map((com, index) => (
                         <option key={index} value={com.id}>
@@ -600,8 +604,23 @@ const Attendance_add_details = () => {
                         </option>
                       ))}
                   </select>
-                </div>
+                </div> */}
 
+    <div className="flex flex-col gap-1">
+                  <label className="text-sm font-semibold text-[#6B7280]">
+                    Company
+                  </label>
+                  <Dropdown
+                    value={selectedCompany}
+                    options={companyOptions}
+                    onChange={(e) => { fetchCompaniesEmployee(e.target.value); setSelectedCompany(e.target.value); }}
+                    className=" uniform-field px-3 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  filter
+                  placeholder="Select Comoany"
+                  />
+                   
+                
+                </div>
 
                 <div className=" flex flex-col  gap-1 ">
                   <label className="text-sm font-semibold text-[#6B7280]">
