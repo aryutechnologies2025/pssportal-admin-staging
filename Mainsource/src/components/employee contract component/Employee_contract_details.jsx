@@ -62,6 +62,7 @@ const Employee_contract_details = () => {
     branch: z.string().optional(),
     emergency_contact: z.string().optional(),
     gender: z.string().min(1, "Gender is required"),
+    marital: z.string().min(1, "Marital Status is required"),
     phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
     aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
     company: z.string().min(1, "Company is required"),
@@ -110,6 +111,7 @@ const Employee_contract_details = () => {
       emergency_contact: editData ? editData.emergency_contact : "",
       panNumber: editData ? editData.pan : "",
       gender: editData ? editData.gender : "",
+      marital: editData ? editData.marital : "",
       joinedDate: editData ? editData.joinedDate : "",
       accountName: editData ? editData.accountName : "",
       accountNumber: editData ? editData.accountNumber : "",
@@ -285,6 +287,7 @@ const Employee_contract_details = () => {
       uannumber: "",
       esciNumber: "",
       gender: "",
+      marital: "",
       status: "",
       profile_picture: "",
       documents: [],
@@ -610,6 +613,7 @@ const Employee_contract_details = () => {
       name: row.name || "",
       address: row.address || "",
       gender: row.gender || "",
+      marital: row.marital || "",
       fatherName: row.father_name || "",
       dob: row.date_of_birth || "",
       phone: row.phone_number || "",
@@ -898,10 +902,9 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -955,6 +958,7 @@ const Employee_contract_details = () => {
         date_of_birth: formatDateToYMD(data.dob),
         father_name: data.fatherName,
         gender: data.gender,
+        marital: data.marital,
         phone_number: data.phone,
         aadhar_number: data.aadhar,
         company_id: Number(data.company),
@@ -1303,9 +1307,8 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
-                    isAnimating ? "translate-x-0" : "translate-x-full"
-                  }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -1559,16 +1562,16 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
-                    {/* boarding point */}                   <div className="mt-5 flex justify-between items-center">
-                      
+                    {/* boarding point */}
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
-                      Boarding Point
+                        Boarding Point
                         {/* <span className="text-red-500">*</span> */}
-                        
+
                       </label>
-                      
+
                       <div className="w-[50%] md:w-[60%]">
-                        
+
                         <Dropdown
                           value={selectedBoarding}
                           options={branchDropdown}
@@ -1590,23 +1593,21 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-                        
+
                         {/* {errors.branch && (  <p className="text-red-500 text-sm">    {errors.branch.message}  </p>)} */}
-                        
+
                       </div>
-                      
+
                     </div>
                     {/* Education */}
                     <div className="mt-5 flex justify-between items-center">
-                      
                       <label className="block text-md font-medium">
                         Education
                         {/* <span className="text-red-500">*</span> */}
-                        
                       </label>
-                      
+
                       <div className="w-[50%] md:w-[60%]">
-                        
+
                         <Dropdown
                           value={selectedEducation}
                           options={branchDropdown}
@@ -1628,11 +1629,11 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-                        
+
                         {/* {errors.branch && (<p className="text-red-500 text-sm">  {errors.branch.message}</p>    )} */}
-                        
+
                       </div>
-                      
+
                     </div>
                     {/* NAME */}
                     <div className="mt-5 flex justify-between items-center">
@@ -1800,6 +1801,45 @@ const Employee_contract_details = () => {
                         </span>
                       </div>
                     </div>
+
+                    {/* marital status */}
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Marital Status <span className="text-red-500">*</span>
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <div className="flex gap-6">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="Married"
+                              {...register("marital", {
+                                required: "marital status is required",
+                              })}
+                              className="accent-[#1ea600]"
+                            />
+                            Married
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="Female"
+                              {...register("marital", {
+                                required: "marital status is required",
+                              })}
+                              className="accent-[#1ea600]"
+                            />
+                            Unmarried
+                          </label>
+                        </div>
+
+                        <span className="text-red-500 text-sm">
+                          {errors.marital?.message}
+                        </span>
+                      </div>
+                    </div>
                     {/* PHONE */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1920,11 +1960,10 @@ const Employee_contract_details = () => {
                                 : "Employee ID"
                             }
                             className={`w-full px-2 py-2 border rounded-[10px]
-          ${
-            companyEmpType === "automatic"
-              ? "bg-gray-100 cursor-not-allowed"
-              : "bg-white"
-          }`}
+          ${companyEmpType === "automatic"
+                                ? "bg-gray-100 cursor-not-allowed"
+                                : "bg-white"
+                              }`}
                           />
                         </div>
                       </div>
@@ -2329,8 +2368,14 @@ const Employee_contract_details = () => {
                         )?.label || "-"}
                       </p>
                       <p>
-                        <b>Branch:</b>{" "}
-                        {branchOptions.find(
+                        <b>Boarding Point:</b>{" "}
+                        {boardingOptions.find(
+                          (b) => b.value === viewRow.company_id,
+                        )?.label || "-"}
+                      </p>
+                      <p>
+                        <b>Education:</b>{" "}
+                        {educationOptions.find(
                           (b) => b.value === viewRow.company_id,
                         )?.label || "-"}
                       </p>
@@ -2377,6 +2422,9 @@ const Employee_contract_details = () => {
                       </p>
                       <p>
                         <b>Gender:</b> {viewRow.gender || "-"}
+                      </p>
+                      <p>
+                        <b>Marital Status:</b> {viewRow.marital || "-"}
                       </p>
                       <p>
                         <b>ESIC:</b> {viewRow.esic || "-"}
