@@ -30,11 +30,8 @@ import { Capitalise } from "../../hooks/useCapitalise";
 import { id } from "zod/v4/locales";
 import { FiDownload } from "react-icons/fi";
 
-
-
-
 const ContractCandidates_Mainbar = () => {
-  //navigation
+
   const navigate = useNavigate();
   const [editData, setEditData] = useState(null);
   const [columnData, setColumnData] = useState([]);
@@ -45,14 +42,83 @@ const ContractCandidates_Mainbar = () => {
   const [employeeIds, setEmployeeIds] = useState([]);
   const [educationOptions, setEducationOptions] = useState([]);
   const [selectedEducation, setSelectedEducation] = useState(null);
-
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
+  const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [companyOptions, setCompanyOptions] = useState([]);
+  const fileInputRef = useRef(null);
+  const fileInputRefEdit = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [attachment, setAttachment] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewRow, setViewRow] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+    const company_name = watch("company");
+  const joining_date = watch("selectedJoiningDate");
+  const profile_picture = watch("profile_picture");
+  const document = watch("documents");
+  const education = watch("education");
+  console.log("joining_date", joining_date);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const employees = ["Saravanan", "Ramesh", "Priya"];
+  const [filterStartDate, setFilterStartDate] = useState(() => {
+    return new Date().toISOString().split("T")[0];
+  });
+  const [filterEndDate, setFilterEndDate] = useState(() => {
+    return new Date().toISOString().split("T")[0];
+  });
+  const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
+  const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
+  console.log("filterCandidateStatus", filterCandidateStatus)
+  const [selectedReference, setSelectedReference] = useState("");
+  const [selectedReferenceForm, setSelectedReferenceForm] = useState("");
+  const [filterEducation, setFilterEducation] = useState("");
+  const [rows, setRows] = useState(10);
+  const [globalFilter, setGlobalFilter] = useState("");
+
+  const getEducationName = (educationId) => {
+    const edu = educationOptions.find(e => e.value === educationId);
+    return edu ? edu.label : "-";
+  };
+
 
   const userId = user?.id;
   const userRole = user?.role_id;
 
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];
+  };
+    // const onPageChange = (e) => {
+  //   setPage(e.page + 1); // PrimeReact is 0-based
+  //   setRows(e.rows); // page size
+  // };
+
+  //  const formatToDDMMYYYY = (dateString) => {
+  //   if (!dateString) return "N/A";
+
+  //   const date = new Date(dateString);
+  //   if (isNaN(date)) return "Invalid Date";
+
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const year = date.getFullYear();
+
+  //   return `${day}-${month}-${year}`;
+  // };
+
+  const formatDateToYMD = (date) => {
+    if (!date) return null;
+
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
   const candidateContractSchema = z
@@ -207,35 +273,7 @@ const ContractCandidates_Mainbar = () => {
     },
   });
 
-  const company_name = watch("company");
-  const joining_date = watch("selectedJoiningDate");
-  const profile_picture = watch("profile_picture");
-  const document = watch("documents");
-  const education = watch("education");
-  console.log("joining_date", joining_date);
-  // console.log("company_name", company_name);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const employees = ["Saravanan", "Ramesh", "Priya"];
-  // Filter states - FIXED: Corrected variable names
-  const [filterStartDate, setFilterStartDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
-  });
-  const [filterEndDate, setFilterEndDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
-  });
-  const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
-  const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
-  console.log("filterCandidateStatus", filterCandidateStatus)
-  const [selectedReference, setSelectedReference] = useState("");
-  const [selectedReferenceForm, setSelectedReferenceForm] = useState("");
-  const [filterEducation, setFilterEducation] = useState("");
 
-  // Table states
-  // const [page, setPage] = useState(1);
-  const [rows, setRows] = useState(10);
-  const [globalFilter, setGlobalFilter] = useState("");
-  // const [totalRecords, setTotalRecords] = useState(0);
 
   // Filter options
   const interviewStatusOptions = [
@@ -253,13 +291,15 @@ const ContractCandidates_Mainbar = () => {
   ];
 
   const handlCsvDownload = () => {
-    const link = document.createElement("a");
+    const link = window.document.createElement("a");
     link.href = "/assets/csv/contarctformat.csv";
     link.download = "contractformat.csv";
-    document.body.appendChild(link);
+
+    window.document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    window.document.body.removeChild(link);
   };
+
 
   const interviewStatus = watch("interviewStatus");
   const candidateStatus = watch("candidateStatus");
@@ -332,51 +372,6 @@ const ContractCandidates_Mainbar = () => {
       }
     }
   };
-
-
-  // const onPageChange = (e) => {
-  //   setPage(e.page + 1); // PrimeReact is 0-based
-  //   setRows(e.rows); // page size
-  // };
-
-  //  const formatToDDMMYYYY = (dateString) => {
-  //   if (!dateString) return "N/A";
-
-  //   const date = new Date(dateString);
-  //   if (isNaN(date)) return "Invalid Date";
-
-  //   const day = String(date.getDate()).padStart(2, "0");
-  //   const month = String(date.getMonth() + 1).padStart(2, "0");
-  //   const year = date.getFullYear();
-
-  //   return `${day}-${month}-${year}`;
-  // };
-
-  const formatDateToYMD = (date) => {
-    if (!date) return null;
-
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-
-  const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [companyOptions, setCompanyOptions] = useState([]);
-  const fileInputRef = useRef(null);
-  const fileInputRefEdit = useRef(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [attachment, setAttachment] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewRow, setViewRow] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
 
   // Open and close modals
   const openAddModal = () => {
@@ -595,7 +590,6 @@ const ContractCandidates_Mainbar = () => {
     }
   };
 
-
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
@@ -756,14 +750,16 @@ const ContractCandidates_Mainbar = () => {
     console.log("openeditmodal:", response.data);
 
     if (response.data.success) {
-      const rowData = response.data.data; // Get fresh data from API
-      const normalizedData = normalizeEditData(rowData);
+      const rowData = response.data.data; 
+      const normalizedData = {
+        ...normalizeEditData(rowData),
+        marital: rowData.marital_status ?? "",
+      };
 
       setEditData(normalizedData);
       setSelectedEducation(normalizedData.education || null);
 
       if (normalizedData.profile_picture) {
-        // If it's already a full URL, use it; otherwise, append base URL
         const imageUrl = normalizedData.profile_picture.startsWith('http')
           ? normalizedData.profile_picture
           : `${API_URL}/${normalizedData.profile_picture}`;
@@ -790,20 +786,17 @@ const ContractCandidates_Mainbar = () => {
         }));
       }
 
-      setDocuments(normalizedDocs); // Update local state for the file list UI
+      setDocuments(normalizedDocs); 
 
       const selectedCompanyObj = companyDropdown.find(
         (c) => String(c.value) === String(normalizedData.company)
       );
-      // console.log("123", selectedCompanyObj)
-
-
-      // console.log("test123", row)
       setSelectedCompany(selectedCompanyObj.value);
 
       reset({
         ...normalizedData,
         company: String(normalizedData.company),
+        marital: normalizedData.marital || "",
       });
     }
 
@@ -886,6 +879,7 @@ const ContractCandidates_Mainbar = () => {
     }
   };
 
+  // column
   const columns = [
     {
       header: "S.No",
@@ -904,54 +898,13 @@ const ContractCandidates_Mainbar = () => {
     },
     {
       header: "Education",
-      field: "education_id",
-      body: (row) => Capitalise(row.education) || row.education || "-"
+      body: (row) => getEducationName(row.education_id),
     },
-    
-    // {
-    //   header: "Interview Status",
-    //   field: "interview_Status",
-    //   body: (row) => {
-    //     const data = row.interview_status;
-
-    //     console.log("row.interview_status", data);
-
-    //     let color =
-    //       data === "Selected"
-    //         ? "text-[#16A34A]  bg-green-100"
-    //         : data === "Rejected"
-    //           ? "text-[#DC2626] bg-[#FFF0F0]"
-    //           : data === "Hold"
-    //             ? "text-[#FD8700] bg-[#FFCB90]"
-    //             : "text-blue-600 bg-blue-100";
-
-    //     return (
-    //       <div
-    //         className={`border rounded-[50px] ${color}`}
-    //         style={{
-    //           display: "inline-block",
-    //           width: "100px",
-    //           textAlign: "center",
-    //           fontSize: "12px",
-    //           fontWeight: 400,
-
-    //           alignItems: "center",
-    //           justifyContent: "center",
-    //         }}
-    //       >
-    //         {data || "-"}
-    //       </div>
-    //     );
-    //   },
-    //   style: { textAlign: "center" },
-    // },
     {
       header: "Interview Status",
       field: "interview_Status",
       body: (row) => {
         const data = row.interview_status;
-
-
         if (!data) {
           return <span>-</span>;
         }
@@ -982,19 +935,14 @@ const ContractCandidates_Mainbar = () => {
       },
       style: { textAlign: "center" },
     },
-
     {
       header: "Candidate Status",
       field: "joining_status",
       style: { textAlign: "center" },
       body: (row) => {
         const rawStatus = row.joining_status;
-
         if (!rawStatus) return "-";
-
-        // normalize backend value
         const status = rawStatus.toLowerCase();
-
         const isJoined = status === "joined";
 
         return (
@@ -1011,9 +959,7 @@ const ContractCandidates_Mainbar = () => {
           </span>
         );
       },
-    }
-    ,
-
+    },
     {
       header: "Reference",
       field: "reference",
@@ -1052,21 +998,13 @@ const ContractCandidates_Mainbar = () => {
   // create
   const onSubmit = async (data) => {
     try {
-      //   console.log('Form data before submit:', {
-      //   profile_picture: data.profile_picture,
-      //   profile_image_type: typeof data.profile_picture,
-      //   isFile: data.profile_picture instanceof File,
-      //   documents: data.documents,
-      //   documents_length: data.documents?.length
-      // });
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
-
         // date_of_birth: formatDateToYMD(data.dob),
         // father_name: data.fatherName,
         gender: data.gender,
-        marital: data.marital_status,
+        marital_status: data.marital,
         phone_number: data.phone,
         aadhar_number: data.aadhar,
         pan_number: data.pan_number,
@@ -1128,8 +1066,6 @@ const ContractCandidates_Mainbar = () => {
       };
 
       const formData = new FormData();
-
-
       Object.entries(createCandidate).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
           formData.append(
@@ -1199,10 +1135,6 @@ const ContractCandidates_Mainbar = () => {
 
       await fetchContractCandidates();
       closeAddModal();
-
-
-
-
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
@@ -1269,8 +1201,6 @@ const ContractCandidates_Mainbar = () => {
   }));
 
   console.log("companyDropdown", companyDropdown)
-
-
 
   const referenceFilterOptions = [
     ...employeesList.map(emp => ({
@@ -2033,25 +1963,7 @@ const ContractCandidates_Mainbar = () => {
                       </div>
                     </div>
 
-                    {/* Education */}
-                    {/* <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Education <span className="text-red-600">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="education"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter Education"
-                          {...register("education")}
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.education?.message}
-                        </span>
-                      </div>
-                    </div> */}
-
+        
                     {/* Education */}
                     <div className="mt-4 mb-3 flex flex-col md:flex-row md:justify-between md:items-center">
                       <label className="block text-md font-medium mb-2">
@@ -2059,8 +1971,6 @@ const ContractCandidates_Mainbar = () => {
                       </label>
 
                       <div className="w-full md:w-[60%]">
-
-                        {/* 🔴 REQUIRED hidden register */}
                         <input
                           type="hidden"
                           {...register("education", {
@@ -2315,50 +2225,7 @@ const ContractCandidates_Mainbar = () => {
                       </div>
                     )}
 
-                    {/* Reference */}
-                    {/* <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Reference 
-                    
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <select
-                          {...register("reference")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                        >
-                          <option value="">Select Reference</option>
-                          {employeesList.map((emp) => (
-                            <option key={emp.id} value={emp.full_name}>
-                              {emp.full_name}
-                            </option>
-                          ))}
-                          <option value="other">Other</option>
-                        </select>
-                        <span className="text-red-500 text-sm">
-                          {errors.reference?.message}
-                        </span>
-                        
-                      </div>
-                    </div> */}
-
-                    {/* {reference === "other" && (
-                      <div className="mt-5 flex justify-end items-center">
-                        <div className="w-[50%] md:w-[60%] rounded-lg">
-                          <input
-                            type="text"
-                            {...register("otherReference")}
-                            placeholder="Specify reference"
-                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          />
-                          {errors.otherReference && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.otherReference.message}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    )} */}
-
+                   {/* reference */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Reference
@@ -2582,10 +2449,8 @@ const ContractCandidates_Mainbar = () => {
                       </p>
                       <p>
                         <b>Education:</b>{" "}
-                        {educationOptions.find(e => e.value === viewRow.education_name)?.label || "-"}
+                        {viewRow.education?.eduction_name || "-"}
                       </p>
-
-
                       <p>
                         <b>Interview Date:</b> {formatToDDMMYYYY(viewRow.interview_date) || "-"}
                       </p>
@@ -2648,7 +2513,7 @@ const ContractCandidates_Mainbar = () => {
     }
     className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-green-100"
   >
-    Download
+    Download 
   </button> */}
                                 </div>
                               </div>
