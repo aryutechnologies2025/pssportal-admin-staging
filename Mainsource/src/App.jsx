@@ -52,6 +52,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import PSS_Attendance from "./pages/Pss_Attendance";
 import Announcement_Mainbar from "./components/announcement/Announcement";
 import Announcement_Mainbar_page from "./pages/Announcement";
+import BoardingPoint_Main from "./pages/BoardingPoint_Main";
+import Education_Main from "./pages/Education_Main";
 
 function App() {
   return (
