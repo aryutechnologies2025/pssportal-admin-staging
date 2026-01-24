@@ -1559,16 +1559,14 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
-                    {/* boarding point */}                   <div className="mt-5 flex justify-between items-center">
-                      
+                    {/* boarding point */}{" "}
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
-                      Boarding Point
+                        Boarding Point
                         {/* <span className="text-red-500">*</span> */}
-                        
                       </label>
-                      
+
                       <div className="w-[50%] md:w-[60%]">
-                        
                         <Dropdown
                           value={selectedBoarding}
                           options={branchDropdown}
@@ -1590,23 +1588,18 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-                        
+
                         {/* {errors.branch && (  <p className="text-red-500 text-sm">    {errors.branch.message}  </p>)} */}
-                        
                       </div>
-                      
                     </div>
                     {/* Education */}
                     <div className="mt-5 flex justify-between items-center">
-                      
                       <label className="block text-md font-medium">
                         Education
                         {/* <span className="text-red-500">*</span> */}
-                        
                       </label>
-                      
+
                       <div className="w-[50%] md:w-[60%]">
-                        
                         <Dropdown
                           value={selectedEducation}
                           options={branchDropdown}
@@ -1628,11 +1621,9 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-                        
+
                         {/* {errors.branch && (<p className="text-red-500 text-sm">  {errors.branch.message}</p>    )} */}
-                        
                       </div>
-                      
                     </div>
                     {/* NAME */}
                     <div className="mt-5 flex justify-between items-center">

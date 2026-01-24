@@ -18,6 +18,8 @@ import { Dropdown } from "primereact/dropdown";
 import { FiSearch } from "react-icons/fi";
 import { toast, ToastContainer } from "react-toastify";
 import { TfiPencilAlt } from "react-icons/tfi";
+import { FiDownload } from "react-icons/fi";
+
 // import { Doughnut } from "react-chartjs-2";
 // import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
@@ -841,6 +843,16 @@ const Attendance_Mainbar = () => {
     });
   }
 
+
+    const handlCsvDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/csv/contarctformat.csv";
+    link.download = "contractformat.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
    const companyOptions = companies.map(company => ({
     label: company.name,
     value: company.id,
@@ -1100,6 +1112,25 @@ px-2 py-2 md:px-6 md:py-6">
                         className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
                       >
                         Import
+                      </button>
+                    </div>
+
+                       {/* sample csv format download */}
+                    <div className="flex items-center">
+                      <button
+                        onClick={handlCsvDownload}
+                        className="
+      flex items-center gap-2
+      px-5 py-2
+      text-sm font-semibold
+      text-green-700
+      bg-green-100
+      rounded-full
+      hover:bg-green-200
+      transition
+    "
+                      >
+                        <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
                     <button
