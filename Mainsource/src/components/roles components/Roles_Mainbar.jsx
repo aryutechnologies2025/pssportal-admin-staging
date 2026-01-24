@@ -583,7 +583,6 @@ px-2 py-2 md:px-6 md:py-6">
                       onChange={(e) => setRows(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
-
                     <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
                   </div>
 

@@ -50,8 +50,8 @@ import Holiday from "./pages/Holiday";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import PSS_Attendance from "./pages/Pss_Attendance";
-import BoardingPoint_Main from "./pages/BoardingPoint_Main";
-import Education_Main from "./pages/Education_Main";
+import Announcement_Mainbar from "./components/announcement/Announcement";
+import Announcement_Mainbar_page from "./pages/Announcement";
 
 function App() {
   return (
@@ -132,6 +132,7 @@ function App() {
           <Route path="setting" element={<Setting />} />
           <Route path="lead-engine" element={<LeadManagement />} />
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
+          <Route path="announcement" element={<Announcement_Mainbar_page/>} />
         </Routes>
       </BrowserRouter>
     </>
