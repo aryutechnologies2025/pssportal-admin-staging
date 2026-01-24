@@ -58,6 +58,7 @@ const Attendance_Mainbar = () => {
   const [attachment, setAttachment] = useState(null);
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
   const userId = user?.id;
+  
   // const userRole = user?.role_id;
 
   const fetchCompaniesAttendance = async () => {
