@@ -36,6 +36,16 @@ const Privileges_Mainbar = () => {
   const [userPrivileges, setUserPrivileges] = useState("role"); // roles | employees
   const [tableData, setTableData] = useState([]);
   // console.log("tableData", tableData);
+  const normalizedTableData = tableData.map((row) => ({
+    ...row,
+
+    roleName:
+      userPrivileges === "employee"
+        ? row?.employee?.role?.role_name ?? ""
+        : row?.role?.role_name ?? "",
+
+    employeeName: row?.employee?.full_name ?? "",
+  }));
 
 
 
@@ -266,7 +276,7 @@ const Privileges_Mainbar = () => {
 
   const handleDelete = async (id) => {
 
-  console.log("id", id);
+    console.log("id", id);
 
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -282,12 +292,12 @@ const Privileges_Mainbar = () => {
     if (result.isConfirmed) {
       try {
         const response = await axiosInstance.delete(
-          `${API_URL}api/permission/delete`,{
-            params: {
-              record_id: id
-            }
+          `${API_URL}api/permission/delete`, {
+          params: {
+            record_id: id
           }
-          
+        }
+
         );
 
         toast.success("Privilege deleted successfully.");
@@ -405,7 +415,7 @@ const Privileges_Mainbar = () => {
   };
 
 
-   const buildPermissionPayloadedit = () => {
+  const buildPermissionPayloadedit = () => {
     return Object.entries(permissionsedit).map(([module, permission]) => ({
       module,
       permission,
@@ -423,10 +433,10 @@ const Privileges_Mainbar = () => {
 
   const handleSubmitedit = async () => {
     // console.log("editidddddd", editid);
-      if (!editid) {
-    toast.error("Invalid permission ID");
-    return;
-  }
+    if (!editid) {
+      toast.error("Invalid permission ID");
+      return;
+    }
     const payload = buildFinalPayloadedit();
     console.log("API PAYLOAD ", payload);
     try {
@@ -633,6 +643,39 @@ const Privileges_Mainbar = () => {
   //     style: { textAlign: "center", width: "120px" },
   //   },
   // ];
+  // const columns = [
+  //   {
+  //     header: "S.No",
+  //     body: (_, options) => options.rowIndex + 1,
+  //     style: { textAlign: "center", width: "80px" },
+  //   },
+
+  //   //  Role column (dynamic source)
+  //   {
+  //     header: "Role",
+  //     body: (row) =>
+  //       userPrivileges === "employee"
+  //         ? row?.employee?.role?.role_name || "-"
+  //         : row?.role?.role_name || "-",
+  //   },
+
+  //   //  Employee Name only for employee privilege
+  //   ...(userPrivileges === "employee"
+  //     ? [
+  //       {
+  //         header: "Employee Name",
+  //         body: (row) => row?.employee?.full_name || "-",
+  //       },
+  //     ]
+  //     : []),
+
+  //   {
+  //     header: "Action",
+  //     body: actionTemplate,
+  //     style: { textAlign: "center", width: "120px" },
+  //   },
+  // ];
+
   const columns = [
     {
       header: "S.No",
@@ -640,21 +683,16 @@ const Privileges_Mainbar = () => {
       style: { textAlign: "center", width: "80px" },
     },
 
-    //  Role column (dynamic source)
     {
       header: "Role",
-      body: (row) =>
-        userPrivileges === "employee"
-          ? row?.employee?.role?.role_name || "-"
-          : row?.role?.role_name || "-",
+      field: "roleName",
     },
 
-    //  Employee Name only for employee privilege
     ...(userPrivileges === "employee"
       ? [
         {
           header: "Employee Name",
-          body: (row) => row?.employee?.full_name || "-",
+          field: "employeeName",
         },
       ]
       : []),
@@ -665,6 +703,7 @@ const Privileges_Mainbar = () => {
       style: { textAlign: "center", width: "120px" },
     },
   ];
+
 
 
   const editHandleCheckboxChange = (title, isChecked) => {
@@ -832,11 +871,11 @@ px-2 py-2 md:px-6 md:py-6"
                   {/* DataTable */}
                   <DataTable
                     className="mt-8"
-                    value={tableData}
-                    // value={Array.isArray(tableData) ? tableData : []}
+                    value={normalizedTableData}
                     paginator
-                    rows={10}
+                    rows={rows}
                     globalFilter={globalFilter}
+                    globalFilterFields={["roleName", "employeeName"]}
                     rowsPerPageOptions={[5, 10, 20]}
                     showGridlines
                     emptyMessage="No privilege records found."
@@ -859,6 +898,7 @@ px-2 py-2 md:px-6 md:py-6"
                       />
                     ))}
                   </DataTable>
+
                 </div>
               </div>
             </div>

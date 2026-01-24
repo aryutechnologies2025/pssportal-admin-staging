@@ -322,24 +322,7 @@ const Sidebar = () => {
                       >
                         Roles
                       </button>
-
-                      <button
-                        onClick={() => {
-                          navigate("/permission");
-                          if (currentOpen !== "employee") {
-                            setCurrentOpen("employee");
-                          }
-                        }}
-                        className={`w-full text-left px-2 py-1 rounded-md transition 
-                          ${
-                            currentPath === "/permission"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                          }`}
-                      >
-                        Privileges
-                      </button>
-
+                      
                       <button
                         onClick={() => {
                           navigate("/employees");
@@ -348,13 +331,28 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${
-                            currentPath === "/employees"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452] "
+                          ${currentPath === "/employees"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452] "
                           }`}
                       >
                         Employees
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          navigate("/permission");
+                          if (currentOpen !== "employee") {
+                            setCurrentOpen("employee");
+                          }
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition 
+                          ${currentPath === "/permission"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Privileges
                       </button>
 
                       <button
@@ -539,29 +537,29 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
       ${arrowClicked ? "justify-center" : "justify-normal"}
       px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-      ${
-        currentPath === "/employeecontract" || currentPath === "/attendance"
-          ? "bg-[#4BB452] text-white"
-          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-      }`}
+      ${currentPath === "/employeecontract" || currentPath === "/attendance" || currentPath === "/boarding-point" || currentPath === "/education"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <img
                     src={contractcandidates}
                     alt="contract"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/employeecontract" ||
-                      currentPath === "/attendance"
-                        ? "brightness-0 invert pointer-events-none"
-                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/employeecontract" ||
+                      currentPath === "/attendance" || currentPath === "/boarding-point" || currentPath === "/education"
+                      ? "brightness-0 invert pointer-events-none"
+                      : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+                      }`}
                   />
 
                   {!arrowClicked && (
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">Contract</span>
                       {currentOpen === "contract" ||
-                      currentPath === "/employeecontract" ||
-                      currentPath === "/attendance" ? (
+                        currentPath === "/employeecontract" ||
+                        currentPath === "/boarding-point" ||
+                        currentPath === "/education" ||
+                        currentPath === "/attendance" ? (
                         <IoIosArrowUp />
                       ) : (
                         <IoIosArrowDown />
@@ -576,10 +574,12 @@ const Sidebar = () => {
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
                       currentOpen === "contract" ||
                       currentPath === "/employeecontract" ||
-                      currentPath === "/attendance"
-                        ? "max-h-40 opacity-100 mt-1"
-                        : "max-h-0 opacity-0"
-                    }`}
+                      currentPath === "/attendance" ||
+                      currentPath === "/boarding-point" ||
+                      currentPath === "/education"
+                      ? "max-h-40 opacity-100 mt-1"
+                      : "max-h-0 opacity-0"
+                      }`}
                   >
                     <div className="flex gap-2 ms-8 flex-col text-sm font-medium text-gray-500">
                       {/* Candidates */}
@@ -612,6 +612,32 @@ const Sidebar = () => {
             }`}
                       >
                         Attendance
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/boarding-point");
+                          setCurrentOpen("contract");
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition
+            ${currentPath === "/boarding-point"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Boarding Point
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/education");
+                          setCurrentOpen("contract");
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition
+            ${currentPath === "/education"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Education
                       </button>
                     </div>
                   </div>

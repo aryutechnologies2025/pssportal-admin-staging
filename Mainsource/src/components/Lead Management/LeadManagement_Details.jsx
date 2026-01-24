@@ -66,47 +66,21 @@ const LeadManagement_Details = () => {
   const [cityOptions, setCityOptions] = useState([]);
   const [isStatusViewOpen, setIsStatusViewOpen] = useState(false);
   const [statusViewLead, setStatusViewLead] = useState(null);
-
-
+  const cityDropdownOptions = cityOptions.map(city => ({
+    label: city,
+    value: city
+  }));
 
   console.log("viewStatus", viewStatus);
 
-const today = new Date().toISOString().split("T")[0];
-  // const formatToDDMMYYYY = (date) => {
-  //   if (!date) return "-";
-
-  //   const d = new Date(date);
-  //   const day = String(d.getDate()).padStart(2, "0");
-  //   const month = String(d.getMonth() + 1).padStart(2, "0");
-  //   const year = d.getFullYear();
-
-  //   return `${day}-${month}-${year}`;
-  // };
-
-  const formatIndianDateTime12Hr = (date) => {
-    if (!date) return "-";
-
-    const d = new Date(date);
-
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-
-    let hours = d.getHours();
-    const minutes = String(d.getMinutes()).padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-
-    hours = hours % 12 || 12;
-    hours = String(hours).padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
-  };
+  const today = new Date().toISOString().split("T")[0];
 
   const [statusForm, setStatusForm] = useState({
     status: "",
     notes: "",
     followUp: "no",
-    followUpDate: ""
+    followUpDate: "",
+    epoDate: ""
   });
 
   const STATUS_MAP = {
@@ -131,20 +105,20 @@ const today = new Date().toISOString().split("T")[0];
     return Object.keys(newErrors).length === 0;
   };
 
-const [filters, setFilters] = useState({
-  from_date: today,
-  to_date: today,
-  gender: "",
-  platform: "",
-  age: "",
-  city: ""
-});
+  const [filters, setFilters] = useState({
+    from_date: today,
+    to_date: today,
+    gender: "",
+    platform: "",
+    age: "",
+    city: ""
+  });
 
   // apply filter
   const handleApplyFilter = () => {
     fetchLead(filters);
   };
-  console.log("filter check",handleApplyFilter)
+  console.log("filter check", handleApplyFilter)
 
 
   const handleResetFilter = () => {
@@ -186,7 +160,6 @@ const [filters, setFilters] = useState({
     setIsStatusViewOpen(false);
     setStatusViewLead(null);
   };
-
 
   const handleFileChange = (e) => {
     setSelectedFiles(e.target.files);
@@ -357,7 +330,6 @@ const [filters, setFilters] = useState({
     }
   };
 
-
   // create
   const handleAddLeadSubmit = async () => {
     if (!validateLeadForm()) return;
@@ -404,82 +376,38 @@ const [filters, setFilters] = useState({
     fetchLead();
   }, []);
 
-const applyFrontendFilters = (data, filters) => {
-  let result = [...data];
+  const applyFrontendFilters = (data, filters) => {
+    let result = [...data];
 
-  // CITY
-  if (filters.city) {
-    result = result.filter(item =>
-      item.city?.toLowerCase() === filters.city.toLowerCase()
-    );
-  }
+    // CITY
+    if (filters.city) {
+      result = result.filter(item =>
+        item.city?.toLowerCase() === filters.city.toLowerCase()
+      );
+    }
 
-  // PLATFORM
-  if (filters.platform) {
-    result = result.filter(item =>
-      item.platform?.toLowerCase() === filters.platform.toLowerCase()
-    );
-  }
+    // PLATFORM
+    if (filters.platform) {
+      result = result.filter(item =>
+        item.platform?.toLowerCase() === filters.platform.toLowerCase()
+      );
+    }
 
-  // AGE
-  if (filters.age) {
-    const [min, max] = filters.age.split("-");
+    // AGE
+    if (filters.age) {
+      const [min, max] = filters.age.split("-");
 
-    result = result.filter(item => {
-      const age = Number(item.age);
-      if (filters.age === "46+") return age >= 46;
-      return age >= Number(min) && age <= Number(max);
-    });
-  }
+      result = result.filter(item => {
+        const age = Number(item.age);
+        if (filters.age === "46+") return age >= 46;
+        return age >= Number(min) && age <= Number(max);
+      });
+    }
 
-  return result;
-};
+    return result;
+  };
 
-
-
-
-  // list
-  // const fetchLead = async (customFilters) => {
-  //   const appliedFilters = customFilters ?? filters;
-
-  //   try {
-  //     setLoading(true);
-  //     const params = {};
-
-  //     if (appliedFilters.gender) params.gender = appliedFilters.gender;
-  //     if (appliedFilters.platform) params.platform = appliedFilters.platform;
-  //     if (appliedFilters.city) params.city = appliedFilters.city;
-  //     if (appliedFilters.from_date) params.from_date = appliedFilters.from_date;
-  //     if (appliedFilters.to_date) params.to_date = appliedFilters.to_date;
-
-  //     const res = await axiosInstance.get(
-  //       `${API_URL}api/lead-management`,
-  //       { params }
-  //     );
-
-  //     console.log("API list", res.data.data);
-
-  //     if (res.data.success) {
-  //       let data = res.data.data || [];
-
-  //       //  FRONTEND FILTERING
-  //       data = applyFrontendFilters(data, appliedFilters);
-
-  //       setLeads(data);
-  //       setTotalRecords(data.length);
-  //       setGenderOptions(res.data.gender || []);
-  //       setPlatformOptions(res.data.platforms || {});
-  //       setCityOptions(res.data.cities || []);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch leads");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // new
+  //  list
   const fetchLead = async (customFilters) => {
     const appliedFilters = customFilters ?? filters;
 
@@ -530,11 +458,8 @@ const applyFrontendFilters = (data, filters) => {
     }
   };
 
-
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
-  // console.log("statusList", statusList);
-  // const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (viewStatus?.id) {
@@ -733,12 +658,10 @@ const applyFrontendFilters = (data, filters) => {
             <option value="">Select Status</option>
             <option value="open">Open</option>
             <option value="joined">Joined</option>
-            <option value="interested">Interested</option>
+            <option value="interested">Interested / scheduled</option>
             <option value="not_interested">Not Interested</option>
             <option value="follow_up">Follow Up</option>
-            <option value="bad_timing">Bad Timing</option>
             <option value="not_picked">Not Picked</option>
-            <option value="interview_scheduled">Interview Scheduled</option>
           </select>
 
           {/* VIEW STATUS HISTORY */}
@@ -914,22 +837,21 @@ const applyFrontendFilters = (data, filters) => {
                 {/* city */}
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">City</label>
-                  <select
-                    className="h-10 px-3 rounded-md border"
-                    value={filters.city}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, city: e.target.value }))
-                    }
-                  >
-                    <option value="">Select City</option>
-                    {cityOptions.map((city, index) => (
-                      <option key={index} value={city}>
-                        {city}
-                      </option>
-                    ))}
-                  </select>
 
+                  <Dropdown
+                    value={filters.city}
+                    options={cityDropdownOptions}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, city: e.value }))
+                    }
+                    placeholder="Select City"
+                    filter
+                    filterPlaceholder="Search city"
+                    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
+                    panelClassName="text-sm"
+                  />
                 </div>
+
 
                 {/* Buttons */}
                 <div className="flex gap-3 mt-6 md:mt-0">
@@ -969,37 +891,35 @@ px-2 py-2 md:px-6 md:py-6">
                       <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
 
                     </div>
-                    <div>
-                      <div className="relative inline-block">
-                        <MultiSelect
-                          ref={multiSelectRef}
-                          value={visibleColumnFields}
-                          options={columns}
-                          optionLabel="header"
-                          optionValue="field"
-                          onChange={onColumnToggle}
-                          display="checkbox"
-                          className="absolute opacity-0 pointer-events-none"
-                          style={{ bottom: 0, left: 0, width: '100%' }}
-                          panelClassName="custom-column-panel"
-                          // Disable checkbox for fixed columns
-                          optionDisabled={(option) => option.fixed}
-                        />
+                    <div className="relative inline-block">
+                      <MultiSelect
+                        ref={multiSelectRef}
+                        value={visibleColumnFields}
+                        options={columns}
+                        optionLabel="header"
+                        optionValue="field"
+                        onChange={onColumnToggle}
+                        display="checkbox"
+                        className="absolute opacity-0 pointer-events-none"
+                        style={{ bottom: 0, left: 0, width: '100%' }}
+                        panelClassName="custom-column-panel"
+                        // Disable checkbox for fixed columns
+                        optionDisabled={(option) => option.fixed}
+                      />
 
-                        <p
-                          onClick={() => multiSelectRef.current.show()}
-                          className="flex items-center justify-between gap-2 
+                      <p
+                        onClick={() => multiSelectRef.current.show()}
+                        className="flex items-center justify-between gap-2 
                                  min-w-56 px-3 py-2 
                                  border border-gray-300 rounded-md 
                                  cursor-pointer text-[#7c7c7c]
                                  hover:bg-gray-100 transition-all text-sm"
-                        >
-                          Customize
-                          <img src={customise} alt="columns" className="w-5 h-5" />
-                        </p>
+                      >
+                        Customize
+                        <img src={customise} alt="columns" className="w-5 h-5" />
+                      </p>
 
 
-                      </div>
                     </div>
                   </div>
 
@@ -1215,8 +1135,6 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     </div>
 
-
-                    {/* Gender */}
                     {/* Gender */}
                     <div className="mt-6 flex justify-between items-center">
                       <label className="text-md font-medium">
@@ -1290,7 +1208,7 @@ px-2 py-2 md:px-6 md:py-6">
                       <button
                         disabled={submitting}
                         onClick={handleAddLeadSubmit}
-                        className="bg-[#1ea600] hover:bg-[#4BB452]
+                        className="bg-[#005AEF] hover:bg-[#2879FF]
             text-white px-5 py-2 rounded-[10px]
             disabled:opacity-50"
                       >
@@ -1519,7 +1437,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                       <button
                         onClick={handleUpdateLead}
-                        className="bg-[#1ea600] hover:bg-[#4BB452]
+                        className="bg-[#005AEF] hover:bg-[#2879FF]
             text-white px-5 py-2 rounded-[10px]"
                       >
                         Update
@@ -1533,13 +1451,13 @@ px-2 py-2 md:px-6 md:py-6">
             {/* status */}
             {isViewStatusOpen && viewStatus && (
               <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-xl w-[900px] space-y-6 shadow-lg">
+                <div className="bg-white p-6 rounded-xl w-full max-w-4xl mx-4 space-y-6 shadow-lg">
 
                   {/* Header */}
                   <h2 className="text-lg font-semibold">Update Lead Status</h2>
 
                   {/* Row 1 */}
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid gap-6">
                     {/* Status */}
                     <div>
                       <label className="block text-sm font-medium mb-1">Status</label>
@@ -1552,14 +1470,33 @@ px-2 py-2 md:px-6 md:py-6">
                       >
                         <option value="open">Open</option>
                         <option value="joined">Joined</option>
-                        <option value="interested">Interested</option>
+                        <option value="interested">Interested / schedule</option>
                         <option value="not_interested">Not Interested</option>
                         <option value="follow_up">Follow Up</option>
-                        <option value="bad_timing">Bad Timing</option>
                         <option value="not_picked">Not Picked</option>
-                        <option value="interview_scheduled">Interview Scheduled</option>
                       </select>
                     </div>
+
+                      {statusForm.status === "interested" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Schedule Date
+                          </label>
+                          <input
+                            type="date"
+                            className="border p-2 w-full rounded-md"
+                            value={statusForm.epoDate}
+                            onChange={(e) =>
+                              setStatusForm({
+                                ...statusForm,
+                                epoDate: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Notes */}
                     <div>
@@ -1628,6 +1565,9 @@ px-2 py-2 md:px-6 md:py-6">
                         />
                       </div>
                     )}
+
+                  
+
                   </div>
 
                   {/* Actions */}
@@ -1640,7 +1580,7 @@ px-2 py-2 md:px-6 md:py-6">
                     </button>
 
                     <button
-                      className="px-4 py-2 bg-green-600 text-white rounded-md"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md"
                       onClick={handleStatusSubmit}
                     >
                       Submit
@@ -1767,7 +1707,6 @@ px-2 py-2 md:px-6 md:py-6">
                 </div>
               </div>
             )}
-
 
             {/* view modal */}
             {isViewModalOpen && viewContact && (
@@ -1940,7 +1879,7 @@ px-2 py-2 md:px-6 md:py-6">
                       </button>
                       <button
                         type="button"
-                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
                       >
                         Submit

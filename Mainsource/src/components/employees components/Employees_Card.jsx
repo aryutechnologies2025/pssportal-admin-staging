@@ -236,28 +236,39 @@ const Employees_Card = () => {
     setLoading(false); // stop skeleton
   }, []);
 
-  const handleReferenceChange = async (id, checked) => {
-    // Use a functional update to ensure you have the latest state
-    try {
-      const res = await axiosInstance.post(`/api/employees/job-referal/${id}`, {
-        job_form_referal: checked ? 1 : 0,
-      });
-      if (res.status === 200) {
-        toast.success("Reference updated successfully!");
-        setEmployeeData((prevEmployees) => {
-          return prevEmployees.map((emp) => {
-            // Check if the IDs match (using == to handle string vs number IDs)
-            if (emp.id == id) {
-              return { ...emp, job_form_referal: checked ? 1 : 0 };
-            }
-            return emp;
-          });
-        });
-      }
-    } catch (error) {
-      console.error("Failed to update reference:", error);
+const handleReferenceChange = async (id, type, checked) => {
+  // type = "internal" or "external"
+  try {
+    // Send payload according to type
+    const payload =
+      type === "internal"
+        ? { internal_ref: checked ? 1 : 0 }
+        : { external_ref: checked ? 1 : 0 };
+
+    const res = await axiosInstance.post(
+      `/api/employees/job-referal/${id}`,
+      payload
+    );
+
+    if (res.status === 200) {
+      toast.success("Reference updated successfully!");
+
+      // Update local state
+      setEmployeeData((prev) =>
+        prev.map((emp) =>
+          emp.id == id
+            ? { ...emp, ...payload } // merge the updated type
+            : emp
+        )
+      );
     }
-  };
+  } catch (error) {
+    console.error("Failed to update reference:", error);
+  }
+};
+
+
+
 
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -391,7 +402,7 @@ const Employees_Card = () => {
             className="flex justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <input
+            {/* <input
               type="checkbox"
               // This handles numbers, strings, and null values accurately
               checked={row.job_form_referal == 1}
@@ -400,7 +411,48 @@ const Employees_Card = () => {
                 handleReferenceChange(row.id, isChecked);
               }}
               className="w-4 h-4 cursor-pointer accent-[#1ea600] rounded border-gray-300"
-            />
+            /> */}
+
+          <input
+        type="checkbox"
+        checked={
+          row.job_form_referal == 1 &&
+          row.reference_type === "internal"
+        }
+        onChange={(e) =>
+          handleReferenceChange(row.id, e.target.checked, "internal")
+        }
+        className="w-4 h-4 cursor-pointer accent-green-600"
+      />
+          </div>
+        );
+      },
+      style: { textAlign: "center", width: "100px" },
+    },
+
+    // jof from refenece
+
+     {
+      field: "reference",
+      header: "Jof Form Reference",
+      body: (row) => {
+        // Debug: console.log("Row Reference Value:", row.reference);
+        return (
+          <div
+            className="flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+        <input
+        type="checkbox"
+        checked={
+          row.job_form_referal == 1 &&
+          row.reference_type === "external"
+        }
+        onChange={(e) =>
+          handleReferenceChange(row.id, e.target.checked, "external")
+        }
+        className="w-4 h-4 cursor-pointer accent-blue-600"
+      />
           </div>
         );
       },

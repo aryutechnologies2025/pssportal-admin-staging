@@ -7,14 +7,11 @@ import Footer from "../components/Footer";
 import { FaEye } from "react-icons/fa";
 import { FaEyeSlash } from "react-icons/fa";
 import { LuUser } from "react-icons/lu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../Config";
 import axiosInstance from "../axiosConfig.js";
 import ReCAPTCHA from "react-google-recaptcha";
-
-
-
 
 const Login = () => {
   let navigate = useNavigate();
@@ -28,12 +25,9 @@ const Login = () => {
   //   });
   // }
 
-
-
   const [error, setError] = useState({});
   let [requiredError, setRequiredError] = useState("");
-    let [adminError, setAdminError] = useState("");
-
+  let [adminError, setAdminError] = useState("");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -41,12 +35,10 @@ const Login = () => {
   });
   const [captchaValue, setCaptchaValue] = useState(null);
 
-
   const handleCaptchaChange = (value) => {
     setCaptchaValue(value);
     console.log("Captcha value:", value);
   };
-
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -97,30 +89,29 @@ const Login = () => {
   const onCLickLogin = async (e) => {
     e.preventDefault();
 
-  //     if (!captchaValue) {
-  //   setRequiredError("Please verify that you are not a robot");
-  //   return;
-  // }
-   setRequiredError("");
+    //     if (!captchaValue) {
+    //   setRequiredError("Please verify that you are not a robot");
+    //   return;
+    // }
+    setRequiredError("");
     setError("");
 
     try {
+      console.log("API_URL", API_URL);
+      console.log("formData", formData);
 
-      console.log("API_URL",API_URL);
-      console.log("formData",formData);
-     
-      const response = await axios.post(
-        `${API_URL}api/login`,
-        formData
-      );
+      const response = await axios.post(`${API_URL}api/login`, formData);
 
-            // const response = await axiosInstance.get(`${API_URL}api/student/list`);
-console.log("response.......",response)
+      // const response = await axiosInstance.get(`${API_URL}api/student/list`);
+      console.log("response.......", response);
 
       if (response.data && response.data) {
         const data = response.data;
 
         // Store user data and token
+
+        localStorage.setItem("pss_dateformat", JSON.stringify(data));
+
         localStorage.setItem("pssuser", JSON.stringify(data.user));
         // Cookies.set("token", data.token, { path: "/" });
         // localStorage.setItem("admin_token", data.token);
@@ -138,10 +129,37 @@ console.log("response.......",response)
     } catch (err) {
       console.log(err.response?.data || err);
       setError(
-        err.response?.data || { general: "An unexpected error occurred." }
+        err.response?.data || { general: "An unexpected error occurred." },
       );
     }
   };
+
+  // settings api
+
+  const [faviconPreview, setFaviconPreview] = useState("");
+  const [logoPreview, setLogoPreview] = useState("");
+
+  console.log("logoPreview", logoPreview);
+
+  const fetchSettings = async () => {
+    try {
+      const res = await axiosInstance.get(`${API_URL}api/settings`);
+
+      console.log("Fetch Settings Response:", res);
+      if (res.data?.data) {
+        const data = res.data.data;
+
+        setFaviconPreview(data.fav_icon ? `${API_URL}${data.fav_icon}` : "");
+        setLogoPreview(data.site_logo ? `${API_URL}${data.site_logo}` : "");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   const handleKeyUp = (event) => {
     setError("");
@@ -152,31 +170,32 @@ console.log("response.......",response)
     setShowPassword(!showPassword); // Toggle password visibility state
   };
   const activeClass = "underline font-bold text-blue-600";
-const inactiveClass = "hover:underline";
+  const inactiveClass = "hover:underline";
   return (
     <div className="min-h-screen flex flex-col justify-between">
-   
       <div>
         <div className="flex  items-center justify-center pt-3">
-          <img
-              src="/pssAgenciesLogo.svg"
-              alt="PSS Logo"
-              className="w-40 md:w-72 h-auto mx-auto mb-2 md:mt-7"
-            />
-          {/* <h1 className="font-bold text-2xl md:text-4xl text-blue-500">PSS</h1> */}
-          
-        </div>
+          {/* <img
+            src="/pssAgenciesLogo.svg"
+            alt="PSS Logo"
+            className="w-40 md:w-72 h-auto mx-auto mb-2 md:mt-7"
+          /> */}
 
-        
+          <img
+            src={logoPreview ? logoPreview : "/pssAgenciesLogo.svg"}
+            alt="PSS Logo"
+            className="w-40 md:w-40 h-auto mx-auto mb-2 md:mt-7"
+          />
+          {/* <h1 className="font-bold text-2xl md:text-4xl text-blue-500">PSS</h1> */}
+        </div>
 
         <div className="flex items-center flex-wrap-reverse justify-center mt-20 md:mt-5 ">
           <div className="lg:basis-[50%] flex flex-col items-center justify-center gap-3">
             <p className="text-black font-semibold text-xl md:text-2xl">
-             ADMIN LOGIN
+              ADMIN LOGIN
             </p>
-            
 
-              <div className="w-full max-w-sm flex items-center gap-3 bg-[#F8F9FB] px-5 py-4 rounded-xl shadow-sm border border-gray-200">
+            <div className="w-full max-w-sm flex items-center gap-3 bg-[#F8F9FB] px-5 py-4 rounded-xl shadow-sm border border-gray-200">
               <LuUser className="text-2xl text-gray-500" />
               <input
                 type="text"
@@ -220,7 +239,7 @@ const inactiveClass = "hover:underline";
               <p className="text-red-500 text-sm mt-1">{error.message}</p>
             )}
 
-{/* <div className="recaptacha-login ">
+            {/* <div className="recaptacha-login ">
               <ReCAPTCHA
                 // sitekey="6Lf_dIMrAAAAAAAZI8KS0KRRyRk7NzMNRyXdgtfv" //live site keydcsddsdsddsdsd
 
@@ -240,20 +259,19 @@ const inactiveClass = "hover:underline";
               onClick={onCLickLogin}
               // disabled={!captchaValue}
               className="font-bold mt-3 text-sm bg-gradient-to-r from-[#91ee7c] to-[#1ea600] px-10 py-5 rounded-2xl text-white hover:scale-105 duration-300 transition-all"
-            // className={`${
-            //     captchaValue
-            //       ? "bg-gradient-to-r from-[#91ee7c] to-[#1ea600] text-white"
-            //       : "bg-gray-300 text-gray-700"
-            //   } font-semibold mt-3 text-sm  px-8 py-3 rounded-full  hover:scale-105 duration-300 `}
-
+              // className={`${
+              //     captchaValue
+              //       ? "bg-gradient-to-r from-[#91ee7c] to-[#1ea600] text-white"
+              //       : "bg-gray-300 text-gray-700"
+              //   } font-semibold mt-3 text-sm  px-8 py-3 rounded-full  hover:scale-105 duration-300 `}
             >
               Login Now
             </button>
           </div>
 
-           <div className="basis-[50%]  ">
+          <div className="basis-[50%]  ">
             {/* <img src={login_image} alt="" /> */}
-            <img src={login_img_pss} alt="" className="h-[500px] "/>
+            <img src={login_img_pss} alt="" className="h-[500px] " />
           </div>
         </div>
       </div>

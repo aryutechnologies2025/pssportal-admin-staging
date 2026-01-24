@@ -18,6 +18,8 @@ import { Dropdown } from "primereact/dropdown";
 import { FiSearch } from "react-icons/fi";
 import { toast, ToastContainer } from "react-toastify";
 import { TfiPencilAlt } from "react-icons/tfi";
+import { FiDownload } from "react-icons/fi";
+
 // import { Doughnut } from "react-chartjs-2";
 // import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
@@ -42,7 +44,7 @@ const Attendance_Mainbar = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [companyName, setCompanyName] = useState("ABC Company");
   const [selectedCompany, setSelectedCompany] = useState("Company A");
-  const companyOptions = ["Company A", "Company B", "Company C"];
+  
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -56,6 +58,7 @@ const Attendance_Mainbar = () => {
   const [attachment, setAttachment] = useState(null);
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
   const userId = user?.id;
+  
   // const userRole = user?.role_id;
 
   const fetchCompaniesAttendance = async () => {
@@ -841,6 +844,27 @@ const Attendance_Mainbar = () => {
     });
   }
 
+
+    const handlCsvDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/csv/contarctformat.csv";
+    link.download = "contractformat.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+   const companyOptions = companies.map(company => ({
+    label: company.name,
+    value: company.id,
+    name: company.name // Keep original name for reference
+  }));
+
+  const createdByOptions = createdbyData.map(creator => ({
+    label: creator.full_name || creator.username || "Unknown",
+    value: creator.id
+  }));
+
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-screen min-h-screen px-5 pt-2 md:pt-5">
 
@@ -912,7 +936,7 @@ const Attendance_Mainbar = () => {
                     type="date"
                     value={filterStartDate || ""}
                     onChange={(e) => setFilterStartDate(e.target.value)}
-                    className="px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    className="uniform-field px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
 
@@ -925,12 +949,12 @@ const Attendance_Mainbar = () => {
                     type="date"
                     value={filterEndDate || ""}
                     onChange={(e) => setFilterEndDate(e.target.value)}
-                    className="px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    className="uniform-field px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
 
                 {/* company */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium text-[#6B7280]">
                     Company
                   </label>
@@ -940,19 +964,35 @@ const Attendance_Mainbar = () => {
                     className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   >
                     <option value="">Select Company</option>
-                    {/* Get unique references from data */}
-                    {companies // Remove null/undefined
+                 
+                    {companies
                       .map((com, index) => (
                         <option key={index} value={com.id}>
                           {com.name}
                         </option>
                       ))}
                   </select>
+                </div> */}
+
+                     <div className="flex flex-col gap-1">
+                  <label className="block text-sm font-medium text-[#6B7280]">
+                    Company
+                  </label>
+                  <Dropdown
+                    value={filterCompanyname}
+                    options={companyOptions}
+                    filter
+                    placeholder="Select Company"
+                    onChange={(e) => setFilterCompanyname(e.target.value)}
+                    className="uniform-field px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                   
+                 
                 </div>
 
 
                 {/* Created By */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium text-[#6B7280]">
                     Created By
                   </label>
@@ -962,14 +1002,34 @@ const Attendance_Mainbar = () => {
                     className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   >
                     <option value="">Select Employee</option>
-                    {/* Get unique references from data */}
-                    {createdbyData // Remove null/undefined
+                   
+                    {createdbyData 
                       .map((data, index) => (
                         <option key={index} value={data.id}>
                           {data.full_name}
                         </option>
                       ))}
                   </select>
+                  
+                </div> */}
+
+       <div className="flex flex-col gap-1">
+                  <label className="block text-sm font-medium text-[#6B7280]">
+                    Created By
+                  </label>
+                  <Dropdown
+                    value={filterCreatedBy}
+                   options={createdByOptions}
+                   filter
+                    placeholder="Select Employee"
+                    onChange={(e) => setFilterCreatedBy(e.target.value)}
+                    className="uniform-field px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                    
+                    
+                   
+                   
+                  
                   {/* <input
                     type="text"
                     placeholder="Enter creator name"
@@ -1053,6 +1113,25 @@ px-2 py-2 md:px-6 md:py-6">
                         className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
                       >
                         Import
+                      </button>
+                    </div>
+
+                       {/* sample csv format download */}
+                    <div className="flex items-center">
+                      <button
+                        onClick={handlCsvDownload}
+                        className="
+      flex items-center gap-2
+      px-5 py-2
+      text-sm font-semibold
+      text-green-700
+      bg-green-100
+      rounded-full
+      hover:bg-green-200
+      transition
+    "
+                      >
+                        <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
                     <button
