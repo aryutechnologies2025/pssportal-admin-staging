@@ -28,6 +28,7 @@ import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import CameraPhoto from "../../Utils/cameraPhoto";
 import { Capitalise } from "../../hooks/useCapitalise";
 import { id } from "zod/v4/locales";
+import { FiDownload } from "react-icons/fi";
 
 
 
@@ -42,11 +43,13 @@ const ContractCandidates_Mainbar = () => {
   const [employeesList, setEmployeesList] = useState([]);
   const [backendValidationError, setBackendValidationError] = useState(null);
   const [employeeIds, setEmployeeIds] = useState([]);
-   
-const user = JSON.parse(localStorage.getItem("pssuser") || "null");
+  const [educationOptions, setEducationOptions] = useState([]);
+  const [selectedEducation, setSelectedEducation] = useState(null);
 
-const userId = user?.id;
-const userRole = user?.role_id;
+  const user = JSON.parse(localStorage.getItem("pssuser") || "null");
+
+  const userId = user?.id;
+  const userRole = user?.role_id;
 
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];
@@ -54,30 +57,37 @@ const userRole = user?.role_id;
 
   const candidateContractSchema = z
     .object({
-        //  profile_picture: id ? z
-        // .union([z.instanceof(File), z.string()])
-        // .refine((val) => val instanceof File || (typeof val === "string" && val.length > 0), {
-        //     message: "Profile image is required",
-        // }).optional() : z
-        // .union([z.instanceof(File), z.string()])
-        // .refine((val) => val instanceof File || (typeof val === "string" && val.length > 0), {
-        //     message: "Profile image is required",
-        // }),
+      //  profile_picture: id ? z
+      // .union([z.instanceof(File), z.string()])
+      // .refine((val) => val instanceof File || (typeof val === "string" && val.length > 0), {
+      //     message: "Profile image is required",
+      // }).optional() : z
+      // .union([z.instanceof(File), z.string()])
+      // .refine((val) => val instanceof File || (typeof val === "string" && val.length > 0), {
+      //     message: "Profile image is required",
+      // }),
       name: z.string().min(1, "Name is required"),
       // dob: z.string().min(1, "Date of birth is required"),
       // fatherName: z.string().min(1, "Father's name is required"),
       // address: z.string().min(1, "Address is required"),
-      // gender: z.string().min(1, "Gender is required"),
+      gender: z.string().min(1, "Gender is required"),
+      marital: z.string().min(1, "Marital Status is required"),
       phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
       aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
       pan_number: z.string().optional(),
       company: z.string().min(1, "Company is required"),
-      
       interviewDate: z.string().min(1, "Interview date is required"),
       interviewStatus: z.string().min(1, "Interview status is required"),
       candidateStatus: z.string().min(1, "Candidate status is required"),
       reference: z.string().min(1, "Reference is required"),
-education: z.string().optional(),
+      education: z
+        .number({
+          required_error: "Education is required",
+          invalid_type_error: "Education is required",
+        })
+        .int()
+        .positive("Education is required"),
+
       // Make these optional in base schema, they'll be conditionally required
       rejectReason: z.string().optional(),
       candidateStatus: z.string().optional(),
@@ -88,9 +98,9 @@ education: z.string().optional(),
       joinedDate: z.string().optional(),
       reference: z.string().optional(),
       otherReference: z.string().optional(),
-       
-  profile_picture: z.any().optional(), 
-  documents: z.array(z.any()).optional(),
+
+      profile_picture: z.any().optional(),
+      documents: z.array(z.any()).optional(),
     })
     .superRefine((data, ctx) => {
       // Interview status specific validations
@@ -186,36 +196,27 @@ education: z.string().optional(),
       joinedDate: editData ? editData.joinedDate : "",
       reference: editData ? editData.reference : "",
       otherReference: editData ? editData.otherReference : "",
-      education: editData ? editData.education : "",
+      education: editData ? Number(editData.education_id) : null,
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
       // dob: editData ? editData.dob : "",
       // fatherName: editData ? editData.fatherName : "",
       // address: editData ? editData.address : "",
-      // gender: editData ? editData.gender : "",
+      gender: editData ? editData.gender : "",
+      marital: editData ? editData.marital_status : "",
     },
   });
-  // const joining_date = watch("joinedDate");
+
   const company_name = watch("company");
   const joining_date = watch("selectedJoiningDate");
   const profile_picture = watch("profile_picture");
   const document = watch("documents");
   const education = watch("education");
-  // console.log("profile_picture", profile_picture);
-  // console.log("documents", document);
-  // console.log("education", education);
-
-
-
   console.log("joining_date", joining_date);
   // console.log("company_name", company_name);
-
-
   const [isAnimating, setIsAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const employees = ["Saravanan", "Ramesh", "Priya"];
-
   // Filter states - FIXED: Corrected variable names
   const [filterStartDate, setFilterStartDate] = useState(() => {
     return new Date().toISOString().split("T")[0];
@@ -227,8 +228,7 @@ education: z.string().optional(),
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
   console.log("filterCandidateStatus", filterCandidateStatus)
   const [selectedReference, setSelectedReference] = useState("");
-   const [selectedReferenceForm, setSelectedReferenceForm] = useState(""); 
-  const [selectedEducation, setSelectedEducation] = useState("");
+  const [selectedReferenceForm, setSelectedReferenceForm] = useState("");
   const [filterEducation, setFilterEducation] = useState("");
 
   // Table states
@@ -252,6 +252,15 @@ education: z.string().optional(),
     { label: "Not Joined", value: "Not Joined" },
   ];
 
+  const handlCsvDownload = () => {
+    const link = document.createElement("a");
+    link.href = "/assets/csv/contarctformat.csv";
+    link.download = "contractformat.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const interviewStatus = watch("interviewStatus");
   const candidateStatus = watch("candidateStatus");
   const reference = watch("reference");
@@ -271,6 +280,10 @@ education: z.string().optional(),
       setValue("notJoinedReason", "");
     }
   }, [candidateStatus, setValue]);
+
+  useEffect(() => {
+    console.log("educationOptions:", educationOptions);
+  }, [educationOptions]);
 
   const [ModalOpen, setIsModalOpen] = useState(false);
 
@@ -299,7 +312,7 @@ education: z.string().optional(),
     fetchContractCandidates();
   };
 
- const fetchId = async (payload) => {
+  const fetchId = async (payload) => {
     console.log("payload", payload);
     try {
       const response = await axiosInstance.post(
@@ -308,7 +321,7 @@ education: z.string().optional(),
       );
 
       console.log("Success:", response);
-      
+
     } catch (error) {
       if (error.response) {
         console.log("Backend error:", error.response.data);
@@ -381,7 +394,9 @@ education: z.string().optional(),
       pan_number: "",
       // company: null,
       company: "",
+      gender: "",
       education: "",
+      marital_status: "",
       interviewDate: "",
       interviewStatus: "",
       candidateStatus: "",
@@ -395,15 +410,15 @@ education: z.string().optional(),
       documents: [],
     };
     setSelectedCompany(null);
-  setSelectedEducation(null);
-  setPhoto(null);
-  setDocuments([]);
-  setEditData(null);
+    setSelectedEducation(null);
+    setPhoto(null);
+    setDocuments([]);
+    setEditData(null);
     reset(mappedData);
     setTimeout(() => {
       setIsModalOpen(false);
       setBackendValidationError(null);
-      
+
     }, 250);
   };
 
@@ -417,24 +432,24 @@ education: z.string().optional(),
     setTimeout(() => setIsImportAddModalOpen(false), 250);
   };
 
-const handleView = async (row) => {
+  const handleView = async (row) => {
 
-  try {
-    const res = await axiosInstance.get(
-      `${API_URL}api/contract-emp/edit/${row.id}`
-    );
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/contract-emp/edit/${row.id}`
+      );
 
-    // console.log("view res....:....", res);
-    // console.log("view res....:....", res.data);
+      // console.log("view res....:....", res);
+      // console.log("view res....:....", res.data);
 
-    if (res.data.success) {
-      setViewRow(res.data.data); 
-      setIsViewModalOpen(true);
+      if (res.data.success) {
+        setViewRow(res.data.data);
+        setIsViewModalOpen(true);
+      }
+    } catch (err) {
+      console.error("View fetch failed", err);
     }
-  } catch (err) {
-    console.error("View fetch failed", err);
-  }
-};
+  };
 
   const closeViewModal = () => {
     setIsViewModalOpen(false);
@@ -483,64 +498,61 @@ const handleView = async (row) => {
   };
 
   //image and document state and handling
-   const [photo, setPhoto] = useState(null);
-    const [openCamera, setOpenCamera] = useState(false);
-    const [documents, setDocuments] = useState([]);
+  const [photo, setPhoto] = useState(null);
+  const [openCamera, setOpenCamera] = useState(false);
+  const [documents, setDocuments] = useState([]);
 
-useEffect(() => {
-  register("profile_picture", { required: !editData });
-}, [register, editData]);
+  useEffect(() => {
+    register("profile_picture", { required: !editData });
+  }, [register, editData]);
 
 
   const handlePhotoChange = (e) => {
 
-    
-  const file = e.target.files[0];
-  
-  if (file) {
+
+    const file = e.target.files[0];
+
+    if (file) {
+      setPhoto(file);
+      setValue("profile_picture", file);
+    }
+  };
+
+  // const handleCameraCapture = (file) => {
+  //   setPhoto(file);
+  //   setValue("profile_picture", file);
+  // };
+
+  const handleCameraCapture = (fileOrBlob) => {
+    let file = fileOrBlob;
+
+    // If camera gives Blob → convert to File
+    if (!(fileOrBlob instanceof File)) {
+      file = new File(
+        [fileOrBlob],
+        `camera-${Date.now()}.png`,
+        { type: fileOrBlob.type || "image/png" }
+      );
+    }
+
     setPhoto(file);
-    setValue("profile_picture", file);
-  }
-};
+    setValue("profile_picture", file, { shouldValidate: true });
+  };
 
-// const handleCameraCapture = (file) => {
-//   setPhoto(file);
-//   setValue("profile_picture", file);
-// };
+  const handleDocumentChange = (e) => {
+    const files = Array.from(e.target.files);
 
-const handleCameraCapture = (fileOrBlob) => {
-  let file = fileOrBlob;
+    const updatedDocs = [...documents, ...files];
 
-  // If camera gives Blob → convert to File
-  if (!(fileOrBlob instanceof File)) {
-    file = new File(
-      [fileOrBlob],
-      `camera-${Date.now()}.png`, 
-      { type: fileOrBlob.type || "image/png" }
-    );
-  }
+    setDocuments(updatedDocs);
+    setValue("documents", updatedDocs);
+  };
 
-  setPhoto(file);
-  setValue("profile_picture", file,{ shouldValidate: true });
-};
-
-
-
-
-const handleDocumentChange = (e) => {
-  const files = Array.from(e.target.files);
-
-  const updatedDocs = [...documents, ...files];
-
-  setDocuments(updatedDocs);
-  setValue("documents", updatedDocs);
-};
-
-const removeDocument = (index) => {
-  const updatedDocs = documents.filter((_, i) => i !== index);
-  setDocuments(updatedDocs);
-  setValue("documents", updatedDocs);
-};
+  const removeDocument = (index) => {
+    const updatedDocs = documents.filter((_, i) => i !== index);
+    setDocuments(updatedDocs);
+    setValue("documents", updatedDocs);
+  };
 
   const handleFileChange = (e) => {
     // if (e.target.files[0]) {
@@ -696,13 +708,14 @@ const removeDocument = (index) => {
       id: row.id || null,
       name: row.name || "",
       // address: row.address || "",
-      // gender: row.gender || "",
+      gender: row.gender || "",
+      marital: row.marital_status || "",
       // fatherName: row.father_name || "",
       // dob: row.date_of_birth || "",
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
       pan_number: row.pan_number || "",
-      education: row.education || "",
+      education: row.education_id ? Number(row.education_id) : null,
       company: String(row.company_id),
       interviewDate: row.interview_date || "",
       interviewStatus: row.interview_status
@@ -733,74 +746,72 @@ const removeDocument = (index) => {
 
 
   const openEditModal = async (row) => {
-   
+
     setIsModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
 
-     const response = await axiosInstance.get(
-    `/api/contract-emp/edit/${row.id}`
-  );
-   console.log("openeditmodal:",response.data);
+    const response = await axiosInstance.get(
+      `/api/contract-emp/edit/${row.id}`
+    );
+    console.log("openeditmodal:", response.data);
 
-  if (response.data.success) {
+    if (response.data.success) {
       const rowData = response.data.data; // Get fresh data from API
       const normalizedData = normalizeEditData(rowData);
-      
+
       setEditData(normalizedData);
       setSelectedEducation(normalizedData.education || null);
 
-   if (normalizedData.profile_picture) {
+      if (normalizedData.profile_picture) {
         // If it's already a full URL, use it; otherwise, append base URL
-        const imageUrl = normalizedData.profile_picture.startsWith('http') 
-          ? normalizedData.profile_picture 
+        const imageUrl = normalizedData.profile_picture.startsWith('http')
+          ? normalizedData.profile_picture
           : `${API_URL}/${normalizedData.profile_picture}`;
         setPhoto(imageUrl);
-         setValue("profile_picture", normalizedData.profile_picture);
+        setValue("profile_picture", normalizedData.profile_picture);
       } else {
         setPhoto(null);
       }
 
       let normalizedDocs = [];
-    if (rowData.document_groups) {
-      normalizedDocs = rowData.document_groups.flatMap(group => 
-        group.documents.map(doc => ({
+      if (rowData.document_groups) {
+        normalizedDocs = rowData.document_groups.flatMap(group =>
+          group.documents.map(doc => ({
+            ...doc,
+            id: doc.id,
+            title: group.title,
+            existing: true // marker for your UI
+          }))
+        );
+      } else if (rowData.documents) {
+        normalizedDocs = rowData.documents.map(doc => ({
           ...doc,
-          id: doc.id,
-          title: group.title,
-          existing: true // marker for your UI
-        }))
+          existing: true
+        }));
+      }
+
+      setDocuments(normalizedDocs); // Update local state for the file list UI
+
+      const selectedCompanyObj = companyDropdown.find(
+        (c) => String(c.value) === String(normalizedData.company)
       );
-    } else if (rowData.documents) {
-      normalizedDocs = rowData.documents.map(doc => ({
-    ...doc,
-    existing: true
-  }));
+      // console.log("123", selectedCompanyObj)
+
+
+      // console.log("test123", row)
+      setSelectedCompany(selectedCompanyObj.value);
+
+      reset({
+        ...normalizedData,
+        company: String(normalizedData.company),
+      });
     }
-
-    setDocuments(normalizedDocs); // Update local state for the file list UI
-
-    const selectedCompanyObj = companyDropdown.find(
-      (c) => String(c.value) === String(normalizedData.company)
-    );
-    // console.log("123", selectedCompanyObj)
-
-    
-    // console.log("test123", row)
-    setSelectedCompany(selectedCompanyObj.value);
-
-    reset({
-      ...normalizedData,
-      company: String(normalizedData.company),
-    });
-  }
 
   };
 
   const fetchContractCandidates = async () => {
-
-setLoading(true);
+    setLoading(true);
     try {
-      
       const payload = {
         startDate: filterStartDate,
         endDate: filterEndDate,
@@ -808,22 +819,39 @@ setLoading(true);
         education: filterEducation,
         interview_status: filterInterviewStatus,
         joining_status: filterCandidateStatus,
-
       };
+
       const queryParams = new URLSearchParams(payload).toString();
 
-      const response = await axiosInstance.get(`api/contract-emp?${queryParams}`);
-      console.log("contract candidates response .... : ....", response)
-      const employees = response?.data?.data?.employees || [];
+      const response = await axiosInstance.get(
+        `api/contract-emp?${queryParams}`
+      );
 
-      setColumnData(response?.data?.data?.employees || []);
-      setEmployeesList(response?.data?.data?.pssemployees || []);
+      console.log("contract candidates response:", response);
+
+      const data = response?.data?.data || {};
+
+      // employees
+      setColumnData(data.employees || []);
+      setEmployeesList(data.pssemployees || []);
+
+      // EDUCATIONS 
+      if (data.educations) {
+        const mappedEducations = data.educations.map((edu) => ({
+          label: edu.eduction_name,
+          value: edu.id,
+        }));
+
+        setEducationOptions(mappedEducations);
+      }
+
     } catch (error) {
       console.error("Error fetching contract candidates:", error);
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchContractCandidates();
@@ -847,12 +875,12 @@ setLoading(true);
     try {
       await axiosInstance.delete(`${API_URL}api/contract-emp/delete/${id}`);
       setTimeout(() =>
- toast.success("Contract Candidates deleted successfully"),300)
+        toast.success("Contract Candidates deleted successfully"), 300)
 
       fetchContractCandidates();
-     
- 
-     
+
+
+
     } catch (error) {
       toast.error("Failed to delete Contract Candidates");
     }
@@ -875,10 +903,11 @@ setLoading(true);
       body: (row) => row.phone_number || "-",
     },
     {
-      header:"Education",
-      field:"education",
-      body:(row) => Capitalise(row.education) || row.education || "-"
+      header: "Education",
+      field: "education_id",
+      body: (row) => Capitalise(row.education) || row.education || "-"
     },
+    
     // {
     //   header: "Interview Status",
     //   field: "interview_Status",
@@ -922,7 +951,7 @@ setLoading(true);
       body: (row) => {
         const data = row.interview_status;
 
-        
+
         if (!data) {
           return <span>-</span>;
         }
@@ -955,36 +984,35 @@ setLoading(true);
     },
 
     {
-  header: "Candidate Status",
-  field: "joining_status",
-  style: { textAlign: "center" },
-  body: (row) => {
-    const rawStatus = row.joining_status;
+      header: "Candidate Status",
+      field: "joining_status",
+      style: { textAlign: "center" },
+      body: (row) => {
+        const rawStatus = row.joining_status;
 
-    if (!rawStatus) return "-";
+        if (!rawStatus) return "-";
 
-    // normalize backend value
-    const status = rawStatus.toLowerCase();
+        // normalize backend value
+        const status = rawStatus.toLowerCase();
 
-    const isJoined = status === "joined";
+        const isJoined = status === "joined";
 
-    return (
-      <span
-        className={`inline-block px-3 py-1 rounded-full text-xs font-medium
-          ${
-            isJoined
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-600"
-          }
+        return (
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+          ${isJoined
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-600"
+              }
         `}
-        style={{ minWidth: "100px", textAlign: "center" }}
-      >
-        {rawStatus.replace("_", " ")}
-      </span>
-    );
-  },
-}
-,
+            style={{ minWidth: "100px", textAlign: "center" }}
+          >
+            {rawStatus.replace("_", " ")}
+          </span>
+        );
+      },
+    }
+    ,
 
     {
       header: "Reference",
@@ -1022,104 +1050,105 @@ setLoading(true);
 
 
   // create
-        const onSubmit = async (data) => {
-          try {
-          //   console.log('Form data before submit:', {
-          //   profile_picture: data.profile_picture,
-          //   profile_image_type: typeof data.profile_picture,
-          //   isFile: data.profile_picture instanceof File,
-          //   documents: data.documents,
-          //   documents_length: data.documents?.length
-          // });
-            const createCandidate = {
-              name: data.name,
-              address: data.address || "test",
+  const onSubmit = async (data) => {
+    try {
+      //   console.log('Form data before submit:', {
+      //   profile_picture: data.profile_picture,
+      //   profile_image_type: typeof data.profile_picture,
+      //   isFile: data.profile_picture instanceof File,
+      //   documents: data.documents,
+      //   documents_length: data.documents?.length
+      // });
+      const createCandidate = {
+        name: data.name,
+        address: data.address || "test",
 
-              // date_of_birth: formatDateToYMD(data.dob),
-              // father_name: data.fatherName,
-              // gender: data.gender,
-              phone_number: data.phone,
-              aadhar_number: data.aadhar,
-              pan_number: data.pan_number,
-              company_id: Number(data.company),
-          education: data.education, 
+        // date_of_birth: formatDateToYMD(data.dob),
+        // father_name: data.fatherName,
+        gender: data.gender,
+        marital: data.marital_status,
+        phone_number: data.phone,
+        aadhar_number: data.aadhar,
+        pan_number: data.pan_number,
+        company_id: Number(data.company),
+        education_id: data.education,
 
-              interview_date: formatDateToYMD(data.interviewDate),
-              interview_status: data.interviewStatus,
-              reference: data.reference,
-              joining_status: data.candidateStatus,
-              joined_date:
-                data.candidateStatus === "joined"
-                  ? formatDateToYMD(data.joinedDate)
-                  : null,
-              joining_date:
-                data.interviewStatus === "selected"
-                  ? formatDateToYMD(data.selectedJoiningDate)
-                  : null,
-              other_reference:
-                data.reference === "other" ? data.otherReference : null,
-              notes_details: (() => {
-                const notes = [];
+        interview_date: formatDateToYMD(data.interviewDate),
+        interview_status: data.interviewStatus,
+        reference: data.reference,
+        joining_status: data.candidateStatus,
+        joined_date:
+          data.candidateStatus === "joined"
+            ? formatDateToYMD(data.joinedDate)
+            : null,
+        joining_date:
+          data.interviewStatus === "selected"
+            ? formatDateToYMD(data.selectedJoiningDate)
+            : null,
+        other_reference:
+          data.reference === "other" ? data.otherReference : null,
+        notes_details: (() => {
+          const notes = [];
 
-                if (data.candidateStatus === "not_joined") {
-                  notes.push({
-                    notes: data.notJoinedReason,
-                    note_status: "not_joined",
-                  });
-                }
+          if (data.candidateStatus === "not_joined") {
+            notes.push({
+              notes: data.notJoinedReason,
+              note_status: "not_joined",
+            });
+          }
 
-                switch (data.interviewStatus) {
-                  case "waiting":
-                    notes.push({
-                      notes: data.waitReason || "-",
-                      note_status: "wait",
-                    });
-                    break;
-                  case "hold":
-                    notes.push({
-                      notes: data.holdReason,
-                      note_status: "hold",
-                    });
-                    break;
-                  case "rejected":
-                    notes.push({
-                      notes: data.rejectReason,
-                      note_status: "reject",
-                    });
-                    break;
-                  default:
-                    break;
-                }
+          switch (data.interviewStatus) {
+            case "waiting":
+              notes.push({
+                notes: data.waitReason || "-",
+                note_status: "wait",
+              });
+              break;
+            case "hold":
+              notes.push({
+                notes: data.holdReason,
+                note_status: "hold",
+              });
+              break;
+            case "rejected":
+              notes.push({
+                notes: data.rejectReason,
+                note_status: "reject",
+              });
+              break;
+            default:
+              break;
+          }
 
-                return notes;
-              })(),
-              status: 1,
-              created_by: userId,
-              role_id: userRole,
-            };
+          return notes;
+        })(),
+        status: 1,
+        created_by: userId,
+        role_id: userRole,
+      };
 
-            const formData = new FormData();
+      const formData = new FormData();
 
 
       Object.entries(createCandidate).forEach(([key, value]) => {
-            if (value !== null && value !== undefined) {
-              formData.append(
-                key,
-                typeof value === "object" ? JSON.stringify(value) : value
-              );
-            }
-          });
+        if (value !== null && value !== undefined) {
+          formData.append(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : value
+          );
+        }
+      });
 
       //  Profile image
-          if (data.profile_picture instanceof File) {
-            formData.append("profile_picture", data.profile_picture);
-          }else if (typeof data.profile_picture === "string") {
-            
-            formData.append("existing_profile_picture", data.profile_picture);
-          }
+      if (data.profile_picture instanceof File) {
+        formData.append("profile_picture", data.profile_picture);
+      } else if (typeof data.profile_picture === "string") {
 
-          //  Documents
-          
+        formData.append("existing_profile_picture", data.profile_picture);
+      }
+
+      //  Documents
+
       //  if (documents && documents.length > 0) {
       //       documents.forEach((doc, index) => {
       //         // a new file upload
@@ -1132,107 +1161,107 @@ setLoading(true);
       //           formData.append(`documents[${index}][id]`, doc.id);
       //           // formData.append(`documents[${index}][existing_path]`, doc.file_path);
       //         }
-              
+
       //       });
       //     }
 
       // Documents (NEW FILES ONLY)
-      console.log("on submit doc",documents);
-      
-            if (documents && documents.length > 0) {
-              documents.forEach((doc,index) => {
-                if (doc instanceof File) {
-                  formData.append("documents[]", doc);
-                }else if (doc.id) {
-          
+      console.log("on submit doc", documents);
+
+      if (documents && documents.length > 0) {
+        documents.forEach((doc, index) => {
+          if (doc instanceof File) {
+            formData.append("documents[]", doc);
+          } else if (doc.id) {
+
             // formData.append(`existing_document_ids[${index}]`, doc.id);
             formData.append("documents[]", doc.id);
           }
-              });
-            }
+        });
+      }
 
-            console.log("Create candidate ,.... : .....",createCandidate)
-            setLoading(true);
+      console.log("Create candidate ,.... : .....", createCandidate)
+      setLoading(true);
 
-            const url = editData
-            ? `/api/contract-emp/update/${editData.id}`
-            : `/api/contract-emp/create`;
+      const url = editData
+        ? `/api/contract-emp/update/${editData.id}`
+        : `/api/contract-emp/create`;
 
-          await axiosInstance.post(url, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
+      await axiosInstance.post(url, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
 
-         setTimeout(() => 
-          toast.success(editData ? "Updated Successfully" : "Created Successfully")
-         , 300);
+      setTimeout(() =>
+        toast.success(editData ? "Updated Successfully" : "Created Successfully")
+        , 300);
 
-             
-   await  fetchContractCandidates();
-     closeAddModal();
-   
 
-        
+      await fetchContractCandidates();
+      closeAddModal();
 
-        } catch (error) {
-          console.error(error);
-          toast.error("Something went wrong");
-        } finally {
-          setLoading(false);
-        }
-      //       if (editData) {
-      //         const response = await axiosInstance.post(
-      //           `/api/contract-emp/update/${editData.id}`,
-      //           createCandidate
-      //         );
 
-      //         console.log("interview CAndidate response:",response)
-      //         closeAddModal();
-      // fetchContractCandidates();
-      //          toast.success("Candidate Updated successfully");
-      //         // , {
-      //         //   onClose: () => {
-      //         //     fetchContractCandidates();
-      //         //   },
-      //         // });
 
-      //       } else {
-      //         const response = await axiosInstance.post(
-      //           "/api/contract-emp/create",
-      //           createCandidate,
-                
-      //   {
-      //     headers: {
-      //       "Content-Type": "multipart/form-data",
-      //     },
-      //   }
-      //         );
-      // console.log("interview CAndidate response:",response)
 
-      //         closeAddModal();
-      //         fetchContractCandidates();
-      //         toast.success("Candidate added successfully")
-      //         // toast.success("Candidate added successfully", 
-      //         //   {
-      //         //   onClose: () => {
-      //         //     fetchContractCandidates();
-      //         //   },
-      //         // });
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+    //       if (editData) {
+    //         const response = await axiosInstance.post(
+    //           `/api/contract-emp/update/${editData.id}`,
+    //           createCandidate
+    //         );
 
-      //       }
-      //     } catch (error) {
-      //       if (error.response) {
-      //         console.log("Backend error:", error.response.data);
-      //         setBackendValidationError(error.response.data.message);
-      //       } else if (error.request) {
-      //         console.log("No response received:", error.request);
-      //       } else {
-      //         console.log("Axios config error:", error.message);
-      //       }
-      //     } finally {
-      //       setLoading(false);
-      //     }
-        };
+    //         console.log("interview CAndidate response:",response)
+    //         closeAddModal();
+    // fetchContractCandidates();
+    //          toast.success("Candidate Updated successfully");
+    //         // , {
+    //         //   onClose: () => {
+    //         //     fetchContractCandidates();
+    //         //   },
+    //         // });
+
+    //       } else {
+    //         const response = await axiosInstance.post(
+    //           "/api/contract-emp/create",
+    //           createCandidate,
+
+    //   {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   }
+    //         );
+    // console.log("interview CAndidate response:",response)
+
+    //         closeAddModal();
+    //         fetchContractCandidates();
+    //         toast.success("Candidate added successfully")
+    //         // toast.success("Candidate added successfully", 
+    //         //   {
+    //         //   onClose: () => {
+    //         //     fetchContractCandidates();
+    //         //   },
+    //         // });
+
+    //       }
+    //     } catch (error) {
+    //       if (error.response) {
+    //         console.log("Backend error:", error.response.data);
+    //         setBackendValidationError(error.response.data.message);
+    //       } else if (error.request) {
+    //         console.log("No response received:", error.request);
+    //       } else {
+    //         console.log("Axios config error:", error.message);
+    //       }
+    //     } finally {
+    //       setLoading(false);
+    //     }
+  };
 
   const companyDropdown = companyOptions.map((c) => ({
     label: c.label,
@@ -1241,69 +1270,17 @@ setLoading(true);
 
   console.log("companyDropdown", companyDropdown)
 
-  const educationOptions=[
-                            { label: "10th Standard/SSLC", value: "10th_standard/sslc" },
-                            { label: "12th (HSC)-Science", value: "12th(hsc_science)" },
-                            { label: "12th (HSC)-Arts/Commerce/Vocational", value: "12th(hsc_commerce_vocational)" },
-                            { label: "Diploma/Polytechnic/Vocational/ITI", value: "diploma/polytechnic/vocational/iti" },
-                            { label: "B.A.(Bachelor of Arts)", value: "bachelor_of_arts" },
-                            { label: "B.Sc.(Bachelor of Science)", value: "science" },
-                            { label: "B.Com.(Bachelor of Commerce)", value: "bachelor_of_commerce" },
-                            { label: "B.C.A.(Bachelor of Computer Application)", value: "bachelor_of_computer_application" },
-                            { label: "B.B.A.(Bachelor of Business Administration)", value: "bachelor_of_business_administration" },
-                            { label: "B.E.(Bachelor of Engineering)", value: "bachelor_of_engineering" },
-                            { label: "B.Tech(Bachelor of Technology)", value: "bachelor_of_technology" },
-                            { label: "B.Arch(Bachelor of Architecture)", value: "bachelor_of_architecture" },
-                            { label: "B.Pharm(Bachelor of Pharmacy)", value: "bachelor_of_pharmacy" },
-                            { label: "B.P.T(Bachelor of Physiotherapy)", value: "pysiotherapy" },
-                            { label: "B.N.Y.S / B.Nat (Naturopathy & Yogic Sciences)", value: "naturopathy" },
-                            { label: "B.A.M.S (Ayurvedic Medicine & Surgery)", value: "ayurveda" },
-                            { label: "B.H.M.S (Homeopathy Medicine)", value: "homeopathy" },
-                            { label: "M.B.B.S (Medicine & Surgery))", value: "mbbs" },
-                            { label: "B.D.S (Dental Surgery)", value: "bds" },
-                            { label: "B.V.Sc & A.H (Veterinary Science)", value: "veterinary" },
-                            { label: "B.S.W (Bachelor of Social Work)", value: "social_work" },
-                            { label: "B.P.Th. / BPT (Physiotherapy / Allied Health)", value: "physiotherapy" },
-                            { label: "B.O.T / B.O.Th / B.Opt (Occupational Therapy / Optometry)", value: "optometry" },
-                            { label: "B.Sc Nursing", value: "nursing" },
-                            { label: "B.H.M / B.H.M.C.T (Hotel Management / Hospitality)", value: "hospitality" },
-                            { label: "B.A + B.Ed (Integrated)", value: "integrated" },
-                            { label: "B.Sc + B.Ed (Integrated)", value: "integrated" },
-                            { label: "B.Com + B.Ed (Integrated)", value: "integrated" },
-                            { label: "B.A + LL.B (Integrated Law)", value: "integrated" },
-                            { label: "B.Com + LL.B (Integrated Law)", value: "integrated" },
-                            { label: "B.B.A + LL.B (Integrated Law / Business Law)", value: "integrated/business" },
-                            { label: "B.B.A + LL.B (Integrated Law / Business Law)", value: "integrated/business" },
-                            { label: "M.A. (Master of Arts)", value: "master_of_arts" },
-                            { label: "M.Sc. (Master of Science)", value: "master_of_science" },
-                            { label: "M.Com. (Master of Commerce)", value: "master_of_commerce" },
-                            { label: "M.C.A. (Master of Computer Applications)", value: "master_of_computer_application" },
-                            { label: "M.B.A. (Master of Business Administration)", value: "master_of_business_administration" },
-                            { label: "M.Ed. (Master of Education)", value: "master_of_education" },
-                            { label: "LL.M (Master of Laws)", value: "master_of_laws" },
-                            { label: "M.P.T (Master of Physiotherapy / Allied Health)", value: "master_of_physiotherapy" },
-                            { label: "M.Pharm (Master of Pharmacy)", value: "master_of_pharmacy" },
-                            { label: "M.D / M.S (Postgraduate Medical / Surgical)", value: "postgraduate" },
-                            { label: "M.Tech (Master of Technology)", value: "master_of_technology" },
-                            { label: "M.Arch (Master of Architecture)", value: "master_of_architecture" },
-                            { label: "M.S.W (Master of Social Work)", value: "master_of_social_work" },
-                            { label: "M.P.H (Master of Public Health)", value: "master_of_public_health" },
-                            { label: "M.Phil (Master of Philosophy)", value: "master_of_philosophy" },
-                            { label: "Ph.D (Doctor of Philosophy / Doctoral)", value: "doctor_of_philosophy" },
-                            { label: "Certificate Course", value: "certificate" },
-                            { label: "Postgraduate Diploma", value: "postgraduate_diploma" },
-                            { label: "Vocational / Skill Certificate / ITI / Trade", value: "vocational_certificate" }
-                          ];
 
-                          const referenceFilterOptions = [
-  ...employeesList.map(emp => ({
-    label: emp.full_name,
-    value: emp.full_name,
-  })),
-  { label: "Other", value: "other" },
-];
 
-const referenceFormOptions = [
+  const referenceFilterOptions = [
+    ...employeesList.map(emp => ({
+      label: emp.full_name,
+      value: emp.full_name,
+    })),
+    { label: "Other", value: "other" },
+  ];
+
+  const referenceFormOptions = [
     { label: "Select Reference", value: "" },
     ...employeesList.map(emp => ({
       label: emp.full_name,
@@ -1335,7 +1312,7 @@ const referenceFormOptions = [
               </p>
             </div>
 
-             {/* <button
+            {/* <button
       onClick={() => toast.success("🔥 Toast is working")}
       style={{ padding: "20px" }}
     >
@@ -1382,12 +1359,12 @@ const referenceFormOptions = [
                       value={selectedReference}
                       onChange={(e) => setSelectedReference(e.value)}
                       className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
-               options={referenceFilterOptions}
-               placeholder="Select Reference"
-               filter
+                      options={referenceFilterOptions}
+                      placeholder="Select Reference"
+                      filter
                     />
 
-                      
+
                   </div>
 
                   {/* Interview Status */}
@@ -1420,7 +1397,7 @@ const referenceFormOptions = [
                     />
                   </div>
 
-                   {/* education */}
+                  {/* education */}
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
                       Education
@@ -1436,7 +1413,7 @@ const referenceFormOptions = [
                   </div>
 
 
-                  
+
 
                   {/* Buttons */}
                   <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
@@ -1494,14 +1471,32 @@ const referenceFormOptions = [
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
                     </div>
-                    {/* <div className="flex items-center">
+                    <div className="flex items-center">
                       <button
                         onClick={openImportAddModal}
                         className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
                       >
                         Import
                       </button>
-                    </div> */}
+                    </div>
+                    {/* sample csv format download */}
+                    <div className="flex items-center">
+                      <button
+                        onClick={handlCsvDownload}
+                        className="
+                          flex items-center gap-2
+                          px-5 py-2
+                          text-sm font-semibold
+                          text-green-700
+                          bg-green-100
+                          rounded-full
+                          hover:bg-green-200
+                          transition
+                        "
+                      >
+                        <FiDownload className="text-lg" /> Demo CSV
+                      </button>
+                    </div>
                     <button
                       onClick={openAddModal}
                       className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
@@ -1573,26 +1568,6 @@ const referenceFormOptions = [
                     <p className="text-xl md:text-2xl font-medium">
                       Contract Candidates
                     </p>
-                    {/* Date */}
-                    {/* <div className="mt-3 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Date<span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[60%] md:w-[50%]">
-                        <input
-                          type="date"
-                          value={selectedDate}
-                          onChange={(e) => {
-                            setSelectedDate(e.target.value);
-                            handleImportChange(index, "date", e.target.value);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                        {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
-                      </div>
-                    </div> */}
 
                     {/* company */}
                     <div className="mt-3 flex justify-between items-center">
@@ -1724,67 +1699,67 @@ const referenceFormOptions = [
                     )}
 
 
-{/* Upload Photo */}
-<div className="flex justify-end">
-  <div className="flex flex-col items-center gap-2">
+                    {/* Upload Photo */}
+                    <div className="flex justify-end">
+                      <div className="flex flex-col items-center gap-2">
 
-    <p className="font-medium">
-      {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
-    </p>
+                        <p className="font-medium">
+                          {photo ? "Change Photo" : "Upload Photo"} <span className="text-red-500">*</span>
+                        </p>
 
-    {/* Preview */}
-    <div className="relative">
-      {photo ? (
-        <img
-          src={photo instanceof File ? URL.createObjectURL(photo) : photo}
-          className="w-32 h-40 rounded-md object-cover border"
-        />
-      ) : (
-        <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
-          Upload
-        </div>
-      )}
-    </div>
+                        {/* Preview */}
+                        <div className="relative">
+                          {photo ? (
+                            <img
+                              src={photo instanceof File ? URL.createObjectURL(photo) : photo}
+                              className="w-32 h-40 rounded-md object-cover border"
+                            />
+                          ) : (
+                            <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
+                              Upload
+                            </div>
+                          )}
+                        </div>
 
-    {/* Buttons */}
-    <div className="flex gap-2">
-      <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
-        Upload
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handlePhotoChange}
-        />
-      </label>
+                        {/* Buttons */}
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
+                            Upload
+                            <input
+                              type="file"
+                              accept="image/*"
+                              hidden
+                              onChange={handlePhotoChange}
+                            />
+                          </label>
 
-      <button
-        type="button"
-        onClick={() => setOpenCamera(true)}
-        className="bg-gray-200 px-3 py-1 rounded"
-      >
-        Camera
-      </button>
-    </div>
+                          <button
+                            type="button"
+                            onClick={() => setOpenCamera(true)}
+                            className="bg-gray-200 px-3 py-1 rounded"
+                          >
+                            Camera
+                          </button>
+                        </div>
 
-    {errors.profile_picture && (
-      <p className="text-red-500 text-sm">{errors.profile_picture.message}</p>
-    )}
-  </div>
-</div>
+                        {errors.profile_picture && (
+                          <p className="text-red-500 text-sm">{errors.profile_picture.message}</p>
+                        )}
+                      </div>
+                    </div>
 
-{openCamera && (
-  <CameraPhoto
-    onCapture={handleCameraCapture}
-    onClose={() => setOpenCamera(false)}
-  />
-)}
-
-
+                    {openCamera && (
+                      <CameraPhoto
+                        onCapture={handleCameraCapture}
+                        onClose={() => setOpenCamera(false)}
+                      />
+                    )}
 
 
 
-                     {/* Company */}
+
+
+                    {/* Company */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
                         Company Name <span className="text-red-500">*</span>
@@ -1911,7 +1886,7 @@ const referenceFormOptions = [
 
                     {/* gender */}
 
-                    {/* <div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Gender <span className="text-red-500">*</span>
                       </label>
@@ -1943,7 +1918,43 @@ const referenceFormOptions = [
                           {errors.gender?.message}
                         </span>
                       </div>
-                    </div>  */}
+                    </div>
+
+                    {/* gender */}
+
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Marital Status <span className="text-red-500">*</span>
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <div className="flex gap-6">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="Married"
+                              {...register("marital", { required: "Marital Status is required" })}
+                              className="accent-[#1ea600]"
+                            />
+                            Married
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="Unmarried"
+                              {...register("marital", { required: "Marital Status is required" })}
+                              className="accent-[#1ea600]"
+                            />
+                            Unmarried
+                          </label>
+                        </div>
+
+                        <span className="text-red-500 text-sm">
+                          {errors.marital?.message}
+                        </span>
+                      </div>
+                    </div>
 
 
                     {/* PHONE */}
@@ -1995,9 +2006,9 @@ const referenceFormOptions = [
                     </div>
 
                     {/* pan no */}
-  <div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Pan Number 
+                        Pan Number
                         {/* <span className="text-red-500">*</span> */}
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
@@ -2005,15 +2016,15 @@ const referenceFormOptions = [
                           type="text"
                           name="pan"
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("pan")}
-                          
+                          {...register("pan_number")}
+
                           maxLength={10}
                           onInput={(e) => {
-    e.target.value = e.target.value
-      .toUpperCase()              // convert to uppercase
-      .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
-      .slice(0, 10);              // max 10 chars
-  }}
+                            e.target.value = e.target.value
+                              .toUpperCase()              // convert to uppercase
+                              .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
+                              .slice(0, 10);              // max 10 chars
+                          }}
                           placeholder="Enter Pan Number"
                         />
                         {/* <span className="text-red-500 text-sm">
@@ -2041,32 +2052,50 @@ const referenceFormOptions = [
                       </div>
                     </div> */}
 
-   {/* Education */}
+                    {/* Education */}
                     <div className="mt-4 mb-3 flex flex-col md:flex-row md:justify-between md:items-center">
                       <label className="block text-md font-medium mb-2">
                         Education <span className="text-red-500">*</span>
                       </label>
+
                       <div className="w-full md:w-[60%]">
+
+                        {/* 🔴 REQUIRED hidden register */}
+                        <input
+                          type="hidden"
+                          {...register("education", {
+                            required: "Education is required",
+                            valueAsNumber: true,
+                          })}
+                        />
+
                         <Dropdown
                           value={selectedEducation}
-                          onChange={(e) => {
-  setSelectedEducation(e.value);
-  setValue("education", String(e.value), { shouldValidate: true });
-}}
                           options={educationOptions}
                           optionLabel="label"
                           optionValue="value"
-                          filter
                           placeholder="Select Education"
-                          className={`uniform-field w-full px-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1ea600] border ${errors.education ? "border-red-500" : "border-gray-300"
-                            }`}
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedEducation(e.value);
+                            setValue("education", e.value, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                          }}
                         />
+
                         {errors.education && (
-                          <p className="text-red-500 text-sm mt-1">{errors.education}</p>
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.education.message}
+                          </p>
                         )}
                       </div>
                     </div>
-                   
+
+
+
                     {/* interview date */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -2197,7 +2226,7 @@ const referenceFormOptions = [
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Candidate Status
-                        
+
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
                         <select
@@ -2224,7 +2253,7 @@ const referenceFormOptions = [
                       <div className="mt-5 flex justify-between items-center">
                         <label className="block text-md font-medium mb-2 mt-3">
                           Joined Date
-                          
+
                         </label>
                         <div className="w-[50%] md:w-[60%] rounded-lg">
                           {/* <input type="date"
@@ -2235,8 +2264,8 @@ const referenceFormOptions = [
                           <input
                             type="date"
                             {...register("joinedDate", {
-                            onChange: (e) => {
-                             
+                              onChange: (e) => {
+
                                 fetchId({
                                   // date_of_joining: e.target.value,
                                   company_id: selectedCompany,
@@ -2247,9 +2276,9 @@ const referenceFormOptions = [
                                   joining_date: e.target.value,
                                   // joined_date: e.target.value
                                 });
-                              
-                            },
-                          })}
+
+                              },
+                            })}
                             name="joinedDate"
                             className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           />
@@ -2312,7 +2341,7 @@ const referenceFormOptions = [
                       </div>
                     </div> */}
 
-                      {/* {reference === "other" && (
+                    {/* {reference === "other" && (
                       <div className="mt-5 flex justify-end items-center">
                         <div className="w-[50%] md:w-[60%] rounded-lg">
                           <input
@@ -2330,100 +2359,100 @@ const referenceFormOptions = [
                       </div>
                     )} */}
 
-                      <div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Reference 
-                    
+                        Reference
+
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
-                      <Dropdown
-                       value={selectedReferenceForm}
-                     onChange={(e) => {
-                    setSelectedReferenceForm(e.value);
-                    setValue("reference", e.value, { shouldValidate: true });
-                  }}
+                        <Dropdown
+                          value={selectedReferenceForm}
+                          onChange={(e) => {
+                            setSelectedReferenceForm(e.value);
+                            setValue("reference", e.value, { shouldValidate: true });
+                          }}
                           className="uniform-field w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                        options={referenceFormOptions}
-                        optionLabel="label"
-                  optionValue="value"
-               placeholder="Select Reference"
-               filter
+                          options={referenceFormOptions}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Reference"
+                          filter
                         />
-                         
+
                         <span className="text-red-500 text-sm">
                           {errors.reference?.message}
                         </span>
-                        
+
                       </div>
                     </div>
 
-                   {selectedReferenceForm === "other" && (
-              <div className="mt-5 flex justify-between items-center">
-                <label className="block text-md font-medium mb-2">
-                  Other Reference <span className="text-red-500">*</span>
-                </label>
-                <div className="w-[50%] md:w-[60%] rounded-lg">
-                  <input
-                    type="text"
-                    {...register("otherReference")}
-                    placeholder="Specify Reference"
-                    className="w-full px-3 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                  />
-                  <span className="text-red-500 text-sm">
-                    {errors.otherReference?.message}
-                  </span>
-                </div>
-              </div>
-            )}
-      
+                    {selectedReferenceForm === "other" && (
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Other Reference <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            {...register("otherReference")}
+                            placeholder="Specify Reference"
+                            className="w-full px-3 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.otherReference?.message}
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
-{/* Documents */}
 
-<div className="mt-5 flex justify-between items-start">
-  <label className="block text-md font-medium">
-    Documents 
-    {/* <span className="text-red-500">*</span> */}
-  </label>
+                    {/* Documents */}
 
-  <div className="w-[50%] md:w-[60%]">
-    {/* Upload button */}
-    <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded inline-block mb-2">
-      Select Documents
-      <input
-        type="file"
-        multiple
-        accept=".pdf,.jpg,.png"
-        hidden
-        onChange={handleDocumentChange}
-      />
-    </label>
+                    <div className="mt-5 flex justify-between items-start">
+                      <label className="block text-md font-medium">
+                        Documents
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
 
-    {/* Selected documents list */}
-  
-<div className="mt-4 space-y-2">
-  {documents.map((doc, index) => (
-    <div key={index} className="flex justify-between items-center p-2 border rounded">
-      <span className="text-sm truncate">
-        {doc instanceof File ? doc.name : (doc.original_name || "Existing Document")}
-      </span>
-      <button
-        type="button"
-        onClick={() => removeDocument(index)}
-        className="text-red-500 font-bold px-2"
-      >
-        ×
-      </button>
-    </div>
-  ))}
-</div>
+                      <div className="w-[50%] md:w-[60%]">
+                        {/* Upload button */}
+                        <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded inline-block mb-2">
+                          Select Documents
+                          <input
+                            type="file"
+                            multiple
+                            accept=".pdf,.jpg,.png"
+                            hidden
+                            onChange={handleDocumentChange}
+                          />
+                        </label>
 
-    {errors.documents && (
-      <p className="text-red-500 text-sm mt-1">
-        Documents are required
-      </p>
-    )}
-  </div>
-</div>
+                        {/* Selected documents list */}
+
+                        <div className="mt-4 space-y-2">
+                          {documents.map((doc, index) => (
+                            <div key={index} className="flex justify-between items-center p-2 border rounded">
+                              <span className="text-sm truncate">
+                                {doc instanceof File ? doc.name : (doc.original_name || "Existing Document")}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeDocument(index)}
+                                className="text-red-500 font-bold px-2"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {errors.documents && (
+                          <p className="text-red-500 text-sm mt-1">
+                            Documents are required
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
 
                     {/* Button */}
@@ -2461,37 +2490,37 @@ const referenceFormOptions = [
                   </button> */}
 
                   {/* Title and profile picture */}
-                            {/* Header */}
-<div className="flex items-center justify-between mb-6 border-b pb-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6 border-b pb-4">
 
-  {/* Title */}
-  <h2 className="text-xl font-semibold text-[#1ea600]">
-   Contract Candidate Details
-  </h2>
+                    {/* Title */}
+                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                      Contract Candidate Details
+                    </h2>
 
-  {/* Profile Picture */}
-  <div className="flex items-center gap-6">
+                    {/* Profile Picture */}
+                    <div className="flex items-center gap-6">
 
-    {viewRow.profile_picture ? (
-      <img
-        src={
-          viewRow.profile_picture.startsWith("http")
-            ? viewRow.profile_picture
-            : `${API_URL}${viewRow.profile_picture}`
-        }
-        alt="Profile"
-        className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
-      />
-    ) : (
-      <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
-        No Photo
-      </div>
-    )}
+                      {viewRow.profile_picture ? (
+                        <img
+                          src={
+                            viewRow.profile_picture.startsWith("http")
+                              ? viewRow.profile_picture
+                              : `${API_URL}${viewRow.profile_picture}`
+                          }
+                          alt="Profile"
+                          className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+                          No Photo
+                        </div>
+                      )}
 
-    {/* Action Icons */}
-    <div className="flex items-center gap-4">
-      {/* Download */}
-      {/* <button
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-4">
+                        {/* Download */}
+                        {/* <button
         title="Download"
         onClick={() => handleDownload(viewRow)}
         className="text-gray-500 hover:text-green-600"
@@ -2499,115 +2528,121 @@ const referenceFormOptions = [
         <IoMdDownload size={26} />
       </button> */}
 
-      {/* Print */}
-      <button
-        title="Print"
-        onClick={() => window.print()}
-        className="text-gray-500 hover:text-green-600"
-      >
-        <TfiPrinter size={24} />
-      </button>
+                        {/* Print */}
+                        <button
+                          title="Print"
+                          onClick={() => window.print()}
+                          className="text-gray-500 hover:text-green-600"
+                        >
+                          <TfiPrinter size={24} />
+                        </button>
 
-      {/* Close */}
-      <button
-        title="Close"
-        onClick={closeViewModal}
-        className="text-gray-500 hover:text-red-500"
-      >
-        <IoIosCloseCircle size={26} />
-      </button>
-    </div>
+                        {/* Close */}
+                        <button
+                          title="Close"
+                          onClick={closeViewModal}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <IoIosCloseCircle size={26} />
+                        </button>
+                      </div>
 
-  </div>
-</div>
+                    </div>
+                  </div>
 
-{/* body */}
-<div className="pr-2 overflow-y-auto ">
-                  {/* Candidate Info */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  {/* body */}
+                  <div className="pr-2 overflow-y-auto ">
+                    {/* Candidate Info */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
 
-                    <p>
-                      <b>Company:</b>{" "}
-                      {companyOptions.find(c => c.value === viewRow.company_id)?.label || "-"}
-                    </p>
-
-                    <p>
-                      <b>Name:</b> {viewRow.name}
-                    </p>
-                    <p>
-                      <b>Phone:</b> {viewRow.phone_number}
-                    </p>
-
-                    <p>
-                      <b>Aadhar Number:</b> {viewRow.aadhar_number}
-                    </p>
-
-<p>
-                      <b>Pan Number:</b> {viewRow.pan_number || "-"}
-                    </p>
-<p>
-  <b>Education:</b>{" "}
-  {educationOptions.find(e => e.value === viewRow.education)?.label || "-"}
-</p>
-
-
-                    <p>
-                      <b>Interview Date:</b> {formatToDDMMYYYY(viewRow.interview_date) || "-"}
-                    </p>
-                    <p>
-                      <b>Interview Status:</b>{" "}
-                      <span className="font-medium">
-                        {viewRow.interview_status || "-"}
-                      </span>
-                    </p>
-
-                    <p>
-                      <b>Candidate Status:</b> {viewRow.joining_status || "-"}
-                    </p>
-                    <p>
-                      <b>Joining Date:</b> {formatToDDMMYYYY(viewRow.joining_date) || "-"}
-                    </p>
-<p>
-  <b>Joined Date:</b>{" "}
-  {viewRow.joined_date
-    ? formatToDDMMYYYY(viewRow.joined_date)
-    : "-"}
-</p>
-                    <p>
-                      <b>Reference:</b> {viewRow.reference || "-"}
-                    </p>
-                    {viewRow?.other_reference !== null && (
                       <p>
-                        <b>Other Reference:</b> {viewRow.other_reference || "-"}
+                        <b>Company:</b>{" "}
+                        {companyOptions.find(c => c.value === viewRow.company_id)?.label || "-"}
                       </p>
-                    )}
+
+                      <p>
+                        <b>Name:</b> {viewRow.name}
+                      </p>
+                      <p>
+                        <b>Phone:</b> {viewRow.phone_number}
+                      </p>
+
+                      <p>
+                        <b>Aadhar Number:</b> {viewRow.aadhar_number}
+                      </p>
+
+                      <p>
+                        <b>Pan Number:</b> {viewRow.pan_number || "-"}
+                      </p>
+                      <p>
+                        <b>Gender:</b> {viewRow.gender || "-"}
+                      </p>
+                      <p>
+                        <b>Marital Status:</b> {viewRow.marital_status || "-"}
+                      </p>
+                      <p>
+                        <b>Education:</b>{" "}
+                        {educationOptions.find(e => e.value === viewRow.education_name)?.label || "-"}
+                      </p>
 
 
-                    <p className="col-span-2">
-                      <b>Notes:</b>{" "}
-                      {viewRow.notes_details?.[0]?.notes ||
-                        "No notes available"}
-                    </p>
+                      <p>
+                        <b>Interview Date:</b> {formatToDDMMYYYY(viewRow.interview_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Status:</b>{" "}
+                        <span className="font-medium">
+                          {viewRow.interview_status || "-"}
+                        </span>
+                      </p>
 
-<div className="col-span-2 pt-4">
-  <b className="block mb-2 text-gray-700">Documents:</b>
-  {/* Check if documents is an array and has items */}
-  {viewRow.documents && viewRow.documents.length > 0 ? (
-    <div className="space-y-2">
-      {viewRow.documents.map((doc, index) => (
-        <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-          <span className="text-gray-600 truncate flex-1">
-            {doc.original_name || `Document ${index + 1}`}
-          </span>
-          
-          <div className="flex gap-2">
-            <button
-              onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
-              className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
-            >
-              View/Print
-            </button>
-            {/* <button
+                      <p>
+                        <b>Candidate Status:</b> {viewRow.joining_status || "-"}
+                      </p>
+                      <p>
+                        <b>Joining Date:</b> {formatToDDMMYYYY(viewRow.joining_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Joined Date:</b>{" "}
+                        {viewRow.joined_date
+                          ? formatToDDMMYYYY(viewRow.joined_date)
+                          : "-"}
+                      </p>
+                      <p>
+                        <b>Reference:</b> {viewRow.reference || "-"}
+                      </p>
+                      {viewRow?.other_reference !== null && (
+                        <p>
+                          <b>Other Reference:</b> {viewRow.other_reference || "-"}
+                        </p>
+                      )}
+
+
+                      <p className="col-span-2">
+                        <b>Notes:</b>{" "}
+                        {viewRow.notes_details?.[0]?.notes ||
+                          "No notes available"}
+                      </p>
+
+                      <div className="col-span-2 pt-4">
+                        <b className="block mb-2 text-gray-700">Documents:</b>
+                        {/* Check if documents is an array and has items */}
+                        {viewRow.documents && viewRow.documents.length > 0 ? (
+                          <div className="space-y-2">
+                            {viewRow.documents.map((doc, index) => (
+                              <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                                <span className="text-gray-600 truncate flex-1">
+                                  {doc.original_name || `Document ${index + 1}`}
+                                </span>
+
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+                                    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+                                  >
+                                    View/Print
+                                  </button>
+                                  {/* <button
     onClick={() =>
       window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
     }
@@ -2615,16 +2650,16 @@ const referenceFormOptions = [
   >
     Download
   </button> */}
-          </div>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-gray-500 italic">No documents uploaded.</p>
-  )}
-</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic">No documents uploaded.</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
                 </div>
               </div>
             )}
