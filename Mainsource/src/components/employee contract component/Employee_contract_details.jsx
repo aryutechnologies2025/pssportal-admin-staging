@@ -62,9 +62,12 @@ const Employee_contract_details = () => {
     bankName: z.string().optional(),
     branch: z.string().optional(),
     emergency_contact: z.string().optional(),
+    education: z.string().min(1, "Education is required"),
+    boardingPoint: z.string().min(1, "Boarding Point is required"),
     gender: z.string().min(1, "Gender is required"),
     phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
     aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
+    maritalStatus: z.string().min(1, "Marital status is required"),
     company: z.string().min(1, "Company is required"),
     joinedDate: z.string().min(1, "Joined date is required"),
     panNumber: z.string().optional(),
@@ -107,6 +110,7 @@ const Employee_contract_details = () => {
       state: editData ? editData.state : "",
       city: editData ? editData.city : "",
       bankName: editData ? editData.bankName : "",
+      branch: editData ? editData.branch : "",
       boardingPoint: editData ? editData.boardingPoint : "",
       education: editData ? editData.education : "",
       emergency_contact: editData ? editData.emergency_contact : "",
@@ -231,7 +235,8 @@ const Employee_contract_details = () => {
 
   console.log("selectedCompany", selectedCompany);
   console.log("selectedBoarding", selectedBoarding);
-
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [branchOptions, setBranchOptions] = useState([]);
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions", companyOptions);
   const [boardingOptions, setBoardingOptions] = useState([]);
@@ -265,6 +270,8 @@ const Employee_contract_details = () => {
       aadhar: "",
       company: null,
       branch: null,
+      boardingPoint: null,
+      education: null,
       pan_number: "",
       currentAddress: "",
       state: "",
@@ -300,6 +307,7 @@ const Employee_contract_details = () => {
     setSelectedCompany(null);
     setSelectedBoarding(null);
     setSelectedEducation(null);
+    setSelectedBranch(null);
     setDocuments([]);
 
     setTimeout(() => {
@@ -620,8 +628,12 @@ const Employee_contract_details = () => {
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
       company: String(row.company_id),
-      boardingPoint: String(row.company_id),
-      education: String(row.company_id),
+      boardingPoint: row.boarding_point_id
+        ? String(row.boarding_point_id)
+        : "",
+      education: row.education_id
+        ? String(row.education_id)
+        : "",
       // company: row.company.id ? Number(row.company.id) : "",
       // companyLabel: row.company?.company_name || "",
       joinedDate: row.joining_date || "",
@@ -712,6 +724,9 @@ const Employee_contract_details = () => {
         ...normalizedData,
         company: String(normalizedData.company),
       });
+      setSelectedBoarding(normalizedData.boardingPoint);
+      setSelectedEducation(normalizedData.education);
+
     }
   };
 
@@ -749,6 +764,10 @@ const Employee_contract_details = () => {
       const response = await axiosInstance.get(
         `api/contract-employee?${queryParams}`,
       );
+      if (response.data.success) {
+        setBoardingPoints(response.data.data.boardingpoints || []);
+        setEducations(response.data.data.educations || []);
+      }
       const employees = response?.data?.data?.employees || [];
 
       console.log("response emp check", response);
@@ -921,10 +940,9 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -974,13 +992,15 @@ const Employee_contract_details = () => {
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
-
         date_of_birth: formatDateToYMD(data.dob),
         father_name: data.fatherName,
         gender: data.gender,
         phone_number: data.phone,
         aadhar_number: data.aadhar,
+        marital_status: data.maritalStatus,
         company_id: Number(data.company),
+        boarding_point_id: Number(data.boardingPoint),
+        education_id: Number(data.education),
         joining_date: formatDateToYMD(data.joinedDate),
         acc_no: data.accountName,
         account_number: data.accountNumber,
@@ -1072,46 +1092,47 @@ const Employee_contract_details = () => {
   };
 
   console.log("companyDropdown", companyDropdown);
+  const [boardingPoints, setBoardingPoints] = useState([]);
+  const [educations, setEducations] = useState([]);
 
-  const boardingDropdown = boardingOptions.map((c) => ({
-    label: c.label,
-    value: String(c.value),
-    id: c.id,
+  // Boarding Point dropdown options
+  const boardingDropdown = boardingPoints.map((b) => ({
+    label: b.point_name,
+    value: String(b.id),
   }));
 
-  console.log("boardingDropdown", boardingDropdown);
-
-  const educationDropdown = educationOptions.map((c) => ({
-    label: c.label,
-    value: String(c.value),
-    id: c.id,
+  // Education dropdown options
+  const educationDropdown = educations.map((e) => ({
+    label: e.eduction_name,
+    value: String(e.id),
   }));
+
 
   console.log("educationDropdown", educationDropdown);
 
 
   const [showLogs, setShowLogs] = useState(false);
-const logData = [
-  {
-    companyName: "PSS Agencies",
-    boardingPoint: "Chennai",
-    joiningDate: "2023-08-12",
-    employeeId: "EMP001",
-  },
-  {
-    companyName: "PSS Agencies",
-    boardingPoint: "Bangalore",
-    joiningDate: "2024-01-05",
-    employeeId: "EMP045",
-  },
+  const logData = [
+    {
+      companyName: "PSS Agencies",
+      boardingPoint: "Chennai",
+      joiningDate: "2023-08-12",
+      employeeId: "EMP001",
+    },
+    {
+      companyName: "PSS Agencies",
+      boardingPoint: "Bangalore",
+      joiningDate: "2024-01-05",
+      employeeId: "EMP045",
+    },
 
-  {
-    companyName: "PSS Agencies",
-    boardingPoint: "Mumbai",
-    joiningDate: "2024-01-05",
-    employeeId: "EMP045",
-  },
-];
+    {
+      companyName: "PSS Agencies",
+      boardingPoint: "Mumbai",
+      joiningDate: "2024-01-05",
+      employeeId: "EMP045",
+    },
+  ];
 
 
   return (
@@ -1351,9 +1372,8 @@ const logData = [
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
-                    isAnimating ? "translate-x-0" : "translate-x-full"
-                  }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -1503,24 +1523,24 @@ const logData = [
 
                   <div className="p-2 md:p-5">
                     <div className="flex justify-between items-center">
-                    <p className="text-xl md:text-2xl font-medium">
-                      {" "}
-                      {!editData ? "ADD" : "Edit"} Employee
-                    </p>
-                    {backendValidationError && (
-                      <span className=" text-red-600 text-sm">
-                        {backendValidationError}
-                      </span>
-                    )}
-                  {editData && (
-  <div
-    className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
-    title="View Logs"
-    onClick={() => setShowLogs(true)}
-  >
-    <TbLogs size={20} />
-  </div>
-)}
+                      <p className="text-xl md:text-2xl font-medium">
+                        {" "}
+                        {!editData ? "ADD" : "Edit"} Employee
+                      </p>
+                      {backendValidationError && (
+                        <span className=" text-red-600 text-sm">
+                          {backendValidationError}
+                        </span>
+                      )}
+                      {editData && (
+                        <div
+                          className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
+                          title="View Logs"
+                          onClick={() => setShowLogs(true)}
+                        >
+                          <TbLogs size={20} />
+                        </div>
+                      )}
 
                     </div>
                     {/* Upload Photo */}
@@ -1619,24 +1639,24 @@ const logData = [
                         )}
                       </div>
                     </div>
-                    {/* boarding point */}{" "}
+                    {/* branch */}{" "}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
-                        Boarding Point
+                        Branch
                         {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-[50%] md:w-[60%]">
                         <Dropdown
-                          value={selectedBoarding}
+                          value={selectedBranch}
                           options={branchDropdown}
                           optionLabel="label"
                           optionValue="value"
-                          placeholder="Select Boarding Point"
+                          placeholder="Select Branch"
                           filter
                           className="w-full border border-gray-300 rounded-lg"
                           onChange={(e) => {
-                            setSelectedBoarding(e.value);
+                            setSelectedBranch(e.value);
                             const branchObj = branchDropdown.find(
                               (item) => item.value === e.value,
                             );
@@ -1652,6 +1672,35 @@ const logData = [
                         {/* {errors.branch && (  <p className="text-red-500 text-sm">    {errors.branch.message}  </p>)} */}
                       </div>
                     </div>
+                    {/* boarding Point */}{" "}
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        Boarding Point
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%]">
+                        <Dropdown
+                          value={selectedBoarding}
+                          options={boardingDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Boarding Point"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedBoarding(e.value);
+                            setValue("boardingPoint", e.value, { shouldValidate: true });
+                          }}
+                        />
+
+                        {errors.boardingPoint && (
+                          <p className="text-red-500 text-sm">
+                            {errors.boardingPoint.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                     {/* Education */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
@@ -1662,7 +1711,7 @@ const logData = [
                       <div className="w-[50%] md:w-[60%]">
                         <Dropdown
                           value={selectedEducation}
-                          options={branchDropdown}
+                          options={educationDropdown}
                           optionLabel="label"
                           optionValue="value"
                           placeholder="Select Education"
@@ -1670,19 +1719,16 @@ const logData = [
                           className="w-full border border-gray-300 rounded-lg"
                           onChange={(e) => {
                             setSelectedEducation(e.value);
-                            const branchObj = branchDropdown.find(
-                              (item) => item.value === e.value,
-                            );
-                            setCompanyEmpType(
-                              obj.company_emp_id?.toLowerCase(),
-                            );
-                            setValue("company", String(e.value), {
-                              shouldValidate: true,
-                            });
+                            setValue("education", e.value, { shouldValidate: true });
                           }}
                         />
 
-                        {/* {errors.branch && (<p className="text-red-500 text-sm">  {errors.branch.message}</p>    )} */}
+                        {errors.education && (
+                          <p className="text-red-500 text-sm">
+                            {errors.education.message}
+                          </p>
+                        )}
+
                       </div>
                     </div>
                     {/* NAME */}
@@ -1738,6 +1784,43 @@ const logData = [
                         </span>
                       </div>
                     </div>
+                    {/* marital status */}
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium mb-2">
+                        Marital Status <span className="text-red-500">*</span>
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
+                        <div className="flex gap-6">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="Married"
+                              {...register("maritalStatus")}
+                              className="accent-[#1ea600]"
+                            />
+                            Married
+                          </label>
+
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="radio"
+                              value="Unmarried"
+                              {...register("maritalStatus")}
+                              className="accent-[#1ea600]"
+                            />
+                            Unmarried
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {errors.maritalStatus && (
+                      <p className="text-red-500 text-sm">
+                        {errors.maritalStatus.message}
+                      </p>
+                    )}
+
                     {/* address */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1971,11 +2054,10 @@ const logData = [
                                 : "Employee ID"
                             }
                             className={`w-full px-2 py-2 border rounded-[10px]
-          ${
-            companyEmpType === "automatic"
-              ? "bg-gray-100 cursor-not-allowed"
-              : "bg-white"
-          }`}
+          ${companyEmpType === "automatic"
+                                ? "bg-gray-100 cursor-not-allowed"
+                                : "bg-white"
+                              }`}
                           />
                         </div>
                       </div>
@@ -2343,61 +2425,61 @@ const logData = [
             {/* logs details */}
 
             {showLogs && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-    
-    {/* Modal box */}
-    <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
-      
-      {/* Header */}
-      <div className="flex justify-between items-center border-b pb-2">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Employee Joining Logs
-        </h2>
-        <button
-          onClick={() => setShowLogs(false)}
-          className="text-gray-500 hover:text-red-500 text-xl"
-        >
-          ✕
-        </button>
-      </div>
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
 
-      {/* Body */}
-      <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
-        {logData.map((item, index) => (
-          <div
-            key={index}
-            className="border rounded-xl p-3 hover:border-[#1ea600] transition"
-          >
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <p className="text-gray-500">Company</p>
-              <p className="font-medium">{item.companyName}</p>
+                {/* Modal box */}
+                <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
 
-              <p className="text-gray-500">Boarding Point</p>
-              <p className="font-medium">{item.boardingPoint}</p>
+                  {/* Header */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Employee Joining Logs
+                    </h2>
+                    <button
+                      onClick={() => setShowLogs(false)}
+                      className="text-gray-500 hover:text-red-500 text-xl"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
-              <p className="text-gray-500">Joining Date</p>
-              <p className="font-medium">{item.joiningDate}</p>
+                  {/* Body */}
+                  <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
+                    {logData.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-xl p-3 hover:border-[#1ea600] transition"
+                      >
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <p className="text-gray-500">Company</p>
+                          <p className="font-medium">{item.companyName}</p>
 
-              <p className="text-gray-500">Employee ID</p>
-              <p className="font-medium">{item.employeeId}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+                          <p className="text-gray-500">Boarding Point</p>
+                          <p className="font-medium">{item.boardingPoint}</p>
 
-      {/* Footer */}
-      <div className="mt-4 text-right">
-        <button
-          onClick={() => setShowLogs(false)}
-          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
-        >
-          Close
-        </button>
-      </div>
+                          <p className="text-gray-500">Joining Date</p>
+                          <p className="font-medium">{item.joiningDate}</p>
 
-    </div>
-  </div>
-)}
+                          <p className="text-gray-500">Employee ID</p>
+                          <p className="font-medium">{item.employeeId}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-4 text-right">
+                    <button
+                      onClick={() => setShowLogs(false)}
+                      className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            )}
 
 
             {isViewModalOpen && viewRow && (
