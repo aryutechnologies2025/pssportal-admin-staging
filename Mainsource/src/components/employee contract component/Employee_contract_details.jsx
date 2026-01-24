@@ -59,9 +59,10 @@ const Employee_contract_details = () => {
       state: z.string().optional(),
       city: z.string().optional(),
       bankName: z.string().optional(),
-      branch: z.string().optional(),
       emergency_contact: z.string().optional(),
       gender: z.string().min(1, "Gender is required"),
+      education: z.string().min(1, "Education is required"),
+      boardingPoint: z.string().min(1, "Boarding Point is required"),
       phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
       aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
       company: z.string().min(1, "Company is required"),
@@ -78,7 +79,7 @@ const Employee_contract_details = () => {
       documents: z.array(z.any()).optional(),
     })
 
- const [emergencyContacts, setEmergencyContacts] = useState([
+  const [emergencyContacts, setEmergencyContacts] = useState([
     { name: "", phone: "", relation: "" },
   ]);
   const [employeeIds, setEmployeeIds] = useState([]);
@@ -105,7 +106,8 @@ const Employee_contract_details = () => {
       state: editData ? editData.state : "",
       city: editData ? editData.city : "",
       bankName: editData ? editData.bankName : "",
-      branch: editData ? editData.branch : "",
+      boardingPoint: editData ? editData.boardingPoint : "",
+      education: editData ? editData.education : "",
       emergency_contact: editData ? editData.emergency_contact : "",
       panNumber: editData ? editData.pan : "",
       gender: editData ? editData.gender : "",
@@ -118,7 +120,7 @@ const Employee_contract_details = () => {
       status: editData ? editData.status : "",
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
-      
+
 
     },
   });
@@ -139,14 +141,8 @@ const Employee_contract_details = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const employees = ["Saravanan", "Ramesh", "Priya"];
+  // const employees = ["Saravanan", "Ramesh", "Priya"];
 
-  // Filter states - FIXED: Corrected variable names
-
-
-  const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
-  const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
-  const [selectedReference, setSelectedReference] = useState("");
 
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
@@ -158,20 +154,6 @@ const Employee_contract_details = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   // const [totalRecords, setTotalRecords] = useState(0);
 
-  // Filter options
-  const interviewStatusOptions = [
-    { label: "All Status", value: "" },
-    { label: "Selected", value: "Selected" },
-    { label: "Rejected", value: "Rejected" },
-    { label: "Hold", value: "Hold" },
-    { label: "Waiting", value: "Waiting" },
-  ];
-
-  const candidateStatusOptions = [
-    { label: "All Status", value: "" },
-    { label: "Joined", value: "Joined" },
-    { label: "Not Joined", value: "Not Joined" },
-  ];
 
   const interviewStatus = watch("interviewStatus");
   const candidateStatus = watch("candidateStatus");
@@ -195,17 +177,6 @@ const Employee_contract_details = () => {
 
   const [ModalOpen, setIsModalOpen] = useState(false);
 
-  // const handleApplyFilter = () => {
-  //   //  filter logic here
-  //   console.log({
-  //     filterStartDate,
-  //     filterEndDate,
-  //     selectedReference,
-  //     filterInterviewStatus,
-  //     filterCandidateStatus,
-  //   });
-  //   //  applyFilters()
-  // };
 
   // Reset filters
   const handleResetFilter = () => {
@@ -221,26 +192,6 @@ const Employee_contract_details = () => {
   };
 
 
-
-
-  // const onPageChange = (e) => {
-  //   setPage(e.page + 1); // PrimeReact is 0-based
-  //   setRows(e.rows); // page size
-  // };
-
-  //  const formatToDDMMYYYY = (dateString) => {
-  //   if (!dateString) return "N/A";
-
-  //   const date = new Date(dateString);
-  //   if (isNaN(date)) return "Invalid Date";
-
-  //   const day = String(date.getDate()).padStart(2, "0");
-  //   const month = String(date.getMonth() + 1).padStart(2, "0");
-  //   const year = date.getFullYear();
-
-  //   return `${day}-${month}-${year}`;
-  // };
-
   const formatDateToYMD = (date) => {
     if (!date) return null;
 
@@ -254,13 +205,18 @@ const Employee_contract_details = () => {
 
   const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [selectedBoarding, setSelectedBoarding] = useState(null);
+  const [selectedEducation, setSelectedEducation] = useState(null);
 
   console.log("selectedCompany", selectedCompany);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  console.log("selectedBoarding", selectedBoarding);
 
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions", companyOptions);
-  const [branchOptions, setBranchOptions] = useState([]);
+  const [boardingOptions, setBoardingOptions] = useState([]);
+  console.log("boarding option", boardingOptions);
+  const [educationOptions, setEducationOptions] = useState([]);
+  console.log("education option", educationOptions);
 
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
@@ -287,7 +243,8 @@ const Employee_contract_details = () => {
       phone: "",
       aadhar: "",
       company: null,
-      branch:null,
+      boardingPoint: null,
+      education: null,
       pan_number: "",
       currentAddress: "",
       state: "",
@@ -321,7 +278,8 @@ const Employee_contract_details = () => {
     reset(mappedData);
     setPhoto(null);
     setSelectedCompany(null);
-    setSelectedBranch(null);
+    setSelectedBoarding(null);
+    setSelectedEducation(null);
     setDocuments([]);
 
     setTimeout(() => {
@@ -424,7 +382,6 @@ const Employee_contract_details = () => {
 
   const resetImportForm = () => {
     setSelectedCompany(null);
-    setSelectedBranch(null);
     setSelectedFile(null);
     setAttachment(null);
     setSelectedDate(new Date().toISOString().split("T")[0]);
@@ -653,6 +610,8 @@ const Employee_contract_details = () => {
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
       company: String(row.company_id),
+      boardingPoint: String(row.company_id),
+      education: String(row.company_id),
       // company: row.company.id ? Number(row.company.id) : "",
       // companyLabel: row.company?.company_name || "",
       joinedDate: row.joining_date || "",
@@ -743,11 +702,6 @@ const Employee_contract_details = () => {
 
       setSelectedCompany(selectedCompanyObj?.value || "");
 
-      // const selectedBranchObj = branchDropdown.find(
-      //   c => c.value === String(normalizedData.company)
-      // );
-
-      // setSelectedBranch(selectedBranchObj?.value || "");
 
       reset({
         ...normalizedData,
@@ -866,7 +820,7 @@ const Employee_contract_details = () => {
     }
   };
 
-    const relationOptions = [
+  const relationOptions = [
     { label: "Father", value: "Father" },
     { label: "Mother", value: "Mother" },
     { label: "Spouse", value: "Spouse" },
@@ -881,23 +835,23 @@ const Employee_contract_details = () => {
   ];
 
   const addEmergencyContact = () => {
-      const last = emergencyContacts[emergencyContacts.length - 1];
-      // Only add if last contact is filled
-      if (last.name && last.phone && last.relation) {
-        setEmergencyContacts([...emergencyContacts, { name: "", phone: "", relation: "" }]);
-      } else {
-        Swal.fire({
-          icon: "warning",
-          title: "Incomplete Contact",
-          text: "Please complete the current contact before adding a new one",
-        });
-      }
-    };
+    const last = emergencyContacts[emergencyContacts.length - 1];
+    // Only add if last contact is filled
+    if (last.name && last.phone && last.relation) {
+      setEmergencyContacts([...emergencyContacts, { name: "", phone: "", relation: "" }]);
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Incomplete Contact",
+        text: "Please complete the current contact before adding a new one",
+      });
+    }
+  };
 
 
-    const handleDownload = () => {
-  window.print(); // user selects "Save as PDF"
-};
+  const handleDownload = () => {
+    window.print(); // user selects "Save as PDF"
+  };
 
   const columns = [
     {
@@ -1089,6 +1043,22 @@ const Employee_contract_details = () => {
   }));
 
   console.log("companyDropdown", companyDropdown)
+
+  const boardingDropdown = boardingOptions.map((c) => ({
+    label: c.label,
+    value: String(c.value),
+    id: c.id,
+  }));
+
+  console.log("boardingDropdown", boardingDropdown)
+
+  const educationDropdown = educationOptions.map((c) => ({
+    label: c.label,
+    value: String(c.value),
+    id: c.id,
+  }));
+
+  console.log("educationDropdown", educationDropdown)
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -1324,26 +1294,6 @@ const Employee_contract_details = () => {
                     <p className="text-xl md:text-2xl font-medium">
                       Employee Candidates
                     </p>
-                    {/* Date */}
-                    {/* <div className="mt-3 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Date<span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[60%] md:w-[50%]">
-                        <input
-                          type="date"
-                          value={selectedDate}
-                          onChange={(e) => {
-                            setSelectedDate(e.target.value);
-                            handleImportChange(index, "date", e.target.value);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg 
-               focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                        {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
-                      </div>
-                    </div> */}
 
                     {/* company */}
                     <div className="mt-3 flex justify-between items-center">
@@ -1352,15 +1302,7 @@ const Employee_contract_details = () => {
                       </label>
 
                       <div className="w-[60%] md:w-[50%]">
-                        {/* <Dropdown
-                          value={selectedCompany}
-                          onChange={(e) => setSelectedCompany(e.value)}
-                          options={companyOptions}
-                          optionLabel="label"
-                          placeholder="Select Company"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                        /> */}
+
                         <Dropdown
                           value={selectedCompany}
                           options={companyDropdown}
@@ -1558,7 +1500,7 @@ const Employee_contract_details = () => {
                       </label>
 
                       <div className="w-[50%] md:w-[60%]">
-                         <Dropdown
+                        <Dropdown
                           value={selectedCompany}
                           options={companyDropdown}
                           optionLabel="label"
@@ -1577,7 +1519,7 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-                        
+
 
                         {errors.company && (
                           <p className="text-red-500 text-sm">
@@ -1587,24 +1529,24 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
-                    {/* branch */}
-                      <div className="mt-5 flex justify-between items-center">
+                    {/* boarding point */}
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
-                        Branch Name
-                         {/* <span className="text-red-500">*</span> */}
+                        Boarding Point
+                        {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-[50%] md:w-[60%]">
-                         <Dropdown
-                          value={selectedBranch}
+                        <Dropdown
+                          value={selectedBoarding}
                           options={branchDropdown}
                           optionLabel="label"
                           optionValue="value"
-                          placeholder="Select Branch"
+                          placeholder="Select Boarding Point"
                           filter
                           className="w-full border border-gray-300 rounded-lg"
                           onChange={(e) => {
-                            setSelectedBranch(e.value);
+                            setSelectedBoarding(e.value);
                             const branchObj = branchDropdown.find(
                               (item) => item.value === e.value
                             );
@@ -1614,7 +1556,44 @@ const Employee_contract_details = () => {
                             });
                           }}
                         />
-                        
+
+
+                        {/* {errors.branch && (
+                          <p className="text-red-500 text-sm">
+                            {errors.branch.message}
+                          </p>
+                        )} */}
+                      </div>
+                    </div>
+
+                    {/* Education */}
+                    <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        Education
+                        {/* <span className="text-red-500">*</span> */}
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%]">
+                        <Dropdown
+                          value={selectedEducation}
+                          options={branchDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Education"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedEducation(e.value);
+                            const branchObj = branchDropdown.find(
+                              (item) => item.value === e.value
+                            );
+                            setCompanyEmpType(obj.company_emp_id?.toLowerCase());
+                            setValue("company", String(e.value), {
+                              shouldValidate: true,
+                            });
+                          }}
+                        />
+
 
                         {/* {errors.branch && (
                           <p className="text-red-500 text-sm">
@@ -1711,7 +1690,7 @@ const Employee_contract_details = () => {
                     {/* city */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        City 
+                        City
                         {/* <span className="text-red-500">*</span> */}
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
@@ -1729,11 +1708,11 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
-{/* state */}
+                    {/* state */}
 
-<div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        State 
+                        State
                         {/* <span className="text-red-500">*</span> */}
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
@@ -1751,12 +1730,12 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
-{/* current address */}
+                    {/* current address */}
 
-<div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                       Current Address 
-                       {/* <span className="text-red-500">*</span> */}
+                        Current Address
+                        {/* <span className="text-red-500">*</span> */}
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
                         <textarea
@@ -1859,9 +1838,9 @@ const Employee_contract_details = () => {
                     </div>
 
                     {/* pan number */}
-             <div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Pan Number 
+                        Pan Number
                         {/* <span className="text-red-500">*</span> */}
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
@@ -1870,14 +1849,14 @@ const Employee_contract_details = () => {
                           name="pan"
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           {...register("pan")}
-                          
+
                           maxLength={10}
                           onInput={(e) => {
-    e.target.value = e.target.value
-      .toUpperCase()              // convert to uppercase
-      .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
-      .slice(0, 10);              // max 10 chars
-  }}
+                            e.target.value = e.target.value
+                              .toUpperCase()              // convert to uppercase
+                              .replace(/[^A-Z0-9]/g, "")  // allow only letters & numbers
+                              .slice(0, 10);              // max 10 chars
+                          }}
                           placeholder="Enter Pan Number"
                         />
                         {/* <span className="text-red-500 text-sm">
@@ -1944,12 +1923,12 @@ const Employee_contract_details = () => {
                       </div>
                     )}
 
-{/* bank name */}
+                    {/* bank name */}
 
-  <div className="mt-5 flex justify-between items-center">
+                    <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Bank Name
-                         {/* <span className="text-red-500">*</span> */}
+                        {/* <span className="text-red-500">*</span> */}
                       </label>
                       <div className="w-[50%] md:w-[60%] rounded-lg">
                         <input
@@ -2096,94 +2075,94 @@ const Employee_contract_details = () => {
                       </div>
                     </div>
 
-{/* Emergency Contacts */}
-<div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
+                    {/* Emergency Contacts */}
+                    <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
 
-  {/* Header */}
-  <div className="flex justify-between items-center">
-    <p className="text-lg md:text-xl font-semibold">
-      Emergency Contacts
-    </p>
-    <IoAddCircleSharp
-      className="text-[#1ea600] text-3xl cursor-pointer"
-      onClick={addEmergencyContact}
-    />
-  </div>
+                      {/* Header */}
+                      <div className="flex justify-between items-center">
+                        <p className="text-lg md:text-xl font-semibold">
+                          Emergency Contacts
+                        </p>
+                        <IoAddCircleSharp
+                          className="text-[#1ea600] text-3xl cursor-pointer"
+                          onClick={addEmergencyContact}
+                        />
+                      </div>
 
-  {/* Table Head */}
-  <div className="mt-4">
-    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
-      <span>Name</span>
-      <span>Relation</span>
-      <span>Phone No</span>
-    </div>
+                      {/* Table Head */}
+                      <div className="mt-4">
+                        <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
+                          <span>Name</span>
+                          <span>Relation</span>
+                          <span>Phone No</span>
+                        </div>
 
-    {/* Rows */}
-    {emergencyContacts.map((item, index) => (
-      <div
-        key={index}
-        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-      >
+                        {/* Rows */}
+                        {emergencyContacts.map((item, index) => (
+                          <div
+                            key={index}
+                            className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                          >
 
-        {/* Remove */}
-        {index > 0 && (
-          <IoIosCloseCircle
-            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-            onClick={() => removeEmergencyContact(index)}
-          />
-        )}
+                            {/* Remove */}
+                            {index > 0 && (
+                              <IoIosCloseCircle
+                                className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+                                onClick={() => removeEmergencyContact(index)}
+                              />
+                            )}
 
-        {/* Name */}
-        <div className="flex flex-col mt-1">
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={item.name}
-            onChange={(e) =>
-              updateEmergencyContact(index, "name", e.target.value)
-            }
-            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-          />
-        </div>
+                            {/* Name */}
+                            <div className="flex flex-col mt-1">
+                              <input
+                                type="text"
+                                placeholder="Full Name"
+                                value={item.name}
+                                onChange={(e) =>
+                                  updateEmergencyContact(index, "name", e.target.value)
+                                }
+                                className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                              />
+                            </div>
 
-        {/* Relation */}
-        <div className="flex flex-col mt-1">
-          <select
-            value={item.relation}
-            onChange={(e) =>
-              updateEmergencyContact(index, "relation", e.target.value)
-            }
-            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-          >
-            <option value="">Select Relation</option>
-            {relationOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+                            {/* Relation */}
+                            <div className="flex flex-col mt-1">
+                              <select
+                                value={item.relation}
+                                onChange={(e) =>
+                                  updateEmergencyContact(index, "relation", e.target.value)
+                                }
+                                className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                              >
+                                <option value="">Select Relation</option>
+                                {relationOptions.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
 
-        {/* Phone */}
-        <div className="flex flex-col mt-1">
-          <input
-            type="text"
-            placeholder="Phone Number"
-            value={item.phone}
-            onChange={(e) => {
-              const value = e.target.value.replace(/\D/g, "");
-              if (value.length <= 10) {
-                updateEmergencyContact(index, "phone", value);
-              }
-            }}
-            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-          />
-        </div>
+                            {/* Phone */}
+                            <div className="flex flex-col mt-1">
+                              <input
+                                type="text"
+                                placeholder="Phone Number"
+                                value={item.phone}
+                                onChange={(e) => {
+                                  const value = e.target.value.replace(/\D/g, "");
+                                  if (value.length <= 10) {
+                                    updateEmergencyContact(index, "phone", value);
+                                  }
+                                }}
+                                className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                              />
+                            </div>
 
-      </div>
-    ))}
-  </div>
-</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
                     {/* Documents */}
 
@@ -2277,36 +2256,36 @@ const Employee_contract_details = () => {
 
                   {/* Title and profile image */}
                   {/* Header */}
-<div className="flex items-center justify-between mb-6 border-b pb-4">
+                  <div className="flex items-center justify-between mb-6 border-b pb-4">
 
-  {/* Title */}
-  <h2 className="text-xl font-semibold text-[#1ea600]">
-    Employee Details
-  </h2>
+                    {/* Title */}
+                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                      Employee Details
+                    </h2>
 
-  {/* Profile Picture */}
-  <div className="flex items-center gap-6">
+                    {/* Profile Picture */}
+                    <div className="flex items-center gap-6">
 
-    {viewRow.profile_picture ? (
-      <img
-        src={
-          viewRow.profile_picture.startsWith("http")
-            ? viewRow.profile_picture
-            : `${API_URL}${viewRow.profile_picture}`
-        }
-        alt="Profile"
-        className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
-      />
-    ) : (
-      <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
-        No Photo
-      </div>
-    )}
+                      {viewRow.profile_picture ? (
+                        <img
+                          src={
+                            viewRow.profile_picture.startsWith("http")
+                              ? viewRow.profile_picture
+                              : `${API_URL}${viewRow.profile_picture}`
+                          }
+                          alt="Profile"
+                          className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+                          No Photo
+                        </div>
+                      )}
 
-    {/* Action Icons */}
-    <div className="flex items-center gap-4">
-      {/* Download */}
-      {/* <button
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-4">
+                        {/* Download */}
+                        {/* <button
         title="Download"
         onClick={() => handleDownload(viewRow)}
         className="text-gray-500 hover:text-green-600"
@@ -2314,151 +2293,155 @@ const Employee_contract_details = () => {
         <IoMdDownload size={26} />
       </button> */}
 
-      {/* Print */}
-      <button
-        title="Print"
-        onClick={() => window.print()}
-        className="text-gray-500 hover:text-green-600"
-      >
-        <TfiPrinter size={24} />
-      </button>
+                        {/* Print */}
+                        <button
+                          title="Print"
+                          onClick={() => window.print()}
+                          className="text-gray-500 hover:text-green-600"
+                        >
+                          <TfiPrinter size={24} />
+                        </button>
 
-      {/* Close */}
-      <button
-        title="Close"
-        onClick={closeViewModal}
-        className="text-gray-500 hover:text-red-500"
-      >
-        <IoIosCloseCircle size={26} />
-      </button>
-    </div>
+                        {/* Close */}
+                        <button
+                          title="Close"
+                          onClick={closeViewModal}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <IoIosCloseCircle size={26} />
+                        </button>
+                      </div>
 
-  </div>
-</div>
+                    </div>
+                  </div>
 
-{/* body */}
-<div className="pr-2 overflow-y-auto ">
-                  {/* Candidate Info */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <p>
-                      <b>Company:</b>{" "}
-                      {companyOptions.find(c => c.value === viewRow.company_id)?.label || "-"}
-                    </p>
-                     <p>
-                      <b>Branch:</b>{" "}
-                      {branchOptions.find(b => b.value === viewRow.company_id)?.label || "-"}
-                    </p>
-                    <p>
-                      <b>Name:</b> {viewRow.name || "-"}
-                    </p>
-                    <p>
-                      <b>Phone:</b> {viewRow.phone_number || "-"}
-                    </p>
-                    <p>
-                      <b>Aadhar Number:</b> {viewRow.aadhar_number || "-"}
-                    </p>
-                    <p>
-                      <b>Pan Number:</b> {viewRow.pan_number || "-"}
-                    </p>
-                    <p>
-                      <b>Bank Name:</b> {viewRow.bank_name || "-"}
-                    </p>
-                    <p>
-                      <b>Account Name:</b> {viewRow.acc_no || "-"}
-                    </p>
-                    <p>
-                      <b>Account Number:</b> {viewRow.account_number || "-"}
-                    </p>
-                    <p>
-                      <b>Address:</b> {viewRow.address || "-"}
-                    </p>
-                    <p>
-                      <b>City:</b> {viewRow.city || "-"}
-                    </p>
-                    <p>
-                      <b>State:</b> {viewRow.state || "-"}
-                    </p>
-                    <p>
-                      <b>Current Address:</b> {viewRow.current_address || "-"}
-                    </p>
-                    
-                    <p>
-                      <b>Date of Birth:</b> {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
-                    </p>
-                    <p>
-                      <b>Father Name:</b> {viewRow.father_name || "-"}
-                    </p>
-                    <p>
-                      <b>Gender:</b> {viewRow.gender || "-"}
-                    </p>
-                    <p>
-                      <b>ESIC:</b> {viewRow.esic || "-"}
-                    </p>
-                    <p>
-                      <b>IFSC Code:</b> {viewRow.ifsc_code || "-"}
-                    </p>
-                    <p>
-                      <b>UAN Number:</b> {viewRow.uan_number || "-"}
-                    </p>
-                    <p>
-                      <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
-                    </p>
-                    <p>
-                      <b>Joining Date:</b> {formatToDDMMYYYY(viewRow.joining_date) || "-"}
-                    </p>
-                    <p>
-                      <b>Employee ID:</b> {viewRow.employee_id || "-"}
-                    </p>
+                  {/* body */}
+                  <div className="pr-2 overflow-y-auto ">
+                    {/* Candidate Info */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <p>
+                        <b>Company:</b>{" "}
+                        {companyOptions.find(c => c.value === viewRow.company_id)?.label || "-"}
+                      </p>
+                      <p>
+                        <b>Boarding Point:</b>{" "}
+                        {boardingOptions.find(b => b.value === viewRow.company_id)?.label || "-"}
+                      </p>
+                      <p>
+                        <b>Education:</b>{" "}
+                        {educationOptions.find(b => b.value === viewRow.company_id)?.label || "-"}
+                      </p>
+                      <p>
+                        <b>Name:</b> {viewRow.name || "-"}
+                      </p>
+                      <p>
+                        <b>Phone:</b> {viewRow.phone_number || "-"}
+                      </p>
+                      <p>
+                        <b>Aadhar Number:</b> {viewRow.aadhar_number || "-"}
+                      </p>
+                      <p>
+                        <b>Pan Number:</b> {viewRow.pan_number || "-"}
+                      </p>
+                      <p>
+                        <b>Bank Name:</b> {viewRow.bank_name || "-"}
+                      </p>
+                      <p>
+                        <b>Account Name:</b> {viewRow.acc_no || "-"}
+                      </p>
+                      <p>
+                        <b>Account Number:</b> {viewRow.account_number || "-"}
+                      </p>
+                      <p>
+                        <b>Address:</b> {viewRow.address || "-"}
+                      </p>
+                      <p>
+                        <b>City:</b> {viewRow.city || "-"}
+                      </p>
+                      <p>
+                        <b>State:</b> {viewRow.state || "-"}
+                      </p>
+                      <p>
+                        <b>Current Address:</b> {viewRow.current_address || "-"}
+                      </p>
 
-                  {/* emergency contact */}
+                      <p>
+                        <b>Date of Birth:</b> {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
+                      </p>
+                      <p>
+                        <b>Father Name:</b> {viewRow.father_name || "-"}
+                      </p>
+                      <p>
+                        <b>Gender:</b> {viewRow.gender || "-"}
+                      </p>
+                      <p>
+                        <b>ESIC:</b> {viewRow.esic || "-"}
+                      </p>
+                      <p>
+                        <b>IFSC Code:</b> {viewRow.ifsc_code || "-"}
+                      </p>
+                      <p>
+                        <b>UAN Number:</b> {viewRow.uan_number || "-"}
+                      </p>
+                      <p>
+                        <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
+                      </p>
+                      <p>
+                        <b>Joining Date:</b> {formatToDDMMYYYY(viewRow.joining_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Employee ID:</b> {viewRow.employee_id || "-"}
+                      </p>
 
-            <div className="mt-4">
-              <h3 className="font-semibold mb-2">Emergency Contacts</h3>
+                      {/* emergency contact */}
 
-              {viewRow.emergency_contacts?.length > 0 ? (
-                <table className="w-full border text-sm">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="border p-2">Name</th>
-                      <th className="border p-2">Relation</th>
-                      <th className="border p-2">Phone Number</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {viewRow.emergency_contacts
-                      ?.filter((c) => e.name && e.relation && e.phone_number)
-                      .map((e, i) => (
-                        <tr key={i}>
-                          <td className="border p-2">{c.name || "-"}</td>
-                          <td className="border p-2">{c.relation || "-"}</td>
-                          <td className="border p-2">{c.phone_number || "-"}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No contacts available</p>
-              )}
-            </div>
-                    <div className="col-span-2 pt-4">
-                      <b className="block mb-2 text-gray-700">Documents:</b>
-                      {/* Check if documents is an array and has items */}
-                      {viewRow.documents && viewRow.documents.length > 0 ? (
-                        <div className="space-y-2">
-                          {viewRow.documents.map((doc, index) => (
-                            <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-                              <span className="text-gray-600 truncate flex-1">
-                                {doc.original_name || `Document ${index + 1}`}
-                              </span>
+                      <div className="mt-4">
+                        <h3 className="font-semibold mb-2">Emergency Contacts</h3>
 
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
-                                  className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
-                                >
-                                  View/Print
-                                </button>
-                                {/* <button
+                        {viewRow.emergency_contacts?.length > 0 ? (
+                          <table className="w-full border text-sm">
+                            <thead className="bg-gray-100">
+                              <tr>
+                                <th className="border p-2">Name</th>
+                                <th className="border p-2">Relation</th>
+                                <th className="border p-2">Phone Number</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {viewRow.emergency_contacts
+                                ?.filter((c) => e.name && e.relation && e.phone_number)
+                                .map((e, i) => (
+                                  <tr key={i}>
+                                    <td className="border p-2">{c.name || "-"}</td>
+                                    <td className="border p-2">{c.relation || "-"}</td>
+                                    <td className="border p-2">{c.phone_number || "-"}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <p className="text-gray-500">No contacts available</p>
+                        )}
+                      </div>
+                      <div className="col-span-2 pt-4">
+                        <b className="block mb-2 text-gray-700">Documents:</b>
+                        {/* Check if documents is an array and has items */}
+                        {viewRow.documents && viewRow.documents.length > 0 ? (
+                          <div className="space-y-2">
+                            {viewRow.documents.map((doc, index) => (
+                              <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                                <span className="text-gray-600 truncate flex-1">
+                                  {doc.original_name || `Document ${index + 1}`}
+                                </span>
+
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+                                    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+                                  >
+                                    View/Print
+                                  </button>
+                                  {/* <button
     onClick={() =>
       window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
     }
@@ -2466,17 +2449,17 @@ const Employee_contract_details = () => {
   >
     Download
   </button> */}
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-gray-500 italic">No documents uploaded.</p>
-                      )}
-                    </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic">No documents uploaded.</p>
+                        )}
+                      </div>
 
+                    </div>
                   </div>
-</div>
                 </div>
               </div>
             )}

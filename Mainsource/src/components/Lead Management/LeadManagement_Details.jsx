@@ -71,47 +71,16 @@ const LeadManagement_Details = () => {
     value: city
   }));
 
-
-
-
   console.log("viewStatus", viewStatus);
 
   const today = new Date().toISOString().split("T")[0];
-  // const formatToDDMMYYYY = (date) => {
-  //   if (!date) return "-";
-
-  //   const d = new Date(date);
-  //   const day = String(d.getDate()).padStart(2, "0");
-  //   const month = String(d.getMonth() + 1).padStart(2, "0");
-  //   const year = d.getFullYear();
-
-  //   return `${day}-${month}-${year}`;
-  // };
-
-  const formatIndianDateTime12Hr = (date) => {
-    if (!date) return "-";
-
-    const d = new Date(date);
-
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-
-    let hours = d.getHours();
-    const minutes = String(d.getMinutes()).padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-
-    hours = hours % 12 || 12;
-    hours = String(hours).padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
-  };
 
   const [statusForm, setStatusForm] = useState({
     status: "",
     notes: "",
     followUp: "no",
-    followUpDate: ""
+    followUpDate: "",
+    epoDate: ""
   });
 
   const STATUS_MAP = {
@@ -191,7 +160,6 @@ const LeadManagement_Details = () => {
     setIsStatusViewOpen(false);
     setStatusViewLead(null);
   };
-
 
   const handleFileChange = (e) => {
     setSelectedFiles(e.target.files);
@@ -362,7 +330,6 @@ const LeadManagement_Details = () => {
     }
   };
 
-
   // create
   const handleAddLeadSubmit = async () => {
     if (!validateLeadForm()) return;
@@ -440,50 +407,6 @@ const LeadManagement_Details = () => {
     return result;
   };
 
-
-
-
-  // list
-  // const fetchLead = async (customFilters) => {
-  //   const appliedFilters = customFilters ?? filters;
-
-  //   try {
-  //     setLoading(true);
-  //     const params = {};
-
-  //     if (appliedFilters.gender) params.gender = appliedFilters.gender;
-  //     if (appliedFilters.platform) params.platform = appliedFilters.platform;
-  //     if (appliedFilters.city) params.city = appliedFilters.city;
-  //     if (appliedFilters.from_date) params.from_date = appliedFilters.from_date;
-  //     if (appliedFilters.to_date) params.to_date = appliedFilters.to_date;
-
-  //     const res = await axiosInstance.get(
-  //       `${API_URL}api/lead-management`,
-  //       { params }
-  //     );
-
-  //     console.log("API list", res.data.data);
-
-  //     if (res.data.success) {
-  //       let data = res.data.data || [];
-
-  //       //  FRONTEND FILTERING
-  //       data = applyFrontendFilters(data, appliedFilters);
-
-  //       setLeads(data);
-  //       setTotalRecords(data.length);
-  //       setGenderOptions(res.data.gender || []);
-  //       setPlatformOptions(res.data.platforms || {});
-  //       setCityOptions(res.data.cities || []);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch leads");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   //  list
   const fetchLead = async (customFilters) => {
     const appliedFilters = customFilters ?? filters;
@@ -535,11 +458,8 @@ const LeadManagement_Details = () => {
     }
   };
 
-
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
-  // console.log("statusList", statusList);
-  // const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (viewStatus?.id) {
@@ -738,12 +658,10 @@ const LeadManagement_Details = () => {
             <option value="">Select Status</option>
             <option value="open">Open</option>
             <option value="joined">Joined</option>
-            <option value="interested">Interested</option>
+            <option value="interested">Interested / scheduled</option>
             <option value="not_interested">Not Interested</option>
             <option value="follow_up">Follow Up</option>
-            <option value="bad_timing">Bad Timing</option>
             <option value="not_picked">Not Picked</option>
-            <option value="interview_scheduled">Interview Scheduled</option>
           </select>
 
           {/* VIEW STATUS HISTORY */}
@@ -973,37 +891,35 @@ px-2 py-2 md:px-6 md:py-6">
                       <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
 
                     </div>
-                    <div>
-                      <div className="relative inline-block">
-                        <MultiSelect
-                          ref={multiSelectRef}
-                          value={visibleColumnFields}
-                          options={columns}
-                          optionLabel="header"
-                          optionValue="field"
-                          onChange={onColumnToggle}
-                          display="checkbox"
-                          className="absolute opacity-0 pointer-events-none"
-                          style={{ bottom: 0, left: 0, width: '100%' }}
-                          panelClassName="custom-column-panel"
-                          // Disable checkbox for fixed columns
-                          optionDisabled={(option) => option.fixed}
-                        />
+                    <div className="relative inline-block">
+                      <MultiSelect
+                        ref={multiSelectRef}
+                        value={visibleColumnFields}
+                        options={columns}
+                        optionLabel="header"
+                        optionValue="field"
+                        onChange={onColumnToggle}
+                        display="checkbox"
+                        className="absolute opacity-0 pointer-events-none"
+                        style={{ bottom: 0, left: 0, width: '100%' }}
+                        panelClassName="custom-column-panel"
+                        // Disable checkbox for fixed columns
+                        optionDisabled={(option) => option.fixed}
+                      />
 
-                        <p
-                          onClick={() => multiSelectRef.current.show()}
-                          className="flex items-center justify-between gap-2 
+                      <p
+                        onClick={() => multiSelectRef.current.show()}
+                        className="flex items-center justify-between gap-2 
                                  min-w-56 px-3 py-2 
                                  border border-gray-300 rounded-md 
                                  cursor-pointer text-[#7c7c7c]
                                  hover:bg-gray-100 transition-all text-sm"
-                        >
-                          Customize
-                          <img src={customise} alt="columns" className="w-5 h-5" />
-                        </p>
+                      >
+                        Customize
+                        <img src={customise} alt="columns" className="w-5 h-5" />
+                      </p>
 
 
-                      </div>
                     </div>
                   </div>
 
@@ -1219,8 +1135,6 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     </div>
 
-
-                    {/* Gender */}
                     {/* Gender */}
                     <div className="mt-6 flex justify-between items-center">
                       <label className="text-md font-medium">
@@ -1537,13 +1451,13 @@ px-2 py-2 md:px-6 md:py-6">
             {/* status */}
             {isViewStatusOpen && viewStatus && (
               <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-xl w-[900px] space-y-6 shadow-lg">
+                <div className="bg-white p-6 rounded-xl w-full max-w-4xl mx-4 space-y-6 shadow-lg">
 
                   {/* Header */}
                   <h2 className="text-lg font-semibold">Update Lead Status</h2>
 
                   {/* Row 1 */}
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid gap-6">
                     {/* Status */}
                     <div>
                       <label className="block text-sm font-medium mb-1">Status</label>
@@ -1556,14 +1470,33 @@ px-2 py-2 md:px-6 md:py-6">
                       >
                         <option value="open">Open</option>
                         <option value="joined">Joined</option>
-                        <option value="interested">Interested</option>
+                        <option value="interested">Interested / schedule</option>
                         <option value="not_interested">Not Interested</option>
                         <option value="follow_up">Follow Up</option>
-                        <option value="bad_timing">Bad Timing</option>
                         <option value="not_picked">Not Picked</option>
-                        <option value="interview_scheduled">Interview Scheduled</option>
                       </select>
                     </div>
+
+                      {statusForm.status === "interested" && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Schedule Date
+                          </label>
+                          <input
+                            type="date"
+                            className="border p-2 w-full rounded-md"
+                            value={statusForm.epoDate}
+                            onChange={(e) =>
+                              setStatusForm({
+                                ...statusForm,
+                                epoDate: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Notes */}
                     <div>
@@ -1632,6 +1565,9 @@ px-2 py-2 md:px-6 md:py-6">
                         />
                       </div>
                     )}
+
+                  
+
                   </div>
 
                   {/* Actions */}
@@ -1771,7 +1707,6 @@ px-2 py-2 md:px-6 md:py-6">
                 </div>
               </div>
             )}
-
 
             {/* view modal */}
             {isViewModalOpen && viewContact && (
