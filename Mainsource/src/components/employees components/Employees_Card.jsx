@@ -406,6 +406,34 @@ const Employees_Card = () => {
       },
       style: { textAlign: "center", width: "100px" },
     },
+
+    // jof from refenece
+
+     {
+      field: "reference",
+      header: "Jof Form Reference",
+      body: (row) => {
+        // Debug: console.log("Row Reference Value:", row.reference);
+        return (
+          <div
+            className="flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              // This handles numbers, strings, and null values accurately
+              // checked={row.job_form_referal == 1}
+              // onChange={(e) => {
+              //   const isChecked = e.target.checked;
+              //   handleReferenceChange(row.id, isChecked);
+              // }}
+              className="w-4 h-4 cursor-pointer accent-[#1ea600] rounded border-gray-300"
+            />
+          </div>
+        );
+      },
+      style: { textAlign: "center", width: "100px" },
+    },
     {
       header: "Assigned Company",
       body: (row) => (

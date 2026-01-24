@@ -195,66 +195,102 @@ const Job_form_details = () => {
     }
   };
 
-  const generateCSV = (data) => {
-    const csvHeader = [
-      "S.No",
-      "Full Name",
-      "Aadhar Number",
-      "Email",
-      "Contact",
-      "Gender",
-      "City",
-      "District",
-      "Education",
-      "Major",
-      "Marital Status",
-      "Date of Birth",
-      "Reference",
-      "Registered On",
-      "Remarks",
-    ];
+  // const generateCSV = (data) => {
+  //   const csvHeader = [
+  //     "S.No",
+  //     "Full Name",
+  //     "Aadhar Number",
+  //     "Email",
+  //     "Contact",
+  //     "Gender",
+  //     "City",
+  //     "District",
+  //     "Education",
+  //     "Major",
+  //     "Marital Status",
+  //     "Date of Birth",
+  //     "Reference",
+  //     "Registered On",
+  //     "Remarks",
+  //   ];
 
-    const csvRows = [
-      csvHeader.join(","),
-      ...data.map((item, index) => {
-        const remarks =
-          item.remarks && item.remarks.length > 0
-            ? `${item.remarks.length} remarks: ` +
-            item.remarks.map(r => r.notes).join(" | ")
-            : "-";
+  //   const csvRows = [
+  //     csvHeader.join(","),
+  //     ...data.map((item, index) => {
+  //       const remarks =
+  //         item.remarks && item.remarks.length > 0
+  //           ? `${item.remarks.length} remarks: ` +
+  //           item.remarks.map(r => r.notes).join(" | ")
+  //           : "-";
 
-        return [
-          index + 1, //  S.No
-          item.name || "-",
-          item.aadhar_number || "-",
-          item.email_id || "-",
-          item.contact_number || "-",
-          item.gender || "-",
-          item.city || "-",
-          item.district || "-",
-          item.education || "-",
-          item.major || "-",
-          item.marital_status || "-",
-          formatToDDMMYYYY(item.date_of_birth) || "-",
-          item.reference || "-",
-          item.created_at ? formatToDDMMYYYY(item.created_at) : "-",
-          remarks,
-        ]
-          .map(val => `"${val}"`)
-          .join(",");
-      }),
-    ];
+  //       return [
+  //         index + 1, //  S.No
+  //         item.name || "-",
+  //         item.aadhar_number || "-",
+  //         item.email_id || "-",
+  //         item.contact_number || "-",
+  //         item.gender || "-",
+  //         item.city || "-",
+  //         item.district || "-",
+  //         item.education || "-",
+  //         item.major || "-",
+  //         item.marital_status || "-",
+  //         formatToDDMMYYYY(item.date_of_birth) || "-",
+  //         item.reference || "-",
+  //         item.created_at ? formatToDDMMYYYY(item.created_at) : "-",
+  //         remarks,
+  //       ]
+  //         .map(val => `"${val}"`)
+  //         .join(",");
+  //     }),
+  //   ];
 
-    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
-    const encodedUri = encodeURI(csvContent);
+  //   const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
+  //   const encodedUri = encodeURI(csvContent);
 
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "job_form_all.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  //   const link = document.createElement("a");
+  //   link.setAttribute("href", encodedUri);
+  //   link.setAttribute("download", "job_form_all.csv");
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
+
+
+const generateCSV = (data) => {
+  // Remove non-export columns
+  const selectedFields = visibleColumnFields.filter(
+    (f) => !["actions", "remarks"].includes(f)
+  );
+
+  // S.No always first
+  const exportFields = ["sno", ...selectedFields.filter(f => f !== "sno")];
+
+  // Headers
+  const headers = exportFields.map(
+    (field) => allColumns.find((c) => c.field === field)?.header
+  );
+
+  // Rows
+  const rows = data.map((item, index) =>
+    exportFields
+      .map((field) =>
+        `"${columnMap[field]?.(item, index) ?? "-"}"`
+      )
+      .join(",")
+  );
+
+  const csvContent =
+    "data:text/csv;charset=utf-8," +
+    [headers.join(","), ...rows].join("\n");
+
+  const link = document.createElement("a");
+  link.href = encodeURI(csvContent);
+  link.download = "job_form_all.csv";
+  link.click();
+};
+
+
 
   const handleReset = () => {
     const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
@@ -910,16 +946,35 @@ const Job_form_details = () => {
     }
   };
 
+const columnMap = {
+  sno: (_, index) => index + 1,
+  name: (item) => capitalizeWords(item.name),
+  aadhar_number: (item) => item.aadhar_number,
+  email_id: (item) => item.email_id,
+  contact_number: (item) => item.contact_number,
+  gender: (item) => item.gender,
+  city: (item) => item.city,
+  district: (item) => item.district,
+  education: (item) => item.education,
+  major: (item) => item.major,
+  marital_status: (item) => item.marital_status,
+  date_of_birth: (item) => formatToDDMMYYYY(item.date_of_birth),
+  reference: (item) => item.reference,
+  created_at: (item) => formatToDDMMYYYY(item.created_at),
+};
+
 
 
   {/* ................. for prime react table  .......... */ }
   const allColumns = [
-    {
-      header: "S.No",
-      body: (rowData, options) => options.rowIndex + 1,
-      style: { textAlign: "center", width: "80px", fontWeight: "medium", fontStyle: "popins" },
-      fixed: true,
-    },
+  {
+  header: "S.No",
+  field: "sno",   //  MUST
+  body: (rowData, options) => options.rowIndex + 1,
+  style: { textAlign: "center", width: "80px", fontWeight: "medium" },
+  fixed: true    
+},
+
 
     {
       header: "Name",
