@@ -29,10 +29,7 @@ import { set } from "zod";
 const Education_Detail = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [boardPoint, setBoardPoint] = useState([]);
-    console.log("boardPoint", boardPoint)
     const [loading, setLoading] = useState(true);
-    const [status, setStatus] = useState("");
     const [isAnimating, setIsAnimating] = useState(false);
     const [rows, setRows] = useState(10);
     const [globalFilter, setGlobalFilter] = useState("");
@@ -49,35 +46,10 @@ const Education_Detail = () => {
     // console.log("....parsedDetails.... : ",parsedDetails)
     const userid = parsedDetails ? parsedDetails.id : null;
     // console.log("userid.... : ",userid)
-    const [companyId, setCompanyId] = useState(null);
-    const [educationName, setEducationName] = useState("");
     const [editingRoleId, setEditingRoleId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
-    const [companyOptions, setCompanyOptions] = useState([]);
-    const [companyLoading, setCompanyLoading] = useState(false);
-    const [allBoardPoints, setAllBoardPoints] = useState([]); // master data
-    const [filteredBoardPoints, setFilteredBoardPoints] = useState([]);
+    const [educationList, setEducationList] = useState([]);
 
-
-
-    useEffect(() => {
-        let data = [...allBoardPoints];
-
-        if (companyId) {
-            data = data.filter(item => item.company_id === companyId);
-        }
-
-        if (globalFilter) {
-            const search = globalFilter.toLowerCase();
-            data = data.filter(item =>
-                item.eduction_name?.toLowerCase().includes(search) ||
-                (item.status == 1 ? "active" : "inactive").includes(search)
-            );
-        }
-
-        setFilteredBoardPoints(data);
-        setTotalRecords(data.length);
-    }, [globalFilter]);
 
 
 
@@ -99,76 +71,33 @@ const Education_Detail = () => {
 
     // Fetch board point from the API
     useEffect(() => {
-        fetchBoardPoint();
+        fetchEducation();
     }, []);
     // list
-    const fetchBoardPoint = async () => {
+    const fetchEducation = async () => {
         try {
             const response = await axiosInstance.get(`${API_URL}api/eduction`);
 
-            if (response.data.status === true) {
-                const boardPoints = response.data.data || [];
-
-                setAllBoardPoints(boardPoints);        // master
-                setFilteredBoardPoints(boardPoints);   // display
-                setBoardPoint(boardPoints);
-                setTotalRecords(boardPoints.length);
-
-                const companies = response.data.companies || [];
-                setCompanyOptions(
-                    companies.map(c => ({
-                        label: c.company_name,
-                        value: c.id
-                    }))
-                );
-            } else {
-                setAllBoardPoints([]);
-                setFilteredBoardPoints([]);
-                setBoardPoint([]);
+            if (response.data?.status) {
+                setEducationList(response.data.data);
+                setTotalRecords(response.data.data.length);
             }
         } catch (err) {
-            console.error(err);
+            toast.error("Failed to fetch education list");
         } finally {
             setLoading(false);
         }
     };
 
 
-    const handleApplyFilter = () => {
-        let data = [...allBoardPoints];
 
-        if (companyId) {
-            data = data.filter(item => item.company_id === companyId);
-        }
 
-        // apply search also
-        if (globalFilter) {
-            const search = globalFilter.toLowerCase();
-            data = data.filter(item =>
-                item.eduction_name?.toLowerCase().includes(search) ||
-                (item.status == 1 ? "active" : "inactive").includes(search)
-            );
-        }
-
-        setFilteredBoardPoints(data);
-        setTotalRecords(data.length);
-    };
-
-    const handleResetFilter = () => {
-        setCompanyId(null);
-        setGlobalFilter("");
-        setFilteredBoardPoints(allBoardPoints);
-        setTotalRecords(allBoardPoints.length);
-    };
 
 
 
 
     // Open and close modals
     const openAddModal = () => {
-        setCompanyId(null);   
-        setPointName("");
-        setStatus("");
         setErrors({});
         setIsAddModalOpen(true);
         setTimeout(() => setIsAnimating(true), 10);
@@ -179,16 +108,18 @@ const Education_Detail = () => {
         setIsAnimating(false);
 
         setTimeout(() => {
-            setIsAddModalOpen(false);;
-            setStatus("");
+            setIsAddModalOpen(false);
             setErrors({});
         }, 300);
     };
 
 
-    const [roleDetails, setRoleDetails] = useState({
+    const [educationDetails, setEducationDetails] = useState({
+        eduction_name: "",
         status: "",
     });
+
+
 
     // edit
     const openEditModal = async (row) => {
@@ -204,10 +135,11 @@ const Education_Detail = () => {
             if (res.data?.status) {
                 const data = res.data.data;
 
-                setRoleDetails({
+                setEducationDetails({
                     eduction_name: data.eduction_name,
                     status: data.status.toString(),
                 });
+
 
             }
         } catch (err) {
@@ -219,7 +151,7 @@ const Education_Detail = () => {
     const closeEditModal = () => {
         setIsAnimating(false);
         setEditingRoleId(null);
-        setRoleDetails({ status: "", });
+        setEducationDetails({ status: "", });
         setErrors({});
         setTimeout(() => setIsEditModalOpen(false), 250);
     };
@@ -244,7 +176,7 @@ const Education_Detail = () => {
 
 
 
-        if (roleDetails.status === "" || roleDetails.status === null) {
+        if (educationDetails.status === "" || educationDetails.status === null) {
             newErrors.status = ["Status is required"];
         }
 
@@ -259,62 +191,70 @@ const Education_Detail = () => {
     // create
     const handlesubmit = async (e) => {
         e.preventDefault();
+        setSubmitting(true);
 
-        if (!educationName || !status) {
-            toast.error("Education Name & Status required");
+        if (!educationDetails.eduction_name || educationDetails.status === "") {
+            toast.error("All fields required");
+            setSubmitting(false);
             return;
         }
 
         const payload = {
-            eduction_name: educationName,
-            status,
+            eduction_name: educationDetails.eduction_name,
+            status: educationDetails.status,
             created_by: userid,
         };
 
-        const res = await axiosInstance.post(
-            `${API_URL}api/eduction/create`,
-            payload
-        );
+        try {
+            const res = await axiosInstance.post(
+                `${API_URL}api/eduction/create`,
+                payload
+            );
 
-        if (res.data.status) {
-            toast.success("Education created successfully");
-            fetchBoardPoint();
-            closeAddModal();
+            if (res.data.status) {
+                toast.success("Education created successfully");
+                fetchEducation();
+                closeAddModal();
+                setEducationDetails({ eduction_name: "", status: "" });
+            }
+        } catch {
+            toast.error("Create failed");
+        } finally {
+            setSubmitting(false);
         }
     };
+
 
 
 
     // update
     const handleSave = async () => {
-        let newErrors = {};
-        if (!roleDetails.company_id) newErrors.company_id = "Company required";
-        if (!roleDetails.point_name) newErrors.point_name = "Boarding Point required";
-        if (!roleDetails.status) newErrors.status = "Status required";
-
-        setErrors(newErrors);
-        if (Object.keys(newErrors).length) return;
+        if (!educationDetails.eduction_name || educationDetails.status === "") {
+            toast.error("All fields required");
+            return;
+        }
 
         try {
             const res = await axiosInstance.post(
                 `${API_URL}api/eduction/update/${editingRoleId}`,
                 {
-                    company_id: roleDetails.company_id,
-                    point_name: roleDetails.point_name,
-                    status: roleDetails.status,
+                    eduction_name: educationDetails.eduction_name,
+                    status: educationDetails.status,
                     updated_by: userid,
                 }
             );
 
-            if (res.data?.status) {
-                toast.success("Boarding Point updated successfully");
+            if (res.data.status) {
+                toast.success("Education updated successfully");
+                fetchEducation();
                 closeEditModal();
-                fetchBoardPoint();
             }
         } catch {
             toast.error("Update failed");
         }
     };
+
+
 
 
 
@@ -336,10 +276,10 @@ const Education_Detail = () => {
 
 
     // delete
-    const deleteBoardPoint = (roleId) => {
+    const deleteEducation = (roleId) => {
         Swal.fire({
             title: "Are you sure?",
-            text: "Do you want to delete this Boarding Point?",
+            text: "Do you want to delete this Education?",
             icon: "warning",
             showCancelButton: true,
 
@@ -358,16 +298,16 @@ const Education_Detail = () => {
                     .then((response) => {
                         console.log("Delete response:", response.data);
                         if (response.data.status === true || response.data.success === true) {
-                            toast.success("Boarding Point has been deleted.");
-                            fetchBoardPoint(); // Refresh the board point list
+                            toast.success("Education has been deleted.");
+                            fetchEducation(); // Refresh the board point list
 
                         } else {
-                            Swal.fire("Error!", response.data.message || "Failed to delete Boarding Point.", "error");
+                            Swal.fire("Error!", response.data.message || "Failed to delete Education.", "error");
                         }
                     })
                     .catch((error) => {
-                        console.error("Error deleting Boarding Point:", error);
-                        Swal.fire("Error!", "Failed to delete Boarding Point.", "error");
+                        console.error("Error deleting Education:", error);
+                        Swal.fire("Error!", "Failed to delete Education.", "error");
                     });
             }
         });
@@ -411,11 +351,10 @@ const Education_Detail = () => {
                 <div className="flex justify-center gap-3">
                     <button
                         onClick={() => {
-                            ;
-                            // setViewModalOpen(true);
                             openViewModal(row)
                         }}
                         className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
+                        title="View"
                     >
                         <FaEye />
                     </button>
@@ -431,7 +370,7 @@ const Education_Detail = () => {
                     />
 
                     <RiDeleteBin6Line
-                        onClick={() => deleteBoardPoint(row.id)}
+                        onClick={() => deleteEducation(row.id)}
                         className="text-red-500 cursor-pointer hover:scale-110 transition"
                         title="Delete"
                     />
@@ -482,7 +421,7 @@ px-2 py-2 md:px-6 md:py-6">
                                             value={rows}
                                             options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
                                             onChange={(e) => setRows(e.value)}
-                                            className="w-20"
+                                            className="w-20 border"
                                         />
 
                                         <span className=" text-sm text-[#6B7280]">Entries per page</span>
@@ -518,7 +457,7 @@ px-2 py-2 md:px-6 md:py-6">
                                 <div className="table-scroll-container" id="datatable">
                                     <DataTable
                                         className="mt-8"
-                                        value={filteredBoardPoints}
+                                        value={educationList}
                                         paginator
                                         rows={rows}
                                         totalRecords={totalRecords}
@@ -561,24 +500,25 @@ px-2 py-2 md:px-6 md:py-6">
                                     <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
                                         <p className="text-xl md:text-2xl ">Add Education</p>
 
-
-
-
                                         <div className="mt-2 md:mt-8 flex justify-between items-center">
                                             <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
                                                 Education Name <span className="text-red-500">*</span>
                                             </label>
                                             <div className="w-[50%]">
-                                                <textarea
-                                                    rows={3}
-                                                    value={pointName}
+                                                <input
                                                     placeholder="Enter Education"
-                                                    onChange={(e) => setPointName(e.target.value)}
-                                                    className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg resize-none"
+                                                    value={educationDetails.eduction_name}
+                                                    onChange={(e) =>
+                                                        setEducationDetails({
+                                                            ...educationDetails,
+                                                            eduction_name: e.target.value,
+                                                        })
+                                                    }
+                                                     className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                 />
 
-                                                {errors.point_name && (
-                                                    <p className="text-red-500 text-sm mt-1">{errors.point_name}</p>
+                                                {errors.eduction_name && (
+                                                    <p className="text-red-500 text-sm mt-1">{errors.eduction_name}</p>
                                                 )}
 
                                             </div>
@@ -590,19 +530,20 @@ px-2 py-2 md:px-6 md:py-6">
                                             </label>
                                             <div className="w-[50%]">
                                                 <select
-                                                    name="status"
-                                                    id="status"
-                                                    value={status}
-                                                    onChange={(e) => {
-                                                        setStatus(e.target.value);
-                                                        validateStatus(e.target.value);
-                                                    }}
-                                                    className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                                    value={educationDetails.status}
+                                                     className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                                    onChange={(e) =>
+                                                        setEducationDetails({
+                                                            ...educationDetails,
+                                                            status: e.target.value,
+                                                        })
+                                                    }
                                                 >
-                                                    <option value="">Select A Status</option>
+                                                    <option value="">Select Status</option>
                                                     <option value="1">Active</option>
-                                                    <option value="0">InActive</option>
+                                                    <option value="0">Inactive</option>
                                                 </select>
+
                                                 {errors.status && (
                                                     <p className="text-red-500 text-sm mb-4 mt-1">{errors.status}</p>
                                                 )}
@@ -635,7 +576,7 @@ px-2 py-2 md:px-6 md:py-6">
                                     </div>
 
                                     <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
-                                        <p className="text-xl md:text-2xl ">Edit Role</p>
+                                        <p className="text-xl md:text-2xl ">Edit Education</p>
 
 
 
@@ -647,22 +588,21 @@ px-2 py-2 md:px-6 md:py-6">
                                                         Education <span className="text-red-500">*</span>
                                                     </label>
                                                     <div className="w-[50%]">
-                                                        <textarea
-                                                            rows={3}
-                                                            value={roleDetails.point_name}
+                                                        <input
+                                                            value={educationDetails.eduction_name}
                                                             onChange={(e) =>
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
-                                                                    point_name: e.target.value,
+                                                                setEducationDetails({
+                                                                    ...educationDetails,
+                                                                    eduction_name: e.target.value,
                                                                 })
                                                             }
-                                                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg resize-none"
+                                                             className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
 
-                                                        {/* {errors?.role_name && (
-                                                            <p className="text-red-500 text-sm mb-4">{errors?.role_name}</p>
-                                                        )} */}
+                                                        {errors.eduction_name && (
+                                                            <p className="text-red-500 text-sm mb-4">{errors.eduction_name}</p>
+                                                        )}
                                                     </div>
                                                 </div>
 
@@ -675,10 +615,10 @@ px-2 py-2 md:px-6 md:py-6">
                                                         <select
                                                             name="status"
                                                             id="status"
-                                                            value={roleDetails.status}
+                                                            value={educationDetails.status}
                                                             onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
+                                                                setEducationDetails({
+                                                                    ...educationDetails,
                                                                     status: e.target.value,
                                                                 });
                                                                 validateStatus(e.target.value);
@@ -725,23 +665,16 @@ px-2 py-2 md:px-6 md:py-6">
                                     </button>
 
                                     <h2 className="text-xl font-semibold mb-6 text-[#1ea600]">
-                                        Boarding Point Details
+                                        Education Details
                                     </h2>
 
                                     <div className="space-y-5 text-sm text-gray-700">
 
-                                        {/* Company */}
-                                        <div className="flex justify-between">
-                                            <span className="font-medium">Company</span>
-                                            <span>{viewContact.company?.company_name || "-"}</span>
-                                        </div>
-
-
-                                        {/* Boarding Point */}
+                                        {/* Education */}
                                         <div className="flex justify-between gap-4">
-                                            <span className="font-medium shrink-0">Boarding Point</span>
-                                            <div className="w-[65%] max-h-[120px] overflow-y-auto border border-[#D9D9D9] rounded-lg px-3 py-2 bg-gray-50">
-                                                {viewContact.point_name || "-"}
+                                            <span className="font-medium shrink-0">Education</span>
+                                            <div className="w-[65%] px-3 py-2 bg-gray-50 ">
+                                                {viewContact.eduction_name || "-"}
                                             </div>
                                         </div>
 
@@ -763,10 +696,6 @@ px-2 py-2 md:px-6 md:py-6">
                                 </div>
                             </div>
                         )}
-
-
-
-
                     </div>
                 </>
             )
