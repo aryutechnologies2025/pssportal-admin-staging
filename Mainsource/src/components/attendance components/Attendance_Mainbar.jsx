@@ -42,7 +42,7 @@ const Attendance_Mainbar = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [companyName, setCompanyName] = useState("ABC Company");
   const [selectedCompany, setSelectedCompany] = useState("Company A");
-  const companyOptions = ["Company A", "Company B", "Company C"];
+  
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -841,6 +841,17 @@ const Attendance_Mainbar = () => {
     });
   }
 
+   const companyOptions = companies.map(company => ({
+    label: company.name,
+    value: company.id,
+    name: company.name // Keep original name for reference
+  }));
+
+  const createdByOptions = createdbyData.map(creator => ({
+    label: creator.full_name || creator.username || "Unknown",
+    value: creator.id
+  }));
+
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-screen min-h-screen px-5 pt-2 md:pt-5">
 
@@ -912,7 +923,7 @@ const Attendance_Mainbar = () => {
                     type="date"
                     value={filterStartDate || ""}
                     onChange={(e) => setFilterStartDate(e.target.value)}
-                    className="px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    className="uniform-field px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
 
@@ -925,12 +936,12 @@ const Attendance_Mainbar = () => {
                     type="date"
                     value={filterEndDate || ""}
                     onChange={(e) => setFilterEndDate(e.target.value)}
-                    className="px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    className="uniform-field px-2 py-2 rounded-md text-sm border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
 
                 {/* company */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium text-[#6B7280]">
                     Company
                   </label>
@@ -940,19 +951,35 @@ const Attendance_Mainbar = () => {
                     className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   >
                     <option value="">Select Company</option>
-                    {/* Get unique references from data */}
-                    {companies // Remove null/undefined
+                 
+                    {companies
                       .map((com, index) => (
                         <option key={index} value={com.id}>
                           {com.name}
                         </option>
                       ))}
                   </select>
+                </div> */}
+
+                     <div className="flex flex-col gap-1">
+                  <label className="block text-sm font-medium text-[#6B7280]">
+                    Company
+                  </label>
+                  <Dropdown
+                    value={filterCompanyname}
+                    options={companyOptions}
+                    filter
+                    placeholder="Select Company"
+                    onChange={(e) => setFilterCompanyname(e.target.value)}
+                    className="uniform-field px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                   
+                 
                 </div>
 
 
                 {/* Created By */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="block text-sm font-medium text-[#6B7280]">
                     Created By
                   </label>
@@ -962,14 +989,34 @@ const Attendance_Mainbar = () => {
                     className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   >
                     <option value="">Select Employee</option>
-                    {/* Get unique references from data */}
-                    {createdbyData // Remove null/undefined
+                   
+                    {createdbyData 
                       .map((data, index) => (
                         <option key={index} value={data.id}>
                           {data.full_name}
                         </option>
                       ))}
                   </select>
+                  
+                </div> */}
+
+       <div className="flex flex-col gap-1">
+                  <label className="block text-sm font-medium text-[#6B7280]">
+                    Created By
+                  </label>
+                  <Dropdown
+                    value={filterCreatedBy}
+                   options={createdByOptions}
+                   filter
+                    placeholder="Select Employee"
+                    onChange={(e) => setFilterCreatedBy(e.target.value)}
+                    className="uniform-field px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                    
+                    
+                   
+                   
+                  
                   {/* <input
                     type="text"
                     placeholder="Enter creator name"
