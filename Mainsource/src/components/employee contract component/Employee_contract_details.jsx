@@ -30,6 +30,7 @@ import { IoMdDownload } from "react-icons/io";
 import CameraPhoto from "../../Utils/cameraPhoto";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { FiDownload } from "react-icons/fi";
+import { TbLogs } from "react-icons/tb";
 
 const Employee_contract_details = () => {
   //navigation
@@ -73,6 +74,7 @@ const Employee_contract_details = () => {
     uannumber: z.string().min(1, "UAN number is required"),
     esciNumber: z.string().min(1, "ESCI number is required"),
     status: z.string().min(1, "Status is required"),
+    isRejoining: z.string().optional(),
     manual_value: z.string().optional(),
     profile_picture: z.any().optional(),
     documents: z.array(z.any()).optional(),
@@ -117,6 +119,7 @@ const Employee_contract_details = () => {
       uannumber: editData ? editData.uannumber : "",
       esciNumber: editData ? editData.esciNumber : "",
       status: editData ? editData.status : "",
+      isRejoining: editData ? editData.isRejoining : "",
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
     },
@@ -133,6 +136,8 @@ const Employee_contract_details = () => {
   console.log("joined_date", joined_date);
 
   console.log("manual_value", manual_value);
+
+  const isRejoining = watch("isRejoining");
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -848,6 +853,24 @@ const Employee_contract_details = () => {
     }
   };
 
+  const removeEmergencyContact = (index) => {
+    if (emergencyContacts.length <= 1) {
+      Swal.fire({
+        icon: "warning",
+        title: "Cannot remove",
+        text: "At least one contact is required",
+      });
+      return;
+    }
+    setEmergencyContacts(emergencyContacts.filter((_, i) => i !== index));
+  };
+  // Update Emergency Contact
+  const updateEmergencyContact = (index, field, value) => {
+    const updatedContacts = [...emergencyContacts];
+    updatedContacts[index][field] = value;
+    setEmergencyContacts(updatedContacts);
+  };
+
   const handleDownload = () => {
     window.print(); // user selects "Save as PDF"
   };
@@ -1065,6 +1088,31 @@ const Employee_contract_details = () => {
   }));
 
   console.log("educationDropdown", educationDropdown);
+
+
+  const [showLogs, setShowLogs] = useState(false);
+const logData = [
+  {
+    companyName: "PSS Agencies",
+    boardingPoint: "Chennai",
+    joiningDate: "2023-08-12",
+    employeeId: "EMP001",
+  },
+  {
+    companyName: "PSS Agencies",
+    boardingPoint: "Bangalore",
+    joiningDate: "2024-01-05",
+    employeeId: "EMP045",
+  },
+
+  {
+    companyName: "PSS Agencies",
+    boardingPoint: "Mumbai",
+    joiningDate: "2024-01-05",
+    employeeId: "EMP045",
+  },
+];
+
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -1454,6 +1502,7 @@ const Employee_contract_details = () => {
                   </div>
 
                   <div className="p-2 md:p-5">
+                    <div className="flex justify-between items-center">
                     <p className="text-xl md:text-2xl font-medium">
                       {" "}
                       {!editData ? "ADD" : "Edit"} Employee
@@ -1463,6 +1512,17 @@ const Employee_contract_details = () => {
                         {backendValidationError}
                       </span>
                     )}
+                  {editData && (
+  <div
+    className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
+    title="View Logs"
+    onClick={() => setShowLogs(true)}
+  >
+    <TbLogs size={20} />
+  </div>
+)}
+
+                    </div>
                     {/* Upload Photo */}
                     <div className="flex justify-end">
                       <div className="flex flex-col items-center gap-2">
@@ -2060,6 +2120,52 @@ const Employee_contract_details = () => {
                         )}
                       </div>
                     </div>
+                    {/* rejoing */}
+                    <div className="mt-4 flex items-center justify-between">
+                      <label className="block text-md font-medium mb-2">
+                        Rejoining
+                      </label>
+
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          {...register("isRejoining")}
+                          className="sr-only peer"
+                        />
+                        <div
+                          className="w-11 h-6 bg-gray-300 rounded-full peer 
+      peer-checked:bg-[#1ea600]
+      after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+      after:bg-white after:rounded-full after:h-5 after:w-5
+      after:transition-all peer-checked:after:translate-x-5"
+                        ></div>
+                      </label>
+                    </div>
+                    {/*  */}
+                    {isRejoining && (
+                      <div className="mt-3 flex justify-between items-start">
+                        <label className="block text-md font-medium mt-2">
+                          Rejoining Notes
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%]">
+                          <textarea
+                            {...register("rejoiningNotes", {
+                              required: "Rejoining notes are required",
+                            })}
+                            rows={3}
+                            placeholder="Enter rejoining notes..."
+                            className="w-full px-2 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          />
+
+                          {errors.rejoiningNotes && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {errors.rejoiningNotes.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     {/* Emergency Contacts */}
                     <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
                       {/* Header */}
@@ -2234,6 +2340,66 @@ const Employee_contract_details = () => {
               </div>
             )}
 
+            {/* logs details */}
+
+            {showLogs && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    
+    {/* Modal box */}
+    <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center border-b pb-2">
+        <h2 className="text-lg font-semibold text-gray-800">
+          Employee Joining Logs
+        </h2>
+        <button
+          onClick={() => setShowLogs(false)}
+          className="text-gray-500 hover:text-red-500 text-xl"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
+        {logData.map((item, index) => (
+          <div
+            key={index}
+            className="border rounded-xl p-3 hover:border-[#1ea600] transition"
+          >
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <p className="text-gray-500">Company</p>
+              <p className="font-medium">{item.companyName}</p>
+
+              <p className="text-gray-500">Boarding Point</p>
+              <p className="font-medium">{item.boardingPoint}</p>
+
+              <p className="text-gray-500">Joining Date</p>
+              <p className="font-medium">{item.joiningDate}</p>
+
+              <p className="text-gray-500">Employee ID</p>
+              <p className="font-medium">{item.employeeId}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-4 text-right">
+        <button
+          onClick={() => setShowLogs(false)}
+          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+
             {isViewModalOpen && viewRow && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
                 <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
@@ -2321,7 +2487,7 @@ const Employee_contract_details = () => {
                       </p>
                       <p>
                         <b>Branch:</b>{" "}
-                        {branchOptions.find(
+                        {boardingOptions?.find(
                           (b) => b.value === viewRow.company_id,
                         )?.label || "-"}
                       </p>
