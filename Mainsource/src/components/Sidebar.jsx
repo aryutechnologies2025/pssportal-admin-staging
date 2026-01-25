@@ -6,7 +6,7 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdLogout, MdManageAccounts } from "react-icons/md";
+import { MdCampaign, MdLogout, MdManageAccounts } from "react-icons/md";
 import medics_logo from "../assets/medics_logo.svg";
 import admin_icon from "../assets/admin_icon.png";
 import employee from "../assets/employee.svg";
@@ -28,6 +28,7 @@ import { MdLeaderboard } from "react-icons/md";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
 import { BsBuildingUp } from "react-icons/bs";
 import { TbReport } from "react-icons/tb";
+import { AiOutlineMessage } from "react-icons/ai";
 
 const Sidebar = () => {
   const [arrowClicked, setArrowClicked] = useState(() => {
@@ -737,7 +738,7 @@ const Sidebar = () => {
         : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
     }`}
                 >
-                  <img
+                  {/* <img
                     src={contact}
                     alt="contact"
                     className={`sidebar-icon transition-all duration-200 ${
@@ -745,7 +746,15 @@ const Sidebar = () => {
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
                     }`}
-                  />
+                  /> */}
+                  <MdCampaign
+  size={24} // icon size
+  className={`sidebar-icon transition-all duration-200 ${
+    currentPath === "/announcement"
+      ? "brightness-0 invert pointer-events-none"
+      : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+  }`}
+/>
                   {/* <MdOutlineContactMail  className="w-5 h-5 text-gray-500  "/> */}
 
                   {!arrowClicked && (

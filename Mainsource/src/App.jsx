@@ -48,7 +48,7 @@ import DailyWork_Report_Main from "./pages/DailyWork_Report_Main";
 import Finance_Request from "./pages/Finance_Request";
 import Holiday from "./pages/Holiday";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import PSS_Attendance from "./pages/Pss_Attendance";
 import Announcement_Mainbar from "./components/announcement/Announcement";
 import Announcement_Mainbar_page from "./pages/Announcement";
@@ -58,21 +58,18 @@ import Education_Main from "./pages/Education_Main";
 function App() {
   return (
     <>
-     
-
-
       <BrowserRouter>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          style={{ zIndex: 999999 }} 
+        />
 
-      <ToastContainer
-  position="top-right"
-  autoClose={3000}
- closeOnClick
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  pauseOnHover
-/>
-      
         <Routes>
           <Route path="*" element={<PageNotFound />} />
           <Route path="/" element={<Login />} />
@@ -86,9 +83,15 @@ function App() {
           <Route path="/activity" element={<Activity />} />
           <Route path="/reports" element={<Reports_Mainbar />} />
           <Route path="/pssdailyattendance" element={<PSS_Attendance />} />
-          <Route path="/assetmanagement" element={<AssetManagement_mainbar />} />
+          <Route
+            path="/assetmanagement"
+            element={<AssetManagement_mainbar />}
+          />
           <Route path="/assetcategory" element={<AssetCategory_mainbar />} />
-          <Route path="/assetsubcategory" element={<AssetSubCategory_mainbar />} />
+          <Route
+            path="/assetsubcategory"
+            element={<AssetSubCategory_mainbar />}
+          />
 
           <Route path="/company" element={<Company />} />
           <Route path="/psscompany" element={<Pss_company_Mainbar />} />
@@ -107,8 +110,8 @@ function App() {
           <Route path="employeedetails/:id" element={<EmployeeDetails />} />
           <Route path="editemployeedetails/:id" element={<CreateEmployee />} />
           <Route path="attendance" element={<Attendance />} />
-          <Route path="boarding-point" element={<BoardingPoint_Main />} />
-          <Route path="education" element={<Education_Main />} />
+          {/* <Route path="boarding-point" element={<BoardingPoint_Main/>} /> */}
+          {/* <Route path="education" element={<Education_Main />} /> */}
           <Route
             path="monthlyattendancedetails"
             element={<MonthlyAttendanceDetails />}
@@ -134,7 +137,7 @@ function App() {
           <Route path="setting" element={<Setting />} />
           <Route path="lead-engine" element={<LeadManagement />} />
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
-          <Route path="announcement" element={<Announcement_Mainbar_page/>} />
+          <Route path="announcement" element={<Announcement_Mainbar_page />} />
         </Routes>
       </BrowserRouter>
     </>
