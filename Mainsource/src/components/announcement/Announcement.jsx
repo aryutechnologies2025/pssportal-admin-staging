@@ -11,7 +11,7 @@ import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowForward, IoIosCloseCircle } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
 import { TfiPencilAlt } from "react-icons/tfi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -25,9 +25,14 @@ import { FaCalendarAlt } from "react-icons/fa";
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { formatDateTimeDDMMYYYY, formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
+import {
+  formatDateTimeDDMMYYYY,
+  formatToDDMMYYYY,
+  formatToYYYYMMDD,
+} from "../../Utils/dateformat";
 import { AiOutlineEye } from "react-icons/ai";
-
+import { data } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Announcements_Mainbar() {
   const [announcements, setAnnouncements] = useState([]);
@@ -41,42 +46,21 @@ export default function Announcements_Mainbar() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const calendarRef = useRef(null);
-//   view 
-const [viewData, setViewData] = useState(null);
-const openViewModal = (row) => {
-  setViewData(row);
-};
-const closeViewModal = () => {
-  setViewData(null);
-};
+  //   view
+  const [viewData, setViewData] = useState(null);
+  const openViewModal = async (row) => {
+    const res = await axiosInstance.get(
+      `${API_URL}api/announcement/edit/${row.id}`
+    );
 
+    console.log("view DATA 👉", res.data.data);
+    const data = res.data.data;
+    setViewData(res.data.data);
+  };
 
-  const DUMMY_ANNOUNCEMENTS = [
-    {
-      id: 1,
-      date: "2024-09-01",
-      expiry_date: "2024-09-10",
-      message: "<p>Office will remain closed on Monday</p>",
-      visible_roles: ["1", "2", "3"],
-      status: "1",
-    },
-    {
-      id: 2,
-      date: "2024-09-05",
-      expiry_date: "2024-09-15",
-      message: "<p>New HR policy has been updated</p>",
-      visible_roles: ["2"],
-      status: "0",
-    },
-    {
-      id: 3,
-      date: "2024-09-08",
-      expiry_date: "2024-09-20",
-      message: "<p>Team meeting scheduled at 4 PM</p>",
-      visible_roles: ["1", "2"],
-      status: "1",
-    },
-  ];
+  const closeViewModal = () => {
+    setViewData(null);
+  };
 
   /* ================= ZOD SCHEMA ================= */
   const announcementSchema = z
@@ -88,7 +72,7 @@ const closeViewModal = () => {
         .string()
         .refine(
           (val) => val.replace(/<[^>]*>/g, "").trim().length > 0,
-          "Message is required",
+          "Message is required"
         ),
       visible_roles: z.array(z.string()).min(1, "Select at least one role"),
 
@@ -144,20 +128,7 @@ const closeViewModal = () => {
     setAnnouncements(res.data.data);
     setLoading(false);
   };
-// const fetchAnnouncements = async () => {
-//   try {
-//     setLoading(true);
-
-//     const res = await axiosInstance.get(`${API_URL}api/announcement`);
-//     setAnnouncements(res.data.data);
-//   } catch (error) {
-//     console.warn("API failed, loading dummy data");
-//     setAnnouncements(DUMMY_ANNOUNCEMENTS);
-//   } finally {
-//     // setLoading(false);
-//   }
-// };
-
+ 
 
   /* ================= MODAL ================= */
   const openAddModal = () => {
@@ -167,90 +138,162 @@ const closeViewModal = () => {
     setTimeout(() => setIsAnimating(true), 10);
   };
 
-//   const openEditModal = (row) => {
-//     const allRoleIds = roles
-//       .filter((r) => r.value !== "all")
-//       .map((r) => String(r.value));
+  //   const openEditModal = (row) => {
+  //     const allRoleIds = roles
+  //       .filter((r) => r.value !== "all")
+  //       .map((r) => String(r.value));
 
-//     const isAllSelected = row.visible_roles?.length === allRoleIds.length;
+  //     const isAllSelected = row.visible_roles?.length === allRoleIds.length;
 
-//     reset({
-//       date: new Date(row.start_date),
-//       expiry_date: new Date(row.expiry_date),
-//       message: row.message,
-//       visible_roles:row.visible_roles,
-//       status: row.status,
-//     });
+  //     reset({
+  //       date: new Date(row.start_date),
+  //       expiry_date: new Date(row.expiry_date),
+  //       message: row.message,
+  //       visible_roles:row.visible_roles,
+  //       status: row.status,
+  //     });
 
-//     setEditingId(row.id);
-//     setModalOpen(true);
-//     setTimeout(() => setIsAnimating(true), 10);
-//   };
+  //     setEditingId(row.id);
+  //     setModalOpen(true);
+  //     setTimeout(() => setIsAnimating(true), 10);
+  //   };
 
-// const openEditModal = (row) => {
-//   const roleIds = row.visible_roles?.map((r) => String(r.id)) || [];
+  // const openEditModal = (row) => {
+  //   const roleIds = row.visible_roles?.map((r) => String(r.id)) || [];
 
-//   reset({
-//     date: new Date(row.start_date),
-//     expiry_date: new Date(row.expiry_date),
-//     message: row.announcement_details,
-//     visible_roles: roleIds,
-//     status: String(row.status),
-//   });
+  //   reset({
+  //     date: new Date(row.start_date),
+  //     expiry_date: new Date(row.expiry_date),
+  //     message: row.announcement_details,
+  //     visible_roles: roleIds,
+  //     status: String(row.status),
+  //   });
 
-//   setEditingId(row.id);
-//   setModalOpen(true);
-//   setTimeout(() => setIsAnimating(true), 10);
-// };
+  //   setEditingId(row.id);
+  //   setModalOpen(true);
+  //   setTimeout(() => setIsAnimating(true), 10);
+  // };
 
-const openEditModal = async (row) => {
+  const openEditModal = async (row) => {
+    const res = await axiosInstance.get(
+      `${API_URL}api/announcement/edit/${row.id}`
+    );
+    console.log("EDIT DATA 👉", res.data.data);
+    const data = res.data.data;
+    reset({
+      date: new Date(data?.announcement?.start_date),
+      expiry_date: new Date(data?.announcement?.expiry_date),
+      message: data?.announcement?.announcement_details,
+      visible_roles: data.visible_roles.map((r) => String(r.id)),
+      status: String(data?.announcement?.status),
+    });
 
-  const res = await axiosInstance.get(
-    `${API_URL}api/announcement/edit/${row.id}`
-  );
+    setEditingId(row.id);
+    setModalOpen(true);
+    setTimeout(() => setIsAnimating(true), 10);
+  };
 
-  reset({
-    date: new Date(data.start_date),
-    expiry_date: new Date(data.expiry_date),
-    message: data.announcement_details,
-    visible_roles: data.visible_roles.map(r => String(r.id)),
-    status: String(data.status),
-  });
+  const deleteAnnouncement = async (row) => {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "This company will be deleted!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
 
- setEditingId(row.id);
-  setModalOpen(true);
-  setTimeout(() => setIsAnimating(true), 10);
-};
+      if (!result.isConfirmed) return;
+      await axiosInstance.delete(`${API_URL}api/announcement/delete`, {
+        params: { record_id: row.id },
+      });
 
+      closeModal();
+      setTimeout(() => {
+        toast.success("Announcement delete successfully ");
+      }, 300);
+      fetchAnnouncements();
+    } catch (error) {
+      toast.error("Failed to delete announcement ");
+      console.error(error);
+    }
+  };
 
   const closeModal = () => {
     setIsAnimating(false);
     setTimeout(() => setModalOpen(false), 300);
   };
-const formatToYYYYMMDD = (date) => {
-  if (!date) return null;
-  return date.toISOString().split("T")[0];
-};
-
+  const formatToYYYYMMDD = (date) => {
+    if (!date) return null;
+    return date.toISOString().split("T")[0];
+  };
 
   /* ================= SUBMIT ================= */
+  //   const onSubmit = async (data) => {
+
+  //     try {
+  //       let payload = {
+  //         start_date: formatToYYYYMMDD(data.date),
+  //         expiry_date: formatToYYYYMMDD(data.expiry_date),
+  //         announcement_details: data.message,
+  //         status: data.status,
+  //         visible_to: data.visible_roles,
+  //       };
+
+  //       if (data.visible_roles.includes("all")) {
+  //         payload.visible_to = roles
+  //           .filter((r) => r.value !== "all")
+  //           .map((r) => String(r.value));
+  //       }
+
+  //       if (editingId) {
+  //   await axiosInstance.post(
+  //     `${API_URL}api/announcement/update/${editingId}`,
+  //     payload
+  //   );
+
+  //   closeModal();
+
+  //   setTimeout(() => {
+  //     toast.success("Announcement updated successfully ✅");
+  //   }, 200);
+
+  // } else {
+  //   await axiosInstance.post(
+  //     `${API_URL}api/announcement/create`,
+  //     payload
+  //   );
+
+  //   closeModal();
+
+  //   setTimeout(() => {
+  //     toast.success("Announcement created successfully 🎉");
+  //   }, 200);
+  // }
+
+  // fetchAnnouncements();
+
+  //       closeModal();
+  //       fetchAnnouncements();
+  //     } catch (err) {
+  //       console.error(err);
+
+  //       toast.error(
+  //         err?.response?.data?.message || "Failed to create announcement "
+  //       );
+  //     }
+  //   };
+
   const onSubmit = async (data) => {
     try {
-    let payload = {
-  start_date: formatToYYYYMMDD(data.date),
-  expiry_date: formatToYYYYMMDD(data.expiry_date),
-  announcement_details: data.message,
-  status: data.status,
-  visible_to: data.visible_roles,
-};
-
-// let payload = {
-//   start_date: formatDateForDB(data.date),
-//   expiry_date: formatDateForDB(data.expiry_date),
-//   announcement_details: data.message,
-//   status: data.status,
-//   visible_to: data.visible_roles, // 🔥 important
-// };
+      let payload = {
+        start_date: formatToYYYYMMDD(data.date),
+        expiry_date: formatToYYYYMMDD(data.expiry_date),
+        announcement_details: data.message,
+        status: data.status,
+        visible_to: data.visible_roles,
+      };
 
       if (data.visible_roles.includes("all")) {
         payload.visible_to = roles
@@ -261,23 +304,30 @@ const formatToYYYYMMDD = (date) => {
       if (editingId) {
         await axiosInstance.post(
           `${API_URL}api/announcement/update/${editingId}`,
-          payload,
+          payload
         );
+        //  toast.success("Announcement updated successfully ");
+        closeModal();
 
-        toast.success("Announcement updated successfully ✅");
+        setTimeout(() => {
+          toast.success("Announcement updated successfully ");
+        }, 300);
       } else {
         await axiosInstance.post(`${API_URL}api/announcement/create`, payload);
 
-        toast.success("Announcement created successfully 🎉");
+        closeModal();
+
+        setTimeout(() => {
+          toast.success("Announcement created successfully");
+        }, 300);
       }
 
-      closeModal();
       fetchAnnouncements();
     } catch (err) {
       console.error(err);
 
       toast.error(
-        err?.response?.data?.message || "Failed to create announcement ❌",
+        err?.response?.data?.message || "Failed to save announcement ❌"
       );
     }
   };
@@ -331,35 +381,35 @@ const formatToYYYYMMDD = (date) => {
     //   ),
     // },
     {
-  header: "Action",
-  body: (row) => (
-    <div className="flex gap-4 justify-center items-center">
-      {/* VIEW */}
-      <AiOutlineEye
-        className="cursor-pointer text-blue-600 hover:text-blue-800"
-        title="View"
-        onClick={() => openViewModal(row)}
-        size={18}
-      />
+      header: "Action",
+      body: (row) => (
+        <div className="flex gap-4 justify-center items-center">
+          {/* VIEW */}
+          <AiOutlineEye
+            className="cursor-pointer text-blue-600 hover:text-blue-800"
+            title="View"
+            onClick={() => openViewModal(row)}
+            size={18}
+          />
 
-      {/* EDIT */}
-      <TfiPencilAlt
-        className="cursor-pointer text-green-600 hover:text-green-800"
-        title="Edit"
-        onClick={() => openEditModal(row)}
-        size={16}
-      />
+          {/* EDIT */}
+          <TfiPencilAlt
+            className="cursor-pointer text-green-600 hover:text-green-800"
+            title="Edit"
+            onClick={() => openEditModal(row)}
+            size={16}
+          />
 
-      {/* DELETE */}
-      <RiDeleteBin6Line
-        className="cursor-pointer text-red-600 hover:text-red-800"
-        title="Delete"
-        size={18}
-      />
-    </div>
-  ),
-}
-
+          {/* DELETE */}
+          <RiDeleteBin6Line
+            className="cursor-pointer text-red-600 hover:text-red-800"
+            title="Delete"
+            onClick={() => deleteAnnouncement(row)}
+            size={18}
+          />
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -371,7 +421,6 @@ const formatToYYYYMMDD = (date) => {
           <div>
             <Mobile_Sidebar />
           </div>
-          {/* <Toast ref={toast} position="top-right" /> */}
 
           {/* HEADER */}
           <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
@@ -398,12 +447,14 @@ const formatToYYYYMMDD = (date) => {
                   </span>
                 </div>
 
-                <div className="flex justify-between mb-4">
-                  <InputText
-                    value={globalFilter}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    placeholder="Search..."
-                  />
+                <div className="flex justify-end w-full mb-4 gap-2 md:gap-4">
+                 <input
+  value={globalFilter}
+  onChange={(e) => setGlobalFilter(e.target.value)}
+  placeholder="Search..."
+  className=" max-w-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+/>
+
                   <button
                     onClick={openAddModal}
                     className="bg-[#1ea600] text-white px-4 py-2 rounded-lg"
@@ -474,7 +525,7 @@ const formatToYYYYMMDD = (date) => {
                 </div>
                 <form
                   onSubmit={handleSubmit(onSubmit)}
-                  className="px-6 py-8 space-y-6"
+                  className="px-6 py-8 space-y-6 h-[calc(100vh-60px)] overflow-y-auto"
                 >
                   <h2 className="text-2xl font-semibold">
                     {editingId ? "Edit" : "Add"} Announcement
@@ -656,7 +707,7 @@ const formatToYYYYMMDD = (date) => {
                                 // 🔵 Normal selection (no duplicates)
                                 field.onChange([
                                   ...new Set(
-                                    selected.filter((v) => v !== "all"),
+                                    selected.filter((v) => v !== "all")
                                   ),
                                 ]);
                               }}
@@ -727,49 +778,69 @@ const formatToYYYYMMDD = (date) => {
             </div>
           )}
           {viewData && (
-  <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
-    <div className="bg-white w-[500px] rounded-lg p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Announcement Details</h2>
+            <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+              <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
+                {/* Header */}
+                <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
+                  <h2 className="text-xl font-semibold text-[#1ea600] hover:text-[#4BB452]">
+                    Announcement Details
+                  </h2>
 
-      <p><b>Date:</b> {viewData.start_date}</p>
-      <p><b>Expiry Date:</b> {viewData.expiry_date}</p>
+                  <button
+                    onClick={closeViewModal}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+                  >
+                    <IoIosCloseCircle size={28} />
+                  </button>
+                </div>
 
-      <div>
-        <b>Message:</b>
-        <div
-          className="mt-2 text-sm"
-          dangerouslySetInnerHTML={{
-            __html: viewData.announcement_details,
-          }}
-        />
-      </div>
+                {/* Body */}
+                <div className="p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <p>
+                      <b>Start Date:</b>{" "}
+                      {viewData?.announcement?.start_date || "-"}
+                    </p>
 
-      <div>
-        <b>Visible Roles:</b>
-        <ul className="list-disc ml-5 text-sm">
-          {viewData.visible_roles?.map((r) => (
-            <li key={r.id}>{r.role_name}</li>
-          ))}
-        </ul>
-      </div>
+                    <p>
+                      <b>Expiry Date:</b>{" "}
+                      {viewData?.announcement?.expiry_date || "-"}
+                    </p>
 
-      <p>
-        <b>Status:</b>{" "}
-        {viewData.status == 1 ? "Active" : "Inactive"}
-      </p>
+                    <p>
+                      <b>Status:</b>{" "}
+                      {viewData?.announcement?.status == 1
+                        ? "Active"
+                        : "Inactive"}
+                    </p>
 
-      <div className="text-right pt-4">
-        <button
-          onClick={closeViewModal}
-          className="px-4 py-2 bg-gray-200 rounded-md"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                    <div className="col-span-2">
+                      <b>Message:</b>
+                      <div
+                        className="mt-2 p-3 border rounded-md text-sm bg-gray-50"
+                        dangerouslySetInnerHTML={{
+                          __html: viewData?.announcement?.announcement_details,
+                        }}
+                      />
+                    </div>
 
+                    <div className="col-span-2">
+                      <b>Visible Roles:</b>
+                      {viewData?.visible_roles?.length > 0 ? (
+                        <ul className="list-disc ml-5 mt-2 text-sm">
+                          {viewData.visible_roles.map((r) => (
+                            <li key={r.id}>{r.role_name}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-gray-500 mt-1">No roles assigned</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           <Footer />
         </>
       )}

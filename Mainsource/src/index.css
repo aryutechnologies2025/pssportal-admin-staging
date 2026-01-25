@@ -402,3 +402,7 @@ tbody {
     display: none !important;
   }
 }
+.Toastify__toast-container {
+  z-index: 999999 !important;
+}
+
