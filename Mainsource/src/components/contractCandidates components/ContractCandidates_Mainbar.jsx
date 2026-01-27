@@ -1210,11 +1210,24 @@ const ContractCandidates_Mainbar = () => {
 
 
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong");
+      console.log("Errors1 : ",error)
+  const errors = error?.response?.data?.errors;
+  console.log("Errors2 : ",errors)
+
+  if (errors) {
+    Object.values(errors)
+      .flat()
+      .forEach((msg) => {
+        // toast.error(msg); // 👈 EXACT backend message
+      });
+  } else {
+    // toast.error(error?.errors?.aadhar_number[0] || "Server error. Please try again.");
+    setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
+  }
     } finally {
       setLoading(false);
     }
+
     //       if (editData) {
     //         const response = await axiosInstance.post(
     //           `/api/contract-emp/update/${editData.id}`,

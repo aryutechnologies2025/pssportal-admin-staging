@@ -14,7 +14,7 @@ import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FiSearch } from "react-icons/fi";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axiosInstance from "../../axiosConfig";
 import { FaEye } from "react-icons/fa6";
@@ -51,6 +51,16 @@ const Employee_contract_details = () => {
     return new Date().toISOString().split("T")[0];
   };
 
+  /* Emergency Contact */
+ const emergencyContactSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  relationship: z.string().min(1, "Relation is required"),
+  phone_number: z
+    .string()
+    .regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
+});
+
+
   const candidateContractSchema = z.object({
     name: z.string().min(1, "Name is required"),
     dob: z.string().min(1, "Date of birth is required"),
@@ -81,11 +91,17 @@ const Employee_contract_details = () => {
     manual_value: z.string().optional(),
     profile_picture: z.any().optional(),
     documents: z.array(z.any()).optional(),
-  });
+    /* 🔥 Emergency Contacts */
+  emergencyContacts: z
+    .array(emergencyContactSchema)
+    .min(1, "At least one emergency contact is required"),
+});
 
-  const [emergencyContacts, setEmergencyContacts] = useState([
-    { name: "", phone: "", relation: "" },
-  ]);
+
+
+  // const [emergencyContacts, setEmergencyContacts] = useState([
+  //   { name: "", phone: "", relation: "" },
+  // ]);
   const [employeeIds, setEmployeeIds] = useState([]);
 
   const {
@@ -94,6 +110,7 @@ const Employee_contract_details = () => {
     watch,
     setValue,
     reset,
+    control,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(candidateContractSchema),
@@ -126,8 +143,17 @@ const Employee_contract_details = () => {
       isRejoining: editData ? editData.isRejoining : "",
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
+     emergencyContacts: [
+      { name: "", relationship: "", phone_number: "" },
+    ],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+  control,
+  name: "emergencyContacts",
+});
+
 
   useEffect(() => {
     setValue("manual_value", employeeIds);
@@ -618,6 +644,19 @@ const Employee_contract_details = () => {
 
   const normalizeEditData = (row) => {
     console.log("rowedit", row);
+
+      // Normalize contact_details from backend
+ let normalizedContacts = [];
+
+  if (Array.isArray(row.contacts) && row.contacts.length > 0) {
+    normalizedContacts = row.contacts.map(c => ({
+      name: c.name || "",
+      relationship: c.relationship || "",
+      phone_number: c.phone_number || "",
+    }));
+  }
+
+
     return {
       id: row.id || null,
       name: row.name || "",
@@ -658,6 +697,12 @@ const Employee_contract_details = () => {
       // joinedDate: row.joined_date || "",
       profile_picture: row.profile_picture || "",
       documents: row.documents || [],
+       emergencyContacts:
+      normalizedContacts.length > 0
+        ? normalizedContacts
+        : [{ name: "", relationship: "", phone_number: "" }],
+
+    
     };
   };
 
@@ -723,6 +768,7 @@ const Employee_contract_details = () => {
       reset({
         ...normalizedData,
         company: String(normalizedData.company),
+        emergencyContacts: normalizedData.emergencyContacts,
       });
       setSelectedBoarding(normalizedData.boardingPoint);
       setSelectedEducation(normalizedData.education);
@@ -854,44 +900,44 @@ const Employee_contract_details = () => {
     { label: "Branch 3", value: "Branch 3" },
   ];
 
-  const addEmergencyContact = () => {
-    const last = emergencyContacts[emergencyContacts.length - 1];
-    // Only add if last contact is filled
-    if (last.name && last.phone && last.relation) {
-      setEmergencyContacts([
-        ...emergencyContacts,
-        { name: "", phone: "", relation: "" },
-      ]);
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "Incomplete Contact",
-        text: "Please complete the current contact before adding a new one",
-      });
-    }
-  };
+  // const addEmergencyContact = () => {
+  //   const last = emergencyContacts[emergencyContacts.length - 1];
+  //   // Only add if last contact is filled
+  //   if (last.name && last.phone && last.relation) {
+  //     setEmergencyContacts([
+  //       ...emergencyContacts,
+  //       { name: "", phone: "", relation: "" },
+  //     ]);
+  //   } else {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Incomplete Contact",
+  //       text: "Please complete the current contact before adding a new one",
+  //     });
+  //   }
+  // };
 
-  const removeEmergencyContact = (index) => {
-    if (emergencyContacts.length <= 1) {
-      Swal.fire({
-        icon: "warning",
-        title: "Cannot remove",
-        text: "At least one contact is required",
-      });
-      return;
-    }
-    setEmergencyContacts(emergencyContacts.filter((_, i) => i !== index));
-  };
-  // Update Emergency Contact
-  const updateEmergencyContact = (index, field, value) => {
-    const updatedContacts = [...emergencyContacts];
-    updatedContacts[index][field] = value;
-    setEmergencyContacts(updatedContacts);
-  };
+  // const removeEmergencyContact = (index) => {
+  //   if (emergencyContacts.length <= 1) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Cannot remove",
+  //       text: "At least one contact is required",
+  //     });
+  //     return;
+  //   }
+  //   setEmergencyContacts(emergencyContacts.filter((_, i) => i !== index));
+  // };
+  // // Update Emergency Contact
+  // const updateEmergencyContact = (index, field, value) => {
+  //   const updatedContacts = [...emergencyContacts];
+  //   updatedContacts[index][field] = value;
+  //   setEmergencyContacts(updatedContacts);
+  // };
 
-  const handleDownload = () => {
-    window.print(); // user selects "Save as PDF"
-  };
+  // const handleDownload = () => {
+  //   window.print(); // user selects "Save as PDF"
+  // };
 
   const columns = [
     {
@@ -1001,31 +1047,54 @@ const Employee_contract_details = () => {
         company_id: Number(data.company),
         joining_date: formatDateToYMD(data.joinedDate),
         acc_no: data.accountName,
-        marital_status: data.maritalStatus,
-        boarding_point_id: Number(data.boardingPoint),
-        education_id: Number(data.education),
+        marital_status: data.marital_status,
+         boarding_point_id: Number(data.boardingPoint),
+        education_id:
+  data.education && !isNaN(Number(data.education))
+    ? Number(data.education)
+    : null,
+    pan_number: data.panNumber,
+        city: data.city,
+        state: data.state,
+         branch_name: data.branch,
+      current_address: data.currentAddress,
         account_number: data.accountNumber,
         ifsc_code: data.ifsccode,
         uan_number: data.uannumber,
         esic: data.esciNumber,
         employee_id: data.manual_value,
-
+bank_name: data.bankName,
+        
         // status: data.status,
         status: 1,
         created_by: userId,
         role_id: userRole,
       };
 
-      const formData = new FormData();
+       const formData = new FormData();
 
-      Object.entries(createCandidate).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          formData.append(
-            key,
-            typeof value === "object" ? JSON.stringify(value) : value,
-          );
-        }
-      });
+ Object.entries(createCandidate).forEach(([key, value]) => {
+  if (value === null || value === undefined) return;
+  formData.append(key, value);
+});
+
+
+       // 🔥 emergency contacts (indexed)
+    const validContacts = data.emergencyContacts.filter(
+  c => c.name && c.relationship && c.phone_number
+);
+
+validContacts.forEach((contact, index) => {
+  formData.append(`contact_details[${index}][name]`, contact.name);
+  formData.append(
+    `contact_details[${index}][relationship]`,
+    contact.relationship
+  );
+  formData.append(
+    `contact_details[${index}][phone_number]`,
+    contact.phone_number
+  );
+});
 
       //  Profile image
       if (data.profile_picture instanceof File) {
@@ -1056,7 +1125,7 @@ const Employee_contract_details = () => {
         ? `/api/contract-employee/update/${editData.id}`
         : `/api/contract-employee/create`;
 
-      await axiosInstance.post(url, formData, {
+     const response = await axiosInstance.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -1070,8 +1139,20 @@ const Employee_contract_details = () => {
       fetchContractCandidates();
       closeAddModal();
     } catch (error) {
-      console.error(" Error creating candidate:", error);
-      toast.error("Something went wrong");
+     
+  const errors = error?.response?.data?.errors;
+
+
+  if (errors) {
+    Object.values(errors)
+      .flat()
+      .forEach((msg) => {
+        // toast.error(msg);
+      });
+  } else {
+    // toast.error(error?.errors?.aadhar_number[0] || "Server error. Please try again.");
+    setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
+  }
     } finally {
       setLoading(false);
     }
@@ -1641,39 +1722,7 @@ const logData = [
                         )}
                       </div>
                     </div>
-                    {/* branch */}{" "}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Branch
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%]">
-                        <Dropdown
-                          value={selectedBranch}
-                          options={branchDropdown}
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Select Branch"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedBranch(e.value);
-                            const branchObj = branchDropdown.find(
-                              (item) => item.value === e.value,
-                            );
-                            setCompanyEmpType(
-                              obj.company_emp_id?.toLowerCase(),
-                            );
-                            setValue("company", String(e.value), {
-                              shouldValidate: true,
-                            });
-                          }}
-                        />
-
-                        {/* {errors.branch && (  <p className="text-red-500 text-sm">    {errors.branch.message}  </p>)} */}
-                      </div>
-                    </div>
+                
                      {/* boarding Point */}{" "}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium">
@@ -1788,7 +1837,8 @@ const logData = [
                      {/* marital status */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Marital Status <span className="text-red-500">*</span>
+                        Marital Status 
+                        {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-[50%] md:w-[60%] rounded-lg">
@@ -1815,12 +1865,12 @@ const logData = [
                         </div>
                       </div>
                     </div>
-
+{/* 
                     {errors.maritalStatus && (
                       <p className="text-red-500 text-sm">
                         {errors.maritalStatus.message}
                       </p>
-                    )}
+                    )} */}
                     {/* address */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -1991,9 +2041,9 @@ const logData = [
                       <div className="w-[50%] md:w-[60%] rounded-lg">
                         <input
                           type="text"
-                          name="pan"
+                          name="pannumber"
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("pan")}
+                          {...register("panNumber")}
                           maxLength={10}
                           onInput={(e) => {
                             e.target.value = e.target.value
@@ -2083,6 +2133,31 @@ const logData = [
                         {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
                       </div>
                     </div>
+
+                          {/* branch */}
+                      <div className="mt-5 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        Branch Name
+                         {/* <span className="text-red-500">*</span> */}
+                      </label>
+
+                      <div className="w-[50%] md:w-[60%]">
+                         <input
+                          type="text"
+                          name="branch"
+                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          {...register("bank_branch")}
+                          placeholder="Enter Branch Name"
+                        />
+                        
+                        {/* {errors.branch && (
+                          <p className="text-red-500 text-sm">
+                            {errors.branch.message}
+                          </p>
+                        )} */}
+                      </div>
+                    </div>
+
                     {/* account name */}
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -2249,106 +2324,142 @@ const logData = [
                         </div>
                       </div>
                     )}
+                   
+                   
                     {/* Emergency Contacts */}
-                    <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
-                      {/* Header */}
-                      <div className="flex justify-between items-center">
-                        <p className="text-lg md:text-xl font-semibold">
-                          Emergency Contacts
-                        </p>
-                        <IoAddCircleSharp
-                          className="text-[#1ea600] text-3xl cursor-pointer"
-                          onClick={addEmergencyContact}
-                        />
-                      </div>
+<div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
 
-                      {/* Table Head */}
-                      <div className="mt-4">
-                        <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
-                          <span>Name</span>
-                          <span>Relation</span>
-                          <span>Phone No</span>
-                        </div>
+  {/* Header */}
+  <div className="flex justify-between items-center">
+    <p className="text-lg md:text-xl font-semibold">
+      Emergency Contacts
+    </p>
+    <IoAddCircleSharp
+      className="text-[#1ea600] text-3xl cursor-pointer"
+      // onClick={addEmergencyContact}
+      onClick={() =>
+        append({ name: "", relationship: "", phone_number: "" })
+      }
+    />
+  </div>
 
-                        {/* Rows */}
-                        {emergencyContacts.map((item, index) => (
-                          <div
-                            key={index}
-                            className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-                          >
-                            {/* Remove */}
-                            {index > 0 && (
-                              <IoIosCloseCircle
-                                className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-                                onClick={() => removeEmergencyContact(index)}
-                              />
-                            )}
+  {/* Table Head */}
+  <div className="mt-4">
+    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
+      <span>Name</span>
+      <span>Relation</span>
+      <span>Phone No</span>
+    </div>
 
-                            {/* Name */}
-                            <div className="flex flex-col mt-1">
-                              <input
-                                type="text"
-                                placeholder="Full Name"
-                                value={item.name}
-                                onChange={(e) =>
-                                  updateEmergencyContact(
-                                    index,
-                                    "name",
-                                    e.target.value,
-                                  )
-                                }
-                                className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                              />
-                            </div>
+    {/* Rows */}
+    {fields.map((field, index) => (
+      <div
+        key={field.id}
+        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+      >
 
-                            {/* Relation */}
-                            <div className="flex flex-col mt-1">
-                              <select
-                                value={item.relation}
-                                onChange={(e) =>
-                                  updateEmergencyContact(
-                                    index,
-                                    "relation",
-                                    e.target.value,
-                                  )
-                                }
-                                className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                              >
-                                <option value="">Select Relation</option>
-                                {relationOptions.map((opt) => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
+        {/* Remove */}
+        {index > 0 && (
+          <IoIosCloseCircle
+            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+            // onClick={() => removeEmergencyContact(index)}
+            onClick={() => remove(index)}
+          />
+        )}
 
-                            {/* Phone */}
-                            <div className="flex flex-col mt-1">
-                              <input
-                                type="text"
-                                placeholder="Phone Number"
-                                value={item.phone}
-                                onChange={(e) => {
-                                  const value = e.target.value.replace(
-                                    /\D/g,
-                                    "",
-                                  );
-                                  if (value.length <= 10) {
-                                    updateEmergencyContact(
-                                      index,
-                                      "phone",
-                                      value,
-                                    );
-                                  }
-                                }}
-                                className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+        {/* Name */}
+        {/* <div className="flex flex-col mt-1">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={item.name}
+            onChange={(e) =>
+              updateEmergencyContact(index, "name", e.target.value)
+            }
+            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+          />
+        </div> */}
+         <div>
+        <input
+          {...register(`emergencyContacts.${index}.name`)}
+          placeholder="Full Name"
+          className="border h-10 w-full rounded px-2"
+        />
+        <p className="text-red-500 text-xs">
+          {errors?.emergencyContacts?.[index]?.name?.message}
+        </p>
+      </div>
+
+        {/* Relation */}
+        {/* <div className="flex flex-col mt-1">
+          <select
+            value={item.relationship}
+            onChange={(e) =>
+              updateEmergencyContact(index, "relationship", e.target.value)
+            }
+            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+          >
+            <option value="">Select Relation</option>
+            {relationOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div> */}
+        <div>
+        <select
+          {...register(`emergencyContacts.${index}.relationship`)}
+          className="border h-10 w-full rounded px-2"
+        >
+          <option value="">Select</option>
+          {relationOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <p className="text-red-500 text-xs">
+          {errors?.emergencyContacts?.[index]?.relationship?.message}
+        </p>
+      </div>
+
+
+        {/* Phone */}
+        {/* <div className="flex flex-col mt-1">
+          <input
+            type="text"
+            placeholder="Phone Number"
+            value={item.phone_number}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, "");
+              if (value.length <= 10) {
+                updateEmergencyContact(index, "phone_number", value);
+              }
+            }}
+            className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+          />
+        </div> */}
+        <div>
+        <input
+          {...register(`emergencyContacts.${index}.phone_number`)}
+          placeholder="Phone Number"
+          maxLength={10}
+          className="border h-10 w-full rounded px-2"
+        />
+        <p className="text-red-500 text-xs">
+          {errors?.emergencyContacts?.[index]?.phone_number?.message}
+        </p>
+      </div>
+
+      </div>
+    ))}
+    <p className="text-red-600 text-sm mt-2">
+    {errors?.emergencyContacts?.message}
+  </p>
+  </div>
+</div>
+
                     {/* Documents */}
                     <div className="mt-5 flex justify-between items-start">
                       <label className="block text-md font-medium">
@@ -2639,46 +2750,35 @@ const logData = [
                         <b>Employee ID:</b> {viewRow.employee_id || "-"}
                       </p>
 
-                      {/* emergency contact */}
+                     {/* emergency contact */}
 
-                      <div className="mt-4">
-                        <h3 className="font-semibold mb-2">
-                          Emergency Contacts
-                        </h3>
+<div className="mt-4">
+  <h3 className="font-semibold mb-2">Emergency Contacts</h3>
 
-                        {viewRow.emergency_contacts?.length > 0 ? (
-                          <table className="w-full border text-sm">
-                            <thead className="bg-gray-100">
-                              <tr>
-                                <th className="border p-2">Name</th>
-                                <th className="border p-2">Relation</th>
-                                <th className="border p-2">Phone Number</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {viewRow.emergency_contacts
-                                ?.filter(
-                                  (c) => e.name && e.relation && e.phone_number,
-                                )
-                                .map((e, i) => (
-                                  <tr key={i}>
-                                    <td className="border p-2">
-                                      {c.name || "-"}
-                                    </td>
-                                    <td className="border p-2">
-                                      {c.relation || "-"}
-                                    </td>
-                                    <td className="border p-2">
-                                      {c.phone_number || "-"}
-                                    </td>
-                                  </tr>
-                                ))}
-                            </tbody>
-                          </table>
-                        ) : (
-                          <p className="text-gray-500">No contacts available</p>
-                        )}
-                      </div>
+ {viewRow?.contacts && Array.isArray(viewRow.contacts) && viewRow.contacts.length > 0 ? (
+    <table className="w-full border text-sm">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="border p-2">Name</th>
+          <th className="border p-2">Relation</th>
+          <th className="border p-2">Phone Number</th>
+        </tr>
+      </thead>
+      <tbody>
+        {viewRow.contacts.map((c, i) => (
+          <tr key={i}>
+            <td className="border p-2">{c.name}</td>
+            <td className="border p-2">{c.relationship}</td>
+            <td className="border p-2">{c.phone_number}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <p className="text-gray-500">No contacts available</p>
+  )}
+</div>
+
                       <div className="col-span-2 pt-4">
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
