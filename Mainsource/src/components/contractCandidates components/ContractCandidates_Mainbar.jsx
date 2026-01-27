@@ -380,6 +380,47 @@ const ContractCandidates_Mainbar = () => {
     new Date().toISOString().split("T")[0]
   );
 
+  const [existingCandidate, setExistingCandidate] = useState(null);
+  const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
+ const [isExistingCandidateViewModalOpen, setIsExistingCandidateViewModalOpen] = useState(false);
+
+  const handleViewExisting = async (id) => {
+  try {
+    
+    const response = await axiosInstance.get(
+      `/api/contract-emp/edit/${id}`
+    );
+
+    if (response.data?.success) {
+     setViewExistingCandidate(response.data.data); 
+      setIsExistingCandidateViewModalOpen(true);    
+    }
+
+   
+
+  } catch (err) {
+    toast.error("Unable To Load Candidate Details");
+  }
+};
+
+const handleCloseViewExistingCandidate = () => {
+  setIsAddCandidateOpen(false);
+
+  reset();
+
+ setIsExistingCandidateViewModalOpen(false);
+  setViewExistingCandidate(null);
+};
+
+const handleCloseAddCandidate = () => {
+  setIsAddCandidateOpen(false);
+
+  reset();
+  setExistingCandidate(null);
+  setIsAadharDuplicate(false);
+};
+
+
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewRow, setViewRow] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -424,6 +465,9 @@ const ContractCandidates_Mainbar = () => {
     setTimeout(() => {
       setIsModalOpen(false);
       setBackendValidationError(null);
+      setExistingCandidate(null);
+ 
+  reset();
 
     }, 250);
   };
@@ -460,6 +504,8 @@ const ContractCandidates_Mainbar = () => {
   const closeViewModal = () => {
     setIsViewModalOpen(false);
     setViewRow(null);
+     setIsExistingCandidateViewModalOpen(false);
+  setViewExistingCandidate(null);
   };
 
   const resetImportForm = () => {
@@ -1210,19 +1256,21 @@ const ContractCandidates_Mainbar = () => {
 
 
     } catch (error) {
-      console.log("Errors1 : ",error)
-  const errors = error?.response?.data?.errors;
-  console.log("Errors2 : ",errors)
+      const res = error?.response?.data;
 
-  if (errors) {
-    Object.values(errors)
-      .flat()
-      .forEach((msg) => {
-        // toast.error(msg); // 👈 EXACT backend message
-      });
+  if (res?.existing_id) {
+    // for Aadhaar already exists case
+    setExistingCandidate({
+      id: res.existing_id,
+      message: res.message
+    });
   } else {
-    // toast.error(error?.errors?.aadhar_number[0] || "Server error. Please try again.");
-    setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
+    setExistingCandidate(null);
+    setTimeout(
+      () => toast.error(res?.message || "Server Error. Please Try Again."),
+      300
+    ); 
+    // setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
   }
     } finally {
       setLoading(false);
@@ -2024,6 +2072,18 @@ const ContractCandidates_Mainbar = () => {
                         </span>
                       </div>
                     </div>
+                    {existingCandidate && (
+  <p className="text-sm text-red-600 mt-1">
+    {existingCandidate.message}{" "}
+    <span
+      className="underline text-green-600 cursor-pointer"
+      onClick={() => handleViewExisting(existingCandidate.id)}
+    >
+      Learn more
+    </span>
+  </p>
+)}
+
 
                     {/* pan no */}
                     <div className="mt-5 flex justify-between items-center">
@@ -2516,7 +2576,7 @@ const ContractCandidates_Mainbar = () => {
 
                     {/* Title */}
                     <h2 className="text-xl font-semibold text-[#1ea600]">
-                      View Contract Candidate Details
+                      View Interview Candidate Details
                     </h2>
 
                     {/* Profile Picture */}
@@ -2649,6 +2709,190 @@ const ContractCandidates_Mainbar = () => {
                         {viewRow.documents && viewRow.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewRow.documents.map((doc, index) => (
+                              <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                                <span className="text-gray-600 truncate flex-1">
+                                  {doc.original_name || `Document ${index + 1}`}
+                                </span>
+
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+                                    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+                                  >
+                                    View/Print
+                                  </button>
+                                  {/* <button
+    onClick={() =>
+      window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
+    }
+    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-green-100"
+  >
+    Download
+  </button> */}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic">No documents uploaded.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+             {isExistingCandidateViewModalOpen && viewExistingCandidate && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
+                  {/* Close Button */}
+                  {/* <button
+                    onClick={closeViewModal}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+                  >
+                    <IoIosCloseCircle size={28} />
+                  </button> */}
+
+                  {/* Title and profile picture */}
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6 border-b pb-4">
+
+                    {/* Title */}
+                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                      View Existing Candidate Details
+                    </h2>
+
+                    {/* Profile Picture */}
+                    <div className="flex items-center gap-6">
+
+                      {viewExistingCandidate.profile_picture ? (
+                        <img
+                          src={
+                            viewExistingCandidate.profile_picture.startsWith("http")
+                              ? viewExistingCandidate.profile_picture
+                              : `${API_URL}${viewExistingCandidate.profile_picture}`
+                          }
+                          alt="Profile"
+                          className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+                          No Photo
+                        </div>
+                      )}
+
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-4">
+                        {/* Download */}
+                        {/* <button
+        title="Download"
+        onClick={() => handleDownload(viewRow)}
+        className="text-gray-500 hover:text-green-600"
+      >
+        <IoMdDownload size={26} />
+      </button> */}
+
+                        {/* Print */}
+                        <button
+                          title="Print"
+                          onClick={() => window.print()}
+                          className="text-gray-500 hover:text-green-600"
+                        >
+                          <TfiPrinter size={24} />
+                        </button>
+
+                        {/* Close */}
+                        <button
+                          title="Close"
+                          onClick={handleCloseViewExistingCandidate}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <IoIosCloseCircle size={26} />
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* body */}
+                  <div className="pr-2 overflow-y-auto ">
+                    {/* Candidate Info */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+
+                      <p>
+                        <b>Company:</b>{" "}
+                        {companyOptions.find(c => c.value === viewExistingCandidate.company_id)?.label || "-"}
+                      </p>
+
+                      <p>
+                        <b>Name:</b> {viewExistingCandidate.name}
+                      </p>
+                      <p>
+                        <b>Phone:</b> {viewExistingCandidate.phone_number}
+                      </p>
+
+                      <p>
+                        <b>Aadhar Number:</b> {viewExistingCandidate.aadhar_number}
+                      </p>
+
+                      <p>
+                        <b>Pan Number:</b> {viewExistingCandidate.pan_number || "-"}
+                      </p>
+                      <p>
+                        <b>Gender:</b> {viewExistingCandidate.gender || "-"}
+                      </p>
+                      <p>
+                        <b>Marital Status:</b> {viewExistingCandidate.marital_status || "-"}
+                      </p>
+                      <p>
+                        <b>Education:</b>{" "}
+                        {viewExistingCandidate.education?.eduction_name || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Date:</b> {formatToDDMMYYYY(viewExistingCandidate.interview_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Status:</b>{" "}
+                        <span className="font-medium">
+                          {viewExistingCandidate.interview_status || "-"}
+                        </span>
+                      </p>
+
+                      <p>
+                        <b>Candidate Status:</b> {viewExistingCandidate.joining_status || "-"}
+                      </p>
+                      <p>
+                        <b>Joining Date:</b> {formatToDDMMYYYY(viewExistingCandidate.joining_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Joined Date:</b>{" "}
+                        {viewExistingCandidate.joined_date
+                          ? formatToDDMMYYYY(viewExistingCandidate.joined_date)
+                          : "-"}
+                      </p>
+                      <p>
+                        <b>Reference:</b> {viewExistingCandidate.reference || "-"}
+                      </p>
+                      {viewExistingCandidate?.other_reference !== null && (
+                        <p>
+                          <b>Other Reference:</b> {viewExistingCandidate.other_reference || "-"}
+                        </p>
+                      )}
+
+
+                      <p className="col-span-2">
+                        <b>Notes:</b>{" "}
+                        {viewExistingCandidate.notes_details?.[0]?.notes ||
+                          "No notes available"}
+                      </p>
+
+                      <div className="col-span-2 pt-4">
+                        <b className="block mb-2 text-gray-700">Documents:</b>
+                        {/* Check if documents is an array and has items */}
+                        {viewExistingCandidate.documents && viewExistingCandidate.documents.length > 0 ? (
+                          <div className="space-y-2">
+                            {viewExistingCandidate.documents.map((doc, index) => (
                               <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
                                 <span className="text-gray-600 truncate flex-1">
                                   {doc.original_name || `Document ${index + 1}`}
