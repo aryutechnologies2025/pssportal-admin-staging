@@ -76,7 +76,7 @@ const ContractCandidates_Mainbar = () => {
       // fatherName: z.string().min(1, "Father's name is required"),
       // address: z.string().min(1, "Address is required"),
       gender: z.string().min(1, "Gender is required"),
-      marital: z.string().min(1, "Marital Status is required"),
+      marital: z.string().optional(),
       phone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
       aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
       pan_number: z.string().optional(),
@@ -771,7 +771,6 @@ const ContractCandidates_Mainbar = () => {
       setSelectedEducation(normalizedData.education || null);
 
       if (normalizedData.profile_picture) {
-        // If it's already a full URL, use it; otherwise, append base URL
         const imageUrl = normalizedData.profile_picture.startsWith('http')
           ? normalizedData.profile_picture
           : `${API_URL}/${normalizedData.profile_picture}`;
@@ -1383,7 +1382,7 @@ const ContractCandidates_Mainbar = () => {
                       value={filterInterviewStatus}
                       options={interviewStatusOptions}
                       onChange={(e) => setFilterInterviewStatus(e.value)}
-                      placeholder="Select Status "
+                      placeholder="Select Interview Status "
                       filter
                       className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
                     />
@@ -1398,7 +1397,7 @@ const ContractCandidates_Mainbar = () => {
                       value={filterCandidateStatus}
                       options={candidateStatusOptions}
                       onChange={(e) => setFilterCandidateStatus(e.value)}
-                      placeholder="Select Status "
+                      placeholder="Select Candidate Status "
                       filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md placeholder:text-gray-400"
                     />
@@ -1413,7 +1412,7 @@ const ContractCandidates_Mainbar = () => {
                       value={filterEducation}
                       options={educationOptions}
                       onChange={(e) => setFilterEducation(e.value)}
-                      placeholder="Select Status "
+                      placeholder="Select Education Status "
                       filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md placeholder:text-gray-400"
                     />
@@ -1931,7 +1930,8 @@ const ContractCandidates_Mainbar = () => {
 
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Marital Status <span className="text-red-500">*</span>
+                        Marital Status 
+                        {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-[50%] md:w-[60%] rounded-lg">
@@ -1957,9 +1957,9 @@ const ContractCandidates_Mainbar = () => {
                           </label>
                         </div>
 
-                        <span className="text-red-500 text-sm">
+                        {/* <span className="text-red-500 text-sm">
                           {errors.marital?.message}
-                        </span>
+                        </span> */}
                       </div>
                     </div>
 
@@ -2062,12 +2062,13 @@ const ContractCandidates_Mainbar = () => {
                     {/* Education */}
                     <div className="mt-4 mb-3 flex flex-col md:flex-row md:justify-between md:items-center">
                       <label className="block text-md font-medium mb-2">
-                        Education <span className="text-red-500">*</span>
+                        Education 
+                        {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-full md:w-[60%]">
 
-                        {/* 🔴 REQUIRED hidden register */}
+                        
                         <input
                           type="hidden"
                           {...register("education", {
@@ -2093,11 +2094,11 @@ const ContractCandidates_Mainbar = () => {
                           }}
                         />
 
-                        {errors.education && (
+                        {/* {errors.education && (
                           <p className="text-red-500 text-sm mt-1">
                             {errors.education.message}
                           </p>
-                        )}
+                        )} */}
                       </div>
                     </div>
 
@@ -2134,7 +2135,7 @@ const ContractCandidates_Mainbar = () => {
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                           name="interviewStatus"
                         >
-                          <option value="">Select Status</option>
+                          <option value="">Select Interview Status</option>
                           <option value="selected">Selected</option>
                           <option value="rejected">Rejected</option>
                           <option value="hold">Hold</option>
@@ -2240,7 +2241,7 @@ const ContractCandidates_Mainbar = () => {
                           {...register("candidateStatus")}
                           className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                         >
-                          <option value="">Select Status</option>
+                          <option value="">Select Candidate Status</option>
                           <option value="joined">Joined</option>
                           <option value="not_joined">Not Joined</option>
                         </select>
@@ -2502,7 +2503,7 @@ const ContractCandidates_Mainbar = () => {
 
                     {/* Title */}
                     <h2 className="text-xl font-semibold text-[#1ea600]">
-                      Contract Candidate Details
+                      View Contract Candidate Details
                     </h2>
 
                     {/* Profile Picture */}
