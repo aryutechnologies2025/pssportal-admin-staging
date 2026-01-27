@@ -376,6 +376,8 @@ import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
 import "react-toastify/dist/ReactToastify.css";
 import { MdDelete } from "react-icons/md";
+import { IoClose } from "react-icons/io5";
+
 
 const Setting_Mainbar = () => {
   const navigate = useNavigate();
@@ -521,7 +523,7 @@ const Setting_Mainbar = () => {
                           }}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                         >
-                          <MdDelete size={14} />
+                          <IoClose  size={14} />
                         </button>
                       </div>
                     )}
@@ -563,7 +565,7 @@ const Setting_Mainbar = () => {
                           }}
                           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                         >
-                          <MdDelete size={16} />
+                          <IoClose size={16} />
                         </button>
                       </div>
                     )}
