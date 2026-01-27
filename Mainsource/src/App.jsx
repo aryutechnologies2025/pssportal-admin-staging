@@ -110,8 +110,8 @@ function App() {
           <Route path="employeedetails/:id" element={<EmployeeDetails />} />
           <Route path="editemployeedetails/:id" element={<CreateEmployee />} />
           <Route path="attendance" element={<Attendance />} />
-          {/* <Route path="boarding-point" element={<BoardingPoint_Main/>} /> */}
-          {/* <Route path="education" element={<Education_Main />} /> */}
+          <Route path="boarding-point" element={<BoardingPoint_Main/>} />
+          <Route path="education" element={<Education_Main />} />
           <Route
             path="monthlyattendancedetails"
             element={<MonthlyAttendanceDetails />}

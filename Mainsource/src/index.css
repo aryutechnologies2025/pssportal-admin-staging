@@ -49,6 +49,8 @@ html {
   transition: transform 0.2s ease;
 }
 
+
+
 /* PrimeReact global font override */
 .p-component {
   font-family: 'Poppins', sans-serif !important;
@@ -356,6 +358,21 @@ tbody {
 .hide-scrollbar {
   -ms-overflow-style: none;
 }
+
+/* custom scroller */
+.green-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.green-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #22c55e, #16a34a);
+  border-radius: 10px;
+}
+
+.green-scroll::-webkit-scrollbar-track {
+  background: #f0fdf4;
+}
+
 
 
 /* prime react dropdown same size*/
