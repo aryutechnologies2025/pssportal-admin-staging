@@ -461,6 +461,10 @@ const LeadManagement_Details = () => {
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
 
+  console.log("statusList", statusList);
+
+  
+
   useEffect(() => {
     if (viewStatus?.id) {
       fetchStatusList(viewStatus.id);
@@ -1450,194 +1454,200 @@ px-2 py-2 md:px-6 md:py-6">
 
             {/* status */}
             {isViewStatusOpen && viewStatus && (
-              <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
-                <div className="bg-white p-6 rounded-xl w-full max-w-4xl mx-4 space-y-6 shadow-lg">
+  <div
+    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
+    onClick={() => setIsViewStatusOpen(false)}
+  >
+    {/* STOP CLICK INSIDE */}
+    <div
+      className="bg-white rounded-xl w-full max-w-4xl mx-4 shadow-xl h-[80vh] flex flex-col"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* HEADER */}
+      <div className="px-6 py-4 border-b bg-green-50">
+        <h2 className="text-lg font-semibold text-green-700">
+          Update Lead Status
+        </h2>
+      </div>
 
-                  {/* Header */}
-                  <h2 className="text-lg font-semibold">Update Lead Status</h2>
+      {/* SCROLLABLE BODY */}
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6 green-scroll">
+        {/* Status */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Status</label>
+          <select
+            className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+            value={statusForm.status}
+            onChange={(e) =>
+              setStatusForm({ ...statusForm, status: e.target.value })
+            }
+          >
+            <option value="open">Open</option>
+            <option value="joined">Joined</option>
+            <option value="interested">Interested / schedule</option>
+            <option value="not_interested">Not Interested</option>
+            <option value="follow_up">Follow Up</option>
+            <option value="not_picked">Not Picked</option>
+          </select>
+        </div>
 
-                  {/* Row 1 */}
-                  <div className="grid gap-6">
-                    {/* Status */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Status</label>
-                      <select
-                        className="border p-2 w-full rounded-md"
-                        value={statusForm.status}
-                        onChange={(e) =>
-                          setStatusForm({ ...statusForm, status: e.target.value })
-                        }
-                      >
-                        <option value="open">Open</option>
-                        <option value="joined">Joined</option>
-                        <option value="interested">Interested / schedule</option>
-                        <option value="not_interested">Not Interested</option>
-                        <option value="follow_up">Follow Up</option>
-                        <option value="not_picked">Not Picked</option>
-                      </select>
-                    </div>
+        {/* Interested */}
+        {statusForm.status === "interested" && (
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Schedule Date
+            </label>
+            <input
+              type="date"
+              className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+              value={statusForm.epoDate}
+              onChange={(e) =>
+                setStatusForm({ ...statusForm, epoDate: e.target.value })
+              }
+            />
+          </div>
+        )}
 
-                      {statusForm.status === "interested" && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">
-                            Schedule Date
-                          </label>
-                          <input
-                            type="date"
-                            className="border p-2 w-full rounded-md"
-                            value={statusForm.epoDate}
-                            onChange={(e) =>
-                              setStatusForm({
-                                ...statusForm,
-                                epoDate: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                      </div>
-                    )}
+        {/* Notes */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Notes</label>
+          <textarea
+            className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+            rows="3"
+            value={statusForm.notes}
+            onChange={(e) =>
+              setStatusForm({ ...statusForm, notes: e.target.value })
+            }
+          />
+        </div>
 
-                    {/* Notes */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Notes</label>
-                      <textarea
-                        className="border p-2 w-full rounded-md"
-                        rows="3"
-                        value={statusForm.notes}
-                        onChange={(e) =>
-                          setStatusForm({ ...statusForm, notes: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
+        {/* Follow up */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Next Follow Up?
+            </label>
+            <div className="flex gap-6 mt-2">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="yes"
+                  checked={statusForm.followUp === "yes"}
+                  onChange={(e) =>
+                    setStatusForm({ ...statusForm, followUp: e.target.value })
+                  }
+                />
+                Yes
+              </label>
 
-                  {/* Row 2 */}
-                  <div className="grid grid-cols-2 gap-6 items-end">
-                    {/* Follow Up */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Next Follow Up?
-                      </label>
-                      <div className="flex gap-6 mt-2">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            value="yes"
-                            checked={statusForm.followUp === "yes"}
-                            onChange={(e) =>
-                              setStatusForm({ ...statusForm, followUp: e.target.value })
-                            }
-                          />
-                          Yes
-                        </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="no"
+                  checked={statusForm.followUp === "no"}
+                  onChange={(e) =>
+                    setStatusForm({ ...statusForm, followUp: e.target.value })
+                  }
+                />
+                No
+              </label>
+            </div>
+          </div>
 
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            value="no"
-                            checked={statusForm.followUp === "no"}
-                            onChange={(e) =>
-                              setStatusForm({ ...statusForm, followUp: e.target.value })
-                            }
-                          />
-                          No
-                        </label>
-                      </div>
-                    </div>
+          {statusForm.followUp === "yes" && (
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Follow Up Date
+              </label>
+              <input
+                type="date"
+                className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+                value={statusForm.followUpDate}
+                onChange={(e) =>
+                  setStatusForm({
+                    ...statusForm,
+                    followUpDate: e.target.value,
+                  })
+                }
+              />
+            </div>
+          )}
+        </div>
 
-                    {/* Follow Up Date */}
-                    {statusForm.followUp === "yes" && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Follow Up Date
-                        </label>
-                        <input
-                          type="date"
-                          className="border p-2 w-full rounded-md"
-                          value={statusForm.followUpDate}
-                          onChange={(e) =>
-                            setStatusForm({
-                              ...statusForm,
-                              followUpDate: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    )}
+        {/* Status History */}
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-green-100">
+              <tr>
+                <th className="border px-3 py-2">S.No</th>
+                <th className="border px-3 py-2">Status</th>
+                <th className="border px-3 py-2">Follow Up</th>
+                <th className="border px-3 py-2">Notes</th>
+                <th className="border px-3 py-2">Created Date</th>
+                <th className="border px-3 py-2">Follow Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {statusList?.length ? (
+                statusList.map((item, index) => (
+                  <tr key={index} className="hover:bg-green-50">
+                    <td className="border px-3 py-2 text-center">
+                      {index + 1}
+                    </td>
+                    <td className="border px-3 py-2 capitalize">
+                      {item.status}
+                    </td>
+                    <td className="border px-3 py-2 text-center">
+                      {/* {item.followUp ? "Yes" : "No"} */}
+                      {item.followup_status === "1" ? "Yes" : "No"}
 
-                  
+                    </td>
+                    <td className="border px-3 py-2">
+                      {Capitalise(item.notes || "-")}
+                    </td>
+                    <td className="border px-3 py-2">
+                      {formatToDDMMYYYY(item.created_at)}
+                    </td>
+                    <td className="border px-3 py-2">
+                      {formatToDDMMYYYY(item.followup_date)}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="border px-3 py-4 text-center text-gray-500"
+                  >
+                    No status history found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                  </div>
+        {/* FOOTER (NORMAL POSITION) */}
+        <div className="flex justify-end gap-3 pt-6">
+          <button
+            className="px-4 py-2 border rounded-md hover:bg-gray-100"
+            onClick={() => setIsViewStatusOpen(false)}
+          >
+            Cancel
+          </button>
 
-                  {/* Actions */}
-                  <div className="flex justify-end gap-3 pt-4 ">
-                    <button
-                      className="px-4 py-2 border rounded-md"
-                      onClick={() => setIsViewStatusOpen(false)}
-                    >
-                      Cancel
-                    </button>
+          <button
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            onClick={handleStatusSubmit}
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
-                    <button
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md"
-                      onClick={handleStatusSubmit}
-                    >
-                      Submit
-                    </button>
-                  </div>
-
-                  {/* Status History Table */}
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="border px-3 py-2">S.No</th>
-                          <th className="border px-3 py-2">Status</th>
-                          <th className="border px-3 py-2">Follow Up</th>
-                          <th className="border px-3 py-2">Notes</th>
-                          <th className="border px-3 py-2">Date & Time</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {statusList?.length ? (
-                          statusList?.map((item, index) => (
-                            <tr key={index} className="hover:bg-gray-50">
-                              <td className="border px-3 py-2 text-center">
-                                {index + 1}
-                              </td>
-                              <td className="border px-3 py-2 capitalize">
-                                {item.status}
-                              </td>
-                              <td className="border px-3 py-2 text-center">
-                                {item.followUp ? "Yes" : "No"}
-                              </td>
-                              <td className="border px-3 py-2">
-                                {Capitalise(item.notes || "-")}
-                              </td>
-                              <td className="border px-3 py-2">
-                                {formatToDDMMYYYY(item.followup_date)}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td
-                              colSpan="5"
-                              className="border px-3 py-4 text-center text-gray-500"
-                            >
-                              No status history found
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-
-                </div>
-              </div>
-            )}
 
             {/*status list view  */}
             {isStatusViewOpen && statusViewLead && (

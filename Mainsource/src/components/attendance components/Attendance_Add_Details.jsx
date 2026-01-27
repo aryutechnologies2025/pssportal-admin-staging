@@ -13,6 +13,8 @@ import { Dropdown } from "primereact/dropdown";
 import { useNavigate } from "react-router-dom";
 import Loader from "../Loader";
 import { FiSearch } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
+
 
 
 const Attendance_add_details = () => {
@@ -84,21 +86,21 @@ const Attendance_add_details = () => {
   };
 
 
-  const handleShiftChange = (empId, shiftId) => {
-    console.log("handleShiftChange", handleShiftChange);
-    setAttendanceData(prev =>
-      prev.map(emp =>
-        emp.id === empId
-          ? {
-            ...emp,
-            shifts: emp.shifts.includes(shiftId)
-              ? emp.shifts.filter(id => id !== shiftId)
-              : [...emp.shifts, shiftId]
-          }
-          : emp
-      )
-    );
-  };
+  // const handleShiftChange = (empId, shiftId) => {
+  //   console.log("handleShiftChange", handleShiftChange);
+  //   setAttendanceData(prev =>
+  //     prev.map(emp =>
+  //       emp.id === empId
+  //         ? {
+  //           ...emp,
+  //           shifts: emp.shifts.includes(shiftId)
+  //             ? emp.shifts.filter(id => id !== shiftId)
+  //             : [...emp.shifts, shiftId]
+  //         }
+  //         : emp
+  //     )
+  //   );
+  // };
 
 
 
@@ -336,6 +338,33 @@ const Attendance_add_details = () => {
   const [contentVisible, setContentVisible] = useState(false);
   const [selectedContent, setSelectedContent] = useState("");
 
+const handleHeaderShiftToggle = (shiftId) => {
+  const allSelected = attendanceData.every(emp =>
+    emp.shifts.includes(shiftId)
+  );
+
+  setAttendanceData(prev =>
+    prev.map(emp => ({
+      ...emp,
+      shifts: allSelected
+        ? emp.shifts.filter(id => id !== shiftId) // uncheck all
+        : emp.shifts.includes(shiftId)
+        ? emp.shifts
+        : [...emp.shifts, shiftId], // check all
+    }))
+  );
+};
+
+const isHeaderShiftChecked = (shiftId) => {
+  return (
+    attendanceData.length > 0 &&
+    attendanceData.every(emp => emp.shifts.includes(shiftId))
+  );
+};
+const [showShiftPopup, setShowShiftPopup] = useState(false);
+
+
+
   const columns = [
     {
       field: "sno",
@@ -353,35 +382,71 @@ const Attendance_add_details = () => {
         </div>
       ),
     },
-    {
-      field: "shifts",
-      header: "Shift Allocation",
-      body: (rowData) => (
-        <div className="flex flex-wrap justify-center items-center gap-3">
-          {shiftOptions.map((shift) => (
-            <label
-              key={shift.id}
-              className="relative group flex items-center gap-1 text-sm text-gray-600 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                className="accent-green-600 cursor-pointer"
-                checked={rowData.shifts.includes(shift.id)}
-                onChange={() => handleShiftChange(rowData.id, shift.id)}
-              />
+    // {
+    //   field: "shifts",
+    //   header: "Shift Allocation",
+    //   body: (rowData) => (
+    //     <div className="flex flex-wrap justify-center items-center gap-3">
+    //       {shiftOptions.map((shift) => (
+    //         <label
+    //           key={shift.id}
+    //           className="relative group flex items-center gap-1 text-sm text-gray-600 cursor-pointer"
+    //         >
+    //           <input
+    //             type="checkbox"
+    //             className="accent-green-600 cursor-pointer"
+    //             checked={rowData.shifts.includes(shift.id)}
+    //             onChange={() => handleShiftChange(rowData.id, shift.id)}
+    //           />
 
-              {shift.label}
+    //           {shift.label}
 
-              {/* Tooltip */}
-              <span className="absolute bottom-3 hidden group-hover:block
-            bg-white shadow-md text-black text-xs px-2 py-1 rounded whitespace-nowrap">
-                ({formatTime(shift.start_time)} - {formatTime(shift.end_time)})
-              </span>
-            </label>
-          ))}
-        </div>
-      ),
-    },
+    //           {/* Tooltip */}
+    //           <span className="absolute bottom-3 hidden group-hover:block
+    //         bg-white shadow-md text-black text-xs px-2 py-1 rounded whitespace-nowrap">
+    //             ({formatTime(shift.start_time)} - {formatTime(shift.end_time)})
+    //           </span>
+    //         </label>
+    //       ))}
+    //     </div>
+    //   ),
+    // },
+
+{
+  field: "shift_attendance",
+  header: (
+   <div
+  className="flex items-center gap-1 cursor-pointer"
+  onClick={() => setShowShiftPopup(true)}
+>
+  <span>Shift Allocation</span>
+  <i
+    className={`pi pi-chevron-down text-xs transition-transform ${
+      showShiftPopup ? "rotate-180" : ""
+    }`}
+  />
+</div>
+
+  ),
+  body: (rowData) => (
+    <div className="flex justify-center gap-6">
+      {shiftOptions.map((shift) => (
+        <label key={shift.id} className="flex items-center gap-1 cursor-pointer">
+          <input
+            type="checkbox"
+            className="accent-green-600"
+            checked={rowData.shifts.includes(shift.id)}
+            onChange={() => handleShiftChange(rowData.id, shift.id)}
+          />
+          {shift.label}
+        </label>
+      ))}
+    </div>
+  ),
+},
+
+
+
     {
       field: "attendance",
       header: (
@@ -746,6 +811,64 @@ px-2 py-2 md:px-6 md:py-6">
             </div>
 
 
+{showShiftPopup && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"  onClick={() => setShowShiftPopup(false)} >
+    <div className="bg-white rounded-lg w-[400px] shadow-lg"  onClick={(e) => e.stopPropagation()} >
+
+      {/* HEADER */}
+      <div className="flex justify-between items-center px-4 py-3 border-b">
+        <h3 className="text-lg font-semibold">Shift Allocation</h3>
+        <button
+          className="text-gray-500 hover:text-black text-xl"
+          onClick={() => setShowShiftPopup(false)}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* BODY */}
+      <div className="p-4 space-y-3">
+        {shiftOptions.map((shift) => (
+          <label
+            key={shift.id}
+            className="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50"
+          >
+            <div>
+              <div className="font-medium">{shift.label}</div>
+              <div className="text-xs text-gray-500">
+                {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
+              </div>
+            </div>
+
+            <input
+              type="checkbox"
+              className="accent-green-600 w-4 h-4"
+              checked={isHeaderShiftChecked(shift.id)}
+              onChange={() => handleHeaderShiftToggle(shift.id)}
+            />
+          </label>
+        ))}
+      </div>
+
+      {/* FOOTER */}
+      <div className="flex justify-end gap-2 px-4 py-3 border-t">
+        <button
+          className="px-4 py-1 border rounded hover:bg-gray-100"
+          onClick={() => setShowShiftPopup(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={() => setShowShiftPopup(false)}
+        >
+          Done
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
 
           </div>
         </>

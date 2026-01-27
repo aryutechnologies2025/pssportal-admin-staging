@@ -31,6 +31,20 @@ import { TbReport } from "react-icons/tb";
 import { AiOutlineMessage } from "react-icons/ai";
 
 const Sidebar = () => {
+  const AdminData = JSON.parse(
+    localStorage.getItem("pss_dateformat") || "null",
+  );
+
+  const sitelogo = AdminData?.setting?.site_logo;
+
+  const favicon = AdminData?.setting?.fav_icon;
+
+  const logoURL = `${API_URL.replace(/\/$/, "")}/${sitelogo}`;
+
+  const faviconURL = `${API_URL.replace(/\/$/, "")}/${favicon}`;
+  // const logoURL = sitelogo ? `${API_URL.sitelogo}` : "/pssAgenciesLogo.svg";
+
+  console.log("AdminData sitelogo", sitelogo);
   const [arrowClicked, setArrowClicked] = useState(() => {
     // Get the persisted state from localStorage
     const savedState = localStorage.getItem("sidebarState");
@@ -133,17 +147,30 @@ const Sidebar = () => {
           {arrowClicked ? (
             <div className="h-6 my-3 ms-2 text-xl font-semibold">
               <p className="text-[#4BB452]">
-                <img
+                {/* <img
                   src="/pss-favicon.jpeg"
                   alt="PSS Logo"
+                  className="h-7 w-7 cursor-pointer rounded-full"
+                  onClick={() => navigate("/")}
+                /> */}
+                <img
+                  // src={sitelogo ? sitelogo : "/pssAgenciesLogo.svg"}
+                  src={faviconURL ? faviconURL : "/pss-favicon.jpeg"}
+                  alt="Site Logo"
                   className="h-7 w-7 cursor-pointer rounded-full"
                   onClick={() => navigate("/")}
                 />
               </p>
             </div>
           ) : (
+            // <img
+            //   src="/pssAgenciesLogo.svg"
+            //   alt="PSS Logo"
+            //   className="w-40 md:w-48 h-auto mx-auto mb-2 cursor-pointer"
+            //   onClick={() => navigate("/")}
+            // />
             <img
-              src="/pssAgenciesLogo.svg"
+              src={logoURL ? logoURL : "/pssAgenciesLogo.svg"}
               alt="PSS Logo"
               className="w-40 md:w-48 h-auto mx-auto mb-2 cursor-pointer"
               onClick={() => navigate("/")}
@@ -323,7 +350,7 @@ const Sidebar = () => {
                       >
                         Roles
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           navigate("/employees");
@@ -332,14 +359,15 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${currentPath === "/employees"
-                            ? "text-[#4BB452]"
-                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452] "
+                          ${
+                            currentPath === "/employees"
+                              ? "text-[#4BB452]"
+                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452] "
                           }`}
                       >
                         Employees
                       </button>
-                      
+
                       <button
                         onClick={() => {
                           navigate("/permission");
@@ -348,9 +376,10 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition 
-                          ${currentPath === "/permission"
-                            ? "text-[#4BB452]"
-                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${
+                            currentPath === "/permission"
+                              ? "text-[#4BB452]"
+                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Privileges
@@ -538,29 +567,36 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
       ${arrowClicked ? "justify-center" : "justify-normal"}
       px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-      ${currentPath === "/employeecontract" || currentPath === "/attendance" || currentPath === "/boarding-point" || currentPath === "/education"
-                      ? "bg-[#4BB452] text-white"
-                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                    }`}
+      ${
+        currentPath === "/employeecontract" ||
+        currentPath === "/attendance" ||
+        currentPath === "/boarding-point" ||
+        currentPath === "/education"
+          ? "bg-[#4BB452] text-white"
+          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+      }`}
                 >
                   <img
                     src={contractcandidates}
                     alt="contract"
-                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/employeecontract" ||
-                      currentPath === "/attendance" || currentPath === "/boarding-point" || currentPath === "/education"
-                      ? "brightness-0 invert pointer-events-none"
-                      : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                      }`}
+                    className={`sidebar-icon transition-all duration-200 ${
+                      currentPath === "/employeecontract" ||
+                      currentPath === "/attendance" ||
+                      currentPath === "/boarding-point" ||
+                      currentPath === "/education"
+                        ? "brightness-0 invert pointer-events-none"
+                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+                    }`}
                   />
 
                   {!arrowClicked && (
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">Contract</span>
                       {currentOpen === "contract" ||
-                        currentPath === "/employeecontract" ||
-                        currentPath === "/boarding-point" ||
-                        currentPath === "/education" ||
-                        currentPath === "/attendance" ? (
+                      currentPath === "/employeecontract" ||
+                      currentPath === "/boarding-point" ||
+                      currentPath === "/education" ||
+                      currentPath === "/attendance" ? (
                         <IoIosArrowUp />
                       ) : (
                         <IoIosArrowDown />
@@ -578,9 +614,9 @@ const Sidebar = () => {
                       currentPath === "/attendance" ||
                       currentPath === "/boarding-point" ||
                       currentPath === "/education"
-                      ? "max-h-40 opacity-100 mt-1"
-                      : "max-h-0 opacity-0"
-                      }`}
+                        ? "max-h-40 opacity-100 mt-1"
+                        : "max-h-0 opacity-0"
+                    }`}
                   >
                     <div className="flex gap-2 ms-8 flex-col text-sm font-medium text-gray-500">
                       {/* Candidates */}
@@ -620,10 +656,11 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${currentPath === "/boarding-point"
-                            ? "text-[#4BB452]"
-                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                          }`}
+            ${
+              currentPath === "/boarding-point"
+                ? "text-[#4BB452]"
+                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+            }`}
                       >
                         Boarding Point
                       </button>
@@ -633,10 +670,11 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${currentPath === "/education"
-                            ? "text-[#4BB452]"
-                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                          }`}
+            ${
+              currentPath === "/education"
+                ? "text-[#4BB452]"
+                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+            }`}
                       >
                         Education
                       </button>
@@ -726,7 +764,7 @@ const Sidebar = () => {
               </div>
 
               {/* Announcement */}
-               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("announcement")}
                   className={`flex items-center w-full flex-grow
@@ -748,13 +786,13 @@ const Sidebar = () => {
                     }`}
                   /> */}
                   <MdCampaign
-  size={24} // icon size
-  className={`sidebar-icon transition-all duration-200 ${
-    currentPath === "/announcement"
-      ? "brightness-0 invert pointer-events-none"
-      : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-  }`}
-/>
+                    size={24} // icon size
+                    className={`sidebar-icon transition-all duration-200 ${
+                      currentPath === "/announcement"
+                        ? "brightness-0 invert pointer-events-none"
+                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+                    }`}
+                  />
                   {/* <MdOutlineContactMail  className="w-5 h-5 text-gray-500  "/> */}
 
                   {!arrowClicked && (
