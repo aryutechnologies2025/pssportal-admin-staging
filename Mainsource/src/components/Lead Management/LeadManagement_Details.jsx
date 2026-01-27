@@ -32,6 +32,8 @@ import { IoIosCloseCircle } from "react-icons/io"
 import { AiFillDelete } from "react-icons/ai";
 import { Capitalise } from "../../hooks/useCapitalise";
 import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
+import { IoClose } from "react-icons/io5";
+
 
 
 const LeadManagement_Details = () => {
@@ -1463,11 +1465,19 @@ px-2 py-2 md:px-6 md:py-6">
       className="bg-white rounded-xl w-full max-w-4xl mx-4 shadow-xl h-[80vh] flex flex-col"
       onClick={(e) => e.stopPropagation()}
     >
+      
       {/* HEADER */}
-      <div className="px-6 py-4 border-b bg-green-50">
+      <div className="px-6 py-4 border-b bg-green-50 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-green-700">
           Update Lead Status
         </h2>
+          <button
+       onClick={() => setIsViewStatusOpen(false)}
+        className="p-1 rounded-full
+                   text-gray-600 hover:bg-red-100 hover:text-red-600 transition"
+      >
+        <IoClose size={22} />
+      </button>
       </div>
 
       {/* SCROLLABLE BODY */}
@@ -1574,6 +1584,22 @@ px-2 py-2 md:px-6 md:py-6">
           )}
         </div>
 
+         <div className="flex justify-end gap-3 pt-6">
+          <button
+            className="px-4 py-2 border rounded-md hover:bg-gray-100"
+            onClick={() => setIsViewStatusOpen(false)}
+          >
+            Cancel
+          </button>
+
+          <button
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            onClick={handleStatusSubmit}
+          >
+            Submit
+          </button>
+        </div>
+
         {/* Status History */}
         <div className="border rounded-lg overflow-hidden">
           <table className="w-full text-sm">
@@ -1628,21 +1654,7 @@ px-2 py-2 md:px-6 md:py-6">
         </div>
 
         {/* FOOTER (NORMAL POSITION) */}
-        <div className="flex justify-end gap-3 pt-6">
-          <button
-            className="px-4 py-2 border rounded-md hover:bg-gray-100"
-            onClick={() => setIsViewStatusOpen(false)}
-          >
-            Cancel
-          </button>
-
-          <button
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            onClick={handleStatusSubmit}
-          >
-            Submit
-          </button>
-        </div>
+       
       </div>
     </div>
   </div>
