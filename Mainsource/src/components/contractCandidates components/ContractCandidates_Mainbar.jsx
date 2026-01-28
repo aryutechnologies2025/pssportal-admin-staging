@@ -723,15 +723,17 @@ const handleCloseAddCandidate = () => {
       if (response.data.success) {
         toast.success(response.data.message || "Excel imported successfully!");
 
-        if (response.data.total !== undefined) {
-          toast.success(`Imported: ${response.data.total} records`);
+        if (response.data.message !== undefined) {
+          toast.success(`Imported: ${response.data.message} records`);
         }
       }
 
       // Reset fields
       handleDeleteFile();
+      
       setSelectedDate(new Date().toISOString().split("T")[0]);
       setSelectedCompany(null);
+       closeImportAddModal();
 
       fetchContractCandidates();
     } catch (err) {
