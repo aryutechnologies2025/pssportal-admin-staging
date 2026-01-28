@@ -130,9 +130,25 @@ const Company_Mainbar = () => {
     resetForm();
   };
 
-  const handleView = (row) => {
-    setViewRow(row);
+  const handleView = async (row) => {
+
+    try {
+    
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/company/edit/${row.id}`
+    );
+
+    const data = res.data?.data || res.data;
+
+    // console.log("Edit API response dataview:", data);
+
+    setViewRow(data);
     setIsViewModalOpen(true);
+  } catch (error) {
+    console.error("Edit API error:", error);
+  }
+    
   };
 
   const closeViewModal = () => {
@@ -194,33 +210,74 @@ const Company_Mainbar = () => {
     return status !== null && status !== "" && status !== undefined;
   };
 
-  const openEditModal = (row) => {
+  // const openEditModal = (row) => {
+  //   console.log("rowgn", row);
+  //   setEditRow(row);
+
+  //   setEditFormData({
+  //     companyName: row.companyName || "",
+  //     address: row.address || "",
+  //     gstNumber: row.gstNumber || "",
+  //     website: row.website || "",
+  //     phone: row.phone || "",
+  //     supportEmail: row.supportEmail || "",
+  //     billingEmail: row.billingEmail || "",
+  //     notes: row.notes || "",
+  //     status: row.status ?? "",
+  //     contacts: Array.isArray(row.contacts) ? row.contacts : [],
+  //     shifts: Array.isArray(row.shifts) ? row.shifts : [],
+  //     automaticName: row.automaticName || "",
+  //     mode: row.mode || "",
+
+  //     latestnotes: row.latest?.notes || [],
+  //   });
+
+  //   setIsEditModalOpen(true);
+
+  //   // allow DOM paint, then animate
+  //   setTimeout(() => setIsEditAnimating(true), 30);
+  // };
+
+
+  const openEditModal = async (row) => {
     console.log("rowgn", row);
-    setEditRow(row);
+  try {
+    
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/company/edit/${row.id}`
+    );
+
+    const data = res.data?.data || res.data;
+
+    // console.log("Edit API response data:", data);
+
+    setEditRow(data);
 
     setEditFormData({
-      companyName: row.companyName || "",
-      address: row.address || "",
-      gstNumber: row.gstNumber || "",
-      website: row.website || "",
-      phone: row.phone || "",
-      supportEmail: row.supportEmail || "",
-      billingEmail: row.billingEmail || "",
-      notes: row.notes || "",
-      status: row.status ?? "",
-      contacts: Array.isArray(row.contacts) ? row.contacts : [],
-      shifts: Array.isArray(row.shifts) ? row.shifts : [],
-      automaticName: row.automaticName || "",
-      mode: row.mode || "",
-
-      latestnotes: row.latest?.notes || [],
+      companyName: data.company_name || "",
+      address: data.address || "",
+      gstNumber: data.gst_number || "",
+      website: data.website_url || "",
+      phone: data.phone_number || "",
+      supportEmail: data.support_email || "",
+      billingEmail: data.billing_email || "",
+      notes: data.notes || "",
+      status: data.status ?? "",
+      contacts: Array.isArray(data.contacts) ? data.contacts : [],
+      shifts: Array.isArray(data.shifts) ? data.shifts : [],
+      automaticName: data.prefix || "",
+      mode: data.company_emp_id   || "",
+      latestnotes: data.latest?.notes || [],
     });
+    
 
     setIsEditModalOpen(true);
-
-    // allow DOM paint, then animate
     setTimeout(() => setIsEditAnimating(true), 30);
-  };
+  } catch (error) {
+    console.error("Edit API error:", error);
+  }
+};
 
   const closeEditModal = () => {
     setIsEditAnimating(false);
@@ -2154,37 +2211,39 @@ const Company_Mainbar = () => {
             {/* Company Info */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <p>
-                <b>Company Name:</b> {viewRow.companyName}
+                <b>Company Name:</b> {viewRow.
+company_name}
               </p>
               <p>
                 <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
               </p>
               <p>
-                <b>Phone:</b> {viewRow.phone}
+                <b>Phone:</b> {viewRow.phone_number}
               </p>
               <p>
-                <b>Support Email:</b> {viewRow.supportEmail}
+                <b>Support Email:</b> {viewRow.support_email}
               </p>
               <p>
-                <b>Billing Email:</b> {viewRow.billingEmail}
+                <b>Billing Email:</b> {viewRow.billing_email}
               </p>
               <p>
-                <b>Website:</b> {viewRow.website}
+                <b>Website:</b> {viewRow.website_url}
               </p>
 
               <p>
-                <b>GST Number:</b> {viewRow.gstNumber}
+                <b>GST Number:</b> {viewRow.gst_number}
               </p>
               <p>
-                <b>Employee ID Generation:</b> {Capitalise(viewRow?.mode)}
+                <b>Employee ID Generation:</b> {Capitalise(viewRow?.company_emp_id
+)}
               </p>
 
               <p className="">
                 <b>Address:</b> {viewRow.address}
               </p>
-              {viewRow?.automaticName && (
+              {viewRow?.prefix && (
                 <p>
-                  <b>Employee ID:</b> {viewRow.automaticName}
+                  <b>Employee ID:</b> {viewRow.prefix}
                 </p>
               )}
 

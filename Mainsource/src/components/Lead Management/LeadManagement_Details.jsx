@@ -301,6 +301,7 @@ const LeadManagement_Details = () => {
         notes: statusForm.notes,
         followup_status: statusForm.followUp === "yes" ? 1 : 0,
         created_by: userid,
+        scheduled_date: statusForm.epoDate || null,
       };
 
       if (statusForm.followUp === "yes") {
@@ -1611,6 +1612,7 @@ px-2 py-2 md:px-6 md:py-6">
                 <th className="border px-3 py-2">Notes</th>
                 <th className="border px-3 py-2">Created Date</th>
                 <th className="border px-3 py-2">Follow Date</th>
+                <th className="border px-3 py-2">scheduled Date</th>
               </tr>
             </thead>
             <tbody>
@@ -1636,6 +1638,9 @@ px-2 py-2 md:px-6 md:py-6">
                     </td>
                     <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.followup_date)}
+                    </td>
+                    <td className="border px-3 py-2">
+                      {formatToDDMMYYYY(item.scheduled_date)}
                     </td>
                   </tr>
                 ))

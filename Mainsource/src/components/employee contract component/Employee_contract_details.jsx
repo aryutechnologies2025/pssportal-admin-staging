@@ -76,11 +76,11 @@ const Employee_contract_details = () => {
     aadhar: z.string().regex(/^\d{12}$/, "Aadhar must be exactly 12 digits"),
     company: z.string().min(1, "Company is required"),
     joinedDate: z.string().min(1, "Joined date is required"),
-    education: z.string().min(1, "Education is required"),
-    boardingPoint: z.string().min(1, "Boarding Point is required"),
-    maritalStatus: z.string().min(1, "Marital status is required"),
+    education: z.string().optional(),
+    boardingPoint: z.string().optional(),
+   maritalStatus: z.string().nullable().optional(),
     panNumber: z.string().optional(),
-    accountName: z.string().min(1, "Account name is required"),
+    accountName: z.string().optional(),
     accountNumber: z.string().min(1, "Account number is required"),
     ifsccode: z.string().min(1, "IFSC code is required"),
     uannumber: z.string().min(1, "UAN number is required"),
@@ -276,6 +276,8 @@ const Employee_contract_details = () => {
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewRow, setViewRow] = useState(null);
+
+  console.log("viewRow", viewRow);
 
   const [existingCandidate, setExistingCandidate] = useState(null);
   const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
@@ -536,9 +538,15 @@ const Employee_contract_details = () => {
   };
 
   // select file
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
+
+    if (isSubmitting) return; 
+    setIsSubmitting(true);
 
     // Reset errors
     setError({ file: "", date: "", company: "", import: [] });
@@ -639,6 +647,8 @@ const Employee_contract_details = () => {
       } else {
         toast.error(message);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1605,9 +1615,18 @@ const Employee_contract_details = () => {
                         Cancel
                       </button>
                       <button
-                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
-                      >
+                         disabled={isSubmitting}
+  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+             disabled:opacity-50 flex items-center gap-2"
+             >
+
+  {isSubmitting && (
+    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+  )}
+  {isSubmitting ? "Uploading..." : "Submit"}
+                      
                         Submit
                       </button>
                     </div>
@@ -1669,7 +1688,7 @@ const Employee_contract_details = () => {
                         <div className="flex flex-col items-center gap-2">
                           <p className="font-medium">
                             {photo ? "Change Photo" : "Upload Photo"}{" "}
-                            <span className="text-red-500">*</span>
+                            {/* <span className="text-red-500">*</span> */}
                           </p>
 
                           {/* Preview */}
@@ -2247,7 +2266,7 @@ const Employee_contract_details = () => {
                       {/* account name */}
                       <div className="mt-5 flex justify-between items-center">
                         <label className="block text-md font-medium mb-2">
-                          Account Name <span className="text-red-500">*</span>
+                          Account Name
                         </label>
                         <div className="w-[50%] md:w-[60%] rounded-lg">
                           <input
@@ -2767,7 +2786,8 @@ const Employee_contract_details = () => {
                   {/* body */}
                   <div className="pr-2 overflow-y-auto ">
                     {/* Candidate Info */}
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div >
+                      <div className="grid grid-cols-2 gap-4 text-sm">
                       <p>
                         <b>Company:</b>{" "}
                         {companyOptions.find(
@@ -2776,9 +2796,7 @@ const Employee_contract_details = () => {
                       </p>
                       <p>
                         <b>Branch:</b>{" "}
-                        {boardingOptions?.find(
-                          (b) => b.value === viewRow.company_id,
-                        )?.label || "-"}
+                        {viewRow.branch_name || "-"}
                       </p>
                       <p>
                         <b>Name:</b> {viewRow.name || "-"}
@@ -2844,6 +2862,13 @@ const Employee_contract_details = () => {
                       <p>
                         <b>Employee ID:</b> {viewRow.employee_id || "-"}
                       </p>
+
+                     
+                        <p>
+                        <b>Marital Status:</b> {viewRow.marital_status || "-"}
+                      </p>
+                     </div>
+
 
                       {/* emergency contact */}
 

@@ -83,15 +83,10 @@ const ContractCandidates_Mainbar = () => {
       company: z.string().min(1, "Company is required"),
       interviewDate: z.string().min(1, "Interview date is required"),
       interviewStatus: z.string().min(1, "Interview status is required"),
-      candidateStatus: z.string().min(1, "Candidate status is required"),
-      reference: z.string().min(1, "Reference is required"),
-      education: z
-        .number({
-          required_error: "Education is required",
-          invalid_type_error: "Education is required",
-        })
-        .int()
-        .positive("Education is required"),
+      // candidateStatus: z.string().optional(),
+      reference: z.string().optional(),
+education: z.string().nullable().optional(),
+       
 
       // Make these optional in base schema, they'll be conditionally required
       rejectReason: z.string().optional(),
@@ -646,12 +641,14 @@ const handleCloseAddCandidate = () => {
       fileInputRef.current.value = "";
     }
   };
+const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
-
+if (isSubmitting) return; 
+  setIsSubmitting(true);
     // Reset errors
     setError({ file: "", date: "", company: "", import: [] });
 
@@ -754,6 +751,8 @@ const handleCloseAddCandidate = () => {
       } else {
         toast.error(message);
       }
+    }finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1382,7 +1381,7 @@ const handleCloseAddCandidate = () => {
             </div>
 
             {/* <button
-      onClick={() => toast.success("🔥 Toast is working")}
+      onClick={() => toast.success(" Toast is working")}
       style={{ padding: "20px" }}
     >
       Test Toast
@@ -1576,7 +1575,7 @@ const handleCloseAddCandidate = () => {
                 </div>
 
                 <div className="table-scroll-container" id="datatable">
-                  <DataTable
+                  {/* <DataTable
                     className="mt-8"
                     value={columnData}
                     paginator
@@ -1599,7 +1598,32 @@ const handleCloseAddCandidate = () => {
                         style={col.style}
                       />
                     ))}
-                  </DataTable>
+                  </DataTable> */}
+                  <DataTable
+  className="mt-8"
+  value={columnData}
+  paginator
+  rows={10}
+  rowsPerPageOptions={[10, 25, 50, 100]}
+  globalFilter={globalFilter}
+  showGridlines
+  resizableColumns
+  loading={loading}
+  paginatorClassName="custom-paginator"
+  paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+>
+  {columns.map((col, index) => (
+    <Column
+      key={index}
+      field={col.field}
+      header={col.header}
+      body={col.body}
+      style={col.style}
+    />
+  ))}
+</DataTable>
+
                 </div>
               </div>
             </div>
@@ -1695,6 +1719,8 @@ const handleCloseAddCandidate = () => {
                         )}
                       </div>
                     </div>
+
+
                     {/* IMPORT ERRORS */}
                     {errors.import?.length > 0 && (
                       // <div className="mt-4 bg-red-50 border border-red-300 p-3 rounded-lg max-h-48 overflow-auto">
@@ -1723,12 +1749,24 @@ const handleCloseAddCandidate = () => {
                       >
                         Cancel
                       </button>
-                      <button
+                      {/* <button
                         className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
                       >
                         Submit
-                      </button>
+                      </button> */}
+                      <button
+  onClick={handleFileSubmit}
+  disabled={isSubmitting}
+  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+             disabled:opacity-50 flex items-center gap-2"
+>
+  {isSubmitting && (
+    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+  )}
+  {isSubmitting ? "Uploading..." : "Submit"}
+</button>
+
                     </div>
                   </div>
                 </div>
@@ -2928,6 +2966,7 @@ const handleCloseAddCandidate = () => {
                 </div>
               </div>
             )}
+
           </div>
         </>
       )}
