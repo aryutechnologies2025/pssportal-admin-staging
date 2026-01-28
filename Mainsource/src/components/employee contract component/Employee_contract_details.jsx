@@ -1091,7 +1091,10 @@ const Employee_contract_details = () => {
         joining_date: formatDateToYMD(data.joinedDate),
         acc_no: data.accountName,
         marital_status: data.maritalStatus,
-        boarding_point_id: Number(data.boardingPoint),
+        // boarding_point_id: Number(data.boardingPoint),
+              boarding_point_id: data.boardingPoint
+  ? Number(data.boardingPoint)
+  : null,
         education_id:
           data.education && !isNaN(Number(data.education))
             ? Number(data.education)
