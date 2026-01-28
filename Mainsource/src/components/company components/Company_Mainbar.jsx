@@ -415,8 +415,10 @@ const Company_Mainbar = () => {
         setAllCompanies([]);
         return;
       }
+      console.log("Fetched Companies List:", list);
 
       const mappedCompanies = list.map((item) => ({
+        
         id: item?._id || item?.id,
         companyName: item.company_name || "",
         address: item.address || "",

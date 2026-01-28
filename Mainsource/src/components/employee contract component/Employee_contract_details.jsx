@@ -52,14 +52,13 @@ const Employee_contract_details = () => {
   };
 
   /* Emergency Contact */
- const emergencyContactSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  relationship: z.string().min(1, "Relation is required"),
-  phone_number: z
-    .string()
-    .regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
-});
-
+  const emergencyContactSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    relationship: z.string().min(1, "Relation is required"),
+    phone_number: z
+      .string()
+      .regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
+  });
 
   const candidateContractSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -92,12 +91,10 @@ const Employee_contract_details = () => {
     profile_picture: z.any().optional(),
     documents: z.array(z.any()).optional(),
     /*  Emergency Contacts */
-  emergencyContacts: z
-    .array(emergencyContactSchema)
-    .min(1, "At least one emergency contact is required"),
-});
-
-
+    emergencyContacts: z
+      .array(emergencyContactSchema)
+      .min(1, "At least one emergency contact is required"),
+  });
 
   // const [emergencyContacts, setEmergencyContacts] = useState([
   //   { name: "", phone: "", relation: "" },
@@ -114,6 +111,7 @@ const Employee_contract_details = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(candidateContractSchema),
+   
     defaultValues: {
       name: editData ? editData.name : "",
       phone: editData ? editData.phone_number : "",
@@ -143,21 +141,19 @@ const Employee_contract_details = () => {
       // isRejoining: editData ? editData.isRejoining : "",
       profile_picture: editData ? editData.profile_picture : "",
       documents: editData ? editData.documents : [],
-     emergencyContacts: [
-      { name: "", relationship: "", phone_number: "" },
-    ],
+      emergencyContacts: [{ name: "", relationship: "", phone_number: "" }],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
-  control,
-  name: "emergencyContacts",
-});
-
+    control,
+    name: "emergencyContacts",
+  });
 
   useEffect(() => {
     setValue("manual_value", employeeIds);
   }, [employeeIds, setValue]);
+
   const joined_date = watch("joinedDate");
   const company_name = watch("company");
 
@@ -281,35 +277,32 @@ const Employee_contract_details = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewRow, setViewRow] = useState(null);
 
-      const [existingCandidate, setExistingCandidate] = useState(null);
+  const [existingCandidate, setExistingCandidate] = useState(null);
   const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
- const [isExistingCandidateViewModalOpen, setIsExistingCandidateViewModalOpen] = useState(false);
+  const [
+    isExistingCandidateViewModalOpen,
+    setIsExistingCandidateViewModalOpen,
+  ] = useState(false);
 
   const handleViewExisting = async (id) => {
-  try {
-   
-    const response = await axiosInstance.get(
-      `api/contract-employee/edit/${id}`
-    );
+    try {
+      const response = await axiosInstance.get(
+        `api/contract-employee/edit/${id}`,
+      );
 
-    if (response.data?.success) {
-     setViewExistingCandidate(response.data.data); 
-      setIsExistingCandidateViewModalOpen(true);    
+      if (response.data?.success) {
+        setViewExistingCandidate(response.data.data);
+        setIsExistingCandidateViewModalOpen(true);
+      }
+    } catch (err) {
+      toast.error("Unable To Load Candidate Details");
     }
+  };
 
-   
-
-  } catch (err) {
-    toast.error("Unable To Load Candidate Details");
-  }
-};
-
-const handleCloseViewExistingCandidate = () => {
-
-
- setIsExistingCandidateViewModalOpen(false);
-  setViewExistingCandidate(null);
-};
+  const handleCloseViewExistingCandidate = () => {
+    setIsExistingCandidateViewModalOpen(false);
+    setViewExistingCandidate(null);
+  };
   // Open and close modals
   const openAddModal = () => {
     setIsModalOpen(true);
@@ -369,8 +362,8 @@ const handleCloseViewExistingCandidate = () => {
       setIsModalOpen(false);
       setBackendValidationError(null);
       setEditData(null);
-        setExistingCandidate(null);
-  reset();
+      setExistingCandidate(null);
+      reset();
     }, 250);
   };
 
@@ -459,7 +452,6 @@ const handleCloseViewExistingCandidate = () => {
     setViewRow(null);
   };
 
-
   const resetImportForm = () => {
     setSelectedCompany(null);
     setSelectedFile(null);
@@ -495,7 +487,7 @@ const handleCloseViewExistingCandidate = () => {
           company_emp_id: company.company_emp_id,
         }));
 
-        setCompanyOptions(companies);
+        // setCompanyOptions(companies);
       }
     } catch (error) {
       console.error("Error fetching companies:", error);
@@ -677,17 +669,16 @@ const handleCloseViewExistingCandidate = () => {
   const normalizeEditData = (row) => {
     console.log("rowedit", row);
 
-      // Normalize contact_details from backend
- let normalizedContacts = [];
+    // Normalize contact_details from backend
+    let normalizedContacts = [];
 
-  if (Array.isArray(row.contacts) && row.contacts.length > 0) {
-    normalizedContacts = row.contacts.map(c => ({
-      name: c.name || "",
-      relationship: c.relationship || "",
-      phone_number: c.phone_number || "",
-    }));
-  }
-
+    if (Array.isArray(row.contacts) && row.contacts.length > 0) {
+      normalizedContacts = row.contacts.map((c) => ({
+        name: c.name || "",
+        relationship: c.relationship || "",
+        phone_number: c.phone_number || "",
+      }));
+    }
 
     return {
       id: row.id || null,
@@ -699,12 +690,15 @@ const handleCloseViewExistingCandidate = () => {
       phone: row.phone_number || "",
       aadhar: row.aadhar_number || "",
       company: String(row.company_id),
-      boardingPoint: row.boarding_point_id
-        ? String(row.boarding_point_id)
-        : "",
-      education: row.education_id
-        ? String(row.education_id)
-        : "",
+      maritalStatus: row.marital_status || "",
+      city: row.city || "",
+      state: row.state || "",
+      bankName: row.bank_name || "",
+      currentAddress: row.current_address || "",
+      panNumber: row.pan_number || "",
+      branch: row.branch_name || "",
+      boardingPoint: row.boarding_point_id ? String(row.boarding_point_id) : "",
+      education: row.education_id ? String(row.education_id) : "",
       // company: row.company.id ? Number(row.company.id) : "",
       // companyLabel: row.company?.company_name || "",
       joinedDate: row.joining_date || "",
@@ -729,12 +723,10 @@ const handleCloseViewExistingCandidate = () => {
       // joinedDate: row.joined_date || "",
       profile_picture: row.profile_picture || "",
       documents: row.documents || [],
-       emergencyContacts:
-      normalizedContacts.length > 0
-        ? normalizedContacts
-        : [{ name: "", relationship: "", phone_number: "" }],
-
-    
+      emergencyContacts:
+        normalizedContacts.length > 0
+          ? normalizedContacts
+          : [{ name: "", relationship: "", phone_number: "" }],
     };
   };
 
@@ -851,6 +843,15 @@ const handleCloseViewExistingCandidate = () => {
 
       setColumnData(response?.data?.data?.employees || []);
       setEmployeesList(response?.data?.data?.pssemployees || []);
+
+      const companies = response.data.data?.companies.map((company) => ({
+        // console.log("company", company),
+        label: company.company_name,
+        value: company.id,
+        company_emp_id: company.company_emp_id,
+      }));
+
+      setCompanyOptions(companies);
     } catch (error) {
       console.error("Error fetching contract candidates:", error);
     } finally {
@@ -1079,54 +1080,53 @@ const handleCloseViewExistingCandidate = () => {
         company_id: Number(data.company),
         joining_date: formatDateToYMD(data.joinedDate),
         acc_no: data.accountName,
-        marital_status: data.marital_status,
-         boarding_point_id: Number(data.boardingPoint),
+        marital_status: data.maritalStatus,
+        boarding_point_id: Number(data.boardingPoint),
         education_id:
-  data.education && !isNaN(Number(data.education))
-    ? Number(data.education)
-    : null,
-    pan_number: data.panNumber,
+          data.education && !isNaN(Number(data.education))
+            ? Number(data.education)
+            : null,
+        pan_number: data.panNumber,
         city: data.city,
         state: data.state,
-         branch_name: data.branch,
-      current_address: data.currentAddress,
+        branch_name: data.branch,
+        current_address: data.currentAddress,
         account_number: data.accountNumber,
         ifsc_code: data.ifsccode,
         uan_number: data.uannumber,
         esic: data.esciNumber,
         employee_id: data.manual_value,
-bank_name: data.bankName,
-        
+        bank_name: data.bankName,
+
         // status: data.status,
         status: 1,
         created_by: userId,
         role_id: userRole,
       };
 
-       const formData = new FormData();
+      const formData = new FormData();
 
- Object.entries(createCandidate).forEach(([key, value]) => {
-  if (value === null || value === undefined) return;
-  formData.append(key, value);
-});
+      Object.entries(createCandidate).forEach(([key, value]) => {
+        if (value === null || value === undefined) return;
+        formData.append(key, value);
+      });
 
+      //  emergency contacts (indexed)
+      const validContacts = data.emergencyContacts.filter(
+        (c) => c.name && c.relationship && c.phone_number,
+      );
 
-       //  emergency contacts (indexed)
-    const validContacts = data.emergencyContacts.filter(
-  c => c.name && c.relationship && c.phone_number
-);
-
-validContacts.forEach((contact, index) => {
-  formData.append(`contact_details[${index}][name]`, contact.name);
-  formData.append(
-    `contact_details[${index}][relationship]`,
-    contact.relationship
-  );
-  formData.append(
-    `contact_details[${index}][phone_number]`,
-    contact.phone_number
-  );
-});
+      validContacts.forEach((contact, index) => {
+        formData.append(`contact_details[${index}][name]`, contact.name);
+        formData.append(
+          `contact_details[${index}][relationship]`,
+          contact.relationship,
+        );
+        formData.append(
+          `contact_details[${index}][phone_number]`,
+          contact.phone_number,
+        );
+      });
 
       //  Profile image
       if (data.profile_picture instanceof File) {
@@ -1157,7 +1157,7 @@ validContacts.forEach((contact, index) => {
         ? `/api/contract-employee/update/${editData.id}`
         : `/api/contract-employee/create`;
 
-     const response = await axiosInstance.post(url, formData, {
+      const response = await axiosInstance.post(url, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -1171,23 +1171,23 @@ validContacts.forEach((contact, index) => {
       fetchContractCandidates();
       closeAddModal();
     } catch (error) {
-      console.log("form submiting...:...",error)
+      console.log("form submiting...:...", error);
       const res = error?.response?.data;
 
-  if (res?.existing_id) {
-    // for Aadhaar already exists case
-    setExistingCandidate({
-      id: res.existing_id,
-      message: res.message
-    });
-  } else {
-    setExistingCandidate(null);
-    setTimeout(
-      () => toast.error(res?.message || "Server Error. Please Try Again."),
-      300
-    ); 
-    // setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
-  }
+      if (res?.existing_id) {
+        // for Aadhaar already exists case
+        setExistingCandidate({
+          id: res.existing_id,
+          message: res.message,
+        });
+      } else {
+        setExistingCandidate(null);
+        setTimeout(
+          () => toast.error(res?.message || "Server Error. Please Try Again."),
+          300,
+        );
+        // setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
+      }
     } finally {
       setLoading(false);
     }
@@ -1227,30 +1227,28 @@ validContacts.forEach((contact, index) => {
 
   console.log("educationDropdown", educationDropdown);
 
-
   const [showLogs, setShowLogs] = useState(false);
-const logData = [
-  {
-    companyName: "PSS Agencies",
-    boardingPoint: "Chennai",
-    joiningDate: "2023-08-12",
-    employeeId: "EMP001",
-  },
-  {
-    companyName: "PSS Agencies",
-    boardingPoint: "Bangalore",
-    joiningDate: "2024-01-05",
-    employeeId: "EMP045",
-  },
+  const logData = [
+    {
+      companyName: "PSS Agencies",
+      boardingPoint: "Chennai",
+      joiningDate: "2023-08-12",
+      employeeId: "EMP001",
+    },
+    {
+      companyName: "PSS Agencies",
+      boardingPoint: "Bangalore",
+      joiningDate: "2024-01-05",
+      employeeId: "EMP045",
+    },
 
-  {
-    companyName: "PSS Agencies",
-    boardingPoint: "Mumbai",
-    joiningDate: "2024-01-05",
-    employeeId: "EMP045",
-  },
-];
-
+    {
+      companyName: "PSS Agencies",
+      boardingPoint: "Mumbai",
+      joiningDate: "2024-01-05",
+      employeeId: "EMP045",
+    },
+  ];
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -1641,692 +1639,733 @@ const logData = [
 
                   <div className="p-2 md:p-5">
                     <div className="flex justify-between items-center">
-                    <p className="text-xl md:text-2xl font-medium">
-                      {" "}
-                      {!editData ? "ADD" : "Edit"} Employee
-                    </p>
-                    {backendValidationError && (
-                      <span className=" text-red-600 text-sm">
-                        {backendValidationError}
-                      </span>
-                    )}
-                  {editData && (
-  <div
-    className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
-    title="View Logs"
-    onClick={() => setShowLogs(true)}
-  >
-    <TbLogs size={20} />
-  </div>
-)}
-
+                      <p className="text-xl md:text-2xl font-medium">
+                        {" "}
+                        {!editData ? "ADD" : "Edit"} Employee
+                      </p>
+                      {backendValidationError && (
+                        <span className=" text-red-600 text-sm">
+                          {backendValidationError}
+                        </span>
+                      )}
+                      {editData && (
+                        <div
+                          className="text-gray-800 hover:text-[#1ea600] cursor-pointer"
+                          title="View Logs"
+                          onClick={() => setShowLogs(true)}
+                        >
+                          <TbLogs size={20} />
+                        </div>
+                      )}
                     </div>
-                    {/* Upload Photo */}
-                    <div className="flex justify-end">
-                      <div className="flex flex-col items-center gap-2">
-                        <p className="font-medium">
-                          {photo ? "Change Photo" : "Upload Photo"}{" "}
-                          <span className="text-red-500">*</span>
-                        </p>
 
-                        {/* Preview */}
-                        <div className="relative">
-                          {photo ? (
-                            <img
-                              src={
-                                photo instanceof File
-                                  ? URL.createObjectURL(photo)
-                                  : photo
-                              }
-                              className="w-32 h-40 rounded-md object-cover border"
-                            />
-                          ) : (
-                            <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
+                    <form
+                      onSubmit={handleSubmit(onSubmit, (errors) => {
+                        console.log("FORM ERRORS ", errors);
+                      })}
+                    >
+                      {/* Upload Photo */}
+                      <div className="flex justify-end">
+                        <div className="flex flex-col items-center gap-2">
+                          <p className="font-medium">
+                            {photo ? "Change Photo" : "Upload Photo"}{" "}
+                            <span className="text-red-500">*</span>
+                          </p>
+
+                          {/* Preview */}
+                          <div className="relative">
+                            {photo ? (
+                              <img
+                                src={
+                                  photo instanceof File
+                                    ? URL.createObjectURL(photo)
+                                    : photo
+                                }
+                                className="w-32 h-40 rounded-md object-cover border"
+                              />
+                            ) : (
+                              <div className="w-32 h-40 border-2 border-dashed rounded-md flex items-center justify-center text-gray-400">
+                                Upload
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Buttons */}
+                          <div className="flex gap-2">
+                            <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
                               Upload
-                            </div>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                hidden
+                                onChange={handlePhotoChange}
+                              />
+                            </label>
+
+                            <button
+                              type="button"
+                              onClick={() => setOpenCamera(true)}
+                              className="bg-gray-200 px-3 py-1 rounded"
+                            >
+                              Camera
+                            </button>
+                          </div>
+
+                          {errors.profile_picture && (
+                            <p className="text-red-500 text-sm">
+                              {errors.profile_picture.message}
+                            </p>
                           )}
                         </div>
-
-                        {/* Buttons */}
-                        <div className="flex gap-2">
-                          <label className="cursor-pointer bg-gray-200 px-3 py-1 rounded">
-                            Upload
-                            <input
-                              type="file"
-                              accept="image/*"
-                              hidden
-                              onChange={handlePhotoChange}
-                            />
-                          </label>
-
-                          <button
-                            type="button"
-                            onClick={() => setOpenCamera(true)}
-                            className="bg-gray-200 px-3 py-1 rounded"
-                          >
-                            Camera
-                          </button>
-                        </div>
-
-                        {errors.profile_picture && (
-                          <p className="text-red-500 text-sm">
-                            {errors.profile_picture.message}
-                          </p>
-                        )}
                       </div>
-                    </div>
-                    {openCamera && (
-                      <CameraPhoto
-                        onCapture={handleCameraCapture}
-                        onClose={() => setOpenCamera(false)}
-                      />
-                    )}
-                    {/* Company */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Company Name <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%]">
-                        <Dropdown
-                          value={selectedCompany}
-                          options={companyDropdown}
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Select Company"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedCompany(e.value);
-                            const obj = companyDropdown.find(
-                              (item) => item.value === e.value,
-                            );
-                            setCompanyEmpType(
-                              obj.company_emp_id?.toLowerCase(),
-                            );
-                            setValue("company", String(e.value), {
-                              shouldValidate: true,
-                            });
-                          }}
+                      {openCamera && (
+                        <CameraPhoto
+                          onCapture={handleCameraCapture}
+                          onClose={() => setOpenCamera(false)}
                         />
+                      )}
+                      {/* Company */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium">
+                          Company Name <span className="text-red-500">*</span>
+                        </label>
 
-                        {errors.company && (
-                          <p className="text-red-500 text-sm">
-                            {errors.company.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                
-                     {/* boarding Point */}{" "}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Boarding Point
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
+                        <div className="w-[50%] md:w-[60%]">
+                          <Dropdown
+                            value={selectedCompany}
+                            options={companyDropdown}
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select Company"
+                            filter
+                            className="w-full border border-gray-300 rounded-lg"
+                            onChange={(e) => {
+                              setSelectedCompany(e.value);
+                              const obj = companyDropdown.find(
+                                (item) => item.value === e.value,
+                              );
+                              setCompanyEmpType(
+                                obj.company_emp_id?.toLowerCase(),
+                              );
+                              setValue("company", String(e.value), {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
 
-                      <div className="w-[50%] md:w-[60%]">
-                        <Dropdown
-                          value={selectedBoarding}
-                          options={boardingDropdown}
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Select Boarding Point"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedBoarding(e.value);
-                            setValue("boardingPoint", e.value, { shouldValidate: true });
-                          }}
-                        />
-
-                        {errors.boardingPoint && (
-                          <p className="text-red-500 text-sm">
-                            {errors.boardingPoint.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    {/* Education */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Education
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%]">
-                        <Dropdown
-                          value={selectedEducation}
-                          options={educationDropdown}
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Select Education"
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedEducation(e.value);
-                            setValue("education", e.value, { shouldValidate: true });
-                          }}
-                        />
-
-                        {errors.education && (
-                          <p className="text-red-500 text-sm">
-                            {errors.education.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    {/* NAME */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Name <span className="text-red-600">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="name"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter Name"
-                          {...register("name")}
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.name?.message}
-                        </span>
-                      </div>
-                    </div>
-                    {/* dob */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        DOB <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="date"
-                          name="dob"
-                          {...register("dob")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.dob?.message}
-                        </span>
-                      </div>
-                    </div>
-                    {/* fathername */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Father Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="fatherName"
-                          {...register("fatherName")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter The Father Name"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.fatherName?.message}
-                        </span>
-                      </div>
-                    </div>
-                     {/* marital status */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Marital Status 
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <div className="flex gap-6">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              value="Married"
-                              {...register("maritalStatus")}
-                              className="accent-[#1ea600]"
-                            />
-                            Married
-                          </label>
-
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              value="Unmarried"
-                              {...register("maritalStatus")}
-                              className="accent-[#1ea600]"
-                            />
-                            Unmarried
-                          </label>
+                          {errors.company && (
+                            <p className="text-red-500 text-sm">
+                              {errors.company.message}
+                            </p>
+                          )}
                         </div>
                       </div>
-                    </div>
-{/* 
+                      {/* boarding Point */}{" "}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium">
+                          Boarding Point
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%]">
+                          <Dropdown
+                            value={selectedBoarding}
+                            options={boardingDropdown}
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select Boarding Point"
+                            filter
+                            className="w-full border border-gray-300 rounded-lg"
+                            onChange={(e) => {
+                              setSelectedBoarding(e.value);
+                              setValue("boardingPoint", e.value, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+
+                          {errors.boardingPoint && (
+                            <p className="text-red-500 text-sm">
+                              {errors.boardingPoint.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {/* Education */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium">
+                          Education
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%]">
+                          <Dropdown
+                            value={selectedEducation}
+                            options={educationDropdown}
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Select Education"
+                            filter
+                            className="w-full border border-gray-300 rounded-lg"
+                            onChange={(e) => {
+                              setSelectedEducation(e.value);
+                              setValue("education", e.value, {
+                                shouldValidate: true,
+                              });
+                            }}
+                          />
+
+                          {errors.education && (
+                            <p className="text-red-500 text-sm">
+                              {errors.education.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {/* NAME */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Name <span className="text-red-600">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="name"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter Name"
+                            {...register("name")}
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.name?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {/* dob */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          DOB <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="date"
+                            name="dob"
+                            {...register("dob")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.dob?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {/* fathername */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Father Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="fatherName"
+                            {...register("fatherName")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter The Father Name"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.fatherName?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {/* marital status */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Marital Status
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <div className="flex gap-6">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                value="Married"
+                                {...register("maritalStatus")}
+                                className="accent-[#1ea600]"
+                              />
+                              Married
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                value="Unmarried"
+                                {...register("maritalStatus")}
+                                className="accent-[#1ea600]"
+                              />
+                              Unmarried
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      {/* 
                     {errors.maritalStatus && (
                       <p className="text-red-500 text-sm">
                         {errors.maritalStatus.message}
                       </p>
                     )} */}
-                    {/* address */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Address <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <textarea
-                          type="text"
-                          name="address"
-                          {...register("address")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter The Address"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.address?.message}
-                        </span>
-                      </div>
-                    </div>
-                    {/* city */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        City
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="city"
-                          {...register("city")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter The City"
-                        />
-                        {/* <span className="text-red-500 text-sm">
-                          {errors.city?.message}
-                        </span> */}
-                      </div>
-                    </div>
-                    {/* state */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        State
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="state"
-                          {...register("state")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter The State"
-                        />
-                        {/* <span className="text-red-500 text-sm">
-                          {errors.state?.message}
-                        </span> */}
-                      </div>
-                    </div>
-                    {/* current address */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Current Address
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <textarea
-                          type="text"
-                          name="currentaddress"
-                          {...register("currentaddress")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter The Address"
-                        />
-                        {/* <span className="text-red-500 text-sm">
-                          {errors.current_address?.message}
-                        </span> */}
-                      </div>
-                    </div>
-                    {/* gender */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Gender <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <div className="flex gap-6">
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              value="Male"
-                              {...register("gender", {
-                                required: "Gender is required",
-                              })}
-                              className="accent-[#1ea600]"
-                            />
-                            Male
-                          </label>
-
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="radio"
-                              value="Female"
-                              {...register("gender", {
-                                required: "Gender is required",
-                              })}
-                              className="accent-[#1ea600]"
-                            />
-                            Female
-                          </label>
-                        </div>
-
-                        <span className="text-red-500 text-sm">
-                          {errors.gender?.message}
-                        </span>
-                      </div>
-                    </div>
-                    {/* PHONE */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Phone <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="tel"
-                          name="phone"
-                          {...register("phone")}
-                          inputMode="numeric"
-                          maxLength={10}
-                          onInput={(e) => {
-                            e.target.value = e.target.value.replace(/\D/g, "");
-                          }}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          placeholder="Enter Phone Number"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.phone?.message}
-                        </span>
-                      </div>
-                    </div>
-                    {/* Aadhaar */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Aadhaar Number <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="number"
-                          name="aadhar"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("aadhar")}
-                          inputMode="numeric"
-                          maxLength={12}
-                          onInput={(e) => {
-                            e.target.value = e.target.value
-                              .replace(/\D/g, "")
-                              .slice(0, 12);
-                          }}
-                          placeholder="Enter AadharNumber"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.aadhar?.message}
-                        </span>
-                      </div>
-                    </div>
-                                        {existingCandidate && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {existingCandidate.message}{" "}
-                        <span
-                          className="underline text-green-600 cursor-pointer"
-                          onClick={() => handleViewExisting(existingCandidate.id)}
-                        >
-                          Learn more
-                        </span>
-                      </p>
-                    )}
-                    
-                    {/* pan number */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Pan Number
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="pannumber"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("panNumber")}
-                          maxLength={10}
-                          onInput={(e) => {
-                            e.target.value = e.target.value
-                              .toUpperCase() // convert to uppercase
-                              .replace(/[^A-Z0-9]/g, "") // allow only letters & numbers
-                              .slice(0, 10); // max 10 chars
-                          }}
-                          placeholder="Enter Pan Number"
-                        />
-                        {/* <span className="text-red-500 text-sm">
-                          {errors.pan?.message}
-                        </span> */}
-                      </div>
-                    </div>
-                    {/* joinedDate date */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Joining Date <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="date"
-                          name="joinedDate"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          // {...register("joinedDate")}
-                          {...register("joinedDate", {
-                            onChange: (e) => {
-                              if (companyEmpType === "automatic") {
-                                fetchId({
-                                  date_of_joining: e.target.value,
-                                  company_id: selectedCompany,
-                                });
-                              }
-                            },
-                          })}
-                          placeholder="Enter interview Date"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.joinedDate?.message}
-                        </span>
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
-                      </div>
-                    </div>
-                    {companyEmpType && (
+                      {/* address */}
                       <div className="mt-5 flex justify-between items-center">
-                        <label className="block text-md font-medium">
-                          Employee Id <span className="text-red-500">*</span>
+                        <label className="block text-md font-medium mb-2">
+                          Address <span className="text-red-500">*</span>
                         </label>
-
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <textarea
+                            type="text"
+                            name="address"
+                            {...register("address")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter The Address"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.address?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {/* city */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          City
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
                         <div className="w-[50%] md:w-[60%] rounded-lg">
                           <input
                             type="text"
-                            {...register("manual_value")}
-                            readOnly={companyEmpType === "automatic"}
-                            placeholder={
-                              companyEmpType === "manual"
-                                ? " Employee ID"
-                                : "Employee ID"
+                            name="city"
+                            {...register("city")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter The City"
+                          />
+                          {/* <span className="text-red-500 text-sm">
+                          {errors.city?.message}
+                        </span> */}
+                        </div>
+                      </div>
+                      {/* state */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          State
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="state"
+                            {...register("state")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter The State"
+                          />
+                          {/* <span className="text-red-500 text-sm">
+                          {errors.state?.message}
+                        </span> */}
+                        </div>
+                      </div>
+                      {/* current address */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Current Address
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <textarea
+                            type="text"
+                            name="currentAddress"
+                            {...register("currentAddress")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter The Address"
+                          />
+                          {/* <span className="text-red-500 text-sm">
+                          {errors.current_address?.message}
+                        </span> */}
+                        </div>
+                      </div>
+                      {/* gender */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Gender <span className="text-red-500">*</span>
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <div className="flex gap-6">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                value="Male"
+                                {...register("gender", {
+                                  required: "Gender is required",
+                                })}
+                                className="accent-[#1ea600]"
+                              />
+                              Male
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input
+                                type="radio"
+                                value="Female"
+                                {...register("gender", {
+                                  required: "Gender is required",
+                                })}
+                                className="accent-[#1ea600]"
+                              />
+                              Female
+                            </label>
+                          </div>
+
+                          <span className="text-red-500 text-sm">
+                            {errors.gender?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {/* PHONE */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Phone <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="tel"
+                            name="phone"
+                            {...register("phone")}
+                            inputMode="numeric"
+                            maxLength={10}
+                            onInput={(e) => {
+                              e.target.value = e.target.value.replace(
+                                /\D/g,
+                                "",
+                              );
+                            }}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            placeholder="Enter Phone Number"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.phone?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Aadhaar */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Aadhaar Number <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="number"
+                            name="aadhar"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("aadhar")}
+                            inputMode="numeric"
+                            maxLength={12}
+                            onInput={(e) => {
+                              e.target.value = e.target.value
+                                .replace(/\D/g, "")
+                                .slice(0, 12);
+                            }}
+                            placeholder="Enter AadharNumber"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.aadhar?.message}
+                          </span>
+                        </div>
+                      </div>
+                      {existingCandidate && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {existingCandidate.message}{" "}
+                          <span
+                            className="underline text-green-600 cursor-pointer"
+                            onClick={() =>
+                              handleViewExisting(existingCandidate.id)
                             }
-                            className={`w-full px-2 py-2 border rounded-[10px]
+                          >
+                            Click More
+                          </span>
+                        </p>
+                      )}
+                      {/* pan number */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Pan Number
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="pannumber"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("panNumber")}
+                            maxLength={10}
+                            onInput={(e) => {
+                              e.target.value = e.target.value
+                                .toUpperCase() // convert to uppercase
+                                .replace(/[^A-Z0-9]/g, "") // allow only letters & numbers
+                                .slice(0, 10); // max 10 chars
+                            }}
+                            placeholder="Enter Pan Number"
+                          />
+                          {/* <span className="text-red-500 text-sm">
+                          {errors.pan?.message}
+                        </span> */}
+                        </div>
+                      </div>
+                      {/* joinedDate date */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Joining Date <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="date"
+                            name="joinedDate"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            // {...register("joinedDate")}
+                            {...register("joinedDate", {
+                              onChange: (e) => {
+                                if (companyEmpType === "automatic") {
+                                  fetchId({
+                                    date_of_joining: e.target.value,
+                                    company_id: selectedCompany,
+                                  });
+                                }
+                              },
+                            })}
+                            placeholder="Enter interview Date"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.joinedDate?.message}
+                          </span>
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
+                      </div>
+                      {/* {companyEmpType && (
+                        <div className="mt-5 flex justify-between items-center">
+                          <label className="block text-md font-medium">
+                            Employee Id <span className="text-red-500">*</span>
+                          </label>
+
+                          <div className="w-[50%] md:w-[60%] rounded-lg">
+                            <input
+                              type="text"
+                              {...register("manual_value")}
+                              readOnly={companyEmpType === "automatic"}
+                              placeholder={
+                                companyEmpType === "manual"
+                                  ? " Employee ID"
+                                  : "Employee ID"
+                              }
+                              className={`w-full px-2 py-2 border rounded-[10px]
           ${
             companyEmpType === "automatic"
               ? "bg-gray-100 cursor-not-allowed"
               : "bg-white"
           }`}
-                          />
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {/* bank name */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Bank Name
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="bankName"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("bankName")}
-                          placeholder="Enter Bank Name"
-                        />
-                        {/* <span className="text-red-500 text-sm">
+                      )} */}
+                      {companyEmpType && (
+                        <div className="mt-5 flex justify-between items-center">
+                          <label className="block text-md font-medium">
+                            Employee Id <span className="text-red-500">*</span>
+                          </label>
+
+                          <div className="w-[50%] md:w-[60%] rounded-lg">
+                            <input
+                              type="text"
+                              {...register("manual_value")}
+                              readOnly={companyEmpType === "automatic"}
+                              placeholder={
+                                companyEmpType === "manual"
+                                  ? "Employee ID"
+                                  : "Employee ID"
+                              }
+                              className={`w-full px-2 py-2 border rounded-[10px]
+          ${
+            companyEmpType === "automatic"
+              ? "bg-gray-100 cursor-not-allowed"
+              : "bg-white"
+          }`}
+                            />
+                            {errors.manual_value && (
+                              <p className="text-red-500 text-sm mt-1">
+                                {errors.manual_value.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {/* bank name */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Bank Name
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="bankName"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("bankName")}
+                            placeholder="Enter Bank Name"
+                          />
+                          {/* <span className="text-red-500 text-sm">
                           {errors.bankName?.message}
                         </span> */}
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
                       </div>
-                    </div>
-
-                          {/* branch */}
+                      {/* branch */}
                       <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        Branch Name
-                         {/* <span className="text-red-500">*</span> */}
-                      </label>
+                        <label className="block text-md font-medium">
+                          Branch Name
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
 
-                      <div className="w-[50%] md:w-[60%]">
-                         <input
-                          type="text"
-                          name="branch"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("bank_branch")}
-                          placeholder="Enter Branch Name"
-                        />
-                        
-                        {/* {errors.branch && (
+                        <div className="w-[50%] md:w-[60%]">
+                          <input
+                            type="text"
+                            name="branch"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("branch")}
+                            placeholder="Enter Branch Name"
+                          />
+
+                          {/* {errors.branch && (
                           <p className="text-red-500 text-sm">
                             {errors.branch.message}
                           </p>
                         )} */}
+                        </div>
                       </div>
-                    </div>
-
-                    {/* account name */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Account Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="accountName"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("accountName")}
-                          placeholder="Enter Account Name"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.accountName?.message}
-                        </span>
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      {/* account name */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Account Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="accountName"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("accountName")}
+                            placeholder="Enter Account Name"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.accountName?.message}
+                          </span>
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
                       </div>
-                    </div>
-                    {/* account number */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        Account Number <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="accountNumber"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("accountNumber")}
-                          placeholder="Enter Account Number"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.accountNumber?.message}
-                        </span>
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      {/* account number */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Account Number <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="accountNumber"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("accountNumber")}
+                            placeholder="Enter Account Number"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.accountNumber?.message}
+                          </span>
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
                       </div>
-                    </div>
-                    {/* ifsc code */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        IFSC Code <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="ifsccode"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("ifsccode")}
-                          placeholder="Enter IFSC Code"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.ifsccode?.message}
-                        </span>
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      {/* ifsc code */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          IFSC Code <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="ifsccode"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("ifsccode")}
+                            placeholder="Enter IFSC Code"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.ifsccode?.message}
+                          </span>
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
                       </div>
-                    </div>
-                    {/* uan number */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        UAN Number <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="uannumber"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("uannumber")}
-                          placeholder="Enter UAN Number"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.uannumber?.message}
-                        </span>
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      {/* uan number */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          UAN Number <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="uannumber"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("uannumber")}
+                            placeholder="Enter UAN Number"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.uannumber?.message}
+                          </span>
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
                       </div>
-                    </div>
-                    {/* esic  */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label className="block text-md font-medium mb-2">
-                        ESIC <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <input
-                          type="text"
-                          name="esciNumber"
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          {...register("esciNumber")}
-                          placeholder="Enter ESIC Number"
-                        />
-                        <span className="text-red-500 text-sm">
-                          {errors.esciNumber?.message}
-                        </span>
-                        {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                      {/* esic  */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          ESIC <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <input
+                            type="text"
+                            name="esciNumber"
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            {...register("esciNumber")}
+                            placeholder="Enter ESIC Number"
+                          />
+                          <span className="text-red-500 text-sm">
+                            {errors.esciNumber?.message}
+                          </span>
+                          {/* {errors?.interviewDate && <p className="text-red-500 text-sm mt-1">{errors?.interviewDate}</p>} */}
+                        </div>
                       </div>
-                    </div>
-                    {/* status */}
-                    <div className="mt-5 flex justify-between items-center">
-                      <label
-                        htmlFor="status"
-                        className="block text-md font-medium mb-2 mt-3"
-                      >
-                        Status <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <select
-                          {...register("status")}
-                          className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                      {/* status */}
+                      <div className="mt-5 flex justify-between items-center">
+                        <label
+                          htmlFor="status"
+                          className="block text-md font-medium mb-2 mt-3"
                         >
-                          <option value="">Select a status</option>
-                          <option value="1">Active</option>
-                          <option value="0">InActive</option>
-                        </select>
-                        {errors.status && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.status.message}
-                          </p>
-                        )}
+                          Status <span className="text-red-500">*</span>
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%] rounded-lg">
+                          <select
+                            {...register("status")}
+                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          >
+                            <option value="">Select a status</option>
+                            <option value="1">Active</option>
+                            <option value="0">InActive</option>
+                          </select>
+                          {errors.status && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {errors.status.message}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    {/* rejoing */}
-                    {/* <div className="mt-4 flex items-center justify-between">
+                      {/* rejoing */}
+                      {/* <div className="mt-4 flex items-center justify-between">
                       <label className="block text-md font-medium mb-2">
                         Rejoining
                       </label>
@@ -2346,8 +2385,8 @@ const logData = [
                         ></div>
                       </label>
                     </div> */}
-                    {/*  */}
-                    {/* {isRejoining && (
+                      {/*  */}
+                      {/* {isRejoining && (
                       <div className="mt-3 flex justify-between items-start">
                         <label className="block text-md font-medium mt-2">
                           Rejoining Notes
@@ -2371,51 +2410,51 @@ const logData = [
                         </div>
                       </div>
                     )} */}
-                   
-                   
-                    {/* Emergency Contacts */}
-<div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
+                      {/* Emergency Contacts */}
+                      <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
+                        {/* Header */}
+                        <div className="flex justify-between items-center">
+                          <p className="text-lg md:text-xl font-semibold">
+                            Emergency Contacts
+                          </p>
+                          <IoAddCircleSharp
+                            className="text-[#1ea600] text-3xl cursor-pointer"
+                            // onClick={addEmergencyContact}
+                            onClick={() =>
+                              append({
+                                name: "",
+                                relationship: "",
+                                phone_number: "",
+                              })
+                            }
+                          />
+                        </div>
 
-  {/* Header */}
-  <div className="flex justify-between items-center">
-    <p className="text-lg md:text-xl font-semibold">
-      Emergency Contacts
-    </p>
-    <IoAddCircleSharp
-      className="text-[#1ea600] text-3xl cursor-pointer"
-      // onClick={addEmergencyContact}
-      onClick={() =>
-        append({ name: "", relationship: "", phone_number: "" })
-      }
-    />
-  </div>
+                        {/* Table Head */}
+                        <div className="mt-4">
+                          <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
+                            <span>Name</span>
+                            <span>Relation</span>
+                            <span>Phone No</span>
+                          </div>
 
-  {/* Table Head */}
-  <div className="mt-4">
-    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50 p-2 rounded-[10px] text-center">
-      <span>Name</span>
-      <span>Relation</span>
-      <span>Phone No</span>
-    </div>
+                          {/* Rows */}
+                          {fields.map((field, index) => (
+                            <div
+                              key={field.id}
+                              className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                            >
+                              {/* Remove */}
+                              {index > 0 && (
+                                <IoIosCloseCircle
+                                  className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
+                                  // onClick={() => removeEmergencyContact(index)}
+                                  onClick={() => remove(index)}
+                                />
+                              )}
 
-    {/* Rows */}
-    {fields.map((field, index) => (
-      <div
-        key={field.id}
-        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
-      >
-
-        {/* Remove */}
-        {index > 0 && (
-          <IoIosCloseCircle
-            className="absolute top-2 right-2 text-red-500 text-xl cursor-pointer"
-            // onClick={() => removeEmergencyContact(index)}
-            onClick={() => remove(index)}
-          />
-        )}
-
-        {/* Name */}
-        {/* <div className="flex flex-col mt-1">
+                              {/* Name */}
+                              {/* <div className="flex flex-col mt-1">
           <input
             type="text"
             placeholder="Full Name"
@@ -2426,19 +2465,24 @@ const logData = [
             className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
           />
         </div> */}
-         <div>
-        <input
-          {...register(`emergencyContacts.${index}.name`)}
-          placeholder="Full Name"
-          className="border h-10 w-full rounded px-2"
-        />
-        <p className="text-red-500 text-xs">
-          {errors?.emergencyContacts?.[index]?.name?.message}
-        </p>
-      </div>
+                              <div>
+                                <input
+                                  {...register(
+                                    `emergencyContacts.${index}.name`,
+                                  )}
+                                  placeholder="Full Name"
+                                  className="border h-10 w-full rounded px-2"
+                                />
+                                <p className="text-red-500 text-xs">
+                                  {
+                                    errors?.emergencyContacts?.[index]?.name
+                                      ?.message
+                                  }
+                                </p>
+                              </div>
 
-        {/* Relation */}
-        {/* <div className="flex flex-col mt-1">
+                              {/* Relation */}
+                              {/* <div className="flex flex-col mt-1">
           <select
             value={item.relationship}
             onChange={(e) =>
@@ -2454,26 +2498,30 @@ const logData = [
             ))}
           </select>
         </div> */}
-        <div>
-        <select
-          {...register(`emergencyContacts.${index}.relationship`)}
-          className="border h-10 w-full rounded px-2"
-        >
-          <option value="">Select</option>
-          {relationOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        <p className="text-red-500 text-xs">
-          {errors?.emergencyContacts?.[index]?.relationship?.message}
-        </p>
-      </div>
+                              <div>
+                                <select
+                                  {...register(
+                                    `emergencyContacts.${index}.relationship`,
+                                  )}
+                                  className="border h-10 w-full rounded px-2"
+                                >
+                                  <option value="">Select</option>
+                                  {relationOptions.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <p className="text-red-500 text-xs">
+                                  {
+                                    errors?.emergencyContacts?.[index]
+                                      ?.relationship?.message
+                                  }
+                                </p>
+                              </div>
 
-
-        {/* Phone */}
-        {/* <div className="flex flex-col mt-1">
+                              {/* Phone */}
+                              {/* <div className="flex flex-col mt-1">
           <input
             type="text"
             placeholder="Phone Number"
@@ -2487,95 +2535,99 @@ const logData = [
             className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
           />
         </div> */}
-        <div>
-        <input
-          {...register(`emergencyContacts.${index}.phone_number`)}
-          placeholder="Phone Number"
-          maxLength={10}
-          className="border h-10 w-full rounded px-2"
-        />
-        <p className="text-red-500 text-xs">
-          {errors?.emergencyContacts?.[index]?.phone_number?.message}
-        </p>
-      </div>
-
-      </div>
-    ))}
-    <p className="text-red-600 text-sm mt-2">
-    {errors?.emergencyContacts?.message}
-  </p>
-  </div>
-</div>
-
-                    {/* Documents */}
-                    <div className="mt-5 flex justify-between items-start">
-                      <label className="block text-md font-medium">
-                        Documents
-                        {/* <span className="text-red-500">*</span> */}
-                      </label>
-
-                      <div className="w-[50%] md:w-[60%]">
-                        {/* Upload button */}
-                        <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded inline-block mb-2">
-                          Select Documents
-                          <input
-                            type="file"
-                            multiple
-                            accept=".pdf,.jpg,.png"
-                            hidden
-                            onChange={handleDocumentChange}
-                          />
-                        </label>
-
-                        {/* Selected documents list */}
-
-                        <div className="mt-4 space-y-2">
-                          {documents.map((doc, index) => (
-                            <div
-                              key={index}
-                              className="flex justify-between items-center p-2 border rounded"
-                            >
-                              <span className="text-sm truncate">
-                                {doc instanceof File
-                                  ? doc.name
-                                  : doc.original_name || "Existing Document"}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => removeDocument(index)}
-                                className="text-red-500 font-bold px-2"
-                              >
-                                ×
-                              </button>
+                              <div>
+                                <input
+                                  {...register(
+                                    `emergencyContacts.${index}.phone_number`,
+                                  )}
+                                  placeholder="Phone Number"
+                                  maxLength={10}
+                                  className="border h-10 w-full rounded px-2"
+                                />
+                                <p className="text-red-500 text-xs">
+                                  {
+                                    errors?.emergencyContacts?.[index]
+                                      ?.phone_number?.message
+                                  }
+                                </p>
+                              </div>
                             </div>
                           ))}
-                        </div>
-
-                        {errors.documents && (
-                          <p className="text-red-500 text-sm mt-1">
-                            Documents are required
+                          <p className="text-red-600 text-sm mt-2">
+                            {errors?.emergencyContacts?.message}
                           </p>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                    {/* Button */}
-                    <div className="flex  justify-end gap-2 mt-6 md:mt-14">
-                      <button
-                        onClick={closeAddModal}
-                        className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="sumbit"
-                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                        onClick={handleSubmit(onSubmit, (errors) =>
-                          console.log(errors),
-                        )}
-                      >
-                        Submit
-                      </button>
-                    </div>
+                      {/* Documents */}
+                      <div className="mt-5 flex justify-between items-start">
+                        <label className="block text-md font-medium">
+                          Documents
+                          {/* <span className="text-red-500">*</span> */}
+                        </label>
+
+                        <div className="w-[50%] md:w-[60%]">
+                          {/* Upload button */}
+                          <label className="cursor-pointer bg-gray-200 px-3 py-2 rounded inline-block mb-2">
+                            Select Documents
+                            <input
+                              type="file"
+                              multiple
+                              accept=".pdf,.jpg,.png"
+                              hidden
+                              onChange={handleDocumentChange}
+                            />
+                          </label>
+
+                          {/* Selected documents list */}
+
+                          <div className="mt-4 space-y-2">
+                            {documents.map((doc, index) => (
+                              <div
+                                key={index}
+                                className="flex justify-between items-center p-2 border rounded"
+                              >
+                                <span className="text-sm truncate">
+                                  {doc instanceof File
+                                    ? doc.name
+                                    : doc.original_name || "Existing Document"}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeDocument(index)}
+                                  className="text-red-500 font-bold px-2"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+
+                          {errors.documents && (
+                            <p className="text-red-500 text-sm mt-1">
+                              Documents are required
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {/* Button */}
+                      <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                        <button
+                          onClick={closeAddModal}
+                          className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                          // onClick={handleSubmit(onSubmit, (errors) =>
+                          //   console.log(errors),
+                          // )}
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -2584,62 +2636,58 @@ const logData = [
             {/* logs details */}
 
             {showLogs && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-    
-    {/* Modal box */}
-    <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
-      
-      {/* Header */}
-      <div className="flex justify-between items-center border-b pb-2">
-        <h2 className="text-lg font-semibold text-gray-800">
-          Employee Joining Logs
-        </h2>
-        <button
-          onClick={() => setShowLogs(false)}
-          className="text-gray-500 hover:text-red-500 text-xl"
-        >
-          ✕
-        </button>
-      </div>
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                {/* Modal box */}
+                <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
+                  {/* Header */}
+                  <div className="flex justify-between items-center border-b pb-2">
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      Employee Joining Logs
+                    </h2>
+                    <button
+                      onClick={() => setShowLogs(false)}
+                      className="text-gray-500 hover:text-red-500 text-xl"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
-      {/* Body */}
-      <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
-        {logData.map((item, index) => (
-          <div
-            key={index}
-            className="border rounded-xl p-3 hover:border-[#1ea600] transition"
-          >
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <p className="text-gray-500">Company</p>
-              <p className="font-medium">{item.companyName}</p>
+                  {/* Body */}
+                  <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
+                    {logData.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-xl p-3 hover:border-[#1ea600] transition"
+                      >
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <p className="text-gray-500">Company</p>
+                          <p className="font-medium">{item.companyName}</p>
 
-              <p className="text-gray-500">Boarding Point</p>
-              <p className="font-medium">{item.boardingPoint}</p>
+                          <p className="text-gray-500">Boarding Point</p>
+                          <p className="font-medium">{item.boardingPoint}</p>
 
-              <p className="text-gray-500">Joining Date</p>
-              <p className="font-medium">{item.joiningDate}</p>
+                          <p className="text-gray-500">Joining Date</p>
+                          <p className="font-medium">{item.joiningDate}</p>
 
-              <p className="text-gray-500">Employee ID</p>
-              <p className="font-medium">{item.employeeId}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+                          <p className="text-gray-500">Employee ID</p>
+                          <p className="font-medium">{item.employeeId}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-      {/* Footer */}
-      <div className="mt-4 text-right">
-        <button
-          onClick={() => setShowLogs(false)}
-          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
-        >
-          Close
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
-
+                  {/* Footer */}
+                  <div className="mt-4 text-right">
+                    <button
+                      onClick={() => setShowLogs(false)}
+                      className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {isViewModalOpen && viewRow && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
@@ -2797,34 +2845,42 @@ const logData = [
                         <b>Employee ID:</b> {viewRow.employee_id || "-"}
                       </p>
 
-                     {/* emergency contact */}
+                      {/* emergency contact */}
 
-<div className="mt-4">
-  <h3 className="font-semibold mb-2">Emergency Contacts</h3>
+                      <div className="mt-4">
+                        <h3 className="font-semibold mb-2">
+                          Emergency Contacts
+                        </h3>
 
- {viewRow?.contacts && Array.isArray(viewRow.contacts) && viewRow.contacts.length > 0 ? (
-    <table className="w-full border text-sm">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border p-2">Name</th>
-          <th className="border p-2">Relation</th>
-          <th className="border p-2">Phone Number</th>
-        </tr>
-      </thead>
-      <tbody>
-        {viewRow.contacts.map((c, i) => (
-          <tr key={i}>
-            <td className="border p-2">{c.name}</td>
-            <td className="border p-2">{c.relationship}</td>
-            <td className="border p-2">{c.phone_number}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <p className="text-gray-500">No contacts available</p>
-  )}
-</div>
+                        {viewRow?.contacts &&
+                        Array.isArray(viewRow.contacts) &&
+                        viewRow.contacts.length > 0 ? (
+                          <table className="w-full border text-sm">
+                            <thead className="bg-gray-100">
+                              <tr>
+                                <th className="border p-2">Name</th>
+                                <th className="border p-2">Relation</th>
+                                <th className="border p-2">Phone Number</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {viewRow.contacts.map((c, i) => (
+                                <tr key={i}>
+                                  <td className="border p-2">{c.name}</td>
+                                  <td className="border p-2">
+                                    {c.relationship}
+                                  </td>
+                                  <td className="border p-2">
+                                    {c.phone_number}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        ) : (
+                          <p className="text-gray-500">No contacts available</p>
+                        )}
+                      </div>
 
                       <div className="col-span-2 pt-4">
                         <b className="block mb-2 text-gray-700">Documents:</b>
@@ -2876,169 +2932,190 @@ const logData = [
               </div>
             )}
 
-               {isExistingCandidateViewModalOpen && viewExistingCandidate && (
-                          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-                            <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
-                              {/* Close Button */}
-                              {/* <button
+            {isExistingCandidateViewModalOpen && viewExistingCandidate && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
+                  {/* Close Button */}
+                  {/* <button
                                 onClick={closeViewModal}
                                 className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
                               >
                                 <IoIosCloseCircle size={28} />
                               </button> */}
-            
-                              {/* Title and profile picture */}
-                              {/* Header */}
-                              <div className="flex items-center justify-between mb-6 border-b pb-4">
-            
-                                {/* Title */}
-                                <h2 className="text-xl font-semibold text-[#1ea600]">
-                                  View Existing Contract Employee Details
-                                </h2>
-            
-                                {/* Profile Picture */}
-                                <div className="flex items-center gap-6">
-            
-                                  {viewExistingCandidate.profile_picture ? (
-                                    <img
-                                      src={
-                                        viewExistingCandidate.profile_picture.startsWith("http")
-                                          ? viewExistingCandidate.profile_picture
-                                          : `${API_URL}${viewExistingCandidate.profile_picture}`
-                                      }
-                                      alt="Profile"
-                                      className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
-                                    />
-                                  ) : (
-                                    <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
-                                      No Photo
-                                    </div>
-                                  )}
-            
-                                  {/* Action Icons */}
-                                  <div className="flex items-center gap-4">
-                                    {/* Download */}
-                                    {/* <button
+
+                  {/* Title and profile picture */}
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6 border-b pb-4">
+                    {/* Title */}
+                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                      View Existing Contract Employee Details
+                    </h2>
+
+                    {/* Profile Picture */}
+                    <div className="flex items-center gap-6">
+                      {viewExistingCandidate.profile_picture ? (
+                        <img
+                          src={
+                            viewExistingCandidate.profile_picture.startsWith(
+                              "http",
+                            )
+                              ? viewExistingCandidate.profile_picture
+                              : `${API_URL}${viewExistingCandidate.profile_picture}`
+                          }
+                          alt="Profile"
+                          className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+                          No Photo
+                        </div>
+                      )}
+
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-4">
+                        {/* Download */}
+                        {/* <button
                     title="Download"
                     onClick={() => handleDownload(viewRow)}
                     className="text-gray-500 hover:text-green-600"
                   >
                     <IoMdDownload size={26} />
                   </button> */}
-            
-                                    {/* Print */}
+
+                        {/* Print */}
+                        <button
+                          title="Print"
+                          onClick={() => window.print()}
+                          className="text-gray-500 hover:text-green-600"
+                        >
+                          <TfiPrinter size={24} />
+                        </button>
+
+                        {/* Close */}
+                        <button
+                          title="Close"
+                          onClick={handleCloseViewExistingCandidate}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <IoIosCloseCircle size={26} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* body */}
+                  <div className="pr-2 overflow-y-auto ">
+                    {/* Candidate Info */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <p>
+                        <b>Company:</b>{" "}
+                        {companyOptions.find(
+                          (c) => c.value === viewExistingCandidate.company_id,
+                        )?.label || "-"}
+                      </p>
+
+                      <p>
+                        <b>Name:</b> {viewExistingCandidate.name}
+                      </p>
+                      <p>
+                        <b>Phone:</b> {viewExistingCandidate.phone_number}
+                      </p>
+
+                      <p>
+                        <b>Aadhar Number:</b>{" "}
+                        {viewExistingCandidate.aadhar_number}
+                      </p>
+
+                      <p>
+                        <b>Pan Number:</b>{" "}
+                        {viewExistingCandidate.pan_number || "-"}
+                      </p>
+                      <p>
+                        <b>Gender:</b> {viewExistingCandidate.gender || "-"}
+                      </p>
+                      <p>
+                        <b>Marital Status:</b>{" "}
+                        {viewExistingCandidate.marital_status || "-"}
+                      </p>
+                      <p>
+                        <b>Education:</b>{" "}
+                        {viewExistingCandidate.education?.eduction_name || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Date:</b>{" "}
+                        {formatToDDMMYYYY(
+                          viewExistingCandidate.interview_date,
+                        ) || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Status:</b>{" "}
+                        <span className="font-medium">
+                          {viewExistingCandidate.interview_status || "-"}
+                        </span>
+                      </p>
+
+                      <p>
+                        <b>Candidate Status:</b>{" "}
+                        {viewExistingCandidate.joining_status || "-"}
+                      </p>
+                      <p>
+                        <b>Joining Date:</b>{" "}
+                        {formatToDDMMYYYY(viewExistingCandidate.joining_date) ||
+                          "-"}
+                      </p>
+                      <p>
+                        <b>Joined Date:</b>{" "}
+                        {viewExistingCandidate.joined_date
+                          ? formatToDDMMYYYY(viewExistingCandidate.joined_date)
+                          : "-"}
+                      </p>
+                      <p>
+                        <b>Reference:</b>{" "}
+                        {viewExistingCandidate.reference || "-"}
+                      </p>
+                      {viewExistingCandidate?.other_reference !== null && (
+                        <p>
+                          <b>Other Reference:</b>{" "}
+                          {viewExistingCandidate.other_reference || "-"}
+                        </p>
+                      )}
+
+                      <p className="col-span-2">
+                        <b>Notes:</b>{" "}
+                        {viewExistingCandidate.notes_details?.[0]?.notes ||
+                          "No notes available"}
+                      </p>
+
+                      <div className="col-span-2 pt-4">
+                        <b className="block mb-2 text-gray-700">Documents:</b>
+                        {/* Check if documents is an array and has items */}
+                        {viewExistingCandidate.documents &&
+                        viewExistingCandidate.documents.length > 0 ? (
+                          <div className="space-y-2">
+                            {viewExistingCandidate.documents.map(
+                              (doc, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border"
+                                >
+                                  <span className="text-gray-600 truncate flex-1">
+                                    {doc.original_name ||
+                                      `Document ${index + 1}`}
+                                  </span>
+
+                                  <div className="flex gap-2">
                                     <button
-                                      title="Print"
-                                      onClick={() => window.print()}
-                                      className="text-gray-500 hover:text-green-600"
+                                      onClick={() =>
+                                        window.open(
+                                          `${API_URL}/${doc.document_path}`,
+                                          "_blank",
+                                        )
+                                      }
+                                      className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
                                     >
-                                      <TfiPrinter size={24} />
+                                      View/Print
                                     </button>
-            
-                                    {/* Close */}
-                                    <button
-                                      title="Close"
-                                      onClick={handleCloseViewExistingCandidate}
-                                      className="text-gray-500 hover:text-red-500"
-                                    >
-                                      <IoIosCloseCircle size={26} />
-                                    </button>
-                                  </div>
-            
-                                </div>
-                              </div>
-            
-                              {/* body */}
-                              <div className="pr-2 overflow-y-auto ">
-                                {/* Candidate Info */}
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-            
-                                  <p>
-                                    <b>Company:</b>{" "}
-                                    {companyOptions.find(c => c.value === viewExistingCandidate.company_id)?.label || "-"}
-                                  </p>
-            
-                                  <p>
-                                    <b>Name:</b> {viewExistingCandidate.name}
-                                  </p>
-                                  <p>
-                                    <b>Phone:</b> {viewExistingCandidate.phone_number}
-                                  </p>
-            
-                                  <p>
-                                    <b>Aadhar Number:</b> {viewExistingCandidate.aadhar_number}
-                                  </p>
-            
-                                  <p>
-                                    <b>Pan Number:</b> {viewExistingCandidate.pan_number || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Gender:</b> {viewExistingCandidate.gender || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Marital Status:</b> {viewExistingCandidate.marital_status || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Education:</b>{" "}
-                                    {viewExistingCandidate.education?.eduction_name || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Interview Date:</b> {formatToDDMMYYYY(viewExistingCandidate.interview_date) || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Interview Status:</b>{" "}
-                                    <span className="font-medium">
-                                      {viewExistingCandidate.interview_status || "-"}
-                                    </span>
-                                  </p>
-            
-                                  <p>
-                                    <b>Candidate Status:</b> {viewExistingCandidate.joining_status || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Joining Date:</b> {formatToDDMMYYYY(viewExistingCandidate.joining_date) || "-"}
-                                  </p>
-                                  <p>
-                                    <b>Joined Date:</b>{" "}
-                                    {viewExistingCandidate.joined_date
-                                      ? formatToDDMMYYYY(viewExistingCandidate.joined_date)
-                                      : "-"}
-                                  </p>
-                                  <p>
-                                    <b>Reference:</b> {viewExistingCandidate.reference || "-"}
-                                  </p>
-                                  {viewExistingCandidate?.other_reference !== null && (
-                                    <p>
-                                      <b>Other Reference:</b> {viewExistingCandidate.other_reference || "-"}
-                                    </p>
-                                  )}
-            
-            
-                                  <p className="col-span-2">
-                                    <b>Notes:</b>{" "}
-                                    {viewExistingCandidate.notes_details?.[0]?.notes ||
-                                      "No notes available"}
-                                  </p>
-            
-                                  <div className="col-span-2 pt-4">
-                                    <b className="block mb-2 text-gray-700">Documents:</b>
-                                    {/* Check if documents is an array and has items */}
-                                    {viewExistingCandidate.documents && viewExistingCandidate.documents.length > 0 ? (
-                                      <div className="space-y-2">
-                                        {viewExistingCandidate.documents.map((doc, index) => (
-                                          <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-                                            <span className="text-gray-600 truncate flex-1">
-                                              {doc.original_name || `Document ${index + 1}`}
-                                            </span>
-            
-                                            <div className="flex gap-2">
-                                              <button
-                                                onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
-                                                className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
-                                              >
-                                                View/Print
-                                              </button>
-                                              {/* <button
+                                    {/* <button
                 onClick={() =>
                   window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
                 }
@@ -3046,19 +3123,22 @@ const logData = [
               >
                 Download
               </button> */}
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <p className="text-gray-500 italic">No documents uploaded.</p>
-                                    )}
                                   </div>
                                 </div>
-                              </div>
-                            </div>
+                              ),
+                            )}
                           </div>
+                        ) : (
+                          <p className="text-gray-500 italic">
+                            No documents uploaded.
+                          </p>
                         )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
