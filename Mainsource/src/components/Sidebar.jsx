@@ -764,7 +764,7 @@ const Sidebar = () => {
               </div>
 
               {/* Announcement */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("announcement")}
                   className={`flex items-center w-full flex-grow
@@ -776,30 +776,21 @@ const Sidebar = () => {
         : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
     }`}
                 >
-                  {/* <img
-                    src={contact}
-                    alt="contact"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/announcement"
-                        ? "brightness-0 invert pointer-events-none"
-                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
-                  /> */}
+                 
                   <MdCampaign
-                    size={24} // icon size
+                    size={24} 
                     className={`sidebar-icon transition-all duration-200 ${
                       currentPath === "/announcement"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
                     }`}
                   />
-                  {/* <MdOutlineContactMail  className="w-5 h-5 text-gray-500  "/> */}
 
                   {!arrowClicked && (
                     <p className="text-sm font-medium">Announcement</p>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* activity */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
