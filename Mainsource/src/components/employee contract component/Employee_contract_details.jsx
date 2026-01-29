@@ -36,6 +36,7 @@ const Employee_contract_details = () => {
   //navigation
   const navigate = useNavigate();
   const [editData, setEditData] = useState(null);
+  console.log("editData", editData);
   const [columnData, setColumnData] = useState([]);
 
   console.log("columnData", columnData);
@@ -78,7 +79,7 @@ const Employee_contract_details = () => {
     joinedDate: z.string().min(1, "Joined date is required"),
     education: z.string().optional(),
     boardingPoint: z.string().optional(),
-   maritalStatus: z.string().nullable().optional(),
+    maritalStatus: z.string().nullable().optional(),
     panNumber: z.string().optional(),
     accountName: z.string().optional(),
     accountNumber: z.string().min(1, "Account number is required"),
@@ -111,7 +112,7 @@ const Employee_contract_details = () => {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(candidateContractSchema),
-   
+
     defaultValues: {
       name: editData ? editData.name : "",
       phone: editData ? editData.phone_number : "",
@@ -540,12 +541,12 @@ const Employee_contract_details = () => {
   // select file
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
 
-    if (isSubmitting) return; 
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
     // Reset errors
@@ -1068,6 +1069,9 @@ const Employee_contract_details = () => {
     },
   ];
 
+  const [isRejoining, setIsRejoining] = useState(false);
+  const [rejoingnote, setRejoingnote] = useState("");
+
   // create
   const onSubmit = async (data) => {
     try {
@@ -1078,6 +1082,43 @@ const Employee_contract_details = () => {
         documents: data.documents,
         documents_length: data.documents?.length,
       });
+
+      if (isRejoining === true) {
+        if (!rejoingnote) {
+          toast.error("Rejoining notes required");
+          return;
+        }
+
+        const rejoiningPayload = {
+          parent_id: editData?.id,
+          company_id: editData?.company,
+          boarding_point_id: editData?.boardingPoint,
+          address: editData?.address,
+          joining_date: editData?.joinedDate,
+          rejoin_status: 1,
+          employee_id: editData?.manual_value,
+          rejoining_note: rejoingnote,
+
+          created_by: userId,
+        };
+
+        console.log("Rejoining payload:", rejoiningPayload);
+
+        await axiosInstance.post(
+          `${API_URL}api/contract-employee/emp-rejoing-create`,
+          rejoiningPayload,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          },
+        );
+
+        toast.success("Rejoining created successfully");
+        closeAddModal();
+        fetchContractCandidates();
+        return; //  VERY IMPORTANT (stop next API)
+      }
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
@@ -1092,9 +1133,9 @@ const Employee_contract_details = () => {
         acc_no: data.accountName,
         marital_status: data.maritalStatus,
         // boarding_point_id: Number(data.boardingPoint),
-              boarding_point_id: data.boardingPoint
-  ? Number(data.boardingPoint)
-  : null,
+        boarding_point_id: data.boardingPoint
+          ? Number(data.boardingPoint)
+          : null,
         education_id:
           data.education && !isNaN(Number(data.education))
             ? Number(data.education)
@@ -1241,6 +1282,7 @@ const Employee_contract_details = () => {
   console.log("educationDropdown", educationDropdown);
 
   const [showLogs, setShowLogs] = useState(false);
+
   const logData = [
     {
       companyName: "PSS Agencies",
@@ -1620,16 +1662,14 @@ const Employee_contract_details = () => {
                       <button
                         // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
-                         disabled={isSubmitting}
-  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+                        disabled={isSubmitting}
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
              disabled:opacity-50 flex items-center gap-2"
-             >
-
-  {isSubmitting && (
-    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-  )}
-  {isSubmitting ? "Uploading..." : "Submit"}
-                      
+                      >
+                        {isSubmitting && (
+                          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        )}
+                        {isSubmitting ? "Uploading..." : "Submit"}
                         Submit
                       </button>
                     </div>
@@ -2386,52 +2426,57 @@ const Employee_contract_details = () => {
                           )}
                         </div>
                       </div>
+                        {editData && (
+                          <> 
                       {/* rejoing */}
-                      {/* <div className="mt-4 flex items-center justify-between">
-                      <label className="block text-md font-medium mb-2">
-                        Rejoining
-                      </label>
+                      <div className="mt-4 flex items-center justify-between">
+                        <label className="block text-md font-medium mb-2">
+                          Rejoining
+                        </label>
 
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          {...register("isRejoining")}
-                          className="sr-only peer"
-                        />
-                        <div
-                          className="w-11 h-6 bg-gray-300 rounded-full peer 
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={isRejoining}
+                            className="sr-only peer"
+                            onChange={(e) => setIsRejoining(e.target.checked)}
+                          />
+                          <div
+                            className="w-11 h-6 bg-gray-300 rounded-full peer 
       peer-checked:bg-[#1ea600]
       after:content-[''] after:absolute after:top-[2px] after:left-[2px]
       after:bg-white after:rounded-full after:h-5 after:w-5
       after:transition-all peer-checked:after:translate-x-5"
-                        ></div>
-                      </label>
-                    </div> */}
-                      {/*  */}
-                      {/* {isRejoining && (
-                      <div className="mt-3 flex justify-between items-start">
-                        <label className="block text-md font-medium mt-2">
-                          Rejoining Notes
+                          ></div>
                         </label>
-
-                        <div className="w-[50%] md:w-[60%]">
-                          <textarea
-                            {...register("rejoiningNotes", {
-                              required: "Rejoining notes are required",
-                            })}
-                            rows={3}
-                            placeholder="Enter rejoining notes..."
-                            className="w-full px-2 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                          />
-
-                          {errors.rejoiningNotes && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.rejoiningNotes.message}
-                            </p>
-                          )}
-                        </div>
                       </div>
-                    )} */}
+                      {/*  */}
+                      {isRejoining && (
+                        <div className="mt-3 flex justify-between items-start">
+                          <label className="block text-md font-medium mt-2">
+                            Rejoining Notes
+                          </label>
+
+                          <div className="w-[50%] md:w-[60%]">
+                            <textarea
+                              name="rejoingnote"
+                              value={rejoingnote}
+                              onChange={(e) => setRejoingnote(e.target.value)}
+                              rows={3}
+                              placeholder="Enter rejoining notes..."
+                              className="w-full px-2 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            />
+
+                            {errors.rejoingnote && (
+                              <p className="text-red-500 text-sm mt-1">
+                                {errors.rejoingnote.message}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      </>
+                        )}
                       {/* Emergency Contacts */}
                       <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
                         {/* Header */}
@@ -2789,89 +2834,87 @@ const Employee_contract_details = () => {
                   {/* body */}
                   <div className="pr-2 overflow-y-auto ">
                     {/* Candidate Info */}
-                    <div >
+                    <div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
-                      <p>
-                        <b>Company:</b>{" "}
-                        {companyOptions.find(
-                          (c) => c.value === viewRow.company_id,
-                        )?.label || "-"}
-                      </p>
-                      <p>
-                        <b>Branch:</b>{" "}
-                        {viewRow.branch_name || "-"}
-                      </p>
-                      <p>
-                        <b>Name:</b> {viewRow.name || "-"}
-                      </p>
-                      <p>
-                        <b>Phone:</b> {viewRow.phone_number || "-"}
-                      </p>
-                      <p>
-                        <b>Aadhar Number:</b> {viewRow.aadhar_number || "-"}
-                      </p>
-                      <p>
-                        <b>Pan Number:</b> {viewRow.pan_number || "-"}
-                      </p>
-                      <p>
-                        <b>Bank Name:</b> {viewRow.bank_name || "-"}
-                      </p>
-                      <p>
-                        <b>Account Name:</b> {viewRow.acc_no || "-"}
-                      </p>
-                      <p>
-                        <b>Account Number:</b> {viewRow.account_number || "-"}
-                      </p>
-                      <p>
-                        <b>Address:</b> {viewRow.address || "-"}
-                      </p>
-                      <p>
-                        <b>City:</b> {viewRow.city || "-"}
-                      </p>
-                      <p>
-                        <b>State:</b> {viewRow.state || "-"}
-                      </p>
-                      <p>
-                        <b>Current Address:</b> {viewRow.current_address || "-"}
-                      </p>
-
-                      <p>
-                        <b>Date of Birth:</b>{" "}
-                        {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
-                      </p>
-                      <p>
-                        <b>Father Name:</b> {viewRow.father_name || "-"}
-                      </p>
-                      <p>
-                        <b>Gender:</b> {viewRow.gender || "-"}
-                      </p>
-                      <p>
-                        <b>ESIC:</b> {viewRow.esic || "-"}
-                      </p>
-                      <p>
-                        <b>IFSC Code:</b> {viewRow.ifsc_code || "-"}
-                      </p>
-                      <p>
-                        <b>UAN Number:</b> {viewRow.uan_number || "-"}
-                      </p>
-                      <p>
-                        <b>Status:</b>{" "}
-                        {viewRow.status === 1 ? "Active" : "Inactive"}
-                      </p>
-                      <p>
-                        <b>Joining Date:</b>{" "}
-                        {formatToDDMMYYYY(viewRow.joining_date) || "-"}
-                      </p>
-                      <p>
-                        <b>Employee ID:</b> {viewRow.employee_id || "-"}
-                      </p>
-
-                     
                         <p>
-                        <b>Marital Status:</b> {viewRow.marital_status || "-"}
-                      </p>
-                     </div>
+                          <b>Company:</b>{" "}
+                          {companyOptions.find(
+                            (c) => c.value === viewRow.company_id,
+                          )?.label || "-"}
+                        </p>
+                        <p>
+                          <b>Branch:</b> {viewRow.branch_name || "-"}
+                        </p>
+                        <p>
+                          <b>Name:</b> {viewRow.name || "-"}
+                        </p>
+                        <p>
+                          <b>Phone:</b> {viewRow.phone_number || "-"}
+                        </p>
+                        <p>
+                          <b>Aadhar Number:</b> {viewRow.aadhar_number || "-"}
+                        </p>
+                        <p>
+                          <b>Pan Number:</b> {viewRow.pan_number || "-"}
+                        </p>
+                        <p>
+                          <b>Bank Name:</b> {viewRow.bank_name || "-"}
+                        </p>
+                        <p>
+                          <b>Account Name:</b> {viewRow.acc_no || "-"}
+                        </p>
+                        <p>
+                          <b>Account Number:</b> {viewRow.account_number || "-"}
+                        </p>
+                        <p>
+                          <b>Address:</b> {viewRow.address || "-"}
+                        </p>
+                        <p>
+                          <b>City:</b> {viewRow.city || "-"}
+                        </p>
+                        <p>
+                          <b>State:</b> {viewRow.state || "-"}
+                        </p>
+                        <p>
+                          <b>Current Address:</b>{" "}
+                          {viewRow.current_address || "-"}
+                        </p>
 
+                        <p>
+                          <b>Date of Birth:</b>{" "}
+                          {formatToDDMMYYYY(viewRow.date_of_birth) || "-"}
+                        </p>
+                        <p>
+                          <b>Father Name:</b> {viewRow.father_name || "-"}
+                        </p>
+                        <p>
+                          <b>Gender:</b> {viewRow.gender || "-"}
+                        </p>
+                        <p>
+                          <b>ESIC:</b> {viewRow.esic || "-"}
+                        </p>
+                        <p>
+                          <b>IFSC Code:</b> {viewRow.ifsc_code || "-"}
+                        </p>
+                        <p>
+                          <b>UAN Number:</b> {viewRow.uan_number || "-"}
+                        </p>
+                        <p>
+                          <b>Status:</b>{" "}
+                          {viewRow.status === 1 ? "Active" : "Inactive"}
+                        </p>
+                        <p>
+                          <b>Joining Date:</b>{" "}
+                          {formatToDDMMYYYY(viewRow.joining_date) || "-"}
+                        </p>
+                        <p>
+                          <b>Employee ID:</b> {viewRow.employee_id || "-"}
+                        </p>
+
+                        <p>
+                          <b>Marital Status:</b> {viewRow.marital_status || "-"}
+                        </p>
+                      </div>
 
                       {/* emergency contact */}
 
