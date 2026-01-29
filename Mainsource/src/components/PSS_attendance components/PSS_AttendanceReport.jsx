@@ -44,11 +44,12 @@ const DailyWorkReport_Details = () => {
 
   const [monthlyReportList, setMonthlyReportList] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState([]);
-  console.log("selectedEmployee : ",selectedEmployee);
+  console.log("selectedEmployee : ", selectedEmployee);
   const [selectedEmployeeName, setSelectedEmployeeName] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tasklist, setTasklist] = useState([]);
   const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
+  console.log("selectedEmployeeDetails : ", selectedEmployeeDetails);
   const [selectedTask, setSelectedTask] = useState(false);
   const [data, setData] = useState([]);
   const storedDetatis = localStorage.getItem("pssuser");
@@ -76,7 +77,6 @@ const DailyWorkReport_Details = () => {
   });
   const [previewImage, setPreviewImage] = useState(null);
 
-
   const [editDailyForm, setEditDailyForm] = useState({
     id: null,
     report_date: "",
@@ -89,8 +89,8 @@ const DailyWorkReport_Details = () => {
   // });
 
   const [filters, setFilters] = useState({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
-});
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  });
 
   const [summary, setSummary] = useState({
     total_working_days: 0,
@@ -99,7 +99,6 @@ const DailyWorkReport_Details = () => {
   });
   const [showDetails, setShowDetails] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
-  
 
   // Fetch attendance report
   // const fetchDailyAttendanceReport = async () => {
@@ -156,8 +155,10 @@ const DailyWorkReport_Details = () => {
       const res = await axiosInstance.get(
         `${API_URL}api/attendance-report/attendance`,
         {
-          params: { month: selectedDate },
-          employee_id: selectedEmployeeDetails || null,
+          params: { date: selectedDate
+            , employee_id: selectedEmployeeDetails
+           },
+         
         },
       );
 
@@ -176,20 +177,17 @@ const DailyWorkReport_Details = () => {
         attendance_details: item.attendance_details || [],
       }));
 
-           const employeeOptions = (res.data.employees || []).map(emp => ({
-  label: emp.full_name,
-  value: emp.id,
-}));
+      const employeeOptions = (res.data.employees || []).map((emp) => ({
+        label: emp.full_name,
+        value: emp.id,
+      }));
 
-setSelectedEmployee(employeeOptions);
-
+      setSelectedEmployee(employeeOptions);
 
       setData(formattedData);
       setAbsentlistData(
         res.data.data.filter((item) => item.status === "Absent"),
       );
-
-
     } catch (err) {
       console.error("Attendance API Error:", err);
     }
@@ -217,15 +215,14 @@ setSelectedEmployee(employeeOptions);
   };
 
   const handleReset = () => {
-   
     setSelectedEmployeeDetails(null);
     getAttendanceData();
   };
 
-    const handleSubmit = () => {
-  //     console.log("✅ Submit button clicked");
-  // console.log("Selected employee ID:", selectedEmployeeDetails);
-  // console.log("Selected date:", selectedDate);
+  const handleSubmit = () => {
+    //     console.log("✅ Submit button clicked");
+    // console.log("Selected employee ID:", selectedEmployeeDetails);
+    // console.log("Selected date:", selectedDate);
     getAttendanceData();
   };
 
@@ -490,30 +487,30 @@ px-2 py-2 md:px-6 md:py-6"
                     </span>
                   </div>
 
-                   <Dropdown
-                                      value={selectedEmployeeDetails}
-                                      onChange={(e) => setSelectedEmployeeDetails(e.value)}
-                                      options={selectedEmployee}
-                                      optionLabel="label"
-                                      placeholder="Select Employee"
-                                      filter
-                                      className="w-full md:w-48 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                                    />
-                  
-                                    <div className="flex gap-3">
-                                      <button
-                                        onClick={handleSubmit}
-                                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-md hover:scale-105 duration-300"
-                                      >
-                                        Search
-                                      </button>
-                  
-                                      <button
-                                        onClick={handleReset}
-                                        className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md hover:scale-105 duration-300"
-                                      >
-                                        Reset
-                                      </button>
+                  <Dropdown
+                    value={selectedEmployeeDetails}
+                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
+                    options={selectedEmployee}
+                    optionLabel="label"
+                    placeholder="Select Employee"
+                    filter
+                    className="w-full md:w-48 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleSubmit}
+                      className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-md hover:scale-105 duration-300"
+                    >
+                      Search
+                    </button>
+
+                    <button
+                      onClick={handleReset}
+                      className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded-md hover:scale-105 duration-300"
+                    >
+                      Reset
+                    </button>
                   </div>
 
                   <div className="flex justify-between items-center gap-5">
@@ -527,14 +524,14 @@ px-2 py-2 md:px-6 md:py-6"
                       <InputText
                         value={globalFilter}
                         onChange={(e) => {
-    const value = e.target.value;
-    let _filters = { ...filters };
+                          const value = e.target.value;
+                          let _filters = { ...filters };
 
-    _filters.global.value = value;
+                          _filters.global.value = value;
 
-    setFilters(_filters);
-    setGlobalFilter(value);
-  }}
+                          setFilters(_filters);
+                          setGlobalFilter(value);
+                        }}
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
                focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
@@ -549,7 +546,6 @@ px-2 py-2 md:px-6 md:py-6"
                     paginator
                     rows={rows}
                     showGridlines
-                    
                     filters={filters}
                     filterDisplay="menu"
                     globalFilterFields={[
@@ -721,32 +717,28 @@ px-2 py-2 md:px-6 md:py-6"
             )}
           </div>
           {previewImage && (
-  <div
-    className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
-    onClick={() => setPreviewImage(null)}
-  >
-    <div
-      className="relative"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Close */}
-      <button
-        onClick={() => setPreviewImage(null)}
-        className="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-red-500 hover:text-white transition"
-      >
-        ×
-      </button>
+            <div
+              className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+              onClick={() => setPreviewImage(null)}
+            >
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                {/* Close */}
+                <button
+                  onClick={() => setPreviewImage(null)}
+                  className="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow hover:bg-red-500 hover:text-white transition"
+                >
+                  ×
+                </button>
 
-      {/* Full Image */}
-      <img
-        src={previewImage}
-        alt="Preview"
-        className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-xl"
-      />
-    </div>
-  </div>
-)}
-
+                {/* Full Image */}
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-xl"
+                />
+              </div>
+            </div>
+          )}
         </>
       )}
       <Footer />

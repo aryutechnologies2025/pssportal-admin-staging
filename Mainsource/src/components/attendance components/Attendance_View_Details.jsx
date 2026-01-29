@@ -29,7 +29,6 @@ const Attendance_View_Details = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [data, setData] = useState([]);
 
-
   // Initial data for editing
   const initialData = [
     {
@@ -40,7 +39,7 @@ const Attendance_View_Details = () => {
       attendance: "present",
       loginTime: "09:00",
       logoutTime: "18:00",
-      notes: ""
+      notes: "",
     },
     {
       id: 2,
@@ -50,7 +49,7 @@ const Attendance_View_Details = () => {
       attendance: "present",
       loginTime: "09:15",
       logoutTime: "18:30",
-      notes: ""
+      notes: "",
     },
     {
       id: 3,
@@ -60,12 +59,13 @@ const Attendance_View_Details = () => {
       attendance: "absent",
       loginTime: "",
       logoutTime: "",
-      notes: "Sick leave"
-    }
+      notes: "Sick leave",
+    },
   ];
 
-   const [shiftOptions, setShiftOptions] = useState([]);
-   console.log("shiftOptions", shiftOptions);
+  const [shiftOptions, setShiftOptions] = useState([]);
+  const [counts, setcounts] = useState({});
+  // console.log("shiftOptions", shiftOptions);
 
   // const shiftOptions = [
   //   { label: "Morning", value: "morning" },
@@ -86,39 +86,39 @@ const Attendance_View_Details = () => {
         setLoading(true);
 
         const response = await axiosInstance.get(
-          `${API_URL}api/attendance/edit/${id}`
+          `${API_URL}api/attendance/edit/${id}`,
         );
 
         console.log("response check.....: ", response);
 
-        const attendanceDetails = response?.data?.data?.details.map(emp => ({
-  ...emp,
-  shifts: emp.shifts?.map(shift => ({
-    id: shift.id,
-    shift_name: shift.shift_name
-  })) || []
-}));
+        const attendanceDetails = response?.data?.data?.details.map((emp) => ({
+          ...emp,
+          shifts:
+            emp.shifts?.map((shift) => ({
+              id: shift.id,
+              shift_name: shift.shift_name,
+            })) || [],
+        }));
 
-setAttendanceData(attendanceDetails);
-
+        setAttendanceData(attendanceDetails);
 
         const allShifts = response?.data?.shifts || [];
 
-setShiftOptions(
-  allShifts.map(shift => ({
-    id: shift.id,
-    shift_name: shift.shift_name
-  }))
-);
+        setShiftOptions(
+          allShifts.map((shift) => ({
+            id: shift.id,
+            shift_name: shift.shift_name,
+          })),
+        );
 
         setData(response?.data?.data || []);
+        setcounts(response?.data?.counts || {});
 
-        // ✅ SET companyId HERE
+        //  SET companyId HERE
         setCompanyId(response?.data?.data?.company?.id || null);
 
         setLoading(false);
       } catch (error) {
-        
         // toast.error("Failed to load attendance data");
         setLoading(false);
       }
@@ -129,11 +129,11 @@ setShiftOptions(
 
   useEffect(() => {
     if (attendanceData?.length) {
-      setAttendanceData(prev =>
-        prev.map(emp => ({
+      setAttendanceData((prev) =>
+        prev.map((emp) => ({
           ...emp,
           shifts: emp.shifts || [],
-        }))
+        })),
       );
     }
   }, [attendanceData.length]);
@@ -157,15 +157,15 @@ setShiftOptions(
 
   // Handle time change
   const handleTimeChange = (id, field, value) => {
-    setAttendanceData(prev =>
-      prev.map(emp => (emp.id === id ? { ...emp, [field]: value } : emp))
+    setAttendanceData((prev) =>
+      prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)),
     );
   };
 
   // Handle notes change
   const handleNotesChange = (id, value) => {
-    setAttendanceData(prev =>
-      prev.map(emp => (emp.id === id ? { ...emp, notes: value } : emp))
+    setAttendanceData((prev) =>
+      prev.map((emp) => (emp.id === id ? { ...emp, notes: value } : emp)),
     );
   };
 
@@ -184,14 +184,14 @@ setShiftOptions(
 
   // Handle clear all
   const handleClearAll = () => {
-    setAttendanceData(prev =>
-      prev.map(emp => ({
+    setAttendanceData((prev) =>
+      prev.map((emp) => ({
         ...emp,
         attendance: "",
         loginTime: "",
         logoutTime: "",
-        notes: ""
-      }))
+        notes: "",
+      })),
     );
   };
 
@@ -199,7 +199,7 @@ setShiftOptions(
   const handleSave = async () => {
     try {
       setSaving(true);
-      const attendanceData1 = attendanceData?.map(emp => ({
+      const attendanceData1 = attendanceData?.map((emp) => ({
         employee_id: emp.employee_id,
         attendance: emp.attendance == "present" || emp.attendance == 1 ? 1 : 0,
       }));
@@ -207,10 +207,10 @@ setShiftOptions(
       // Prepare payload
       const payload = {
         company_id: id,
-        attendance_date: date || new Date().toISOString().split('T')[0],
+        attendance_date: date || new Date().toISOString().split("T")[0],
         employees: attendanceData1,
         role_id: JSON.parse(localStorage.getItem("pssuser"))?.role_id || "",
-        updatedBy: JSON.parse(localStorage.getItem("pssuser"))?.id || "admin"
+        updatedBy: JSON.parse(localStorage.getItem("pssuser"))?.id || "admin",
       };
 
       // API call to update attendance
@@ -221,13 +221,11 @@ setShiftOptions(
       toast.success("Attendance updated successfully!", {
         onClose: () => navigate("/attendance"),
       });
-
     } catch (error) {
       console.error("Error updating attendance:", error);
       toast.error("Failed to update attendance", {
         onClose: () => navigate("/attendance"),
       });
-
     } finally {
       setSaving(false);
     }
@@ -240,17 +238,17 @@ setShiftOptions(
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const handleSelectAll = (status) => {
-    const updatedData = attendanceData.map(item => ({
+    const updatedData = attendanceData.map((item) => ({
       ...item,
-      attendance: status
+      attendance: status,
     }));
     setAttendanceData(updatedData);
   };
 
   const handleClear = (status) => {
-    const updatedData = attendanceData.map(item => ({
+    const updatedData = attendanceData.map((item) => ({
       ...item,
-      attendance: null
+      attendance: null,
     }));
     setAttendanceData(updatedData);
   };
@@ -260,27 +258,24 @@ setShiftOptions(
       state: {
         company: data?.company,
         date: data?.attendance_date,
-        attendanceId: id
-      }
+        attendanceId: id,
+      },
     });
   };
 
-
-
-
   const handleAttendanceChange = (id, status) => {
-    setAttendanceData(prev =>
-      prev.map(emp =>
+    setAttendanceData((prev) =>
+      prev.map((emp) =>
         emp.id === id
           ? {
-            ...emp,
-            attendance: status,
-            loginTime: status === "present" ? "09:00" : "",
-            logoutTime: status === "present" ? "18:00" : "",
-            notes: status === "absent" ? "Absent" : ""
-          }
-          : emp
-      )
+              ...emp,
+              attendance: status,
+              loginTime: status === "present" ? "09:00" : "",
+              logoutTime: status === "present" ? "18:00" : "",
+              notes: status === "absent" ? "Absent" : "",
+            }
+          : emp,
+      ),
     );
   };
   // Columns configuration
@@ -299,37 +294,33 @@ setShiftOptions(
         </div>
       ),
     },
- 
-   {
-  field: "shifts",
-  header: "Shift Allocation",
-  body: (rowData) => (
-    <div className="flex justify-center gap-3">
-      {shiftOptions.map((shift) => {
-        const checked = rowData.shifts?.some(
-          s => s.id === shift.id
-        );
 
-        return (
-          <label
-            key={shift.id}
-            className="flex items-center gap-2 text-sm text-gray-700"
-          >
-            <input
-              type="checkbox"
-              checked={checked}
-              disabled
-              className="accent-green-600 cursor-not-allowed"
-            />
-            {shift.shift_name}
-          </label>
-        );
-      })}
-    </div>
-  )
-},
+    {
+      field: "shifts",
+      header: "Shift Allocation",
+      body: (rowData) => (
+        <div className="flex justify-center gap-3">
+          {shiftOptions.map((shift) => {
+            const checked = rowData.shifts?.some((s) => s.id === shift.id);
 
-
+            return (
+              <label
+                key={shift.id}
+                className="flex items-center gap-2 text-sm text-gray-700"
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled
+                  className="accent-green-600 cursor-not-allowed"
+                />
+                {shift.shift_name}
+              </label>
+            );
+          })}
+        </div>
+      ),
+    },
 
     // {
     //   field: "attendance",
@@ -377,7 +368,7 @@ setShiftOptions(
                 });
                 setOpenDropdown(openDropdown === "present" ? null : "present");
               }}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-2 cursor-pointer "
             >
               <span className="">Present</span>
               <div className="bg-gray-200 rounded px-1 flex items-center h-5">
@@ -385,7 +376,7 @@ setShiftOptions(
               </div>
             </div>
 
-            {openDropdown === "present" && (
+            {/* {openDropdown === "present" && (
               <div
                 className="fixed z-[9999] bg-white shadow-xl rounded-[10px] mt-1 min-w-[120px]"
                 style={{
@@ -413,9 +404,8 @@ setShiftOptions(
                   Clear
                 </div>
               </div>
-            )}
+            )} */}
           </div>
-
 
           {/* ABSENT DROPDOWN */}
           <div className="relative flex items-center gap-2">
@@ -430,14 +420,13 @@ setShiftOptions(
               }}
               className="flex items-center gap-2 cursor-pointer"
             >
-
               <span className="font-semibold text-gray-700">Absent</span>
               <div className="bg-gray-200 rounded px-1 flex items-center h-5">
                 <i className="pi pi-chevron-down text-[10px]" />
               </div>
             </div>
 
-            {openDropdown === "absent" && (
+            {/* {openDropdown === "absent" && (
               <div
                 className="fixed z-[9999] bg-white shadow-xl border rounded-md mt-1 min-w-[120px]"
                 style={{
@@ -465,9 +454,8 @@ setShiftOptions(
                   Clear
                 </div>
               </div>
-            )}
+            )} */}
           </div>
-
         </div>
       ),
       body: (rowData) => (
@@ -479,7 +467,9 @@ setShiftOptions(
               id={`present-${rowData.id}`}
               name={`attendance-${rowData.id}`}
               className="w-4 h-4 accent-green-600"
-              checked={rowData.attendance === "present" || rowData.attendance === 1}
+              checked={
+                rowData.attendance === "present" || rowData.attendance === "1"
+              }
               readOnly
             />
             <span className="text-sm text-gray-600">Present</span>
@@ -492,23 +482,20 @@ setShiftOptions(
               id={`absent-${rowData.id}`}
               name={`attendance-${rowData.id}`}
               className="w-4 h-4 accent-red-600"
-              checked={rowData.attendance === "absent" || rowData.attendance === 0}
+              checked={
+                rowData.attendance === "absent" || rowData.attendance === "0"
+              }
               readOnly
             />
             <span className="text-sm text-gray-600">Absent</span>
           </div>
         </div>
-
-
       ),
     },
-
   ];
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-screen min-h-screen px-5 pt-2 md:pt-5">
-
-
       {loading ? (
         <Loader />
       ) : (
@@ -535,38 +522,75 @@ setShiftOptions(
                 Attendance
               </p>
               <p>{">"}</p>
-              <p className="text-xs md:text-sm  text-[#1ea600]">View Attendance</p>
+              <p className="text-xs md:text-sm  text-[#1ea600]">
+                View Attendance
+              </p>
             </div>
 
             {/* Header */}
             <div className="mt-5 bg-white rounded-2xl shadow-lg p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">View Attendance</h1>
-                  <div className="mt-2 flex flex-wrap gap-4">
-                    <div>
-  <span className="text-sm text-gray-600">Company:</span>
-  <span className="ml-2 font-semibold">
-    {data?.company?.company_name || "-"}
-  </span>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    View Attendance
+                  </h1>
+                 <div className="mt-3 flex flex-wrap items-center gap-6">
+  {/* Company */}
+  <div className="flex items-center text-sm">
+    <span className="text-gray-600">Company:</span>
+    <span className="ml-2 font-semibold text-gray-800">
+      {data?.company?.company_name || "-"}
+    </span>
+  </div>
+
+  {/* Date */}
+  <div className="flex items-center text-sm">
+    <span className="text-gray-600">Date:</span>
+    <span className="ml-2 font-semibold text-gray-800">
+      {data?.attendance_date
+        ? formatToDDMMYYYY(data.attendance_date)
+        : "-"}
+    </span>
+  </div>
+
+  {/* Present */}
+  <div className="flex items-center gap-2 rounded-full bg-green-100 px-4 py-1">
+    <span className="text-xs font-medium text-green-700 uppercase">
+      Present
+    </span>
+    <span className="text-lg font-bold text-green-800">
+      {counts?.present ?? 0}
+    </span>
+  </div>
+
+  {/* Absent */}
+  <div className="flex items-center gap-2 rounded-full bg-red-100 px-4 py-1">
+    <span className="text-xs font-medium text-red-600 uppercase">
+      Absent
+    </span>
+    <span className="text-lg font-bold text-red-700">
+      {counts?.absent ?? 0}
+    </span>
+  </div>
+
+  {/* Not Marked */}
+  <div className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-1">
+    <span className="text-xs font-medium text-gray-600 uppercase">
+      Not Marked
+    </span>
+    <span className="text-lg font-bold text-gray-800">
+      {counts?.not_marked ?? 0}
+    </span>
+  </div>
 </div>
 
-<div>
-  <span className="text-sm text-gray-600">Date:</span>
-  <span className="ml-2 font-semibold">
-    {data?.attendance_date
-      ? formatToDDMMYYYY(data.attendance_date)
-      : "-"}
-  </span>
-</div>
-
-                  </div>
                 </div>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => navigate("/attendance")}
-                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5  py-1 md:py-2  rounded-lg transition-all duration-200">
+                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
+                  >
                     Cancel
                   </button>
                   <button
@@ -609,7 +633,10 @@ setShiftOptions(
                   {/* <span className="font-semibold text-[#6B7280]">Show</span> */}
                   <Dropdown
                     value={rows}
-                    options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
+                    options={[10, 25, 50, 100].map((v) => ({
+                      label: v,
+                      value: v,
+                    }))}
                     onChange={(e) => setRows(e.value)}
                     className="w-20 border rounded-md"
                   />
@@ -617,7 +644,10 @@ setShiftOptions(
                 </div>
 
                 <div className="relative">
-                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <FiSearch
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    size={18}
+                  />
                   <InputText
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
@@ -633,15 +663,11 @@ setShiftOptions(
                 rows={rows}
                 rowsPerPageOptions={[10, 20, 50]}
                 globalFilter={globalFilter}
-                globalFilterFields={[
-                  "contract_employee.name",
-                  "attendance"
-                ]}
+                globalFilterFields={["contract_employee.name", "attendance"]}
                 showGridlines
                 resizableColumns
                 className="mt-4"
               >
-
                 {columns.map((col, index) => (
                   <Column
                     key={index}

@@ -15,7 +15,6 @@ import axiosInstance from "../../axiosConfig";
 import { formatToDDMMYYYY } from "../../Utils/dateformat";
 import { FiChevronDown } from "react-icons/fi";
 
-
 const Attendance_Edit_Page = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -34,6 +33,7 @@ const Attendance_Edit_Page = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   console.log("attendence", attendanceData);
   const [data, setData] = useState([]);
+  const [counts, setcounts] = useState({});
 
   // Fetch attendance data for editing
   useEffect(() => {
@@ -42,31 +42,33 @@ const Attendance_Edit_Page = () => {
         setLoading(true);
 
         const response = await axiosInstance.get(
-          `${API_URL}api/attendance/edit/${id}`
+          `${API_URL}api/attendance/edit/${id}`,
         );
 
         console.log("response check", response);
 
-       const attendanceDetails = response?.data?.data?.details.map(emp => ({
-  ...emp,
-  shifts: emp.shifts?.map(shift => ({
-    id: shift.id,
-    shift_name: shift.shift_name
-  })) || []
-}));
+        const attendanceDetails = response?.data?.data?.details.map((emp) => ({
+          ...emp,
+          shifts:
+            emp.shifts?.map((shift) => ({
+              id: shift.id,
+              shift_name: shift.shift_name,
+            })) || [],
+        }));
 
-setAttendanceData(attendanceDetails);
+        setAttendanceData(attendanceDetails);
 
-      const allShifts = response?.data?.shifts || [];
+        const allShifts = response?.data?.shifts || [];
 
-setShiftOptions(
-  allShifts.map(shift => ({
-    id: shift.id,
-    shift_name: shift.shift_name
-  }))
-);
+        setShiftOptions(
+          allShifts.map((shift) => ({
+            id: shift.id,
+            shift_name: shift.shift_name,
+          })),
+        );
 
         setData(response?.data?.data || []);
+        setcounts(response?.data?.counts || {});
 
         // ✅ SET companyId HERE
         setCompanyId(response?.data?.data?.company?.id || null);
@@ -82,14 +84,13 @@ setShiftOptions(
     if (id) fetchAttendanceForEdit();
   }, [id]);
 
-
   useEffect(() => {
     if (attendanceData?.length) {
-      setAttendanceData(prev =>
-        prev.map(emp => ({
+      setAttendanceData((prev) =>
+        prev.map((emp) => ({
           ...emp,
           shifts: emp.shifts || [],
-        }))
+        })),
       );
     }
   }, [attendanceData.length]);
@@ -104,13 +105,12 @@ setShiftOptions(
   //       return {
   //         ...emp,
   //         shifts: hasShift
-  //           ? emp.shifts.filter(s => s !== shiftId) 
-  //           : [...(emp.shifts || []), shiftId],     
+  //           ? emp.shifts.filter(s => s !== shiftId)
+  //           : [...(emp.shifts || []), shiftId],
   //       };
   //     })
   //   );
   // };
-
 
   // Handle attendance status change
   // const handleAttendanceChange = (id, status) => {
@@ -131,18 +131,17 @@ setShiftOptions(
 
   // Handle time change
   const handleTimeChange = (id, field, value) => {
-    setAttendanceData(prev =>
-      prev.map(emp => (emp.id === id ? { ...emp, [field]: value } : emp))
+    setAttendanceData((prev) =>
+      prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)),
     );
   };
 
   // Handle notes change
   const handleNotesChange = (id, value) => {
-    setAttendanceData(prev =>
-      prev.map(emp => (emp.id === id ? { ...emp, notes: value } : emp))
+    setAttendanceData((prev) =>
+      prev.map((emp) => (emp.id === id ? { ...emp, notes: value } : emp)),
     );
   };
-
 
   // const handleShiftChange = (employeeId, shiftId) => {
   //   setAttendanceData(prev =>
@@ -169,15 +168,11 @@ setShiftOptions(
   //   );
   // };
 
-
-  const attendanceData1 = attendanceData.map(emp => ({
+  const attendanceData1 = attendanceData.map((emp) => ({
     employee_id: emp.employee_id,
-    attendance:
-      emp.attendance === "present" || emp.attendance === 1 ? 1 : 0,
-    shift_id: emp.shifts.map(s => s.id) // ✅
+    attendance: emp.attendance === "present" || emp.attendance === 1 ? 1 : 0,
+    shift_id: emp.shifts.map((s) => s.id), // ✅
   }));
-
-
 
   // Handle select all for a specific status
   // const handleSelectAll = (status) => {
@@ -194,14 +189,14 @@ setShiftOptions(
 
   // Handle clear all
   const handleClearAll = () => {
-    setAttendanceData(prev =>
-      prev.map(emp => ({
+    setAttendanceData((prev) =>
+      prev.map((emp) => ({
         ...emp,
         attendance: "",
         loginTime: "",
         logoutTime: "",
-        notes: ""
-      }))
+        notes: "",
+      })),
     );
   };
 
@@ -210,11 +205,23 @@ setShiftOptions(
     try {
       setSaving(true);
 
-      const employeesPayload = attendanceData.map(emp => ({
+      const employeesPayload = attendanceData.map((emp) => ({
         employee_id: emp.employee_id,
-        attendance:
-          emp.attendance === "present" || emp.attendance === 1 ? 1 : 0,
-        shift_id: emp.shifts.map(s => s.id),
+            attendance: (() => {
+          if (emp.attendance === "present") return 1;
+          if (emp.attendance === "absent") return 0;
+          return null;
+        })(),
+        // attendance:
+        //   emp.attendance === "present" || emp.attendance === 1 ? 1 : 0,
+        // attendance:
+        //   emp.attendance === "present" || emp.attendance === 1
+        //     ? 1
+        //     : emp.attendance === "absent" || emp.attendance === 0
+        //       ? 0
+        //       : null,
+
+        shift_id: emp.shifts.map((s) => s.id),
       }));
 
       const payload = {
@@ -227,15 +234,11 @@ setShiftOptions(
 
       console.log("FINAL check ", payload);
 
-      await axiosInstance.post(
-        `api/attendance/update/${id}`,
-        payload
-      );
+      await axiosInstance.post(`api/attendance/update/${id}`, payload);
 
       toast.success("Attendance updated successfully!", {
         onClose: () => navigate("/attendance"),
       });
-
     } catch (error) {
       console.error("Update failed:", error);
       toast.error("Failed to update attendance");
@@ -244,7 +247,6 @@ setShiftOptions(
     }
   };
 
-
   const [dropdownPosition, setDropdownPosition] = useState({
     top: 0,
     left: 0,
@@ -252,57 +254,55 @@ setShiftOptions(
   const [openDropdown, setOpenDropdown] = useState(null);
 
   const handleSelectAll = (status) => {
-    const updatedData = attendanceData.map(item => ({
+    const updatedData = attendanceData.map((item) => ({
       ...item,
-      attendance: status
+      attendance: status,
     }));
     setAttendanceData(updatedData);
   };
 
   const handleClear = (status) => {
-    const updatedData = attendanceData.map(item => ({
+    const updatedData = attendanceData.map((item) => ({
       ...item,
-      attendance: null
+      attendance: null,
     }));
     setAttendanceData(updatedData);
   };
 
-
-
   const handleAttendanceChange = (id, status) => {
-    setAttendanceData(prev =>
-      prev.map(emp =>
+    setAttendanceData((prev) =>
+      prev.map((emp) =>
         emp.id === id
           ? {
-            ...emp,
-            attendance: status,
-            loginTime: status === "present" ? "09:00" : "",
-            logoutTime: status === "present" ? "18:00" : "",
-            notes: status === "absent" ? "Absent" : ""
-          }
-          : emp
-      )
+              ...emp,
+              attendance: status,
+              loginTime: status === "present" ? "09:00" : "",
+              logoutTime: status === "present" ? "18:00" : "",
+              notes: status === "absent" ? "Absent" : "",
+            }
+          : emp,
+      ),
     );
   };
 
-    const handleShiftChange = (empId, shiftId) => {
-    setAttendanceData(prev =>
-      prev.map(emp => {
+  const handleShiftChange = (empId, shiftId) => {
+    setAttendanceData((prev) =>
+      prev.map((emp) => {
         if (emp.id !== empId) return emp;
 
-        const exists = emp.shifts.some(s => s.id === shiftId);
+        const exists = emp.shifts.some((s) => s.id === shiftId);
 
         return {
           ...emp,
           shifts: exists
-            ? emp.shifts.filter(s => s.id !== shiftId)
-            : [...emp.shifts, shiftOptions.find(s => s.id === shiftId)]
+            ? emp.shifts.filter((s) => s.id !== shiftId)
+            : [...emp.shifts, shiftOptions.find((s) => s.id === shiftId)],
         };
-      })
+      }),
     );
   };
 
-    const [showShiftPopup, setShowShiftPopup] = useState(false);
+  const [showShiftPopup, setShowShiftPopup] = useState(false);
 
   // Columns configuration
   const columns = [
@@ -345,39 +345,38 @@ setShiftOptions(
     //   ),
     // },
 
+    //    {
+    //   field: "shifts",
+    //   header: "Shift Allocation",
+    //   body: (rowData) => (
+    //     <div className="flex justify-center gap-3">
+    //       {shiftOptions.map((shift) => {
+    //         const checked = rowData.shifts?.some(
+    //           s => s.id === shift.id
+    //         );
 
-//    {
-//   field: "shifts",
-//   header: "Shift Allocation",
-//   body: (rowData) => (
-//     <div className="flex justify-center gap-3">
-//       {shiftOptions.map((shift) => {
-//         const checked = rowData.shifts?.some(
-//           s => s.id === shift.id
-//         );
+    //         return (
+    //           <label
+    //             key={shift.id}
+    //             className="flex items-center gap-2 text-sm"
+    //           >
+    //             <input
+    //               type="checkbox"
+    //               checked={checked}
+    //               onChange={() =>
+    //                 handleShiftChange(rowData.id, shift.id)
+    //               }
+    //               className="accent-green-600"
+    //             />
+    //             {shift.shift_name}
+    //           </label>
+    //         );
+    //       })}
+    //     </div>
+    //   )
+    // },
 
-//         return (
-//           <label
-//             key={shift.id}
-//             className="flex items-center gap-2 text-sm"
-//           >
-//             <input
-//               type="checkbox"
-//               checked={checked}
-//               onChange={() =>
-//                 handleShiftChange(rowData.id, shift.id)
-//               }
-//               className="accent-green-600"
-//             />
-//             {shift.shift_name}
-//           </label>
-//         );
-//       })}
-//     </div>
-//   )
-// },
-
-  {
+    {
       field: "shifts",
       header: (
         <div
@@ -388,23 +387,22 @@ setShiftOptions(
           <FiChevronDown />
         </div>
       ),
-      body: row => (
+      body: (row) => (
         <div className="flex gap-3 justify-center">
-          {shiftOptions.map(shift => (
+          {shiftOptions.map((shift) => (
             <label key={shift.id} className="flex gap-1 text-sm">
               <input
                 type="checkbox"
                 className="accent-green-600"
-                checked={row.shifts.some(s => s.id === shift.id)}
+                checked={row.shifts.some((s) => s.id === shift.id)}
                 onChange={() => handleShiftChange(row.id, shift.id)}
               />
               {shift.shift_name}
             </label>
           ))}
         </div>
-      )
+      ),
     },
-
 
     // {
     //   field: "attendance",
@@ -491,7 +489,6 @@ setShiftOptions(
             )}
           </div>
 
-
           {/* ABSENT DROPDOWN */}
           <div className="relative flex items-center gap-2">
             <div
@@ -505,7 +502,6 @@ setShiftOptions(
               }}
               className="flex items-center gap-2 cursor-pointer"
             >
-
               <span className="font-semibold text-gray-700">Absent</span>
               <div className="bg-gray-200 rounded px-1 flex items-center h-5">
                 <i className="pi pi-chevron-down text-[10px]" />
@@ -542,7 +538,6 @@ setShiftOptions(
               </div>
             )}
           </div>
-
         </div>
       ),
       body: (rowData) => (
@@ -554,10 +549,17 @@ setShiftOptions(
               id={`present-${rowData.id}`}
               name={`present-${rowData.id}`}
               className="w-4 h-4 accent-green-600 cursor-pointer"
-              checked={rowData.attendance === "present" || rowData.attendance === 1}
+              checked={
+                rowData.attendance === "present" || rowData.attendance === "1"
+              }
               onChange={() => handleAttendanceChange(rowData.id, "present")}
             />
-            <span className="text-sm text-gray-600" htmlFor={`present-${rowData.id}`}>Present</span>
+            <span
+              className="text-sm text-gray-600"
+              htmlFor={`present-${rowData.id}`}
+            >
+              Present
+            </span>
           </div>
 
           {/* RADIO ABSENT */}
@@ -567,10 +569,17 @@ setShiftOptions(
               id={`absent-${rowData.id}`}
               name={`absent-${rowData.id}`}
               className="w-4 h-4 accent-red-600 cursor-pointer"
-              checked={rowData.attendance === "absent" || rowData.attendance === 0}
+              checked={
+                rowData.attendance === "absent" || rowData.attendance === "0"
+              }
               onChange={() => handleAttendanceChange(rowData.id, "absent")}
             />
-            <span className="text-sm text-gray-600" htmlFor={`absent-${rowData.id}`}>Absent</span>
+            <span
+              className="text-sm text-gray-600"
+              htmlFor={`absent-${rowData.id}`}
+            >
+              Absent
+            </span>
           </div>
         </div>
       ),
@@ -601,13 +610,10 @@ setShiftOptions(
     //     </div>
     //   ),
     // },
-
   ];
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-screen min-h-screen px-5 pt-2 md:pt-5">
-
-
       {loading ? (
         <Loader />
       ) : (
@@ -634,38 +640,74 @@ setShiftOptions(
                 Attendance
               </p>
               <p>{">"}</p>
-              <p className="text-xs md:text-sm  text-[#1ea600]">Edit Attendance</p>
+              <p className="text-xs md:text-sm  text-[#1ea600]">
+                Edit Attendance
+              </p>
             </div>
 
             {/* Header */}
             <div className="mt-5 bg-white rounded-2xl shadow-lg p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Edit Attendance</h1>
-                  <div className="mt-2 flex flex-wrap gap-4">
-                   <div>
-  <span className="text-sm text-gray-600">Company:</span>
-  <span className="ml-2 font-semibold">
-    {data?.company?.company_name || "-"}
-  </span>
-</div>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    Edit Attendance
+                  </h1>
+                  <div className="mt-3 flex flex-wrap items-center gap-6">
+                    {/* Company */}
+                    <div className="flex items-center text-sm">
+                      <span className="text-gray-600">Company:</span>
+                      <span className="ml-2 font-semibold text-gray-800">
+                        {data?.company?.company_name || "-"}
+                      </span>
+                    </div>
 
-<div>
-  <span className="text-sm text-gray-600">Date:</span>
-  <span className="ml-2 font-semibold">
-    {data?.attendance_date
-      ? formatToDDMMYYYY(data.attendance_date)
-      : "-"}
-  </span>
-</div>
+                    {/* Date */}
+                    <div className="flex items-center text-sm">
+                      <span className="text-gray-600">Date:</span>
+                      <span className="ml-2 font-semibold text-gray-800">
+                        {data?.attendance_date
+                          ? formatToDDMMYYYY(data.attendance_date)
+                          : "-"}
+                      </span>
+                    </div>
 
+                    {/* Present */}
+                    <div className="flex items-center gap-2 rounded-full bg-green-100 px-4 py-1">
+                      <span className="text-xs font-medium text-green-700 uppercase">
+                        Present
+                      </span>
+                      <span className="text-lg font-bold text-green-800">
+                        {counts?.present ?? 0}
+                      </span>
+                    </div>
+
+                    {/* Absent */}
+                    <div className="flex items-center gap-2 rounded-full bg-red-100 px-4 py-1">
+                      <span className="text-xs font-medium text-red-600 uppercase">
+                        Absent
+                      </span>
+                      <span className="text-lg font-bold text-red-700">
+                        {counts?.absent ?? 0}
+                      </span>
+                    </div>
+
+                    {/* Not Marked */}
+                    <div className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-1">
+                      <span className="text-xs font-medium text-gray-600 uppercase">
+                        Not Marked
+                      </span>
+                      <span className="text-lg font-bold text-gray-800">
+                        {counts?.not_marked ?? 0}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => navigate("/attendance")}
-                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5  py-1 md:py-2  rounded-lg transition-all duration-200">
+                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
+                  >
                     Cancel
                   </button>
                   <button
@@ -708,7 +750,10 @@ setShiftOptions(
                   {/* <span className="font-semibold text-[#6B7280]">Show</span> */}
                   <Dropdown
                     value={rows}
-                    options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
+                    options={[10, 25, 50, 100].map((v) => ({
+                      label: v,
+                      value: v,
+                    }))}
                     onChange={(e) => setRows(e.value)}
                     className="w-20 border rounded-md"
                   />
@@ -716,7 +761,10 @@ setShiftOptions(
                 </div>
 
                 <div className="relative">
-                  <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <FiSearch
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                    size={18}
+                  />
                   <InputText
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
@@ -735,13 +783,12 @@ setShiftOptions(
                 globalFilterFields={[
                   "contract_employee.name",
                   "employee_number",
-                  "attendance"
+                  "attendance",
                 ]}
                 showGridlines
                 resizableColumns
                 className="mt-4"
               >
-
                 {columns.map((col, index) => (
                   <Column
                     key={index}
@@ -755,63 +802,65 @@ setShiftOptions(
             </div>
 
             {showShiftPopup && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-          onClick={() => setShowShiftPopup(false)}
-        >
-          <div
-            className="bg-white w-[400px] rounded-lg shadow-lg"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="p-4 border-b flex justify-between">
-              <h3 className="font-semibold">Shift Allocation</h3>
-              <button onClick={() => setShowShiftPopup(false)}>✕</button>
-            </div>
-
-            <div className="p-4 space-y-2">
-              {shiftOptions.map(shift => (
-                <label
-                  key={shift.id}
-                  className="flex justify-between items-center border p-2 rounded"
-                >
-                  <span>{shift.shift_name}</span>
-                  <input
-                    type="checkbox"
-                    className="accent-green-600"
-                    checked={attendanceData.every(emp =>
-                      emp.shifts.some(s => s.id === shift.id)
-                    )}
-                    onChange={() =>
-                      setAttendanceData(prev =>
-                        prev.map(emp => {
-                          const exists = emp.shifts.some(
-                            s => s.id === shift.id
-                          );
-                          return {
-                            ...emp,
-                            shifts: exists
-                              ? emp.shifts.filter(s => s.id !== shift.id)
-                              : [...emp.shifts, shift]
-                          };
-                        })
-                      )
-                    }
-                  />
-                </label>
-              ))}
-            </div>
-
-            <div className="p-3 border-t flex justify-end">
-              <button
-                className="bg-green-600 text-white px-4 py-1 rounded"
+              <div
+                className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
                 onClick={() => setShowShiftPopup(false)}
               >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                <div
+                  className="bg-white w-[400px] rounded-lg shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-4 border-b flex justify-between">
+                    <h3 className="font-semibold">Shift Allocation</h3>
+                    <button onClick={() => setShowShiftPopup(false)}>✕</button>
+                  </div>
+
+                  <div className="p-4 space-y-2">
+                    {shiftOptions.map((shift) => (
+                      <label
+                        key={shift.id}
+                        className="flex justify-between items-center border p-2 rounded"
+                      >
+                        <span>{shift.shift_name}</span>
+                        <input
+                          type="checkbox"
+                          className="accent-green-600"
+                          checked={attendanceData.every((emp) =>
+                            emp.shifts.some((s) => s.id === shift.id),
+                          )}
+                          onChange={() =>
+                            setAttendanceData((prev) =>
+                              prev.map((emp) => {
+                                const exists = emp.shifts.some(
+                                  (s) => s.id === shift.id,
+                                );
+                                return {
+                                  ...emp,
+                                  shifts: exists
+                                    ? emp.shifts.filter(
+                                        (s) => s.id !== shift.id,
+                                      )
+                                    : [...emp.shifts, shift],
+                                };
+                              }),
+                            )
+                          }
+                        />
+                      </label>
+                    ))}
+                  </div>
+
+                  <div className="p-3 border-t flex justify-end">
+                    <button
+                      className="bg-green-600 text-white px-4 py-1 rounded"
+                      onClick={() => setShowShiftPopup(false)}
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
