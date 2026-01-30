@@ -212,11 +212,11 @@ const Attendance_add_details = () => {
         employees: attendanceData.map((emp) => ({
           employee_id: emp.id,
           // attendance: emp.attendance === "present" ? 1 : 0,
-             attendance: (() => {
-          if (emp.attendance === "present") return 1;
-          if (emp.attendance === "absent") return 0;
-          return null;
-        })(),
+          attendance: (() => {
+            if (emp.attendance === "present") return 1;
+            if (emp.attendance === "absent") return 0;
+            return null;
+          })(),
           shift_id: emp.shifts,
         })),
         created_by: pssUser?.id,
@@ -352,6 +352,8 @@ const Attendance_add_details = () => {
     );
   };
   const [showShiftPopup, setShowShiftPopup] = useState(false);
+  const [starttime, setStarttime] = useState("");
+  const [endtime, setEndtime] = useState("");
 
   const handleShiftChange = (empId, shiftId) => {
     setAttendanceData((prev) =>
@@ -367,6 +369,9 @@ const Attendance_add_details = () => {
       ),
     );
   };
+
+
+  
 
   const columns = [
     {
@@ -385,35 +390,6 @@ const Attendance_add_details = () => {
         </div>
       ),
     },
-    // {
-    //   field: "shifts",
-    //   header: "Shift Allocation",
-    //   body: (rowData) => (
-    //     <div className="flex flex-wrap justify-center items-center gap-3">
-    //       {shiftOptions.map((shift) => (
-    //         <label
-    //           key={shift.id}
-    //           className="relative group flex items-center gap-1 text-sm text-gray-600 cursor-pointer"
-    //         >
-    //           <input
-    //             type="checkbox"
-    //             className="accent-green-600 cursor-pointer"
-    //             checked={rowData.shifts.includes(shift.id)}
-    //             onChange={() => handleShiftChange(rowData.id, shift.id)}
-    //           />
-
-    //           {shift.label}
-
-    //           {/* Tooltip */}
-    //           <span className="absolute bottom-3 hidden group-hover:block
-    //         bg-white shadow-md text-black text-xs px-2 py-1 rounded whitespace-nowrap">
-    //             ({formatTime(shift.start_time)} - {formatTime(shift.end_time)})
-    //           </span>
-    //         </label>
-    //       ))}
-    //     </div>
-    //   ),
-    // },
 
     {
       field: "shift_attendance",
@@ -431,20 +407,54 @@ const Attendance_add_details = () => {
         </div>
       ),
       body: (rowData) => (
-        <div className="flex justify-center gap-6">
+        <div className=" gap-2">
           {shiftOptions.map((shift) => (
-            <label
-              key={shift.id}
-              className="flex items-center gap-1 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                className="accent-green-600"
-                checked={rowData.shifts.includes(shift.id)}
-                onChange={() => handleShiftChange(rowData.id, shift.id)}
-              />
-              {shift.label}
-            </label>
+            <div className="flex gap-3 items-center">
+              <div>
+                <label
+                  key={shift.id}
+                  className="flex items-center gap-1 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-green-600"
+                    checked={rowData.shifts.includes(shift.id)}
+                    onChange={() => handleShiftChange(rowData.id, shift.id)}
+                  />
+                  {shift.label}
+                </label>
+              </div>
+
+              <div className="flex gap-3">
+                {" "}
+                <input
+                  type="time"
+                  className="border rounded px-1 py-0.5 text-sm"
+                  value={shift.start_time}
+                  onChange={(e) =>
+                    handleTimeChange(
+                      rowData.id,
+                      shift.id,
+                      "start_time",
+                      e.target.value,
+                    )
+                  }
+                />
+                <input
+                  type="time"
+                  className="border rounded px-1 py-0.5 text-sm"
+                  value={shift.end_time}
+                  onChange={(e) =>
+                    handleTimeChange(
+                      rowData.id,
+                      shift.id,
+                      "end_time",
+                      e.target.value,
+                    )
+                  }
+                />
+              </div>
+            </div>
           ))}
         </div>
       ),
