@@ -764,7 +764,7 @@ const Sidebar = () => {
               </div>
 
               {/* Announcement */}
-              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("announcement")}
                   className={`flex items-center w-full flex-grow
@@ -790,7 +790,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Announcement</p>
                   )}
                 </div>
-              </div> */}
+              </div> 
 
               {/* activity */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -823,7 +823,7 @@ const Sidebar = () => {
               </div>
 
               {/* asset management */}
-              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("assetmanagement")}
                   className={`flex items-center w-full flex-grow
@@ -834,14 +834,14 @@ const Sidebar = () => {
                       : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                     }`}
                 >
-                  <img
+                  {/* <img
                     src={activity}
                     alt="activity"
                     className={`sidebar-icon transition-all duration-200 ${currentPath === "/activity"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
                       }`}
-                  />
+                  /> */}
 
                   <MdManageAccounts className="w-5" />
 
@@ -850,7 +850,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Asset</p>
                   )}
                 </div>
-              </div>  */}
+              </div>  
 
               {/* attendance reports */}
               {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
