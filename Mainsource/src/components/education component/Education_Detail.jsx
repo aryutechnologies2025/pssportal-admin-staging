@@ -218,7 +218,7 @@ const Education_Detail = () => {
                 setEducationDetails({ eduction_name: "", status: "" });
             }
         } catch {
-            toast.error("Create failed");
+            toast.error("Education Created Failed");
         } finally {
             setSubmitting(false);
         }

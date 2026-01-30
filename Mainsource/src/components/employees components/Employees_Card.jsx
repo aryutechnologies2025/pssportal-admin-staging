@@ -23,7 +23,8 @@ import Swal from "sweetalert2";
 const Employees_Card = () => {
   let navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
+  const [searchTerm, setSearchTerm] = useState("");
+  console.log("search term", searchTerm)
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -236,36 +237,36 @@ const Employees_Card = () => {
     setLoading(false); // stop skeleton
   }, []);
 
-const handleReferenceChange = async (id, type, checked) => {
-  // type = "internal" or "external"
-  try {
-    // Send payload according to type
-    const payload =
-      type === "internal"
-        ? { internal_ref: checked ? 1 : 0 }
-        : { external_ref: checked ? 1 : 0 };
+  const handleReferenceChange = async (id, type, checked) => {
+    // type = "internal" or "external"
+    try {
+      // Send payload according to type
+      const payload =
+        type === "internal"
+          ? { internal_ref: checked ? 1 : 0 }
+          : { external_ref: checked ? 1 : 0 };
 
-    const res = await axiosInstance.post(
-      `/api/employees/job-referal/${id}`,
-      payload
-    );
-
-    if (res.status === 200) {
-      toast.success("Reference updated successfully!");
-
-      // Update local state
-      setEmployeeData((prev) =>
-        prev.map((emp) =>
-          emp.id == id
-            ? { ...emp, ...payload } // merge the updated type
-            : emp
-        )
+      const res = await axiosInstance.post(
+        `/api/employees/job-referal/${id}`,
+        payload
       );
+
+      if (res.status === 200) {
+        toast.success("Reference updated successfully!");
+
+        // Update local state
+        setEmployeeData((prev) =>
+          prev.map((emp) =>
+            emp.id == id
+              ? { ...emp, ...payload } // merge the updated type
+              : emp
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Failed to update reference:", error);
     }
-  } catch (error) {
-    console.error("Failed to update reference:", error);
-  }
-};
+  };
 
 
 
@@ -413,17 +414,17 @@ const handleReferenceChange = async (id, type, checked) => {
               className="w-4 h-4 cursor-pointer accent-[#1ea600] rounded border-gray-300"
             /> */}
 
-          <input
-        type="checkbox"
-        checked={
-          row.job_form_referal == 1 &&
-          row.reference_type === "internal"
-        }
-        onChange={(e) =>
-          handleReferenceChange(row.id, e.target.checked, "internal")
-        }
-        className="w-4 h-4 cursor-pointer accent-green-600"
-      />
+            <input
+              type="checkbox"
+              checked={
+                row.job_form_referal == 1 &&
+                row.reference_type === "internal"
+              }
+              onChange={(e) =>
+                handleReferenceChange(row.id, e.target.checked, "internal")
+              }
+              className="w-4 h-4 cursor-pointer accent-green-600"
+            />
           </div>
         );
       },
@@ -432,7 +433,7 @@ const handleReferenceChange = async (id, type, checked) => {
 
     // jof from refenece
 
-     {
+    {
       field: "reference",
       header: "Jof Form Reference",
       body: (row) => {
@@ -442,17 +443,17 @@ const handleReferenceChange = async (id, type, checked) => {
             className="flex justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-        <input
-        type="checkbox"
-        checked={
-          row.job_form_referal == 1 &&
-          row.reference_type === "external"
-        }
-        onChange={(e) =>
-          handleReferenceChange(row.id, e.target.checked, "external")
-        }
-        className="w-4 h-4 cursor-pointer accent-blue-600"
-      />
+            <input
+              type="checkbox"
+              checked={
+                row.job_form_referal == 1 &&
+                row.reference_type === "external"
+              }
+              onChange={(e) =>
+                handleReferenceChange(row.id, e.target.checked, "external")
+              }
+              className="w-4 h-4 cursor-pointer accent-blue-600"
+            />
           </div>
         );
       },
@@ -538,9 +539,14 @@ const handleReferenceChange = async (id, type, checked) => {
   // console.log(location.state.employee);
 
   const roleDropdownOptions = roleOptions.map(role => ({
-  label: role.name,
-  value: role.id
-}));
+    label: role.name,
+    value: role.id
+  }));
+  const filteredCompanyOptions = companyOptions.filter((company) =>
+    company.label
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase().trim())
+  );
 
   return (
     <div className="flex flex-col justify-between bg-gray-100 w-full min-h-screen px-3 md:px-5 pt-1 md:pt-5 overflow-x-auto">
@@ -576,12 +582,12 @@ const handleReferenceChange = async (id, type, checked) => {
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.value)}
                 options={roleDropdownOptions}
-                 placeholder="All Roles"
-                 filter
+                placeholder="All Roles"
+                filter
                 className="h-10 px-3 rounded-md border border-gray-300 text-sm focus:outline-none"
               />
-                
-             
+
+
 
               {/* ADD BUTTON */}
               <button
@@ -632,7 +638,7 @@ const handleReferenceChange = async (id, type, checked) => {
                         label: v,
                         value: v,
                       }))}
-                     
+
                       onChange={(e) => setRows(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
@@ -696,6 +702,21 @@ const handleReferenceChange = async (id, type, checked) => {
                       <h2 className="text-lg font-semibold mb-4">
                         Assign Company – {selectedEmployee.full_name}
                       </h2>
+                      {/* Search box */}
+                      <div className="relative w-64">
+                        <FiSearch
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                          size={18}
+                        />
+
+                        <InputText
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Search..."
+                          className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-gray-300
+    focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                        />
+                      </div>
                       <button
                         onClick={() => setShowCompanyModal(false)}
                         className="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -706,23 +727,28 @@ const handleReferenceChange = async (id, type, checked) => {
 
                     {/* Company list */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 space-y-3 max-h-[200px] overflow-y-auto">
-                      {companyOptions.map((company) => (
-                        <label
-                          key={company.value}
-                          className="flex items-center gap-3"
-                        >
+                      {filteredCompanyOptions.length > 0 ? (
+                        filteredCompanyOptions.map((company) => (
+                          <label
+                            key={company.value}
+                            className="flex items-center gap-3"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedCompanies.includes(company.value)}
+                              onChange={(e) =>
+                                handleCompanyToggle(company, e.target.checked)
+                              }
+                            />
+                            <span>{company.label}</span>
+                          </label>
+                        ))
+                      ) : (
+                        <p className="text-sm text-gray-400 col-span-full">
+                          No companies found
+                        </p>
+                      )}
 
-                          <input
-                            type="checkbox"
-                            checked={selectedCompanies.includes(company.value)}
-                            // disabled={selectedCompanies.includes(company.value) ? false : company.assign_status == "already_assign"}
-                            onChange={(e) =>
-                              handleCompanyToggle(company, e.target.checked)
-                            }
-                          />
-                          <span>{company?.label}</span>
-                        </label>
-                      ))}
                     </div>
 
                     {/* Buttons */}
