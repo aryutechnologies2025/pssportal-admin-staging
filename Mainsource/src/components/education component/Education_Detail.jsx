@@ -170,19 +170,36 @@ const Education_Detail = () => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    const validateAddForm = () => {
+    let newErrors = {};
 
-    const validateEditForm = () => {
-        let newErrors = {};
+    if (!educationDetails.eduction_name || educationDetails.eduction_name.trim() === "") {
+        newErrors.eduction_name = "Education name is required";
+    }
+
+    if (!educationDetails.status) {
+        newErrors.status = "Status is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+};
+const validateEditForm = () => {
+    let newErrors = {};
+
+    if (!educationDetails.eduction_name || educationDetails.eduction_name.trim() === "") {
+        newErrors.eduction_name = "Education name is required";
+    }
+
+    if (!educationDetails.status) {
+        newErrors.status = "Status is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+};
 
 
-
-        if (educationDetails.status === "" || educationDetails.status === null) {
-            newErrors.status = ["Status is required"];
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
 
 
 
@@ -193,11 +210,17 @@ const Education_Detail = () => {
         e.preventDefault();
         setSubmitting(true);
 
-        if (!educationDetails.eduction_name || educationDetails.status === "") {
-            toast.error("All fields required");
-            setSubmitting(false);
-            return;
-        }
+        // if (!educationDetails.eduction_name|| educationDetails.eduction_name.trim() || educationDetails.status === "") {
+        //     toast.error("All fields required");
+        //     setSubmitting(false);
+        //     return;
+        // }
+
+        if (!validateAddForm()) {
+        setSubmitting(false);
+        return;
+    }
+
 
         const payload = {
             eduction_name: educationDetails.eduction_name,
@@ -229,10 +252,9 @@ const Education_Detail = () => {
 
     // update
     const handleSave = async () => {
-        if (!educationDetails.eduction_name || educationDetails.status === "") {
-            toast.error("All fields required");
-            return;
-        }
+        if (!validateEditForm()) {
+        return;
+    }
 
         try {
             const res = await axiosInstance.post(
@@ -514,7 +536,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                             eduction_name: e.target.value,
                                                         })
                                                     }
-                                                     className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                                    className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                 />
 
                                                 {errors.eduction_name && (
@@ -531,7 +553,7 @@ px-2 py-2 md:px-6 md:py-6">
                                             <div className="w-[50%]">
                                                 <select
                                                     value={educationDetails.status}
-                                                     className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                                    className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                     onChange={(e) =>
                                                         setEducationDetails({
                                                             ...educationDetails,
@@ -596,7 +618,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                                     eduction_name: e.target.value,
                                                                 })
                                                             }
-                                                             className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
 
