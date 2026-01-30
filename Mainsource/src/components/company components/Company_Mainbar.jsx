@@ -1152,7 +1152,7 @@ const Company_Mainbar = () => {
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
                     Phone
-                    <span className="text-red-500">*</span>
+                    {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
                     <input
