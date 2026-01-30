@@ -168,7 +168,7 @@ const handleResetFilter = () => {
 
     // Open and close modals
     const openAddModal = () => {
-        setCompanyId(null);   // ⭐ IMPORTANT
+        setCompanyId(null);   
         setPointName("");
         setStatus("");
         setErrors({});
@@ -267,7 +267,7 @@ const handleResetFilter = () => {
 
         let newErrors = {};
         if (!companyId) newErrors.company_id = "Company is required";
-        if (!pointName) newErrors.point_name = "Boarding Point is required";
+        if (!pointName || pointName.trim() === "") { newErrors.point_name = "Boarding Point is required";}
         if (!status) newErrors.status = "Status is required";
 
         setErrors(newErrors);
@@ -846,7 +846,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         {/* Boarding Point */}
                                         <div className="flex justify-between gap-4">
                                             <span className="font-medium shrink-0">Boarding Point</span>
-                                            <div className="w-[65%] max-h-[120px] overflow-y-auto border border-[#D9D9D9] rounded-lg px-3 py-2 bg-gray-50">
+                                            <div className="overflow-y-auto text-end">
                                                 {viewContact.point_name || "-"}
                                             </div>
                                         </div>

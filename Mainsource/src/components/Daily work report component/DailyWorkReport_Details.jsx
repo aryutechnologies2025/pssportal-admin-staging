@@ -87,11 +87,17 @@ const DailyWorkReport_Details = () => {
         }
 
         // Employee
+        // if (filters.employee_id) {
+        //     filtered = filtered.filter(
+        //         item => item.employee?.id === filters.employee_id
+        //     );
+        // }
+
         if (filters.employee_id) {
-            filtered = filtered.filter(
-                item => item.employee?.id === filters.employee_id
-            );
-        }
+    filtered = filtered.filter(
+        item => item.employee?.id === Number(filters.employee_id)
+    );
+}
 
 
         setWorkReports(filtered);

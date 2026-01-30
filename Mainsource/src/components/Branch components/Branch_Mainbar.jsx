@@ -27,7 +27,7 @@ const Branch_Mainbar = () => {
   const [branches, setBranches] = useState([]);
   const [branchEditData, setBranchEditData] = useState(null);
   const [pssCompany, setPssCompany] = useState(null); // selected value
-const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
+  const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
 
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -46,32 +46,32 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   // Zod schema for branch validation
   const branchSchema = z.object({
     branch_name: z
-      .string()
+      .string().trim()
       .min(1, "Branch name is required")
       .max(100, "Branch name is too long"),
-      pssCompany: z
-      .string()
+    pssCompany: z
+      .string().trim()
       .min(1, "Pss Company is required")
       .max(100, "Pss Company is too long"),
     address: z
-      .string()
+      .string().trim()
       .min(1, "Address is required")
       .max(100, "Address name is too long"),
     city: z
-      .string()
+      .string().trim()
       .min(1, "City is required")
       .max(100, "City name is too long"),
     state: z
-      .string()
+      .string().trim()
       .min(1, "State is required")
       .max(100, "State name is too long"),
     pincode: z
-      .string()
+      .string().trim()
       .min(1, "Pincode is required")
       .regex(/^\d+$/, "Pincode must contain only numbers")
       .length(6, "Pincode must be exactly 6 digits"),
     country: z
-      .string()
+      .string().trim()
       .min(1, "Country is required")
       .max(100, "Country name is too long"),
     status: z.enum(["0", "1"], {
@@ -116,21 +116,21 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
         setBranches(response.data.data);
         // setTotalRecords(response.data.data.length);
 
-              //  set pss company options
-      const pssCompanyOptions = response.data.psscompany.map((company) => ({
-        label: company.name,
-        value: company.id,
-      }));
+        //  set pss company options
+        const pssCompanyOptions = response.data.psscompany.map((company) => ({
+          label: company.name,
+          value: company.id,
+        }));
 
-      setPssCompanyOptions(pssCompanyOptions);
-        
+        setPssCompanyOptions(pssCompanyOptions);
+
       } else {
         setBranches([]);
         setPssCompanyOptions([]);
         // setTotalRecords(0);
       }
 
- 
+
 
     } catch (err) {
       console.error(err);
@@ -153,7 +153,7 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
       setPssCompany(row.company_id);
       reset({
         ...row,
-        pssCompany: String(row.company_id) 
+        pssCompany: String(row.company_id)
       });
       setIsModalOpen(true);
       setTimeout(() => setIsAnimating(true), 10);
@@ -184,18 +184,18 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   const onSubmit = async (data) => {
 
     const isDuplicate = branches.some((branch) => {
-    // If editing, exclude the current branch being edited from the check
-    if (branchEditData && branch.id === branchEditData.id) {
-      return false;
-    }
-    return branch.branch_name.toLowerCase() === data.branch_name.trim().toLowerCase();
-  });
+      // If editing, exclude the current branch being edited from the check
+      if (branchEditData && branch.id === branchEditData.id) {
+        return false;
+      }
+      return branch.branch_name.toLowerCase() === data.branch_name.trim().toLowerCase();
+    });
 
-  if (isDuplicate) {
-    toast.error("A branch with this name already exists!");
-    return; // Stop the submission
-  }
-    
+    if (isDuplicate) {
+      toast.error("A branch with this name already exists!");
+      return; // Stop the submission
+    }
+
     try {
       const payload = {
         company_id: Number(data.pssCompany),
@@ -277,7 +277,7 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
     }
   };
 
-  
+
 
   const columns = [
     {
@@ -285,9 +285,9 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
       body: (rowData, options) => options.rowIndex + 1,
       style: { textAlign: "center", width: "80px", fontWeight: "medium" },
     },
- 
+
     {
-      field: "city", 
+      field: "city",
       field: "branch_name",
       header: "Branch Name",
       body: (row) => Capitalise(row.branch_name ? row.branch_name : "-"),
@@ -367,9 +367,9 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
     },
   ];
 
-const globalFields = columns
-  .filter(col => col.field && !col.body) // exclude action/status
-  .map(col => col.field);
+  const globalFields = columns
+    .filter(col => col.field && !col.body) // exclude action/status
+    .map(col => col.field);
 
   return (
     <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen ">
@@ -444,21 +444,21 @@ const globalFields = columns
                   </div>
                 </div>
                 <div className="table-scroll-container" id="datatable">
-                  
+
                   <DataTable
                     className="mt-8"
                     value={branches}
                     paginator
                     rows={rows}
                     rowsPerPageOptions={[10, 25, 50, 100]}
-                     globalFilter={globalFilter}
-   globalFilterFields={[ "branch_name",
-  "city",
-  "state",
-  "pincode",
-  "country",
-  "status"]}
-  // globalFilterFields={globalFields}
+                    globalFilter={globalFilter}
+                    globalFilterFields={["branch_name",
+                      "city",
+                      "state",
+                      "pincode",
+                      "country",
+                      "status"]}
+                    // globalFilterFields={globalFields}
                     showGridlines
                     resizableColumns
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
@@ -502,39 +502,39 @@ const globalFields = columns
                       {" "}
                       {branchEditData ? "Edit Branch" : "Add Branch"}
                     </p>
-                    <form onSubmit={handleSubmit(onSubmit,(error)=>{
-                      console.log("Form Errors:",error)
+                    <form onSubmit={handleSubmit(onSubmit, (error) => {
+                      console.log("Form Errors:", error)
                     })}>
 
                       {/* Pss company */}
 
-                    <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
+                      <div className="mt-2 md:mt-8 flex justify-between items-center">
+                        <label className="block text-md font-medium mb-2">
+                          Pss Company <span className="text-red-500">*</span>
+                        </label>
 
-  <div className="w-[50%]">
-    <Dropdown
-      value={pssCompany}
-      options={pssCompanyOptions}
-      onChange={(e) => {
-        setPssCompany(e.value);
-        console.log(e.value);
-        setValue("pssCompany", String(e.value)); // Update RHF value
-      }}
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-     
-      filter
-    />
+                        <div className="w-[50%]">
+                          <Dropdown
+                            value={pssCompany}
+                            options={pssCompanyOptions}
+                            onChange={(e) => {
+                              setPssCompany(e.value);
+                              console.log(e.value);
+                              setValue("pssCompany", String(e.value)); // Update RHF value
+                            }}
+                            placeholder="Select Pss Company"
+                            className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
 
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany.message}
-      </p>
-    )}
-  </div>
-</div>
+                            filter
+                          />
+
+                          {errors.pssCompany && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {errors.pssCompany.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
 
                       {/* Address Field */}
                       <div className="mt-2 md:mt-8 flex justify-between items-center">
