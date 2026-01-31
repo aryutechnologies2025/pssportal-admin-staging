@@ -42,9 +42,10 @@ const Company_Mainbar = () => {
   const [companyName, setCompanyName] = useState("");
   const [address, setAddress] = useState("");
   const [gstNumber, setGstNumber] = useState("");
-  const [website, setWebsite] = useState("");
   const [phone, setPhone] = useState("");
   const [supportEmail, setSupportEmail] = useState("");
+  const [target, setTarget] = useState("");
+  const [website, setWebsite] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [isEditAnimating, setIsEditAnimating] = useState(false);
   const [contacts, setContacts] = useState([
@@ -95,6 +96,7 @@ const Company_Mainbar = () => {
     address: "",
     gstNumber: "",
     website: "",
+    target: "",
     phone: "",
     supportEmail: "",
     billingEmail: "",
@@ -196,6 +198,10 @@ const Company_Mainbar = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  const validateTarget = (target) => {
+    const targetRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return targetRegex.test(target);
+  };
 
   const validatePhone = (phone) => {
     const phoneRegex = /^[0-9]{10}$/;
@@ -259,6 +265,7 @@ const Company_Mainbar = () => {
       address: data.address || "",
       gstNumber: data.gst_number || "",
       website: data.website_url || "",
+      target: data.target || "",
       phone: data.phone_number || "",
       supportEmail: data.support_email || "",
       billingEmail: data.billing_email || "",
@@ -414,6 +421,7 @@ const Company_Mainbar = () => {
     setAddress("");
     setGstNumber("");
     setWebsite("");
+    setTarget("");
     setPhone("");
     setSupportEmail("");
     setBillingEmail("");
@@ -481,6 +489,7 @@ const Company_Mainbar = () => {
         address: item.address || "",
         gstNumber: item.gst_number || "",
         website: item.website_url || "",
+        target: item.target || "",
         phone: item.phone_number || "",
         supportEmail: item.support_email || "",
         billingEmail: item.billing_email || "",
@@ -557,6 +566,7 @@ const Company_Mainbar = () => {
           address: address.trim(),
           gst_number: gstNumber.trim(),
           website_url: website?.trim() || null,
+          target: target?.trim() || null,
           phone_number: phone.trim(),
           support_email: supportEmail.trim(),
           billing_email: billingEmail.trim(),
@@ -669,6 +679,7 @@ const Company_Mainbar = () => {
         address: editFormData.address,
         gst_number: editFormData.gstNumber,
         website_url: editFormData.website,
+        target: editFormData.target,
         phone_number: editFormData.phone,
         support_email: editFormData.supportEmail,
         billing_email: editFormData.billingEmail,
@@ -758,6 +769,11 @@ const Company_Mainbar = () => {
       header: "Phone",
       field: "phone",
       body:(row) => row.phone || "-"
+    },
+    {
+      header: "Target",
+      field: "target",
+      body:(row) => row.target || "-"
     },
     {
       header: "Support Email",
@@ -1138,6 +1154,31 @@ const Company_Mainbar = () => {
                         clearError("website");
                       }}
                       placeholder="Enter Your Website "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {/* {errors.website && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.website}
+                      </p>
+                    )} */}
+                  </div>
+                </div>
+
+                {/* target */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Target
+                    {/* <span className="text-red-500">*</span> */}
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="number"
+                      value={target}
+                      onChange={(e) => {
+                        setTarget(e.target.value);
+                        clearError("target");
+                      }}
+                      placeholder="Enter Your Target "
                       className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     {/* {errors.website && (
@@ -1784,6 +1825,33 @@ const Company_Mainbar = () => {
                   </div>
                 </div>
 
+                {/* Target */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                    Target 
+                    {/* <span className="text-red-500">*</span> */}
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="number"
+                      value={editFormData.target}
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          target: e.target.value,
+                        })
+                      }
+                      placeholder="Enter Your Target "
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {/* {errors.websiteEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors.websiteEdit}
+                      </p>
+                    )} */}
+                  </div>
+                </div>
+
                 {/* phone */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
@@ -2228,6 +2296,9 @@ company_name}
               </p>
               <p>
                 <b>Website:</b> {viewRow.website_url}
+              </p>
+              <p>
+                <b>Target:</b> {viewRow.target}
               </p>
 
               <p>

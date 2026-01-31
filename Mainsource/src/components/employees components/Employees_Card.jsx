@@ -330,12 +330,17 @@ const Employees_Card = () => {
 
     {
       header: "Name",
-      field: "full_name",
-      body: (row) => (
+      body: (row) => {
+        const name = row.full_name || "-";
+        const id = row.role.role_name || "-";
+        console.log("check id",id,name)
+        return(
         <div>
-          <span className="font-medium">{row.full_name || "-"}</span>
+        <div>{name}</div>
+        <div>{id}</div>
         </div>
-      ),
+        );
+    },
     },
 
     // {
@@ -348,12 +353,12 @@ const Employees_Card = () => {
     //   ),
     // },
 
-    {
-      header: "Role",
-      field: "employee_role",
-      body: (row) => row.role.role_name || "-",
-      style: { textAlign: "center" }
-    },
+    // {
+    //   header: "Role",
+    //   field: "employee_role",
+    //   body: (row) => row.role.role_name || "-",
+    //   style: { textAlign: "center" }
+    // },
 
     // {
     //   title: "Current Part",
@@ -378,10 +383,14 @@ const Employees_Card = () => {
     //   style: { textAlign: "center" }
     // },
 
-    // {
-    //   header: "Email",
-    //   field: "email",
-    // },
+    {
+      header: "Email",
+      field: "email",
+    },
+    {
+      header: "Phone Number",
+      field: "phone_no",
+    },
 
     // {
     //   field: "employee_dateofjoining",
@@ -395,7 +404,7 @@ const Employees_Card = () => {
 
     {
       field: "reference",
-      header: "Reference",
+      header: "Interview Reference",
       body: (row) => {
         // Debug: console.log("Row Reference Value:", row.reference);
         return (
@@ -435,7 +444,7 @@ const Employees_Card = () => {
 
     {
       field: "reference",
-      header: "Jof Form Reference",
+      header: "Job Form Reference",
       body: (row) => {
         // Debug: console.log("Row Reference Value:", row.reference);
         return (
@@ -460,7 +469,7 @@ const Employees_Card = () => {
       style: { textAlign: "center", width: "100px" },
     },
     {
-      header: "Assigned Company",
+      header: "Company Allocation",
       body: (row) => (
         <button
           onClick={() => {
