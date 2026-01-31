@@ -254,8 +254,8 @@ education: z.string().nullable().optional(),
 
   const handlCsvDownload = () => {
     const link = window.document.createElement("a");
-    link.href = "/assets/csv/contarctformat.csv";
-    link.download = "contractformat.csv";
+    link.href = "/assets/csv/interview-candidate-demo.csv";
+    link.download = "interview-candidate-demo.csv";
 
     window.document.body.appendChild(link);
     link.click();

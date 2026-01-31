@@ -1,0 +1,5 @@
+address,employee_id,joining_date,aadhar_number,name,date_of_birth,phone_number,uan_number,account_number,esic,"emr_contact_number
+","marital_status
+","current_address
+","pan_number
+",city,state,branch_name,bank_name,ifsc_code,father_name,gender,pincode

@@ -713,7 +713,8 @@ const Attendance_add_details = () => {
                   <input
                     type="date"
                     value={selectedDate}
-                    disabled
+                    onChange={(e)=> setSelectedDate(e.target.value)}
+                    // disabled
                     className="px-2 py-2 rounded-md bg-white border text-[#7C7C7C]"
                   />
                 </div>
