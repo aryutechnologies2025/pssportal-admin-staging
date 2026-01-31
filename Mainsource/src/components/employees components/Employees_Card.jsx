@@ -24,22 +24,22 @@ const Employees_Card = () => {
   let navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  console.log("search term", searchTerm)
+  // console.log("search term", searchTerm);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     setCurrentTime(new Date());
+  //   }, 1000);
 
-    return () => clearInterval(intervalId);
-  }, []);
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
   const [employees, setEmployees] = useState([]);
   const [roles, setRoles] = useState([]);
   const [roleOptions, setRoleOptions] = useState([]);
 
-  console.log("roleOptions", roleOptions);
+  // console.log("roleOptions", roleOptions);
 
   const [companyOptions, setCompanyOptions] = useState([]);
 
@@ -48,11 +48,11 @@ const Employees_Card = () => {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
   const [roleFilter, setRoleFilter] = useState("");
-  console.log("roleFilter", roleFilter);
+  // console.log("roleFilter", roleFilter);
   const [dateFilter, setDateFilter] = useState("");
   const [employeeData, setEmployeeData] = useState([]);
 
-  // console.log("employeeData :", employeeData);
+  console.log("employeeData :", employeeData);
 
   const companyList = [
     { id: 1, name: "Company A" },
@@ -69,7 +69,6 @@ const Employees_Card = () => {
   const [rows, setRows] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
   const [totalRecords, setTotalRecords] = useState(0);
-
 
   const fetchRoles = async () => {
     try {
@@ -100,7 +99,6 @@ const Employees_Card = () => {
       setAllEmployees(response.data.data);
       setFilteredEmployees(response.data.data);
 
-
       // const roleOptions = response?.data
       // // .filter((role) => role.status === "1") // filter only active
       // // .map((role) => ({
@@ -115,7 +113,7 @@ const Employees_Card = () => {
           label: emp.company_name,
           value: emp.id,
           assign_status: emp.assign_status,
-        }))
+        })),
       );
     } catch (error) {
       console.error("Failed to fetch employees:", error);
@@ -168,7 +166,6 @@ const Employees_Card = () => {
     }
   };
 
-
   useEffect(() => {
     let filtered = employees;
 
@@ -179,21 +176,21 @@ const Employees_Card = () => {
         (emp) =>
           emp.employee_Name?.toLowerCase().includes(lower) ||
           emp.employee_mailId?.toLowerCase().includes(lower) ||
-          emp.employeeId?.toString().includes(lower)
+          emp.employeeId?.toString().includes(lower),
       );
     }
 
     // Role Filter
     if (roleFilter) {
       filtered = filtered.filter(
-        (emp) => Number(emp.role_id) === Number(roleFilter)
+        (emp) => Number(emp.role_id) === Number(roleFilter),
       );
     }
 
     // Date of Joining Filter
     if (dateFilter) {
       filtered = filtered.filter(
-        (emp) => emp.employee_dateofjoining?.slice(0, 10) === dateFilter
+        (emp) => emp.employee_dateofjoining?.slice(0, 10) === dateFilter,
       );
     }
 
@@ -216,7 +213,7 @@ const Employees_Card = () => {
   const filterEmployee = (value) => {
     if (value) {
       const filterData = allEmployees.filter(
-        (data) => data.employee_dutyStatus == value
+        (data) => data.employee_dutyStatus == value,
       );
       setEmployees(filterData);
     } else {
@@ -237,39 +234,90 @@ const Employees_Card = () => {
     setLoading(false); // stop skeleton
   }, []);
 
-  const handleReferenceChange = async (id, type, checked) => {
-    // type = "internal" or "external"
+  //   const handleReferenceChange = async (id, type, checked) => {
+
+  //     console.log("id, type, checked", id, type, checked)
+  //     // type = "internal" or "external"
+  //     try {
+  //       // Send payload according to type
+  //       const payload =
+
+  // {          job_form_referal: checked ? 1 : 0,
+  //           reference_type:
+
+  // };
+
+  //       const res = await axiosInstance.post(
+  //         `/api/employees/job-referal/${id}`,
+  //         payload
+  //       );
+
+  //       if (res.status === 200) {
+  //         toast.success("Reference updated successfully!");
+
+  //         // Update local state
+  //         setEmployeeData((prev) =>
+  //           prev.map((emp) =>
+  //             emp.id == id
+  //               ? { ...emp, ...payload }
+  //               : emp
+  //           )
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to update reference:", error);
+  //     }
+  //   };
+
+  const handleReferenceChange = async (id, referenceType, checked) => {
+    console.log("id:", id, "type:", referenceType, "checked:", checked);
+
     try {
-      // Send payload according to type
+      // const payload = {
+      //   job_form_referal: checked ? 1 : 0,
+      //   // job_form_ext_referal: checked ? 1 : 0,
+      //   type: checked ? referenceType : null,
+      // };
+
       const payload =
-        type === "internal"
-          ? { internal_ref: checked ? 1 : 0 }
-          : { external_ref: checked ? 1 : 0 };
+  referenceType === "internal"
+    ? {
+        job_form_referal: checked ? 1 : 0,
+        job_form_ext_referal: 0,
+        type: "internal",
+      }
+    : {
+        job_form_ext_referal: checked ? 1 : 0,
+        job_form_referal: 0,
+        type: "external",
+      };
+
 
       const res = await axiosInstance.post(
         `/api/employees/job-referal/${id}`,
-        payload
+        payload,
       );
 
       if (res.status === 200) {
         toast.success("Reference updated successfully!");
 
-        // Update local state
         setEmployeeData((prev) =>
           prev.map((emp) =>
-            emp.id == id
-              ? { ...emp, ...payload } // merge the updated type
-              : emp
-          )
+            emp.id === id
+              ? {
+                  ...emp,
+                  job_form_referal: payload.job_form_referal,
+                  reference_type: payload.reference_type,
+                }
+              : emp,
+          ),
         );
       }
+      fetchEmployees();
     } catch (error) {
       console.error("Failed to update reference:", error);
     }
   };
-
-
-
 
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -285,7 +333,7 @@ const Employees_Card = () => {
     setSelectedCompanies((prev) =>
       checked
         ? [...prev, company.value]
-        : prev.filter((c) => c !== company.value)
+        : prev.filter((c) => c !== company.value),
     );
   };
 
@@ -295,8 +343,11 @@ const Employees_Card = () => {
       const res = await axiosInstance.post(
         `api/employees/assign-company/${selectedEmployee.id}`,
         {
-          company_id: selectedCompanies.length > 0 ? selectedCompanies.map((c) => c) : null,
-        }
+          company_id:
+            selectedCompanies.length > 0
+              ? selectedCompanies.map((c) => c)
+              : null,
+        },
       );
 
       if (res.status === 200) {
@@ -473,7 +524,9 @@ const Employees_Card = () => {
       body: (row) => (
         <button
           onClick={() => {
-            setSelectedCompanies(row.assignedCompanies ? [...row.assignedCompanies] : []);
+            setSelectedCompanies(
+              row.assignedCompanies ? [...row.assignedCompanies] : [],
+            );
 
             // setSelectedCompanies(row.assignedCompanies || []);
             setSelectedEmployee(row);
@@ -547,14 +600,12 @@ const Employees_Card = () => {
   // const location = useLocation();
   // console.log(location.state.employee);
 
-  const roleDropdownOptions = roleOptions.map(role => ({
+  const roleDropdownOptions = roleOptions.map((role) => ({
     label: role.name,
-    value: role.id
+    value: role.id,
   }));
   const filteredCompanyOptions = companyOptions.filter((company) =>
-    company.label
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase().trim())
+    company.label?.toLowerCase().includes(searchTerm.toLowerCase().trim()),
   );
 
   return (
@@ -596,8 +647,6 @@ const Employees_Card = () => {
                 className="h-10 px-3 rounded-md border border-gray-300 text-sm focus:outline-none"
               />
 
-
-
               {/* ADD BUTTON */}
               <button
                 onClick={onClickAddNewMember}
@@ -607,7 +656,6 @@ const Employees_Card = () => {
                 <BiSolidMessageAltAdd />
               </button>
             </div>
-
           </div>
 
           {loading ? (
@@ -628,12 +676,6 @@ const Employees_Card = () => {
                   </option>
                   <option value="0">Relieved</option>
                 </select> */}
-
-
-
-
-
-
               </div>
 
               <div className="datatable-container mt-4">
@@ -647,7 +689,6 @@ const Employees_Card = () => {
                         label: v,
                         value: v,
                       }))}
-
                       onChange={(e) => setRows(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
@@ -744,7 +785,9 @@ const Employees_Card = () => {
                           >
                             <input
                               type="checkbox"
-                              checked={selectedCompanies.includes(company.value)}
+                              checked={selectedCompanies.includes(
+                                company.value,
+                              )}
                               onChange={(e) =>
                                 handleCompanyToggle(company, e.target.checked)
                               }
@@ -757,7 +800,6 @@ const Employees_Card = () => {
                           No companies found
                         </p>
                       )}
-
                     </div>
 
                     {/* Buttons */}
