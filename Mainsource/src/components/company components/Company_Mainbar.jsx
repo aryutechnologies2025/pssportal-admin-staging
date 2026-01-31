@@ -749,16 +749,16 @@ const Company_Mainbar = () => {
       header: "Company Name",
       field: "companyName",
     },
-    {
-      header: "Website",
-      field: "website",
-      body:(row) => row.website || "-"
-    },
-    {
-      header: "Phone",
-      field: "phone",
-      body:(row) => row.phone || "-"
-    },
+    // {
+    //   header: "Website",
+    //   field: "website",
+    //   body:(row) => row.website || "-"
+    // },
+    // {
+    //   header: "Phone",
+    //   field: "phone",
+    //   body:(row) => row.phone || "-"
+    // },
     {
       header: "Support Email",
       field: "supportEmail",
