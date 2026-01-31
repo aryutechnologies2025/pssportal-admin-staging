@@ -54,6 +54,8 @@ import Announcement_Mainbar from "./components/announcement/Announcement";
 import Announcement_Mainbar_page from "./pages/Announcement";
 import BoardingPoint_Main from "./pages/BoardingPoint_Main";
 import Education_Main from "./pages/Education_Main";
+import Contract_Report_main from "./components/Contract Report component/Contract_Report_main";
+import Relieved_Main from "./components/relieved component/Relieved_Main";
 
 function App() {
   return (
@@ -138,6 +140,8 @@ function App() {
           <Route path="lead-engine" element={<LeadManagement />} />
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
           <Route path="announcement" element={<Announcement_Mainbar_page />} />
+          <Route path="contract-report" element={<Contract_Report_main />} />
+          <Route path="relieved-contract" element={<Relieved_Main />} />
         </Routes>
       </BrowserRouter>
     </>
