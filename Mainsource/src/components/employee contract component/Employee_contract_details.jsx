@@ -257,15 +257,15 @@ const Employee_contract_details = () => {
   const [selectedBoarding, setSelectedBoarding] = useState(null);
   const [selectedEducation, setSelectedEducation] = useState(null);
 
-  console.log("selectedCompany", selectedCompany);
-  console.log("selectedBoarding", selectedBoarding);
+  // console.log("selectedCompany", selectedCompany);
+  // console.log("selectedBoarding", selectedBoarding);
 
   const [companyOptions, setCompanyOptions] = useState([]);
-  console.log("companyOptions", companyOptions);
+  // console.log("companyOptions", companyOptions);
   const [boardingOptions, setBoardingOptions] = useState([]);
-  console.log("boarding option", boardingOptions);
+  // console.log("boarding option", boardingOptions);
   const [educationOptions, setEducationOptions] = useState([]);
-  console.log("education option", educationOptions);
+  // console.log("education option", educationOptions);
 
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
@@ -301,6 +301,9 @@ const Employee_contract_details = () => {
       toast.error("Unable To Load Candidate Details");
     }
   };
+
+
+
 
   const handleCloseViewExistingCandidate = () => {
     setIsExistingCandidateViewModalOpen(false);
@@ -541,6 +544,13 @@ const Employee_contract_details = () => {
   // select file
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [isRejoining, setIsRejoining] = useState(false);
+  const [rejoingnote, setRejoingnote] = useState("");
+  console.log("rejoingnote", rejoingnote);
+
+  const [editempid ,setEditempid] = useState("");
+  console.log("editempid", editempid);
+
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
@@ -680,6 +690,8 @@ const Employee_contract_details = () => {
   const normalizeEditData = (row) => {
     console.log("rowedit", row);
 
+    setEditempid(row.id);
+
     // Normalize contact_details from backend
     let normalizedContacts = [];
 
@@ -690,6 +702,17 @@ const Employee_contract_details = () => {
         phone_number: c.phone_number || "",
       }));
     }
+
+     if (row.rejoingstatus) {
+    // rejoining status
+    setIsRejoining(row.rejoingstatus.rejoin_status === 1);
+
+    //  only rejoining note
+    setRejoingnote(row.rejoingstatus.rejoining_note || "");
+  } else {
+    setIsRejoining(false);
+    setRejoingnote("");
+  }
 
     return {
       id: row.id || null,
@@ -742,7 +765,7 @@ const Employee_contract_details = () => {
   };
 
   const openEditModal = async (row) => {
-    console.log("open edit row", row);
+    // console.log("open edit row", row);
 
     setIsModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
@@ -757,6 +780,7 @@ const Employee_contract_details = () => {
       const normalizedData = normalizeEditData(rowData);
 
       setEditData(normalizedData);
+
 
       if (normalizedData.profile_picture) {
         // If it's already a full URL, use it; otherwise, append base URL
@@ -1069,8 +1093,7 @@ const Employee_contract_details = () => {
     },
   ];
 
-  const [isRejoining, setIsRejoining] = useState(false);
-  const [rejoingnote, setRejoingnote] = useState("");
+ 
 
   // create
   const onSubmit = async (data) => {
@@ -1255,14 +1278,13 @@ const Employee_contract_details = () => {
 
   const handlCsvDownload = () => {
     const link = document.createElement("a");
-    link.href = "/assets/csv/contarctformat.csv";
-    link.download = "contractformat.csv";
+    link.href = "/assets/csv/contract-employee-demo.csv";
+    link.download = "contract-employee-demo.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  console.log("companyDropdown", companyDropdown);
 
   const [boardingPoints, setBoardingPoints] = useState([]);
   const [educations, setEducations] = useState([]);
@@ -1279,31 +1301,65 @@ const Employee_contract_details = () => {
     value: String(e.id),
   }));
 
-  console.log("educationDropdown", educationDropdown);
 
   const [showLogs, setShowLogs] = useState(false);
+  const [logData, setLogs] = useState([]);
 
-  const logData = [
-    {
-      companyName: "PSS Agencies",
-      boardingPoint: "Chennai",
-      joiningDate: "2023-08-12",
-      employeeId: "EMP001",
-    },
-    {
-      companyName: "PSS Agencies",
-      boardingPoint: "Bangalore",
-      joiningDate: "2024-01-05",
-      employeeId: "EMP045",
-    },
+  console.log("logData", logData);
 
-    {
-      companyName: "PSS Agencies",
-      boardingPoint: "Mumbai",
-      joiningDate: "2024-01-05",
-      employeeId: "EMP045",
-    },
-  ];
+
+const fetchLogs = async () => {
+  try {
+    const response = await axiosInstance.get(
+      `${API_URL}api/contract-employee/emp-rejoing-list/`,{
+        params: {
+          employee_id: editempid
+        }
+      }
+    );
+
+    console.log("responselogs", response);
+
+    if (response.status === 200) {
+      setLogs(response.data.data);
+      // setShowLogs(true);
+    }
+
+   
+
+  } catch (err) {
+    toast.error("Unable To Load Candidate Details");
+  }
+};
+
+useEffect(() => {
+  if (editempid) {
+    fetchLogs();
+  }
+}, [editempid]);
+
+
+  // const logData = [
+  //   {
+  //     companyName: "PSS Agencies",
+  //     boardingPoint: "Chennai",
+  //     joiningDate: "2023-08-12",
+  //     employeeId: "EMP001",
+  //   },
+  //   {
+  //     companyName: "PSS Agencies",
+  //     boardingPoint: "Bangalore",
+  //     joiningDate: "2024-01-05",
+  //     employeeId: "EMP045",
+  //   },
+
+  //   {
+  //     companyName: "PSS Agencies",
+  //     boardingPoint: "Mumbai",
+  //     joiningDate: "2024-01-05",
+  //     employeeId: "EMP045",
+  //   },
+  // ];
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -2702,11 +2758,9 @@ const Employee_contract_details = () => {
 
             {/* logs details */}
 
-            {showLogs && (
+            {/* {showLogs && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                {/* Modal box */}
                 <div className="bg-white w-[90%] md:w-[500px] rounded-2xl shadow-xl p-5">
-                  {/* Header */}
                   <div className="flex justify-between items-center border-b pb-2">
                     <h2 className="text-lg font-semibold text-gray-800">
                       Employee Joining Logs
@@ -2719,7 +2773,6 @@ const Employee_contract_details = () => {
                     </button>
                   </div>
 
-                  {/* Body */}
                   <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto">
                     {logData.map((item, index) => (
                       <div
@@ -2743,7 +2796,6 @@ const Employee_contract_details = () => {
                     ))}
                   </div>
 
-                  {/* Footer */}
                   <div className="mt-4 text-right">
                     <button
                       onClick={() => setShowLogs(false)}
@@ -2754,7 +2806,107 @@ const Employee_contract_details = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
+
+  {showLogs && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
+    {/* Modal box */}
+    <div className="bg-white w-full md:w-[900px] rounded-2xl shadow-2xl overflow-hidden">
+
+      {/* Header */}
+      <div className="px-5 py-4 bg-green-600 text-white">
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-lg font-semibold">
+              Employee Joining Logs
+            </h2>
+
+            {/* Employee Name */}
+            <p className="mt-1 text-sm bg-white/20 inline-block px-3 py-1 rounded-full">
+              👤 {logData[0]?.employee?.name || "Employee"}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowLogs(false)}
+            className="text-white hover:text-red-200 text-xl"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-4 max-h-[500px] overflow-auto">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[700px] border border-green-600 rounded-lg">
+            <thead className="bg-green-100 text-green-800 text-sm sticky top-0 z-10">
+              <tr>
+                <th className="px-3 py-2 text-center w-[60px]">S.No</th>
+                <th className="px-4 py-2 text-left">Company</th>
+                <th className="px-4 py-2 text-left">Employee ID</th>
+                <th className="px-4 py-2 text-left">Joining Date</th>
+                <th className="px-4 py-2 text-left">Rejoining Note</th>
+              </tr>
+            </thead>
+
+            <tbody className="text-sm">
+              {logData.length > 0 ? (
+                logData.map((item, index) => (
+                  <tr
+                    key={index}
+                    className="border-b hover:bg-green-50 transition"
+                  >
+                    <td className="px-3 py-2 text-center font-medium">
+                      {index + 1}
+                    </td>
+
+                    <td className="px-4 py-2 font-medium text-gray-800">
+                      {item.company?.company_name || "-"}
+                    </td>
+
+                    <td className="px-4 py-2 text-gray-700">
+                      {item.employee_id || "-"}
+                    </td>
+
+                    <td className="px-4 py-2 text-gray-700">
+                      {item.joining_date || "-"}
+                    </td>
+
+                    <td className="px-4 py-2 text-gray-700 whitespace-pre-wrap">
+                      {item.rejoining_note || "—"}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-8 text-center text-gray-500"
+                  >
+                    No joining logs found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end px-5 py-3 bg-gray-50 border-t">
+        <button
+          onClick={() => setShowLogs(false)}
+          className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 text-sm"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
 
             {isViewModalOpen && viewRow && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">

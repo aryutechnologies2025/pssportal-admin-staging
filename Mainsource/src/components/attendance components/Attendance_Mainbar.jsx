@@ -847,8 +847,8 @@ const Attendance_Mainbar = () => {
 
     const handlCsvDownload = () => {
     const link = document.createElement("a");
-    link.href = "/assets/csv/contarctformat.csv";
-    link.download = "contractformat.csv";
+    link.href = "/assets/csv/attendance-demo.csv";
+    link.download = "attendance-demo.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
