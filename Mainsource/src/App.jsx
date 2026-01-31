@@ -56,6 +56,9 @@ import BoardingPoint_Main from "./pages/BoardingPoint_Main";
 import Education_Main from "./pages/Education_Main";
 import Contract_Report_main from "./components/Contract Report component/Contract_Report_main";
 import Relieved_Main from "./components/relieved component/Relieved_Main";
+import Lead_Dashboard from "./components/Lead Management/Lead_Dashboard";
+import Lead_Dashboard_Main from "./pages/Lead_Dashboard_Main";
+import Lead_Category_Main from "./pages/Lead_Category_Main";
 
 function App() {
   return (
@@ -138,6 +141,8 @@ function App() {
           <Route path="sitemap" element={<Sitemap />} />
           <Route path="setting" element={<Setting />} />
           <Route path="lead-engine" element={<LeadManagement />} />
+          <Route path="lead-dashboard" element={<Lead_Dashboard_Main />} />
+          <Route path="lead-category" element={<Lead_Category_Main />} />
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
           <Route path="announcement" element={<Announcement_Mainbar_page />} />
           <Route path="contract-report" element={<Contract_Report_main />} />

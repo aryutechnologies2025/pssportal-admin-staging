@@ -600,10 +600,10 @@ const LeadManagement_Details = () => {
       header: "Full Name",
       body: (row) => Capitalise(row.full_name),
     },
-    {
-      header: "Date Of Birth",
-      body: (row) => formatToDDMMYYYY(row.date_of_birth),
-    },
+    // {
+    //   header: "Date Of Birth",
+    //   body: (row) => formatToDDMMYYYY(row.date_of_birth),
+    // },
     {
       field: "post_code",
       header: "Post Code",
@@ -639,11 +639,11 @@ const LeadManagement_Details = () => {
       header: "State",
       body: (row) => Capitalise(row.state),
     },
-    {
-      field: "created_time",
-      header: "Date",
-      body: (row) => formatToDDMMYYYY(row.created_time),
-    },
+    // {
+    //   field: "created_time",
+    //   header: "Date",
+    //   body: (row) => formatToDDMMYYYY(row.created_time),
+    // },
     {
       header: "Status",
       body: (row) => (
@@ -714,12 +714,14 @@ const LeadManagement_Details = () => {
   ];
 
   const [visibleColumnFields, setVisibleColumnFields] = useState(
-    columns.filter(col => col.fixed || ["full_name", "date_of_birth", "gender", "phone", "age", "qualification", "city", "created_time", "status", "Action"].includes(col.field)).map(col => col.field)
+    columns.filter(col => col.fixed || ["full_name",  "gender", "phone", "age", "qualification", "city", "created_time", "status", "Action"].includes(col.field)).map(col => col.field)
   );
+  console.log("visibleColumnFields", visibleColumnFields);
 
   const onColumnToggle = (event) => {
     let selectedFields = event.value;
     const fixedFields = columns.filter(col => col.fixed).map(col => col.field);
+    console.log("fixedFields", fixedFields);
     const validatedSelection = Array.from(new Set([...fixedFields, ...selectedFields]));
 
     setVisibleColumnFields(validatedSelection);
