@@ -29,6 +29,7 @@ import { HiOutlineBuildingOffice } from "react-icons/hi2";
 import { BsBuildingUp } from "react-icons/bs";
 import { TbReport } from "react-icons/tb";
 import { AiOutlineMessage } from "react-icons/ai";
+import { VscReport } from "react-icons/vsc";
 
 const Sidebar = () => {
   const AdminData = JSON.parse(
@@ -202,6 +203,66 @@ const Sidebar = () => {
                   <CiBoxList className="w-5" />
                   {!arrowClicked && <p className="text-sm">Dashboard</p>}
                 </div>
+              </div>
+
+              {/* report */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                {/* Parent Item */}
+                <div
+                  onClick={() => toggleMenu("report")}
+                  className={`flex items-center w-full flex-grow
+      ${arrowClicked ? "justify-center" : "justify-normal"}
+      px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+      ${
+        currentPath === "/contract-report"
+          ? "bg-[#4BB452] text-white"
+          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+      }`}
+                >
+                  <VscReport className="w-5" />
+
+                  {!arrowClicked && (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-sm font-medium">Report</span>
+                      {currentOpen === "report" ||
+                      currentPath === "/contract-report" ? (
+                        <IoIosArrowUp />
+                      ) : (
+                        <IoIosArrowDown />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Dropdown Items */}
+                {!arrowClicked && (
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                      currentOpen === "report" ||
+                      currentPath === "/contract-report"
+                        ? "max-h-40 opacity-100 mt-1"
+                        : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    <div className="flex gap-2 ms-8 flex-col text-sm font-medium text-gray-500">
+                      {/* Contract */}
+                      <button
+                        onClick={() => {
+                          navigate("/contract-report");
+                          setCurrentOpen("report");
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition
+            ${
+              currentPath === "/contract-report"
+                ? "text-[#4BB452]"
+                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+            }`}
+                      >
+                        Contracts
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* PSS Employee Dropdown */}
@@ -571,6 +632,7 @@ const Sidebar = () => {
         currentPath === "/employeecontract" ||
         currentPath === "/attendance" ||
         currentPath === "/boarding-point" ||
+        currentPath === "/relieved-contract" ||
         currentPath === "/education"
           ? "bg-[#4BB452] text-white"
           : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
@@ -583,6 +645,7 @@ const Sidebar = () => {
                       currentPath === "/employeecontract" ||
                       currentPath === "/attendance" ||
                       currentPath === "/boarding-point" ||
+                      currentPath === "/relieved-contract" ||
                       currentPath === "/education"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
@@ -595,6 +658,7 @@ const Sidebar = () => {
                       {currentOpen === "contract" ||
                       currentPath === "/employeecontract" ||
                       currentPath === "/boarding-point" ||
+                      currentPath === "/relieved-contract" ||
                       currentPath === "/education" ||
                       currentPath === "/attendance" ? (
                         <IoIosArrowUp />
@@ -613,8 +677,9 @@ const Sidebar = () => {
                       currentPath === "/employeecontract" ||
                       currentPath === "/attendance" ||
                       currentPath === "/boarding-point" ||
+                      currentPath === "/relieved-contract" ||
                       currentPath === "/education"
-                        ? "max-h-40 opacity-100 mt-1"
+                        ? "max-h-60 opacity-100 mt-1"
                         : "max-h-0 opacity-0"
                     }`}
                   >
@@ -677,6 +742,20 @@ const Sidebar = () => {
             }`}
                       >
                         Education
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate("/relieved-contract");
+                          setCurrentOpen("contract");
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition
+            ${
+              currentPath === "/relieved-contract"
+                ? "text-[#4BB452]"
+                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+            }`}
+                      >
+                        Relieved 
                       </button>
                     </div>
                   </div>
