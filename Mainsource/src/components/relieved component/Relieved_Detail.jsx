@@ -620,12 +620,12 @@ px-2 py-2 md:px-6 md:py-6">
                                             />
                                         </div>
 
-                                        <button
+                                        {/* <button
                                             onClick={openAddModal}
                                             className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
                                         >
                                             Add Relieved
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                                 <div className="table-scroll-container" id="datatable">
@@ -661,7 +661,7 @@ px-2 py-2 md:px-6 md:py-6">
                         </div>
 
                         {/* Add Modal */}
-                        {isAddModalOpen && (
+                        {/* {isAddModalOpen && (
                             <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
                                 <div className="absolute inset-0" onClick={closeAddModal}></div>
 
@@ -833,7 +833,7 @@ px-2 py-2 md:px-6 md:py-6">
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
                         {/* Edit Modal */}
                         {isEditModalOpen && (
@@ -1041,15 +1041,24 @@ px-2 py-2 md:px-6 md:py-6">
                                     <div className="space-y-4 text-sm text-gray-700">
 
                                         <div className="flex justify-between">
-                                            <span className="font-medium">Role Name</span>
-                                            <span>{viewContact.role_name || "-"}</span>
+                                            <span className="font-medium">Employee Name</span>
+                                            {/* <span>{viewContact.role_name || "-"}</span> */}
                                         </div>
-
                                         <div className="flex justify-between">
-                                            <span className="font-medium">Department</span>
-                                            <span>
-                                                {viewContact.department?.department_name || "-"}
-                                            </span>
+                                            <span className="font-medium">Company</span>
+                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">Joining Date</span>
+                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">Relieved Date</span>
+                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="font-medium">Aadhar Number</span>
+                                            {/* <span>{viewContact.role_name || "-"}</span> */}
                                         </div>
 
                                         <div className="flex justify-between items-center">

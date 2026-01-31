@@ -381,12 +381,17 @@ const Employees_Card = () => {
 
     {
       header: "Name",
-      field: "full_name",
-      body: (row) => (
+      body: (row) => {
+        const name = row.full_name || "-";
+        const id = row.role.role_name || "-";
+        console.log("check id",id,name)
+        return(
         <div>
-          <span className="font-medium">{row.full_name || "-"}</span>
+        <div>{name}</div>
+        <div>{id}</div>
         </div>
-      ),
+        );
+    },
     },
 
     // {
@@ -399,12 +404,12 @@ const Employees_Card = () => {
     //   ),
     // },
 
-    {
-      header: "Role",
-      field: "employee_role",
-      body: (row) => row.role.role_name || "-",
-      style: { textAlign: "center" },
-    },
+    // {
+    //   header: "Role",
+    //   field: "employee_role",
+    //   body: (row) => row.role.role_name || "-",
+    //   style: { textAlign: "center" }
+    // },
 
     // {
     //   title: "Current Part",
@@ -429,10 +434,14 @@ const Employees_Card = () => {
     //   style: { textAlign: "center" }
     // },
 
-    // {
-    //   header: "Email",
-    //   field: "email",
-    // },
+    {
+      header: "Email",
+      field: "email",
+    },
+    {
+      header: "Phone Number",
+      field: "phone_no",
+    },
 
     // {
     //   field: "employee_dateofjoining",
@@ -444,65 +453,74 @@ const Employees_Card = () => {
     //   style: { textAlign: "center" }
     // },
 
-   {
-  field: "reference",
-  header: "Reference (Internal)",
-  body: (row) => {
-    return (
-      <div
-        className="flex justify-center"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <input
-          type="checkbox"
-          checked={row.job_form_referal == "1"}
-          onChange={(e) =>
-            handleReferenceChange(
-              row.id,
-              "internal",
-              e.target.checked
-            )
-          }
-          className="w-4 h-4 cursor-pointer accent-green-600"
-        />
-      </div>
-    );
-  },
-  style: { textAlign: "center", width: "120px" },
-},
+    {
+      field: "reference",
+      header: "Interview Reference",
+      body: (row) => {
+        // Debug: console.log("Row Reference Value:", row.reference);
+        return (
+          <div
+            className="flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* <input
+              type="checkbox"
+              // This handles numbers, strings, and null values accurately
+              checked={row.job_form_referal == 1}
+              onChange={(e) => {
+                const isChecked = e.target.checked;
+                handleReferenceChange(row.id, isChecked);
+              }}
+              className="w-4 h-4 cursor-pointer accent-[#1ea600] rounded border-gray-300"
+            /> */}
 
+            <input
+              type="checkbox"
+              checked={
+                row.job_form_referal == 1 &&
+                row.reference_type === "internal"
+              }
+              onChange={(e) =>
+                handleReferenceChange(row.id, e.target.checked, "internal")
+              }
+              className="w-4 h-4 cursor-pointer accent-green-600"
+            />
+          </div>
+        );
+      },
+      style: { textAlign: "center", width: "100px" },
+    },
 
     // jof from refenece
 
-   {
-  field: "reference",
-  header: "Job Form Reference (External)",
-  body: (row) => {
-    return (
-      <div
-        className="flex justify-center"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <input
-          type="checkbox"
-          checked={row.jb_referal == "1"}
-          onChange={(e) =>
-            handleReferenceChange(
-              row.id,
-              "external",
-              e.target.checked
-            )
-          }
-          className="w-4 h-4 cursor-pointer accent-green-600"
-        />
-      </div>
-    );
-  },
-  style: { textAlign: "center", width: "140px" },
-},
-
     {
-      header: "Assigned Company",
+      field: "reference",
+      header: "Job Form Reference",
+      body: (row) => {
+        // Debug: console.log("Row Reference Value:", row.reference);
+        return (
+          <div
+            className="flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <input
+              type="checkbox"
+              checked={
+                row.job_form_referal == 1 &&
+                row.reference_type === "external"
+              }
+              onChange={(e) =>
+                handleReferenceChange(row.id, e.target.checked, "external")
+              }
+              className="w-4 h-4 cursor-pointer accent-blue-600"
+            />
+          </div>
+        );
+      },
+      style: { textAlign: "center", width: "100px" },
+    },
+    {
+      header: "Company Allocation",
       body: (row) => (
         <button
           onClick={() => {
