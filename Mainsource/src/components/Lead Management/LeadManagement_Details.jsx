@@ -408,6 +408,13 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       });
     }
 
+    // category
+    if (filters.category) {
+      result = result.filter(item =>
+        item.category?.toLowerCase() === filters.category.toLowerCase()
+      );
+    }
+
     return result;
   };
 
@@ -618,7 +625,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
 
 useEffect(() => {
   fetchCategories();
-})
+},[])
   const STATUS_MAP = {
     open: "Open",
     joined: "Joined",
@@ -876,7 +883,7 @@ const statusDropdownOptions = [
             {/* Filter Section */}
             <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
 
-              <div className="flex flex-wrap items-end justify-end gap-4">
+              <div className="flex flex-wrap gap-4">
 
                 {/* Start Date */}
                 <div className="flex flex-col gap-1">
@@ -1029,7 +1036,7 @@ const statusDropdownOptions = [
 
 
                 {/* Buttons */}
-                <div className="flex gap-3 mt-6 md:mt-0 ">
+                <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end">
                   <button
                     onClick={handleApplyFilter}
                     className="h-10 w-20 rounded-lg bg-[#1ea600] text-white font-medium hover:bg-[#33cd10]"
@@ -2065,6 +2072,33 @@ px-2 py-2 md:px-6 md:py-6">
                         )}
                       </div>
                     )}
+
+                      {/* category */}
+                <div className="mt-3 flex justify-between items-center">
+                  <label className="block text-md font-medium">Category</label>
+                  <div className="w-[60%] md:w-[50%]">
+                  <Dropdown
+                    className="uniform-field w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={selectedCategory}
+    options={categoryOptions}
+                    onChange={(e) => {
+      setSelectedCategory(e.value);
+      setFilters(prev => ({
+        ...prev,
+        category_id: e.value
+      }));
+    }}
+                    placeholder="Select Category"
+                    filter
+                    filterPlaceholder="Search category"
+                    
+                    panelClassName="text-sm"
+                  />
+                    
+                  
+
+</div>
+                </div>
 
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
                       <button
