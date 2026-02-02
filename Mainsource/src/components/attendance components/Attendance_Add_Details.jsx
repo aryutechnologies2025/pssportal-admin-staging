@@ -27,7 +27,7 @@ const Attendance_add_details = () => {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState("");
   const [attendanceData, setAttendanceData] = useState([]);
-  console.log("attendanceData", attendanceData);
+  // console.log("attendanceData", attendanceData);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
   );
@@ -59,6 +59,8 @@ const Attendance_add_details = () => {
         `${API_URL}api/attendance/company/${company}/employees`,
       );
 
+
+      console.log("res", res);
       const employees = res.data.data.map((emp) => ({
         ...emp,
         attendance: null,
@@ -171,6 +173,8 @@ const Attendance_add_details = () => {
   };
 
   const handleSubmit = async () => {
+
+    
     if (!selectedCompany) {
       Swal.fire({
         icon: "warning",
@@ -217,13 +221,15 @@ const Attendance_add_details = () => {
             if (emp.attendance === "absent") return 0;
             return null;
           })(),
-          shift_id: emp.shifts,
+          shift_details: emp.shifts,
         })),
         created_by: pssUser?.id,
         role_id: pssUser?.role_id,
       };
 
       console.log("Attendance Payload ", payload);
+
+    
 
       const response = await axiosInstance.post(
         `${API_URL}api/attendance/create`,
@@ -328,47 +334,118 @@ const Attendance_add_details = () => {
   const [contentVisible, setContentVisible] = useState(false);
   const [selectedContent, setSelectedContent] = useState("");
 
-  const handleHeaderShiftToggle = (shiftId) => {
-    const allSelected = attendanceData.every((emp) =>
-      emp.shifts.includes(shiftId),
-    );
+  // const handleHeaderShiftToggle = (shiftId) => {
+  //   const allSelected = attendanceData.every((emp) =>
+  //     emp.shifts.includes(shiftId),
+  //   );
 
-    setAttendanceData((prev) =>
-      prev.map((emp) => ({
-        ...emp,
-        shifts: allSelected
-          ? emp.shifts.filter((id) => id !== shiftId) // uncheck all
-          : emp.shifts.includes(shiftId)
-            ? emp.shifts
-            : [...emp.shifts, shiftId], // check all
-      })),
-    );
-  };
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => ({
+  //       ...emp,
+  //       shifts: allSelected
+  //         ? emp.shifts.filter((id) => id !== shiftId) // uncheck all
+  //         : emp.shifts.includes(shiftId)
+  //           ? emp.shifts
+  //           : [...emp.shifts, shiftId], // check all
+  //     })),
+  //   );
+  // };
 
-  const isHeaderShiftChecked = (shiftId) => {
-    return (
-      attendanceData.length > 0 &&
-      attendanceData.every((emp) => emp.shifts.includes(shiftId))
-    );
-  };
+  // const isHeaderShiftChecked = (shiftId) => {
+  //   return (
+  //     attendanceData.length > 0 &&
+  //     attendanceData.every((emp) => emp.shifts.includes(shiftId))
+  //   );
+  // };
   const [showShiftPopup, setShowShiftPopup] = useState(false);
   const [starttime, setStarttime] = useState("");
   const [endtime, setEndtime] = useState("");
 
-  const handleShiftChange = (empId, shiftId) => {
-    setAttendanceData((prev) =>
-      prev.map((emp) =>
-        emp.id === empId
-          ? {
-              ...emp,
-              shifts: emp.shifts.includes(shiftId)
-                ? emp.shifts.filter((id) => id !== shiftId)
-                : [...emp.shifts, shiftId],
-            }
-          : emp,
-      ),
-    );
-  };
+  // const handleShiftChange = (empId, shiftId) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) =>
+  //       emp.id === empId
+  //         ? {
+  //             ...emp,
+  //             shifts: emp.shifts.includes(shiftId)
+  //               ? emp.shifts.filter((id) => id !== shiftId)
+  //               : [...emp.shifts, shiftId],
+  //           }
+  //         : emp,
+  //     ),
+  //   );
+  // };
+
+// --- Handle shift checkbox for each employee ---
+const handleShiftChange = (empId, shift) => {
+  setAttendanceData((prev) =>
+    prev.map((emp) => {
+      if (emp.id !== empId) return emp;
+
+      const exists = emp.shifts.find((s) => s.shift_id === shift.id);
+
+      return {
+        ...emp,
+        shifts: exists
+          ? emp.shifts.filter((s) => s.shift_id !== shift.id) // remove shift if unchecked
+          : [
+              ...emp.shifts,
+              {
+                shift_id: shift.id,
+                start_time: shift.start_time, // default start
+                end_time: shift.end_time,     // default end
+              },
+            ],
+      };
+    })
+  );
+};
+
+// --- Handle manual time change for a shift ---
+const handleTimeChange = (empId, shiftId, field, value) => {
+  setAttendanceData((prev) =>
+    prev.map((emp) =>
+      emp.id === empId
+        ? {
+            ...emp,
+            shifts: emp.shifts.map((s) =>
+              s.shift_id === shiftId ? { ...s, [field]: value } : s
+            ),
+          }
+        : emp
+    )
+  );
+};
+
+// --- Check if shift is selected for the header "Select All" ---
+const isHeaderShiftChecked = (shiftId) => {
+  return (
+    attendanceData.length > 0 &&
+    attendanceData.every((emp) =>
+      emp.shifts.find((s) => s.shift_id === shiftId)
+    )
+  );
+};
+
+// --- Toggle all shifts for all employees from header popup ---
+const handleHeaderShiftToggle = (shiftId) => {
+  setAttendanceData((prev) =>
+    prev.map((emp) => {
+      const exists = emp.shifts.find((s) => s.shift_id === shiftId);
+      const shiftDefault = shiftOptions.find((s) => s.id === shiftId);
+
+      return {
+        ...emp,
+        shifts: exists
+          ? emp.shifts.filter((s) => s.shift_id !== shiftId) // uncheck all
+          : [
+              ...emp.shifts,
+              { shift_id: shiftId, start_time: shiftDefault.start_time, end_time: shiftDefault.end_time },
+            ],
+      };
+    })
+  );
+};
 
 
   
@@ -391,74 +468,81 @@ const Attendance_add_details = () => {
       ),
     },
 
-    {
-      field: "shift_attendance",
-      header: (
-        <div
-          className="flex items-center gap-1 cursor-pointer"
-          onClick={() => setShowShiftPopup(true)}
-        >
-          <span>Shift Allocation</span>
-          <i
-            className={`pi pi-chevron-down text-xs transition-transform ${
-              showShiftPopup ? "rotate-180" : ""
-            }`}
-          />
-        </div>
-      ),
-      body: (rowData) => (
-        <div className=" gap-2">
-          {shiftOptions.map((shift) => (
-            <div className="flex gap-3 items-center">
-              <div>
-                <label
-                  key={shift.id}
-                  className="flex items-center gap-1 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    className="accent-green-600"
-                    checked={rowData.shifts.includes(shift.id)}
-                    onChange={() => handleShiftChange(rowData.id, shift.id)}
-                  />
-                  {shift.label}
-                </label>
-              </div>
+{
+  field: "shift_attendance",
+  header: (
+    <div
+      className="flex items-center gap-1 cursor-pointer"
+      onClick={() => setShowShiftPopup(true)}
+    >
+      <span>Shift Allocation</span>
+      <i
+        className={`pi pi-chevron-down text-xs transition-transform ${
+          showShiftPopup ? "rotate-180" : ""
+        }`}
+      />
+    </div>
+  ),
+  body: (rowData) => (
+    <div className="flex flex-col gap-2">
+      {shiftOptions.map((shift) => {
+        const selectedShift = rowData.shifts.find(
+          (s) => s.shift_id === shift.id
+        );
 
+        return (
+          <div key={shift.id} className="flex gap-3 items-center">
+            {/* Shift Checkbox */}
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="checkbox"
+                className="accent-green-600"
+                checked={!!selectedShift}
+                onChange={() => handleShiftChange(rowData.id, shift)}
+              />
+              {shift.label}
+            </label>
+
+            {/* Show time inputs only if shift is selected */}
+            {selectedShift && (
               <div className="flex gap-3">
-                {" "}
                 <input
                   type="time"
-                  className="border rounded px-1 py-0.5 text-sm"
-                  value={shift.start_time}
+                  value={selectedShift.start_time}
                   onChange={(e) =>
                     handleTimeChange(
                       rowData.id,
                       shift.id,
                       "start_time",
-                      e.target.value,
+                      e.target.value
                     )
                   }
+                  className="border rounded px-1 py-0.5 text-sm"
                 />
                 <input
                   type="time"
-                  className="border rounded px-1 py-0.5 text-sm"
-                  value={shift.end_time}
+                  value={selectedShift.end_time}
                   onChange={(e) =>
                     handleTimeChange(
                       rowData.id,
                       shift.id,
                       "end_time",
-                      e.target.value,
+                      e.target.value
                     )
                   }
+                  className="border rounded px-1 py-0.5 text-sm"
                 />
               </div>
-            </div>
-          ))}
-        </div>
-      ),
-    },
+            )}
+          </div>
+        );
+      })}
+    </div>
+  ),
+},
+
+
+    
 
     {
       field: "attendance",
@@ -827,69 +911,65 @@ px-2 py-2 md:px-6 md:py-6"
               </div>
             </div>
 
-            {showShiftPopup && (
-              <div
-                className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-                onClick={() => setShowShiftPopup(false)}
-              >
-                <div
-                  className="bg-white rounded-lg w-[400px] shadow-lg"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* HEADER */}
-                  <div className="flex justify-between items-center px-4 py-3 border-b">
-                    <h3 className="text-lg font-semibold">Shift Allocation</h3>
-                    <button
-                      className="text-gray-500 hover:text-black text-xl"
-                      onClick={() => setShowShiftPopup(false)}
-                    >
-                      ✕
-                    </button>
-                  </div>
+        {showShiftPopup && (
+  <div
+    className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+    onClick={() => setShowShiftPopup(false)}
+  >
+    <div
+      className="bg-white rounded-lg w-[400px] shadow-lg"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex justify-between items-center px-4 py-3 border-b">
+        <h3 className="text-lg font-semibold">Shift Allocation</h3>
+        <button
+          className="text-gray-500 hover:text-black text-xl"
+          onClick={() => setShowShiftPopup(false)}
+        >
+          ✕
+        </button>
+      </div>
 
-                  {/* BODY */}
-                  <div className="p-4 space-y-3">
-                    {shiftOptions.map((shift) => (
-                      <label
-                        key={shift.id}
-                        className="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50"
-                      >
-                        <div>
-                          <div className="font-medium">{shift.label}</div>
-                          <div className="text-xs text-gray-500">
-                            {formatTime(shift.start_time)} -{" "}
-                            {formatTime(shift.end_time)}
-                          </div>
-                        </div>
-
-                        <input
-                          type="checkbox"
-                          className="accent-green-600 w-4 h-4"
-                          checked={isHeaderShiftChecked(shift.id)}
-                          onChange={() => handleHeaderShiftToggle(shift.id)}
-                        />
-                      </label>
-                    ))}
-                  </div>
-
-                  {/* FOOTER */}
-                  <div className="flex justify-end gap-2 px-4 py-3 border-t">
-                    <button
-                      className="px-4 py-1 border rounded hover:bg-gray-100"
-                      onClick={() => setShowShiftPopup(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-                      onClick={() => setShowShiftPopup(false)}
-                    >
-                      Done
-                    </button>
-                  </div>
-                </div>
+      <div className="p-4 space-y-3">
+        {shiftOptions.map((shift) => (
+          <label
+            key={shift.id}
+            className="flex items-center justify-between p-2 border rounded cursor-pointer hover:bg-gray-50"
+          >
+            <div>
+              <div className="font-medium">{shift.label}</div>
+              <div className="text-xs text-gray-500">
+                {formatTime(shift.start_time)} - {formatTime(shift.end_time)}
               </div>
-            )}
+            </div>
+            <input
+              type="checkbox"
+              className="accent-green-600 w-4 h-4"
+              checked={isHeaderShiftChecked(shift.id)}
+              onChange={() => handleHeaderShiftToggle(shift.id)}
+            />
+          </label>
+        ))}
+      </div>
+
+      <div className="flex justify-end gap-2 px-4 py-3 border-t">
+        <button
+          className="px-4 py-1 border rounded hover:bg-gray-100"
+          onClick={() => setShowShiftPopup(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-4 py-1 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={() => setShowShiftPopup(false)}
+        >
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
           </div>
         </>
       )}
