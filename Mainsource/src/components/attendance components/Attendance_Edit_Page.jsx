@@ -16,6 +16,7 @@ import { formatToDDMMYYYY } from "../../Utils/dateformat";
 import { FiChevronDown } from "react-icons/fi";
 import TimeInput from "../../hooks/TimeInput ";
 import ReactTimePicker from 'react-time-picker';
+import TimeDropdown from "../../hooks/TimeInput ";
 
 
 const Attendance_Edit_Page = () => {
@@ -468,6 +469,18 @@ const Attendance_Edit_Page = () => {
     );
   };
   const [showShiftPopup, setShowShiftPopup] = useState(false);
+function generateTimeOptions() {
+  const times = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) { // 30-minute intervals
+      let hour = h % 12 === 0 ? 12 : h % 12;
+      let minute = m.toString().padStart(2, "0");
+      let ampm = h < 12 ? "AM" : "PM";
+      times.push(`${hour}:${minute} ${ampm}`);
+    }
+  }
+  return times;
+}
 
   // Columns configuration
   const columns = [
@@ -616,35 +629,63 @@ const Attendance_Edit_Page = () => {
                 </label>
 
                 {selectedShift && (
+                  // <div className="flex gap-2">
+                  //   <TimeDropdown
+                  //     type="time"
+                  //     value={selectedShift.start_time}
+                  //     onChange={(e) =>
+                  //       handleTimeChange(
+                  //         rowData.employee_id,
+                  //         shift.id,
+                  //         "start_time",
+                  //         e.target.value,
+                  //       )
+                  //     }
+                  //     className="border rounded px-1 text-sm"
+                  //   />
+                  //   <TimeDropdown
+                  //     type="time"
+                  //     value={selectedShift.end_time}
+                  //     onChange={(e) =>
+                  //       handleTimeChange(
+                  //         rowData.employee_id,
+                  //         shift.id,
+                  //         "end_time",
+                  //         e.target.value,
+                  //       )
+                  //     }
+                  //     className="border rounded px-1 text-sm"
+                  //   />
+                  // </div>
                   <div className="flex gap-2">
-                    <input
-                      type="time"
-                      value={selectedShift.start_time}
-                      onChange={(e) =>
-                        handleTimeChange(
-                          rowData.employee_id,
-                          shift.id,
-                          "start_time",
-                          e.target.value,
-                        )
-                      }
-                      className="border rounded px-1 text-sm"
-                    />
-                    <input
-                      type="time"
-                      value={selectedShift.end_time}
-                      onChange={(e) =>
-                        handleTimeChange(
-                          rowData.employee_id,
-                          shift.id,
-                          "end_time",
-                          e.target.value,
-                        )
-                      }
-                      className="border rounded px-1 text-sm"
-                    />
-                  </div>
+                  <TimeDropdown
+  value={selectedShift.start_time}
+  onChange={(val) =>
+    handleTimeChange(
+      rowData.employee_id,
+      shift.id,
+      "start_time",
+      val
+    )
+  }
+/>
+
+<TimeDropdown
+  value={selectedShift.end_time}
+  onChange={(val) =>
+    handleTimeChange(
+      rowData.employee_id,
+      shift.id,
+      "end_time",
+      val
+    )
+  }
+/>
+ </div>
                 )}
+                
+
+
               </div>
             );
           })}

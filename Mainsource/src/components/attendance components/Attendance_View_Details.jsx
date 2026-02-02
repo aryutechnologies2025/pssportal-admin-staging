@@ -13,6 +13,7 @@ import { FiSearch } from "react-icons/fi";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
 import { formatToDDMMYYYY } from "../../Utils/dateformat";
+import TimeDropdown from "../../hooks/TimeInput ";
 
 const Attendance_View_Details = () => {
   const { id } = useParams();
@@ -368,20 +369,35 @@ const Attendance_View_Details = () => {
                 </label>
 
                 {selectedShift && (
-                  <div className="flex gap-2">
-                    <input
-                      type="time"
-                      value={selectedShift.start_time}
+                  // <div className="flex gap-2">
+                  //   <input
+                  //     type="time"
+                  //     value={selectedShift.start_time}
                     
-                      className="border rounded px-1 text-sm"
-                    />
-                    <input
-                      type="time"
-                      value={selectedShift.end_time}
+                  //     className="border rounded px-1 text-sm"
+                  //   />
+                  //   <input
+                  //     type="time"
+                  //     value={selectedShift.end_time}
                   
-                      className="border rounded px-1 text-sm"
-                    />
-                  </div>
+                  //     className="border rounded px-1 text-sm"
+                  //   />
+                  // </div>
+                                  <div className="flex gap-2">
+                  <TimeDropdown
+  value={selectedShift.start_time}
+      disabled={true}
+
+
+/>
+
+<TimeDropdown
+  value={selectedShift.end_time}
+      disabled={true}
+
+
+/>
+ </div>
                 )}
               </div>
             );
