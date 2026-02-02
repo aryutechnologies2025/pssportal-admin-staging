@@ -91,14 +91,28 @@ const Attendance_View_Details = () => {
 
         console.log("response check.....: ", response);
 
-        const attendanceDetails = response?.data?.data?.details.map((emp) => ({
-          ...emp,
-          shifts:
-            emp.shifts?.map((shift) => ({
-              id: shift.id,
-              shift_name: shift.shift_name,
-            })) || [],
-        }));
+        // const attendanceDetails = response?.data?.data?.details.map((emp) => ({
+        //   ...emp,
+        //   shifts:
+        //     emp.shifts?.map((shift) => ({
+        //       id: shift.id,
+        //       shift_name: shift.shift_name,
+        //     })) || [],
+        // }));
+
+        // setAttendanceData(attendanceDetails);
+
+         const attendanceDetails =
+          response?.data?.data?.details.map((emp) => ({
+            ...emp,
+            shifts:
+              emp.shift_details?.map((sd) => ({
+                shift_id: sd.shift_id,
+                shift_name: sd.shift?.shift_name,
+                start_time: sd.start_time,
+                end_time: sd.end_time,
+              })) || [],
+          })) || [];
 
         setAttendanceData(attendanceDetails);
 
@@ -295,27 +309,81 @@ const Attendance_View_Details = () => {
       ),
     },
 
-    {
-      field: "shifts",
-      header: "Shift Allocation",
-      body: (rowData) => (
-        <div className="flex justify-center gap-3">
-          {shiftOptions.map((shift) => {
-            const checked = rowData.shifts?.some((s) => s.id === shift.id);
+    // {
+    //   field: "shifts",
+    //   header: "Shift Allocation",
+    //   body: (rowData) => (
+    //     <div className="flex justify-center gap-3">
+    //       {shiftOptions.map((shift) => {
+    //         const checked = rowData.shifts?.some((s) => s.id === shift.id);
 
+    //         return (
+    //           <label
+    //             key={shift.id}
+    //             className="flex items-center gap-2 text-sm text-gray-700"
+    //           >
+    //             <input
+    //               type="checkbox"
+    //               checked={checked}
+    //               disabled
+    //               className="accent-green-600 cursor-not-allowed"
+    //             />
+    //             {shift.shift_name}
+    //           </label>
+    //         );
+    //       })}
+    //     </div>
+    //   ),
+    // },
+
+        {
+      field: "shifts",
+      header: (
+        <div
+          className="flex items-center gap-1 cursor-pointer"
+          //  onClick={() => setShowShiftPopup(true)}
+        >
+          <span>Shift Allocation</span>
+          {/* <FiChevronDown /> */}
+        </div>
+      ),
+      body: (rowData) => (
+        <div className="flex flex-col gap-2">
+          {shiftOptions.map((shift) => {
+            const selectedShift = rowData.shifts.find(
+              (s) => s.shift_id === shift.id,
+            );
             return (
-              <label
-                key={shift.id}
-                className="flex items-center gap-2 text-sm text-gray-700"
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  disabled
-                  className="accent-green-600 cursor-not-allowed"
-                />
-                {shift.shift_name}
-              </label>
+              <div key={shift.id} className="flex items-center gap-2">
+                <label className="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    className="accent-green-600"
+                    checked={!!selectedShift}
+                    // onChange={() =>
+                    //   handleShiftChange(rowData.employee_id, shift)
+                    // }
+                  />
+                  {shift.shift_name}
+                </label>
+
+                {selectedShift && (
+                  <div className="flex gap-2">
+                    <input
+                      type="time"
+                      value={selectedShift.start_time}
+                    
+                      className="border rounded px-1 text-sm"
+                    />
+                    <input
+                      type="time"
+                      value={selectedShift.end_time}
+                  
+                      className="border rounded px-1 text-sm"
+                    />
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
