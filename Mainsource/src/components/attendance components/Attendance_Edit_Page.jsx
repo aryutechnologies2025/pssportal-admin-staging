@@ -14,6 +14,9 @@ import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
 import { formatToDDMMYYYY } from "../../Utils/dateformat";
 import { FiChevronDown } from "react-icons/fi";
+import TimeInput from "../../hooks/TimeInput ";
+import ReactTimePicker from 'react-time-picker';
+
 
 const Attendance_Edit_Page = () => {
   const { id } = useParams();
@@ -47,14 +50,28 @@ const Attendance_Edit_Page = () => {
 
         console.log("response check", response);
 
-        const attendanceDetails = response?.data?.data?.details.map((emp) => ({
-          ...emp,
-          shifts:
-            emp.shifts?.map((shift) => ({
-              id: shift.id,
-              shift_name: shift.shift_name,
-            })) || [],
-        }));
+        // const attendanceDetails = response?.data?.data?.details.map((emp) => ({
+        //   ...emp,
+        //   shifts:
+        //     emp.shifts?.map((shift) => ({
+        //       id: shift.id,
+        //       shift_name: shift.shift_name,
+        //     })) || [],
+        // }));
+
+        // setAttendanceData(attendanceDetails);
+
+        const attendanceDetails =
+          response?.data?.data?.details.map((emp) => ({
+            ...emp,
+            shifts:
+              emp.shift_details?.map((sd) => ({
+                shift_id: sd.shift_id,
+                shift_name: sd.shift?.shift_name,
+                start_time: sd.start_time,
+                end_time: sd.end_time,
+              })) || [],
+          })) || [];
 
         setAttendanceData(attendanceDetails);
 
@@ -64,6 +81,8 @@ const Attendance_Edit_Page = () => {
           allShifts.map((shift) => ({
             id: shift.id,
             shift_name: shift.shift_name,
+            start_time: shift.start_time,
+            end_time: shift.end_time,
           })),
         );
 
@@ -130,11 +149,11 @@ const Attendance_Edit_Page = () => {
   // };
 
   // Handle time change
-  const handleTimeChange = (id, field, value) => {
-    setAttendanceData((prev) =>
-      prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)),
-    );
-  };
+  // const handleTimeChange = (id, field, value) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => (emp.id === id ? { ...emp, [field]: value } : emp)),
+  //   );
+  // };
 
   // Handle notes change
   const handleNotesChange = (id, value) => {
@@ -205,23 +224,40 @@ const Attendance_Edit_Page = () => {
     try {
       setSaving(true);
 
+      // const employeesPayload = attendanceData.map((emp) => ({
+      //   employee_id: emp.employee_id,
+      //       attendance: (() => {
+      //     if (emp.attendance === "present") return 1;
+      //     if (emp.attendance === "absent") return 0;
+      //     return null;
+      //   })(),
+      //   // attendance:
+      //   //   emp.attendance === "present" || emp.attendance === 1 ? 1 : 0,
+      //   // attendance:
+      //   //   emp.attendance === "present" || emp.attendance === 1
+      //   //     ? 1
+      //   //     : emp.attendance === "absent" || emp.attendance === 0
+      //   //       ? 0
+      //   //       : null,
+
+      //   shift_id: emp.shifts.map((s) => s.id),
+      // }));
+
       const employeesPayload = attendanceData.map((emp) => ({
         employee_id: emp.employee_id,
-            attendance: (() => {
+
+        attendance: (() => {
           if (emp.attendance === "present") return 1;
           if (emp.attendance === "absent") return 0;
           return null;
         })(),
-        // attendance:
-        //   emp.attendance === "present" || emp.attendance === 1 ? 1 : 0,
-        // attendance:
-        //   emp.attendance === "present" || emp.attendance === 1
-        //     ? 1
-        //     : emp.attendance === "absent" || emp.attendance === 0
-        //       ? 0
-        //       : null,
 
-        shift_id: emp.shifts.map((s) => s.id),
+        //  SAME AS ADD
+        shift_details: emp.shifts.map((s) => ({
+          shift_id: s.shift_id,
+          start_time: s.start_time,
+          end_time: s.end_time,
+        })),
       }));
 
       const payload = {
@@ -285,23 +321,152 @@ const Attendance_Edit_Page = () => {
     );
   };
 
-  const handleShiftChange = (empId, shiftId) => {
+  // const handleShiftChange = (empId, shiftId) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => {
+  //       if (emp.id !== empId) return emp;
+
+  //       const exists = emp.shifts.some((s) => s.id === shiftId);
+
+  //       return {
+  //         ...emp,
+  //         shifts: exists
+  //           ? emp.shifts.filter((s) => s.id !== shiftId)
+  //           : [...emp.shifts, shiftOptions.find((s) => s.id === shiftId)],
+  //       };
+  //     }),
+  //   );
+  // };
+
+  //   const handleShiftChange = (empId, shift) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => {
+  //       if (emp.id !== empId) return emp;
+
+  //       const exists = emp.shifts.find(
+  //         (s) => s.shift_id === shift.id
+  //       );
+
+  //       return {
+  //         ...emp,
+  //         shifts: exists
+  //           ? emp.shifts.filter((s) => s.shift_id !== shift.id)
+  //           : [
+  //               ...emp.shifts,
+  //               {
+  //                 shift_id: shift.id,
+  //                 shift_name: shift.shift_name,
+  //                 start_time: "",
+  //                 end_time: "",
+  //               },
+  //             ],
+  //       };
+  //     })
+  //   );
+  // };
+
+  // const handleShiftChange = (employeeId, shift) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => {
+  //       if (emp.employee_id !== employeeId) return emp;
+
+  //       const exists = emp.shifts.some(
+  //         (s) => s.shift_id === shift.id
+  //       );
+
+  //       return {
+  //         ...emp,
+  //         shifts: exists
+  //           ? emp.shifts.filter(
+  //               (s) => s.shift_id !== shift.id
+  //             )
+  //           : [
+  //               ...emp.shifts,
+  //               {
+  //                 shift_id: shift.id,
+  //                 shift_name: shift.shift_name,
+  //                 start_time: "",
+  //                 end_time: "",
+  //               },
+  //             ],
+  //       };
+  //     })
+  //   );
+  // };
+
+  // const handleTimeChange = (empId, shiftId, field, value) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => {
+  //       if (emp.id !== empId) return emp;
+
+  //       return {
+  //         ...emp,
+  //         shifts: emp.shifts.map((s) =>
+  //           s.shift_id === shiftId
+  //             ? { ...s, [field]: value }
+  //             : s
+  //         ),
+  //       };
+  //     })
+  //   );
+  // };
+
+  // const handleTimeChange = (employeeId, shiftId, field, value) => {
+  //   setAttendanceData((prev) =>
+  //     prev.map((emp) => {
+  //       if (emp.employee_id !== employeeId) return emp;
+
+  //       return {
+  //         ...emp,
+  //         shifts: emp.shifts.map((s) =>
+  //           s.shift_id === shiftId
+  //             ? { ...s, [field]: value }
+  //             : s
+  //         ),
+  //       };
+  //     })
+  //   );
+  // };
+
+  const handleShiftChange = (employeeId, shift) => {
     setAttendanceData((prev) =>
       prev.map((emp) => {
-        if (emp.id !== empId) return emp;
+        if (emp.employee_id !== employeeId) return emp;
 
-        const exists = emp.shifts.some((s) => s.id === shiftId);
-
+        const exists = emp.shifts.some((s) => s.shift_id === shift.id);
         return {
           ...emp,
           shifts: exists
-            ? emp.shifts.filter((s) => s.id !== shiftId)
-            : [...emp.shifts, shiftOptions.find((s) => s.id === shiftId)],
+            ? emp.shifts.filter((s) => s.shift_id !== shift.id)
+            : [
+                ...emp.shifts,
+                {
+                  shift_id: shift.id,
+                  shift_name: shift.shift_name,
+                  start_time: shift.start_time || "",
+                  end_time: shift.end_time || "",
+                },
+              ],
         };
       }),
     );
   };
 
+  // Handle shift time change
+  const handleTimeChange = (employeeId, shiftId, field, value) => {
+    setAttendanceData((prev) =>
+      prev.map((emp) => {
+        if (emp.employee_id !== employeeId) return emp;
+
+        return {
+          ...emp,
+          shifts: emp.shifts.map((s) =>
+            s.shift_id === shiftId ? { ...s, [field]: value } : s,
+          ),
+        };
+      }),
+    );
+  };
   const [showShiftPopup, setShowShiftPopup] = useState(false);
 
   // Columns configuration
@@ -322,118 +487,170 @@ const Attendance_Edit_Page = () => {
     },
     // {
     //   field: "shifts",
-    //   header: "Shift Allocation",
-    //   body: (rowData) => (
-    //   console.log("rowdata",rowData),
-    //     <div className="flex flex-wrap justify-center gap-3">
-    //                {/* {rowData.map((shift) => ( */}
-
-    //         <label
-    //           // key={shift.id}
-    //           className="flex items-center gap-1 text-sm text-gray-600 cursor-pointer"
-    //         >
+    //   header: (
+    //     <div
+    //       className="flex items-center justify-center gap-1 cursor-pointer"
+    //       onClick={() => setShowShiftPopup(true)}
+    //     >
+    //       <span>Shift Allocation</span>
+    //       <FiChevronDown />
+    //     </div>
+    //   ),
+    //   body: (row) => (
+    //     <div className="flex gap-3 justify-center">
+    //       {shiftOptions.map((shift) => (
+    //         <label key={shift.id} className="flex gap-1 text-sm">
     //           <input
     //             type="checkbox"
-    //             className="accent-blue-600 cursor-pointer"
-    //             // checked={rowData.shifts.includes(shift.id)}
-    //             // onChange={() => handleShiftChange(rowData.id, shift.id)}
+    //             className="accent-green-600"
+    //             checked={row.shifts.some((s) => s.id === shift.id)}
+    //             onChange={() => handleShiftChange(row.id, shift.id)}
     //           />
-    //           {/* {shift.shift_name} */}
+    //           {shift.shift_name}
     //         </label>
-    //                {/* ))} */}
+    //       ))}
     //     </div>
     //   ),
     // },
 
-    //    {
+    //     {
     //   field: "shifts",
-    //   header: "Shift Allocation",
+    //   header: (
+    //     <div
+    //       className="flex items-center gap-1 cursor-pointer"
+    //       onClick={() => setShowShiftPopup(true)}
+    //     >
+    //       <span>Shift Allocation</span>
+    //       <FiChevronDown />
+    //     </div>
+    //   ),
     //   body: (rowData) => (
-    //     <div className="flex justify-center gap-3">
+    //     <div className="flex flex-col gap-2">
     //       {shiftOptions.map((shift) => {
-    //         const checked = rowData.shifts?.some(
-    //           s => s.id === shift.id
+    //         const selectedShift = rowData.shifts.find(
+    //           (s) => s.shift_id === shift.id
     //         );
 
     //         return (
-    //           <label
-    //             key={shift.id}
-    //             className="flex items-center gap-2 text-sm"
-    //           >
-    //             <input
-    //               type="checkbox"
-    //               checked={checked}
-    //               onChange={() =>
-    //                 handleShiftChange(rowData.id, shift.id)
-    //               }
-    //               className="accent-green-600"
-    //             />
-    //             {shift.shift_name}
-    //           </label>
+    //           <div key={shift.id} className="flex items-center gap-3">
+    //             {/* Checkbox */}
+    //             <label className="flex items-center gap-1 cursor-pointer">
+    //               <input
+    //                 type="checkbox"
+    //                 className="accent-green-600"
+    //                 checked={!!selectedShift}
+    //                 onChange={() =>
+    //                   handleShiftChange(rowData.id, shift)
+    //                 }
+    //               />
+    //               {shift.shift_name}
+    //             </label>
+
+    //             {/* Time edit – already saved irundhaalum kaatum */}
+    //             {selectedShift && (
+    //               <div className="flex gap-2">
+    //                 <input
+    //                   type="time"
+    //                   value={selectedShift.start_time || ""}
+    //                   onChange={(e) =>
+    //                     handleTimeChange(
+    //                       rowData.id,
+    //                       shift.id,
+    //                       "start_time",
+    //                       e.target.value
+    //                     )
+    //                   }
+    //                   className="border rounded px-1 text-sm"
+    //                 />
+    //                 <input
+    //                   type="time"
+    //                   value={selectedShift.end_time || ""}
+    //                   onChange={(e) =>
+    //                     handleTimeChange(
+    //                       rowData.id,
+    //                       shift.id,
+    //                       "end_time",
+    //                       e.target.value
+    //                     )
+    //                   }
+    //                   className="border rounded px-1 text-sm"
+    //                 />
+    //               </div>
+    //             )}
+    //           </div>
     //         );
     //       })}
     //     </div>
-    //   )
+    //   ),
     // },
 
     {
       field: "shifts",
       header: (
         <div
-          className="flex items-center justify-center gap-1 cursor-pointer"
-          onClick={() => setShowShiftPopup(true)}
+          className="flex items-center gap-1 cursor-pointer"
+          //  onClick={() => setShowShiftPopup(true)}
         >
           <span>Shift Allocation</span>
-          <FiChevronDown />
+          {/* <FiChevronDown /> */}
         </div>
       ),
-      body: (row) => (
-        <div className="flex gap-3 justify-center">
-          {shiftOptions.map((shift) => (
-            <label key={shift.id} className="flex gap-1 text-sm">
-              <input
-                type="checkbox"
-                className="accent-green-600"
-                checked={row.shifts.some((s) => s.id === shift.id)}
-                onChange={() => handleShiftChange(row.id, shift.id)}
-              />
-              {shift.shift_name}
-            </label>
-          ))}
+      body: (rowData) => (
+        <div className="flex flex-col gap-2">
+          {shiftOptions.map((shift) => {
+            const selectedShift = rowData.shifts.find(
+              (s) => s.shift_id === shift.id,
+            );
+            return (
+              <div key={shift.id} className="flex items-center gap-2">
+                <label className="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    className="accent-green-600"
+                    checked={!!selectedShift}
+                    onChange={() =>
+                      handleShiftChange(rowData.employee_id, shift)
+                    }
+                  />
+                  {shift.shift_name}
+                </label>
+
+                {selectedShift && (
+                  <div className="flex gap-2">
+                    <input
+                      type="time"
+                      value={selectedShift.start_time}
+                      onChange={(e) =>
+                        handleTimeChange(
+                          rowData.employee_id,
+                          shift.id,
+                          "start_time",
+                          e.target.value,
+                        )
+                      }
+                      className="border rounded px-1 text-sm"
+                    />
+                    <input
+                      type="time"
+                      value={selectedShift.end_time}
+                      onChange={(e) =>
+                        handleTimeChange(
+                          rowData.employee_id,
+                          shift.id,
+                          "end_time",
+                          e.target.value,
+                        )
+                      }
+                      className="border rounded px-1 text-sm"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ),
     },
-
-    // {
-    //   field: "attendance",
-    //   header: "Attendance",
-    //   body: (rowData) => (
-    //     <div className="flex flex-col gap-2">
-    //       <div className="flex gap-4">
-    //         <label className="flex items-center gap-2">
-    //           <input
-    //             type="radio"
-    //             name={`attend-${rowData.id}`}
-    //             checked={rowData.attendance === "present"}
-    //             onChange={() => handleAttendanceChange(rowData.id, "present")}
-    //             className="w-4 h-4 accent-blue-600"
-    //           />
-    //           <span className="text-sm">Present</span>
-    //         </label>
-    //         <label className="flex items-center gap-2">
-    //           <input
-    //             type="radio"
-    //             name={`attend-${rowData.id}`}
-    //             checked={rowData.attendance === "absent"}
-    //             onChange={() => handleAttendanceChange(rowData.id, "absent")}
-    //             className="w-4 h-4 accent-red-600"
-    //           />
-    //           <span className="text-sm">Absent</span>
-    //         </label>
-    //       </div>
-    //     </div>
-    //   ),
-    // },
 
     {
       field: "attendance",
@@ -801,61 +1018,104 @@ const Attendance_Edit_Page = () => {
               </DataTable>
             </div>
 
+            {/* Shift Allocation Popup */}
             {showShiftPopup && (
               <div
                 className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-                onClick={() => setShowShiftPopup(false)}
+                onClick={() => setShowShiftPopup(false)} // Close when clicking outside
               >
                 <div
-                  className="bg-white w-[400px] rounded-lg shadow-lg"
-                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white w-[90%] max-w-[600px] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[80vh]"
+                  onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                 >
-                  <div className="p-4 border-b flex justify-between">
-                    <h3 className="font-semibold">Shift Allocation</h3>
-                    <button onClick={() => setShowShiftPopup(false)}>✕</button>
+                  {/* Header */}
+                  <div className="flex justify-between items-center border-b pb-2 mb-4">
+                    <h3 className="text-lg font-semibold">Shift Allocation</h3>
+                    <button
+                      onClick={() => setShowShiftPopup(false)}
+                      className="text-gray-500 hover:text-gray-700 font-bold text-xl"
+                    >
+                      ✕
+                    </button>
                   </div>
 
-                  <div className="p-4 space-y-2">
-                    {shiftOptions.map((shift) => (
-                      <label
-                        key={shift.id}
-                        className="flex justify-between items-center border p-2 rounded"
+                  {/* Shift List */}
+                  <div className="space-y-3">
+                    {attendanceData.map((emp) => (
+                      <div
+                        key={emp.employee_id}
+                        className="border p-3 rounded-md bg-gray-50 space-y-2"
                       >
-                        <span>{shift.shift_name}</span>
-                        <input
-                          type="checkbox"
-                          className="accent-green-600"
-                          checked={attendanceData.every((emp) =>
-                            emp.shifts.some((s) => s.id === shift.id),
-                          )}
-                          onChange={() =>
-                            setAttendanceData((prev) =>
-                              prev.map((emp) => {
-                                const exists = emp.shifts.some(
-                                  (s) => s.id === shift.id,
-                                );
-                                return {
-                                  ...emp,
-                                  shifts: exists
-                                    ? emp.shifts.filter(
-                                        (s) => s.id !== shift.id,
-                                      )
-                                    : [...emp.shifts, shift],
-                                };
-                              }),
-                            )
-                          }
-                        />
-                      </label>
+                        <p className="font-medium">
+                          {emp.contract_employee?.name}
+                        </p>
+                        <div className="space-y-1">
+                          {shiftOptions.map((shift) => {
+                            const assignedShift = emp.shifts.find(
+                              (s) => s.shift_id === shift.id,
+                            );
+                            return (
+                              <div
+                                key={shift.id}
+                                className="flex items-center justify-between gap-2"
+                              >
+                                <label className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    className="accent-green-600"
+                                    checked={!!assignedShift}
+                                    onChange={() =>
+                                      handleShiftChange(emp.employee_id, shift)
+                                    }
+                                  />
+                                  {shift.shift_name}
+                                </label>
+
+                                {assignedShift && (
+                                  <div className="flex gap-2">
+                                    <input
+                                      type="time"
+                                      value={assignedShift.start_time || ""}
+                                      onChange={(e) =>
+                                        handleTimeChange(
+                                          emp.employee_id,
+                                          shift.id,
+                                          "start_time",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="border rounded px-1 text-sm"
+                                    />
+                                    <input
+                                      type="time"
+                                      value={assignedShift.end_time || ""}
+                                      onChange={(e) =>
+                                        handleTimeChange(
+                                          emp.employee_id,
+                                          shift.id,
+                                          "end_time",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="border rounded px-1 text-sm"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     ))}
                   </div>
 
-                  <div className="p-3 border-t flex justify-end">
+                  {/* Footer Buttons */}
+                  <div className="flex justify-end gap-3 mt-4">
                     <button
-                      className="bg-green-600 text-white px-4 py-1 rounded"
                       onClick={() => setShowShiftPopup(false)}
+                      className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-100"
                     >
-                      Done
+                      Close
                     </button>
                   </div>
                 </div>

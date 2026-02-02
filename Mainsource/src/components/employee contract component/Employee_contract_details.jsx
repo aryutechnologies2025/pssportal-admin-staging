@@ -36,10 +36,10 @@ const Employee_contract_details = () => {
   //navigation
   const navigate = useNavigate();
   const [editData, setEditData] = useState(null);
-  console.log("editData", editData);
+  // console.log("editData", editData);
   const [columnData, setColumnData] = useState([]);
 
-  console.log("columnData", columnData);
+  // console.log("columnData", columnData);
   const [error, setError] = useState(null);
   const [employeesList, setEmployeesList] = useState([]);
   const [backendValidationError, setBackendValidationError] = useState(null);
@@ -1310,11 +1310,11 @@ const Employee_contract_details = () => {
 
 const fetchLogs = async () => {
   try {
-    const response = await axiosInstance.get(
+    const response = await axiosInstance.post(
       `${API_URL}api/contract-employee/emp-rejoing-list/`,{
-        params: {
+      
           employee_id: editempid
-        }
+        
       }
     );
 
