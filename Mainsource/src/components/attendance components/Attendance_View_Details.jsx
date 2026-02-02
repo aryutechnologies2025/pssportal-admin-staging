@@ -306,6 +306,9 @@ const Attendance_View_Details = () => {
       body: (rowData) => (
         <div>
           <p className="font-medium">{rowData?.contract_employee?.name}</p>
+           <p className="text-xs text-gray-500">
+            {rowData?.contract_employee?.employee_id}
+          </p>
         </div>
       ),
     },
