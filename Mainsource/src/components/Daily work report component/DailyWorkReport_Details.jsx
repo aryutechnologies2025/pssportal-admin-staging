@@ -94,10 +94,10 @@ const DailyWorkReport_Details = () => {
         // }
 
         if (filters.employee_id) {
-    filtered = filtered.filter(
-        item => item.employee?.id === Number(filters.employee_id)
-    );
-}
+            filtered = filtered.filter(
+                item => item.employee?.id === Number(filters.employee_id)
+            );
+        }
 
 
         setWorkReports(filtered);
@@ -347,12 +347,11 @@ const DailyWorkReport_Details = () => {
                         </div>
 
                         {/* Filter Section */}
-                        <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
+                        <div className="hidden md:block w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
 
                             <div className="flex flex-wrap items-end gap-4">
-
                                 {/* Start Date */}
-                                <div className="flex flex-col gap-1">
+                                <div className="flex flex-col gap-1 w-[50%] md:w-[20%]">
                                     <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
                                     <input
                                         type="date"
@@ -365,7 +364,7 @@ const DailyWorkReport_Details = () => {
                                 </div>
 
                                 {/* End Date */}
-                                <div className="flex flex-col gap-1">
+                                <div className="flex flex-col gap-1 w-[50%] md:w-[20%]">
                                     <label className="text-sm font-medium text-[#6B7280]">End Date</label>
                                     <input
                                         type="date"
@@ -384,7 +383,7 @@ const DailyWorkReport_Details = () => {
                                         value={filters.employee_id}
                                         options={employees}
                                         optionLabel="full_name"
-                                        optionValue="id"   
+                                        optionValue="id"
                                         placeholder="Select Employee"
                                         className="h-10 w-48 border"
                                         filter
@@ -404,6 +403,88 @@ const DailyWorkReport_Details = () => {
 
                                 {/* Buttons */}
                                 <div className="flex gap-3 mt-6 md:mt-0">
+                                    <button
+                                        onClick={applyFilters}
+                                        className="h-10 w-20 rounded-lg bg-[#1ea600] hover:bg-[#23880c] text-white"
+                                    >
+                                        Apply
+                                    </button>
+
+
+                                    <button
+                                        onClick={() => {
+                                            setFilters({
+                                                from_date: "",
+                                                to_date: "",
+                                                employee_id: ""
+                                            });
+                                            setWorkReports(allWorkReports);
+                                            setTotalRecords(allWorkReports.length);
+                                            setGlobalFilter("");
+                                        }}
+                                        className="h-10 w-20 border rounded-lg  hover:bg-[#c7c7c7] text-black"
+                                    >
+                                        Reset
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+                        {/* filter section mobile view  */}
+                        <div className="block md:hidden w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
+
+                            <div className="flex flex-wrap items-end gap-4">
+                                <div className="flex w-full gap-1">
+                                    {/* Start Date */}
+                                    <div className="flex flex-col gap-1 w-[50%] md:w-[20%]">
+                                        <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
+                                        <input
+                                            type="date"
+                                            className="border h-10 px-3 rounded-md"
+                                            value={filters.from_date}
+                                            onChange={(e) =>
+                                                setFilters(prev => ({ ...prev, from_date: e.target.value }))
+                                            }
+                                        />
+                                    </div>
+
+                                    {/* End Date */}
+                                    <div className="flex flex-col gap-1 w-[50%] md:w-[20%]">
+                                        <label className="text-sm font-medium text-[#6B7280]">End Date</label>
+                                        <input
+                                            type="date"
+                                            className="border h-10 px-3 rounded-md"
+                                            value={filters.to_date}
+                                            onChange={(e) =>
+                                                setFilters(prev => ({ ...prev, to_date: e.target.value }))
+                                            }
+                                        />
+
+                                    </div>
+                                </div>
+                                {/* employee (pss-emp) */}
+                                <div className="flex flex-col w-full gap-1">
+                                    <label className="text-sm font-medium text-[#6B7280]">Employee</label>
+                                    <Dropdown
+                                        value={filters.employee_id}
+                                        options={employees}
+                                        optionLabel="full_name"
+                                        optionValue="id"
+                                        placeholder="Select Employee"
+                                        className="h-10 w-full md:w-48 border"
+                                        filter
+                                        onChange={(e) =>
+                                            setFilters(prev => ({
+                                                ...prev,
+                                                employee_id: e.value
+                                            }))
+                                        }
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex gap-3 mt-2 md:mt-0">
                                     <button
                                         onClick={applyFilters}
                                         className="h-10 w-20 rounded-lg bg-[#1ea600] hover:bg-[#23880c] text-white"
@@ -533,13 +614,13 @@ px-2 py-2 md:px-6 md:py-6">
                                         <IoIosArrowForward className="w-3 h-3" />
                                     </div>
 
-                                    <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
+                                    <div className="px-5 lg:px-14 py-5 md:py-10 text-[#4A4A4A] font-medium">
                                         <p className="text-xl md:text-2xl">Edit Daily Work </p>
 
 
 
                                         {/* Date */}
-                                        <div className="mt-6 flex flex-col md:flex-row md:items-center gap-2">
+                                        <div className="mt-2 md:mt-6 flex flex-col md:flex-row md:items-center gap-2">
                                             <label className="md:w-32 text-md font-medium">
                                                 Date <span className="text-red-500">*</span>
                                             </label>
@@ -556,7 +637,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         </div>
 
                                         {/* Report */}
-                                        <div className="mt-6 flex flex-col md:flex-row md:items-start gap-2">
+                                        <div className="mt-2 md:mt-6 flex flex-col md:flex-row md:items-start gap-2">
                                             <label className="md:w-32 text-md font-medium pt-2">
                                                 Report<span className="text-red-500">*</span>
                                             </label>
@@ -572,7 +653,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         </div>
 
                                         {/* Buttons */}
-                                        <div className="flex justify-end gap-2 mt-10">
+                                        <div className="flex justify-end gap-2 mt-4 md:mt-10">
                                             <button
                                                 onClick={closeEditModal}
                                                 className="border border-[#7C7C7C] text-[#7C7C7C]
