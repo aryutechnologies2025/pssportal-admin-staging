@@ -46,6 +46,12 @@ const ContractCandidates_Mainbar = () => {
   const [educationOptions, setEducationOptions] = useState([]);
   const [selectedEducation, setSelectedEducation] = useState(null);
 
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [companyOptions, setCompanyOptions] = useState([]);
+  console.log("companyOptions : ", companyOptions);
+  
+
+
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
 
   const userId = user?.id;
@@ -55,6 +61,13 @@ const ContractCandidates_Mainbar = () => {
     const edu = educationOptions.find(e => e.value === educationId);
     return edu ? edu.label : "-";
   };
+
+const getCompanyName = (companyId) => {
+
+  const company = companyOptions.find(com => com.value === companyId);
+  return company ? company.label : "-";
+};
+
 
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];
@@ -85,7 +98,15 @@ const ContractCandidates_Mainbar = () => {
       interviewStatus: z.string().min(1, "Interview status is required"),
       // candidateStatus: z.string().optional(),
       reference: z.string().optional(),
-education: z.string().nullable().optional(),
+// education: z.string().nullable().optional(),
+
+education: z
+        .number({
+          required_error: "Education is required",
+          invalid_type_error: "Education is required",
+        })
+        .int()
+        .positive("Education is required"),
        
 
       // Make these optional in base schema, they'll be conditionally required
@@ -226,10 +247,12 @@ education: z.string().nullable().optional(),
   });
   const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
-  console.log("filterCandidateStatus", filterCandidateStatus)
+  // console.log("filterCandidateStatus", filterCandidateStatus)
   const [selectedReference, setSelectedReference] = useState("");
   const [selectedReferenceForm, setSelectedReferenceForm] = useState("");
   const [filterEducation, setFilterEducation] = useState("");
+
+   const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
 
   // Table states
   // const [page, setPage] = useState(1);
@@ -365,8 +388,7 @@ education: z.string().nullable().optional(),
   };
 
   const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [companyOptions, setCompanyOptions] = useState([]);
+  
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -961,6 +983,10 @@ if (isSubmitting) return;
       header: "Education",
       body: (row) => getEducationName(row.education_id),
     },
+    {
+      header: "Company",
+      body: (row) => getCompanyName(row.company_id),
+    },
     
     // {
     //   header: "Interview Status",
@@ -1112,6 +1138,8 @@ if (isSubmitting) return;
       //   documents: data.documents,
       //   documents_length: data.documents?.length
       // });
+
+      
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
@@ -1257,6 +1285,7 @@ if (isSubmitting) return;
 
 
     } catch (error) {
+      console.log("errors:", error);
       const res = error?.response?.data;
 
   if (res?.existing_id) {
@@ -1480,7 +1509,25 @@ if (isSubmitting) return;
                     />
                   </div>
 
+{/* company */}
 
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Company
+                    </label>
+
+                    <div className="w-[60%] md:w-[100%]">
+                      <Dropdown
+                        value={selectedCompanyfilter}
+                        onChange={(e) => setSelectedCompanyfilter(e.value)}
+                        options={companyOptions}
+                        optionLabel="label"
+                        placeholder="Select Company"
+                        filter
+                        className="w-full border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
 
 
                   {/* Buttons */}

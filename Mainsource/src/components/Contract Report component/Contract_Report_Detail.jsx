@@ -258,7 +258,7 @@ const Contract_Report_Detail = () => {
             header: "Count",
             body: (rowData) => (
                 <div className="">
-                    <p className="">{rowData.total_employees}</p>
+                    <p className="">{rowData.count}</p>
 
                 </div>
             ),
@@ -391,7 +391,7 @@ const Contract_Report_Detail = () => {
             setLoading(true); // start loader
 
             const res = await axiosInstance.get(
-                `${API_URL}api/dashboard`,
+                `${API_URL}api/contract-dashboard`,
                 {
                     params: {
                         start_date: fromDate,
@@ -404,7 +404,7 @@ const Contract_Report_Detail = () => {
             console.log("API Response:", res.data);
 
             if (res.data.success) {
-                setDashboardData(res.data || []);
+                setDashboardData(res.data.data || []);
             } else {
                 console.error(res.data.message);
                 // toast.error(res.data.message || "Failed to fetch status list");
@@ -429,7 +429,7 @@ const Contract_Report_Detail = () => {
         try {
             setLoading(true);
 
-            const res = await axiosInstance.get(`${API_URL}api/dashboard`, {
+            const res = await axiosInstance.get(`${API_URL}api/contract-dashboard`, {
                 params: {
                     start_date: formattedDate,
                     end_date: formattedDate,
@@ -439,7 +439,7 @@ const Contract_Report_Detail = () => {
             console.log("API Response:", res.data);
 
             if (res.data.success) {
-                setDashboardData(res.data || []);
+                setDashboardData(res.data.data || []);
             } else {
                 console.error(res.data.message);
             }
@@ -543,7 +543,7 @@ const Contract_Report_Detail = () => {
                                 </div>
                                 <div className="h-[300px] overflow-auto">
                                     <DataTable
-                                        value={staticInterviewCandidates}
+                                        value={dashboardData?.interviews}
 
                                         showGridlines
                                         responsiveLayout="scroll"
@@ -577,7 +577,7 @@ const Contract_Report_Detail = () => {
                                 </div>
                                 <div className="h-[300px] overflow-auto">
                                     <DataTable
-                                        value={staticCandidateJoining}
+                                        value={dashboardData?.joining}
 
                                         showGridlines
                                         responsiveLayout="scroll"
@@ -609,7 +609,7 @@ const Contract_Report_Detail = () => {
                                 </div>
                                 <div className="h-[300px] overflow-auto">
                                     <DataTable
-                                        value={staticCandidateRelieved}
+                                        value={dashboardData?.relieved}
 
                                         showGridlines
                                         responsiveLayout="scroll"
