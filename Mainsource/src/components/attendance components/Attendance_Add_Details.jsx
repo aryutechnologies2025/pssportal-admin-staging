@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../Loader";
 import { FiSearch } from "react-icons/fi";
 import { FiChevronDown } from "react-icons/fi";
+import TimeDropdown from "../../hooks/TimeInput .jsx";
 
 const Attendance_add_details = () => {
   const navigate = useNavigate();
@@ -505,34 +506,60 @@ const handleHeaderShiftToggle = (shiftId) => {
 
             {/* Show time inputs only if shift is selected */}
             {selectedShift && (
-              <div className="flex gap-3">
-                <input
-                  type="time"
-                  value={selectedShift.start_time}
-                  onChange={(e) =>
-                    handleTimeChange(
-                      rowData.id,
-                      shift.id,
-                      "start_time",
-                      e.target.value
-                    )
-                  }
-                  className="border rounded px-1 py-0.5 text-sm"
-                />
-                <input
-                  type="time"
-                  value={selectedShift.end_time}
-                  onChange={(e) =>
-                    handleTimeChange(
-                      rowData.id,
-                      shift.id,
-                      "end_time",
-                      e.target.value
-                    )
-                  }
-                  className="border rounded px-1 py-0.5 text-sm"
-                />
-              </div>
+              // <div className="flex gap-3">
+              //   <input
+              //     type="time"
+              //     value={selectedShift.start_time}
+              //     onChange={(e) =>
+              //       handleTimeChange(
+              //         rowData.id,
+              //         shift.id,
+              //         "start_time",
+              //         e.target.value
+              //       )
+              //     }
+              //     className="border rounded px-1 py-0.5 text-sm"
+              //   />
+              //   <input
+              //     type="time"
+              //     value={selectedShift.end_time}
+              //     onChange={(e) =>
+              //       handleTimeChange(
+              //         rowData.id,
+              //         shift.id,
+              //         "end_time",
+              //         e.target.value
+              //       )
+              //     }
+              //     className="border rounded px-1 py-0.5 text-sm"
+              //   />
+              // </div>
+
+                               <div className="flex gap-2">
+                                <TimeDropdown
+                value={selectedShift.start_time}
+                onChange={(val) =>
+                  handleTimeChange(
+                    rowData.employee_id,
+                    shift.id,
+                    "start_time",
+                    val
+                  )
+                }
+              />
+              
+              <TimeDropdown
+                value={selectedShift.end_time}
+                onChange={(val) =>
+                  handleTimeChange(
+                    rowData.employee_id,
+                    shift.id,
+                    "end_time",
+                    val
+                  )
+                }
+              />
+               </div>
             )}
           </div>
         );
