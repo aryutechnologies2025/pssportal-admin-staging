@@ -99,6 +99,18 @@ const DailyWorkReport_Details = () => {
   });
   const [showDetails, setShowDetails] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+  
+    const onRowsChange = (value) => {
+      setRows(value);
+      setPage(1); // Reset to first page when changing rows per page
+    };
+  
 
   // Fetch attendance report
   // const fetchDailyAttendanceReport = async () => {
@@ -357,17 +369,17 @@ const DailyWorkReport_Details = () => {
               </p>
               <p>{">"}</p>
               <p className="text-sm  md:text-md  text-[#1ea600]">
-                Daily Work Report
+                Attendance
               </p>
             </div>
 
             {/* Filter Section */}
-            <div className="w-full  mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
+            <div className="w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
               <div className="flex flex-col md:flex-row items-center justify-between ">
-                <div className="flex flex-wrap  items-end gap-4">
-                  <p className="text-xl md:text-3xl font-semibold  ">
+                <div className="flex flex-wrap items-end gap-4">
+                  <span className="mb-3 text-xl md:text-3xl font-semibold  ">
                     Attendance
-                  </p>
+                  </span>
                   {/* <DatePicker
                     selected={selectedDate}
                     onChange={(date) => setSelectedDate(date)}
@@ -382,11 +394,17 @@ const DailyWorkReport_Details = () => {
                   <input
                     type="date"
                     value={selectedDate}
-                    className="w-full md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
+                    className="w-40 md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
                     onChange={(e) => setSelectedDate(e.target.value)}
                   />
+                  {/* <button
+                    onClick={onClickMonthlyDetails}
+                    className="md:hidden px-4 py-2 rounded-lg text-white bg-[#1ea600] hover:bg-[#23880c]"
+                  >
+                    Monthly Details
+                  </button> */}
                 </div>
-                <div className="">
+                <div className="hidden md:block">
                   <button
                     onClick={onClickMonthlyDetails}
                     className="px-4 py-2 rounded-lg text-white bg-[#1ea600] hover:bg-[#23880c]"
@@ -394,7 +412,16 @@ const DailyWorkReport_Details = () => {
                     Monthly Details
                   </button>
                 </div>
-              </div>
+                 </div>
+                <div className="md:hidden flex justify-end mt-3 ">
+                  <button
+                    onClick={onClickMonthlyDetails}
+                    className="px-4 py-2 rounded-lg text-white bg-[#1ea600] hover:bg-[#23880c]"
+                  >
+                    Monthly Details
+                  </button>
+                </div>
+             
             </div>
 
             {/* Cards */}
@@ -442,7 +469,7 @@ const DailyWorkReport_Details = () => {
             </div>
 
             {/* MOBILE — Combined Absent + WFH Card */}
-            <div className="flex md:hidden flex-row justify-between items-center gap-2 bg-white px-5 py-3 rounded-xl mt-5">
+            <div className="flex md:hidden flex-row justify-between items-center gap-2 bg-white px-5 py-5 rounded-xl mt-2 md:mt-5">
               <div className="flex flex-1 gap-2 justify-center cursor-pointer">
                 <p className="text-xl font-bold text-green-500">
                   {attendanceCount?.present}
@@ -479,7 +506,7 @@ px-2 py-2 md:px-6 md:py-6"
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -545,6 +572,8 @@ px-2 py-2 md:px-6 md:py-6"
                     dataKey="id"
                     paginator
                     rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     showGridlines
                     filters={filters}
                     filterDisplay="menu"

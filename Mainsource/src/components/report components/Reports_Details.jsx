@@ -34,6 +34,17 @@ function Reports_Details() {
   const [data, setData] = useState([]);
   console.log("data", data)
   const [page, setPage] = useState(1);
+   const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
   const limit = 10;
   const [rows, setRows] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -64,7 +75,7 @@ function Reports_Details() {
   //     global: { value: null, matchMode: "contains" },
   //   });
 
-  //   fetchAttendanceReport();
+  //   fetchAttendanceReport(); 
   // };
 
   const handleReset = () => {
@@ -115,6 +126,7 @@ function Reports_Details() {
 
       const formattedData = response.data.data.map((item, index) => ({
         id: index + 1,
+        employee_id: item.employee_id,
         employee_name: item.employee_name,
         date: item.date,
         status: item.status,
@@ -157,6 +169,7 @@ function Reports_Details() {
     const rows = data.map((item, index) => [
       index + 1,
       `"${item.employee_name}"`,
+      `"${item.employee_id}"`,
       `"${item.date}"`,
       item.status,
       item.login_time,
@@ -188,7 +201,17 @@ function Reports_Details() {
     },
     {
       header: "EMPLOYEE",
-      field: "employee_name",
+      body: (row) => {
+        const name = row.employee_name || "-";
+        const id = row.employee_id || "-";
+        console.log("check id",id)
+        return (
+          <div>
+            <div>{name}</div>
+            <div style={{  fontSize: "14px", color: "#6b7280"  }}>{id}</div>
+          </div>
+        );
+      },
     },
     {
       header: "DATE",
@@ -257,7 +280,7 @@ function Reports_Details() {
                 className="text-xs md:text-sm text-gray-500 cursor-pointer"
                 onClick={() => navigate("/pssdailyattendance")}
               >
-                Daily Attendance
+                Attendance
               </p>
               <p>{">"}</p>
               <p className="text-sm text-[#1ea600]">Reports</p>
@@ -321,20 +344,20 @@ function Reports_Details() {
                   <span className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.total_working_days}</span>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                {/* <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Late Login</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.lateLogin}</p>
-                </div>
+                </div> */}
 
                 <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Present Days</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.present_days}</p>
                 </div>
 
-                <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
+                {/* <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Last Thon & Hours</p>
                   <p className="text-xl md:text-2xl font-bold text-[#7C7C7C]">{summary.lateThonHours}</p>
-                </div>
+                </div> */}
 
                 <div className="flex gap-2 justify-center items-center bg-white p-4 rounded-lg shadow-sm border">
                   <p className="text-sm md:text-base text-[#4A4A4A]">Absent Days</p>
@@ -357,7 +380,7 @@ function Reports_Details() {
                     <Dropdown
                       value={rows}
                       options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
 
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
@@ -404,6 +427,8 @@ function Reports_Details() {
                 dataKey="id"
                 paginator
                 rows={rows}
+                first={(page - 1) * rows}
+                onPage={onPageChange}
                 showGridlines
                 filters={filters}
                 filterDisplay="menu"
