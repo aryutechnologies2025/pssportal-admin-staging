@@ -39,9 +39,9 @@ const Pss_Company_Details = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [pssCompany, setPssCompany] = useState([]);
-  
+
   const [loading, setLoading] = useState(true);
-  
+
   const [address, setAddress] = useState("");
 
   // Fetch roles from the API
@@ -64,7 +64,7 @@ const Pss_Company_Details = () => {
   const [company_Name, setCompany_Name] = useState("");
   const [status, setStatus] = useState("");
   const [errors, setErrors] = useState({});
-  
+
 
 
   //local storage 
@@ -83,8 +83,8 @@ const Pss_Company_Details = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewContact, setViewContact] = useState(null);
-const [page, setPage] = useState(1);
-    const onPageChange = (e) => {
+  const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
     setPage(e.page + 1); // PrimeReact is 0-based
     setRows(e.rows);
 
@@ -97,40 +97,40 @@ const [page, setPage] = useState(1);
 
 
 
-const openViewModal = async (row) => {
-  const response = await axiosInstance.get(
-    `${API_URL}api/pss-company/edit/${row.id}`
-  );
+  const openViewModal = async (row) => {
+    const response = await axiosInstance.get(
+      `${API_URL}api/pss-company/edit/${row.id}`
+    );
 
-  if (response.data?.status) {
-    setViewContact(response.data.data);
-    setViewModalOpen(true);
-  }
-};
+    if (response.data?.status) {
+      setViewContact(response.data.data);
+      setViewModalOpen(true);
+    }
+  };
 
   const fetchPssCompanies = async () => {
     try {
       const response = await axiosInstance.get(
         `${API_URL}api/pss-company`
-    );
+      );
 
-    //   console.log("...CompanyFetching All.... : ", response.data);
+      //   console.log("...CompanyFetching All.... : ", response.data);
 
       if (response.data.success === true) {
         // company
         setPssCompany(response.data.data || []);
         setTotalRecords(response.data.data.length || 0);
 
-     
+
       } else {
         setPssCompany([]);
-        
+
         setTotalRecords(0);
       }
     } catch (err) {
       console.error("Failed To Fetch Roles", err);
       setPssCompany([]);
-     
+
       setTotalRecords(0);
     } finally {
       setLoading(false);
@@ -164,31 +164,31 @@ const openViewModal = async (row) => {
   });
 
 
- 
-   const openEditModal = async (row) => {
 
-    try{
-          setEditingCompanyId(row.id);
-    setIsEditModalOpen(true);
-    setIsAnimating(true);
+  const openEditModal = async (row) => {
 
-    const response = await axiosInstance.get(
-      `${API_URL}api/pss-company/edit/${row.id}`
-    );
+    try {
+      setEditingCompanyId(row.id);
+      setIsEditModalOpen(true);
+      setIsAnimating(true);
 
-    if (response.data?.status === true) {
-      const data = response.data.data;
+      const response = await axiosInstance.get(
+        `${API_URL}api/pss-company/edit/${row.id}`
+      );
 
-       setCompanyDetails({
-      company_name: row.name || "",
-      address: row.address || "",
-      status: row.status || "1",
-    });
-    }
-    else{
-      toast.error("Failed To Load Company Details"); 
-    }
-  }catch(err){
+      if (response.data?.status === true) {
+        const data = response.data.data;
+
+        setCompanyDetails({
+          company_name: row.name || "",
+          address: row.address || "",
+          status: row.status || "1",
+        });
+      }
+      else {
+        toast.error("Failed To Load Company Details");
+      }
+    } catch (err) {
       console.error("Edit fetch error:", err);
       toast.error("Unable To Fetch Company Details");
     }
@@ -198,18 +198,18 @@ const openViewModal = async (row) => {
   const closeEditModal = () => {
     setIsAnimating(false);
     setEditingCompanyId(null);
-    setCompanyDetails({ company_name: "",address: "", status: "" });
+    setCompanyDetails({ company_name: "", address: "", status: "" });
     setErrors({});
     setTimeout(() => setIsEditModalOpen(false), 250);
   };
 
 
   const isDuplicateCompany = (name) => {
-  return pssCompany.some(
-    (company) =>
-      company.name?.trim().toLowerCase() === name.trim().toLowerCase()
-  );
-};
+    return pssCompany.some(
+      (company) =>
+        company.name?.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+  };
 
 
   const validateCreateForm = () => {
@@ -217,11 +217,11 @@ const openViewModal = async (row) => {
 
     const trimmedName = company_Name?.trim();
 
-     if (!trimmedName) {
-    newErrors.company_Name = ["Company Name Is Required"];
-  } else if (isDuplicateCompany(trimmedName)) {
-    newErrors.company_Name = ["Company Name Already Exists"];
-  }
+    if (!trimmedName) {
+      newErrors.company_Name = ["Company Name Is Required"];
+    } else if (isDuplicateCompany(trimmedName)) {
+      newErrors.company_Name = ["Company Name Already Exists"];
+    }
 
 
     if (!address || address.trim() === "") {
@@ -237,34 +237,34 @@ const openViewModal = async (row) => {
   };
 
   const isDuplicateCompanyEdit = (name) => {
-  return pssCompany.some(
-    (company) =>
-      company.id !== editingCompanyId &&
-      company.name?.trim().toLowerCase() === name.trim().toLowerCase()
-  );
-};
+    return pssCompany.some(
+      (company) =>
+        company.id !== editingCompanyId &&
+        company.name?.trim().toLowerCase() === name.trim().toLowerCase()
+    );
+  };
 
-const validateEditForm = () => {
-  let newErrors = {};
+  const validateEditForm = () => {
+    let newErrors = {};
 
-  const trimmedName = companyDetails.company_name?.trim();
- if (!trimmedName) {
-    newErrors.company_name = ["Company Name Is Required"];
-  } else if (isDuplicateCompanyEdit(trimmedName)) {
-    newErrors.company_name = ["Company Name Already Exists"];
-  }
+    const trimmedName = companyDetails.company_name?.trim();
+    if (!trimmedName) {
+      newErrors.company_name = ["Company Name Is Required"];
+    } else if (isDuplicateCompanyEdit(trimmedName)) {
+      newErrors.company_name = ["Company Name Already Exists"];
+    }
 
-  if (!companyDetails.address?.trim()) {
-    newErrors.address = ["Address Is Required"];
-  }
+    if (!companyDetails.address?.trim()) {
+      newErrors.address = ["Address Is Required"];
+    }
 
-  if (companyDetails.status === "" || companyDetails.status === null) {
-    newErrors.status = ["Status Is Required"];
-  }
+    if (companyDetails.status === "" || companyDetails.status === null) {
+      newErrors.status = ["Status Is Required"];
+    }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
 
 
@@ -284,7 +284,7 @@ const validateEditForm = () => {
 
     try {
       const formdata = {
-        name:company_Name.trim(),
+        name: company_Name.trim(),
         address,
         status,
         created_by: userid,
@@ -295,7 +295,7 @@ const validateEditForm = () => {
         formdata
       );
 
-        console.log("Create Company Response:", response);
+      console.log("Create Company Response:", response);
 
       if (response.data.status === true || response.data.success === true) {
         toast.success("Company Created Successfully");
@@ -321,31 +321,31 @@ const validateEditForm = () => {
       return;
     }
 
-   
+
 
     try {
       const response = await axiosInstance.post(
         `${API_URL}api/pss-company/update/${editingCompanyId}`,
-         {
-        name: companyDetails.company_name,
-        address: companyDetails.address,
-        status: companyDetails.status,
-        updated_by: userid,
-      }
+        {
+          name: companyDetails.company_name,
+          address: companyDetails.address,
+          status: companyDetails.status,
+          updated_by: userid,
+        }
       );
 
-      if ( response.data.success === true || response.data.status === true) {
+      if (response.data.success === true || response.data.status === true) {
         toast.success("Company Updated Successfully");
         closeEditModal();
         fetchPssCompanies();
       } else {
-        toast.error(response.data.message ||"Failed To Update Company");
-        
+        toast.error(response.data.message || "Failed To Update Company");
+
       }
     } catch (err) {
-        
+
       toast.error("Error Updating Company");
-      
+
     }
   };
 
@@ -362,18 +362,18 @@ const validateEditForm = () => {
     setErrors(newErrors);
   };
 
-    // Validate Address dynamically
-   const validateAddress = (value) => {
-  const newErrors = { ...errors };
+  // Validate Address dynamically
+  const validateAddress = (value) => {
+    const newErrors = { ...errors };
 
-  if (!value?.trim()) {
-    newErrors.address = ["Address Is Required"];
-  } else {
-    delete newErrors.address;
-  }
+    if (!value?.trim()) {
+      newErrors.address = ["Address Is Required"];
+    } else {
+      delete newErrors.address;
+    }
 
-  setErrors(newErrors);
-};
+    setErrors(newErrors);
+  };
 
 
   // Validate Status dynamically
@@ -389,14 +389,14 @@ const validateEditForm = () => {
 
 
   const deleteCompany = async (companyId) => {
- 
+
 
     if (!companyId) {
-    toast.error("Company ID Missing");
-    return;
-  }
+      toast.error("Company ID Missing");
+      return;
+    }
 
-   const result =  await Swal.fire({
+    const result = await Swal.fire({
       title: "Are You Sure?",
       text: "Do You Want To Delete This Company?",
       icon: "warning",
@@ -405,53 +405,53 @@ const validateEditForm = () => {
       cancelButtonText: "Cancel",
       confirmButtonText: "Yes, Delete It!",
 
-    
-   }).then(async (result) => {
-    if (result.isConfirmed) {
-        
-      try {
-        const response = await axiosInstance.delete(
-          `${API_URL}api/pss-company/delete`,{
-          data: {
-            record_id: companyId
-          }
-        })
-        // console.log("Delete Response 👉", response);
-        if (response.data.success === true || response.data.status === true) {
-          toast.success("Company Has Been Deleted");
-          fetchPssCompanies();
-        } else {
-          toast.error(response.data.message || "Delete Failed");
-        }
-      } catch (err) {
-        toast.error("Failed To Delete Company");
-        // console.log("error....:...",err)
-      }
-    }
-  });
-};
 
-const dummyCompanies = [
-  {
-    id: 1,
-    company_name: "Foxconn Honhai Technology India Pvt Ltd",
-    address: "Sriperumbudur, Chennai, Tamil Nadu",
-    status: 1,
-  },
-  {
-    id: 2,
-    company_name: "ABC Technology Solutions",
-    address: "Whitefield, Bengaluru, Karnataka",
-    status: 0,
-  },
-  {
-    id: 3,
-    company_name: "NextGen Automation Pvt Ltd",
-    address: "Hinjewadi Phase 2, Pune, Maharashtra",
-    status: 1,
-  },
-  
-];
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+
+        try {
+          const response = await axiosInstance.delete(
+            `${API_URL}api/pss-company/delete`, {
+            data: {
+              record_id: companyId
+            }
+          })
+          // console.log("Delete Response 👉", response);
+          if (response.data.success === true || response.data.status === true) {
+            toast.success("Company Has Been Deleted");
+            fetchPssCompanies();
+          } else {
+            toast.error(response.data.message || "Delete Failed");
+          }
+        } catch (err) {
+          toast.error("Failed To Delete Company");
+          // console.log("error....:...",err)
+        }
+      }
+    });
+  };
+
+  const dummyCompanies = [
+    {
+      id: 1,
+      company_name: "Foxconn Honhai Technology India Pvt Ltd",
+      address: "Sriperumbudur, Chennai, Tamil Nadu",
+      status: 1,
+    },
+    {
+      id: 2,
+      company_name: "ABC Technology Solutions",
+      address: "Whitefield, Bengaluru, Karnataka",
+      status: 0,
+    },
+    {
+      id: 3,
+      company_name: "NextGen Automation Pvt Ltd",
+      address: "Hinjewadi Phase 2, Pune, Maharashtra",
+      status: 1,
+    },
+
+  ];
 
 
   const columns = [
@@ -464,14 +464,14 @@ const dummyCompanies = [
     {
       header: "Company Name",
       field: "name",
-  
+
       style: { textAlign: "center", fontWeight: "medium" },
     },
     {
-        header: "Address",
-        field: "address",
-       
-        style: { textAlign: "center", fontWeight: "medium" },
+      header: "Address",
+      field: "address",
+
+      style: { textAlign: "center", fontWeight: "medium" },
     },
     // {
     //   header: "Department",
@@ -511,26 +511,26 @@ const dummyCompanies = [
             <FaEye />
           </button>
 
-<button
-onClick={() => {
+          <button
+            onClick={() => {
 
               openEditModal(row);
 
             }}
             className="text-[#1d6bf2] p-2 rounded-[10px] bg-[#f0f6ff] border cursor-pointer hover:scale-110 transition"
             title="Edit">
-<TfiPencilAlt/>
-</button>
-          
-<button onClick={() => {
-    
-    deleteCompany(row?.id);
-  }}
-           className="text-[#db2525] bg-[#fff0f0] p-2 rounded-[10px] border cursor-pointer hover:scale-110 transition"
+            <TfiPencilAlt />
+          </button>
+
+          <button onClick={() => {
+
+            deleteCompany(row?.id);
+          }}
+            className="text-[#db2525] bg-[#fff0f0] p-2 rounded-[10px] border cursor-pointer hover:scale-110 transition"
             title="Delete">
-<RiDeleteBin6Line/>
-</button>
-          
+            <RiDeleteBin6Line />
+          </button>
+
         </div>
       ),
       style: { textAlign: "center", fontWeight: "medium" },
@@ -539,7 +539,7 @@ onClick={() => {
 
   ];
 
-//   console.log("columns", columns)
+  //   console.log("columns", columns)
 
 
   let navigate = useNavigate();
@@ -581,7 +581,7 @@ onClick={() => {
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
 px-2 py-2 md:px-6 md:py-6">
-              <div className="datatable-container mt-4">
+              <div className="datatable-container md:mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
@@ -624,7 +624,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                     <button
                       onClick={openAddModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-[12px] md:text-base font-medium w-20  md:w-fit rounded-lg transition-all duration-200"
                     >
                       Add Company
                     </button>
@@ -632,12 +632,12 @@ px-2 py-2 md:px-6 md:py-6">
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
-                    className="mt-8"
+                    className="mt-2 md:mt-8"
                     value={pssCompany}
                     paginator
                     rows={rows}
                     first={(page - 1) * rows}
-                    
+
                     onPage={onPageChange}
                     totalRecords={totalRecords}
                     rowsPerPageOptions={[10, 25, 50, 100]}
@@ -675,7 +675,7 @@ px-2 py-2 md:px-6 md:py-6">
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
+                  <div className="px-5 lg:px-14  py-5 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl ">Add Company</p>
 
                     {/* <div className="mt-2 md:mt-8 flex justify-between items-center">
@@ -759,8 +759,8 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     </div>
 
-{/* Address */}
-                                        <div className="mt-2 md:mt-8 flex justify-between items-center">
+                    {/* Address */}
+                    <div className="mt-2 md:mt-8 flex justify-between items-center">
                       <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
                         Address <span className="text-red-500">*</span>
                       </label>
@@ -833,10 +833,10 @@ px-2 py-2 md:px-6 md:py-6">
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
+                  <div className="px-5 lg:px-14 py-5 md:py-10 text-[#4A4A4A] font-semibold">
                     <p className="text-xl md:text-2xl ">Edit Company</p>
 
-                    <div className="mt-10">
+                    <div className=" md:mt-10">
                       <div className="bg-white rounded-xl w-full">
                         {/* <div className="mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2">
@@ -873,7 +873,7 @@ px-2 py-2 md:px-6 md:py-6">
                           </div>
                         </div> */}
 
-                        <div className="mt-8 flex justify-between items-center">
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Company Name <span className="text-red-500">*</span>
                           </label>
@@ -897,34 +897,34 @@ px-2 py-2 md:px-6 md:py-6">
                           </div>
                         </div>
 
-{/* address */}
- <div className="mt-2 md:mt-8 flex justify-between items-center">
-                      <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
-                        Address <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          id="address"
-                          name="address"
-                          value={companyDetails.address}
-                          placeholder="Enter Address"
-                          onChange={(e) => {
-    setCompanyDetails({
-      ...companyDetails,
-      address: e.target.value,
-    });
-    validateAddress(e.target.value);
-  }}
-                          className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                        />
-                        {errors.address && (
-                          <p className="text-red-500 text-sm mb-4 mt-1">{errors.address[0]}</p>
-                        )}
-                      </div>
-                    </div>
+                        {/* address */}
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
+                          <label htmlFor="roleName" className="block text-md font-medium mb-2 mt-3">
+                            Address <span className="text-red-500">*</span>
+                          </label>
+                          <div className="w-[50%]">
+                            <input
+                              type="text"
+                              id="address"
+                              name="address"
+                              value={companyDetails.address}
+                              placeholder="Enter Address"
+                              onChange={(e) => {
+                                setCompanyDetails({
+                                  ...companyDetails,
+                                  address: e.target.value,
+                                });
+                                validateAddress(e.target.value);
+                              }}
+                              className="w-full px-3 py-2 border border-[#D9D9D9] placeholder:text-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            />
+                            {errors.address && (
+                              <p className="text-red-500 text-sm mb-4 mt-1">{errors.address[0]}</p>
+                            )}
+                          </div>
+                        </div>
 
-{/* status */}
+                        {/* status */}
                         <div className="mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Status <span className="text-red-500">*</span>
@@ -986,44 +986,44 @@ px-2 py-2 md:px-6 md:py-6">
                     Company Details
                   </h2>
 
-                 <div className="space-y-4 text-sm">
+                  <div className="space-y-4 text-sm">
 
-  <div className="flex gap-4">
-    <span className="w-32 font-medium text-gray-700">
-      Company Name
-    </span>
-    <span className="flex-1 text-gray-600 break-words">
-      {viewContact.name || "-"}
-    </span>
-  </div>
+                    <div className="flex gap-4">
+                      <span className="w-32 font-medium text-gray-700">
+                        Company Name
+                      </span>
+                      <span className="flex-1 text-gray-600 break-words">
+                        {viewContact.name || "-"}
+                      </span>
+                    </div>
 
-  <div className="flex gap-4">
-    <span className="w-32 font-medium text-gray-700">
-      Address
-    </span>
-    <span className="flex-1 text-gray-600 break-words leading-relaxed">
-      {viewContact.address || "-"}
-    </span>
-  </div>
+                    <div className="flex gap-4">
+                      <span className="w-32 font-medium text-gray-700">
+                        Address
+                      </span>
+                      <span className="flex-1 text-gray-600 break-words leading-relaxed">
+                        {viewContact.address || "-"}
+                      </span>
+                    </div>
 
-  <div className="flex gap-4 items-center">
-    <span className="w-32 font-medium text-gray-700">
-      Status
-    </span>
-    <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold
+                    <div className="flex gap-4 items-center">
+                      <span className="w-32 font-medium text-gray-700">
+                        Status
+                      </span>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold
         ${viewContact.status === "0" || viewContact.status === 0
-          ? "bg-red-100 text-red-600"
-          : "bg-green-100 text-green-600"
-        }`}
-    >
-      {viewContact.status === "0" || viewContact.status === 0
-        ? "Inactive"
-        : "Active"}
-    </span>
-  </div>
+                            ? "bg-red-100 text-red-600"
+                            : "bg-green-100 text-green-600"
+                          }`}
+                      >
+                        {viewContact.status === "0" || viewContact.status === 0
+                          ? "Inactive"
+                          : "Active"}
+                      </span>
+                    </div>
 
-</div>
+                  </div>
 
                 </div>
               </div>

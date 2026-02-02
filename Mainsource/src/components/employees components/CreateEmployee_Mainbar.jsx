@@ -225,7 +225,7 @@ const CreateEmployee_Mainbar = () => {
         setBranches(branchesData);
         // setTotalRecords(response.data.data.length);
 
-         // If editing, set the selected branch
+        // If editing, set the selected branch
         if (editEmployeeData?.branch_id) {
           const branch = branchesData.find(b => b.id === String(editEmployeeData.branch_id));
           setSelectedBranch(branch || null);
@@ -264,7 +264,7 @@ const CreateEmployee_Mainbar = () => {
     fetchBranches();
   }, []);
 
-    const [selectedRole, setSelectedRole] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
 
   useEffect(() => {
@@ -388,15 +388,15 @@ const CreateEmployee_Mainbar = () => {
           v => v.document_type === opt
         );
 
-         if (editEmployeeData.role_id) {
-        const role = roles.find(r => String(r.id) === String(editEmployeeData.role_id));
-        setSelectedRole(role || null);
-      }
-      
-      if (editEmployeeData.branch_id) {
-        const branch = branches.find(b => String(b.id) === String(editEmployeeData.branch_id));
-        setSelectedBranch(branch || null);
-      }
+        if (editEmployeeData.role_id) {
+          const role = roles.find(r => String(r.id) === String(editEmployeeData.role_id));
+          setSelectedRole(role || null);
+        }
+
+        if (editEmployeeData.branch_id) {
+          const branch = branches.find(b => String(b.id) === String(editEmployeeData.branch_id));
+          setSelectedBranch(branch || null);
+        }
 
         return {
           type: opt,
@@ -1023,7 +1023,7 @@ const CreateEmployee_Mainbar = () => {
         </div>
 
         <div>
-          <div className="flex flex-col sm:flex-row justify-between mt-5">
+          <div className="flex flex-col sm:flex-row justify-between mt-2 md:mt-5">
             <p className="text-xl md:text-3xl font-semibold ">
               {editEmployeeData ? "Edit" : "Create"}  Employee
             </p>
@@ -1034,12 +1034,12 @@ const CreateEmployee_Mainbar = () => {
 
                 <button
                   onClick={onClickCreateEmployeeCancelButton}
-                  className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                  className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-2 md:px-5 py-2 font-semibold rounded-[10px] transition-all duration-200"
                 >
                   Cancel
                 </button>
                 <button type="button" onClick={handleSubmit(handleSave, handleError)}
-                  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200">
+                  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-2 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200">
                   Save
                 </button>
               </div>
@@ -1056,7 +1056,7 @@ const CreateEmployee_Mainbar = () => {
           <div className="flex flex-col  lg:flex-row gap-3 my-5">
             {/* leftside bar */}
             <div className="basis-[50vw] flex-grow flex flex-col gap-3 ">
-              <div className="rounded-2xl border-2 border-gray-200 bg-white  py-4 px-4 lg:px-6">
+              <div className="rounded-2xl border-2 border-gray-200 bg-white py-2 md:py-4 px-4 lg:px-6">
                 <div className="flex items-center justify-between flex-wrap">
                   <p className="text-xl font-semibold">Basic Information</p>
                   <div className="flex flex-col items-end">
@@ -1168,7 +1168,7 @@ const CreateEmployee_Mainbar = () => {
                     </div>
                   </div> */}
 
-<div className="flex flex-col xl:flex-row justify-between gap-1">
+                  <div className="flex flex-col xl:flex-row justify-between gap-1">
                     <div className="flex flex-col w-full sm:w-auto">
                       <label
                         className="font-medium text-sm"
@@ -1179,18 +1179,18 @@ const CreateEmployee_Mainbar = () => {
                     </div>
                     <div className="w-full lg:w-72">
                       <Dropdown
-                       value={watch("role_id")}
-  options={roles}
-  optionLabel="role_name"
-  optionValue="id"
-  // Convert number id to string here
-  onChange={(e) => setValue("role_id", String(e.value), { shouldValidate: true })}
-  placeholder="Select A Role"
-  filter
+                        value={watch("role_id")}
+                        options={roles}
+                        optionLabel="role_name"
+                        optionValue="id"
+                        // Convert number id to string here
+                        onChange={(e) => setValue("role_id", String(e.value), { shouldValidate: true })}
+                        placeholder="Select A Role"
+                        filter
                         className={`border-2 rounded-xl ps-4 h-10 w-full outline-none ${errors.role_id?.message ? "border-red-500" : "border-gray-300"}`}
                       />
-                        
-                     
+
+
                       <span className="text-red-500 text-sm">{errors.role_id?.message}</span>
                     </div>
                   </div>
@@ -1220,7 +1220,7 @@ const CreateEmployee_Mainbar = () => {
                     </div>
                   </div> */}
 
-  <div className="flex flex-col xl:flex-row justify-between gap-1">
+                  <div className="flex flex-col xl:flex-row justify-between gap-1">
                     <div className="flex flex-col w-full sm:w-auto">
                       <label
                         className="font-medium text-sm"
@@ -1231,17 +1231,17 @@ const CreateEmployee_Mainbar = () => {
                     </div>
                     <div className="w-full lg:w-72">
                       <Dropdown
-                       value={watch("branch_id")}
-          options={branches}
-          optionLabel="branch_name" 
-    optionValue="id"
-          onChange={(e) => setValue("branch_id", String(e.value), { shouldValidate: true })}
-          placeholder="Select A Branch"
-          filter
-                        
+                        value={watch("branch_id")}
+                        options={branches}
+                        optionLabel="branch_name"
+                        optionValue="id"
+                        onChange={(e) => setValue("branch_id", String(e.value), { shouldValidate: true })}
+                        placeholder="Select A Branch"
+                        filter
+
                         className={`border-2 rounded-xl ps-4 h-10 w-full outline-none ${errors.branch_id?.message ? "border-red-500" : "border-gray-300"}`}
                       />
-                      
+
                       <span className="text-red-500 text-sm">{errors.branch_id?.message}</span>
                     </div>
                   </div>
@@ -1776,19 +1776,19 @@ const CreateEmployee_Mainbar = () => {
                     <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                       <label className="font-medium text-sm">Relation</label>
                       <div className="">
-                       <Dropdown
-  value={item.relation || null}
-  options={relationOptions}
-  optionLabel="label"
-  optionValue="value"
-  placeholder="Select Relation"
-  filter               
-  // showClear
-  className="w-full lg:w-72 h-10 border-2 rounded-xl"
-  onChange={(e) =>
-    updateEmergencyContact(index, "relation", e.value)
-  }
-/>
+                        <Dropdown
+                          value={item.relation || null}
+                          options={relationOptions}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Relation"
+                          filter
+                          // showClear
+                          className="w-full lg:w-72 h-10 border-2 rounded-xl"
+                          onChange={(e) =>
+                            updateEmergencyContact(index, "relation", e.value)
+                          }
+                        />
 
                         {errors.emergencyContacts ? errors.emergencyContacts[index]?.relation && <p className="text-red-500 text-sm mt-1">{errors.emergencyContacts[index]?.relation.message}</p> : ""}
                       </div>
@@ -1826,7 +1826,7 @@ const CreateEmployee_Mainbar = () => {
 
               {/* education info */}
               <div className="rounded-2xl border-2 border-gray-200 bg-white px-5 lg:px-3 py-4">
-                <p className="text-xl font-semibold">Education Info</p>
+                <p className="text-md md:text-xl font-semibold">Education Info</p>
 
                 {errors.education && (
                   <div className="mt-2">
@@ -1837,7 +1837,7 @@ const CreateEmployee_Mainbar = () => {
                 )}
 
                 {/* List Education Info */}
-                <div className="mt-5">
+                <div className="mt-2 md:mt-5">
                   {educationList.map((info, index) => (
                     <div key={index} className="flex justify-between">
                       <div className="px-2 flex flex-col">
@@ -2338,7 +2338,7 @@ const CreateEmployee_Mainbar = () => {
             ></div>
 
             <div
-              className={`fixed top-0 right-0 h-screen overflow-y-scroll w-[90vw] md:w-[70vw] bg-white shadow-lg px-5 md:px-16 py-10 transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+              className={`fixed top-0 right-0 h-screen overflow-y-scroll w-[90vw] md:w-[70vw] bg-white shadow-lg px-5 md:px-16 py-5 md:py-10 transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
                 }`}
             >
               <div
@@ -2350,8 +2350,8 @@ const CreateEmployee_Mainbar = () => {
               </div>
 
               <div className="flex flex-wrap flex-col md:flex-row justify-between">
-                <p className="text-3xl font-medium mt-8">Education Info</p>
-                <div className="flex justify-end gap-5 mt-8">
+                <p className="text-3xl font-medium mt-2 md:mt-8">Education Info</p>
+                <div className="flex justify-end gap-5 mt-4 md:mt-8">
                   <button
                     onClick={closeAddEducationInfoModal}
                     className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
@@ -2367,7 +2367,7 @@ const CreateEmployee_Mainbar = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 mt-8">
+              <div className="flex flex-col gap-3 mt-4 md:mt-8">
                 {/* School Name */}
                 <div className="flex flex-col lg:flex-row gap-1 justify-between">
                   <div className="flex flex-col">
@@ -2465,7 +2465,7 @@ const CreateEmployee_Mainbar = () => {
               onClick={closeAddWorkExperienceModal}
             ></div>
             <div
-              className={`fixed top-0 right-0 h-full overflow-y-scroll w-screen sm:w-[90vw] md:w-[70vw] bg-white shadow-lg px-5 md:px-16 py-10 transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+              className={`fixed top-0 right-0 h-full overflow-y-scroll w-screen sm:w-[90vw] md:w-[70vw] bg-white shadow-lg px-5 md:px-16 py-5 md:py-10 transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
                 }`}
             >
               <div
@@ -2477,8 +2477,8 @@ const CreateEmployee_Mainbar = () => {
               </div>
 
               <div className="flex flex-col md:flex-row justify-between ">
-                <p className="text-3xl font-medium mt-8">Experience</p>
-                <div className="flex gap-5 justify-end mt-8">
+                <p className="text-3xl font-medium mt-2 md:mt-8">Experience</p>
+                <div className="flex gap-5 justify-end mt-4 md:mt-8">
                   <button
                     onClick={closeAddWorkExperienceModal}
                     className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
@@ -2495,7 +2495,7 @@ const CreateEmployee_Mainbar = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 mt-8">
+              <div className="flex flex-col gap-3 mt-2 md:mt-8">
                 <div className="flex flex-col lg:flex-row gap-1 justify-between">
                   <div className="flex flex-col ">
                     <label className="font-medium text-sm" htmlFor="jobTitle">
@@ -2607,14 +2607,14 @@ const CreateEmployee_Mainbar = () => {
                     </label>
 
                   </div>
-                  <div className="flex gap-3  w-full md:w-96">
-                    <div className="w-[50%]">
+                  <div className="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-96">
+                    <div className="w-full md:w-[50%]">
                       <input
                         {...experienceForm.register("from_date")}
                         type="date"
                         id="startWork"
                         placeholder="Start work"
-                        className="border-2  rounded-xl px-3 h-10 text-gray-400  border-gray-300 outline-none"
+                        className="border-2 w-full rounded-xl px-3 h-10 text-gray-400  border-gray-300 outline-none"
                       />
                       {experienceForm.formState.errors.from_date && (
                         <p className="text-red-500 text-sm">
@@ -2622,13 +2622,13 @@ const CreateEmployee_Mainbar = () => {
                         </p>
                       )}
                     </div>
-                    <div className="w-[50%]">
+                    <div className="w-full md:w-[50%]">
                       <input
                         {...experienceForm.register("to_date")}
                         type="date"
                         id="endWork"
                         placeholder="End work"
-                        className="border-2 rounded-xl px-3 h-10 text-gray-400 border-gray-300 outline-none"
+                        className="border-2 w-full rounded-xl px-3 h-10 text-gray-400 border-gray-300 outline-none"
                       />
                       {experienceForm.formState.errors.to_date && (
                         <p className="text-red-500 text-sm">
@@ -2762,7 +2762,7 @@ const CreateEmployee_Mainbar = () => {
             ></div>
 
             <div
-              className={`fixed top-0 right-0 h-full  overflow-y-scroll w-[90vw] md:w-[70vw] bg-white  px-5 md:px-16 py-10 transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+              className={`fixed top-0 right-0 h-full  overflow-y-scroll w-[90vw] md:w-[70vw] bg-white  px-5 md:px-16 py-5 md:py-10 transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
                 }`}
             >
               <div
@@ -2772,9 +2772,9 @@ const CreateEmployee_Mainbar = () => {
               >
                 <IoIosArrowForward className="w-3 h-3" />
               </div>
-              <div className="flex justify-between items-center">
-                <p className="text-3xl font-medium mt-8">Documents</p>
-                <div className="flex gap-3 mt-8">
+              <div className="flex flex-wrap md:flex-nowrap justify-between items-center">
+                <p className="text-3xl font-medium mt-2 md:mt-8">Documents</p>
+                <div className="flex text-right gap-3 mt-2 md:mt-8">
                   <button
                     onClick={closeAddEmployeeDocumentsModal}
                     className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"

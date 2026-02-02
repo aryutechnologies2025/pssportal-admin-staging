@@ -40,8 +40,19 @@ const Roles_Mainbar = () => {
   const [loading, setLoading] = useState(true);
   const [departments, setDepartments] = useState([]);
   const [department, setDepartment] = useState("");
- const [pssCompany, setPssCompany] = useState(null); // selected value
-const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
+  const [pssCompany, setPssCompany] = useState(null); // selected value
+  const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
+  const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
 
   // Fetch roles from the API
 
@@ -93,19 +104,19 @@ const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
   const [totalRecords, setTotalRecords] = useState(0);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewContact, setViewContact] = useState(null);
-  console.log("viewMessage",viewContact)
+  console.log("viewMessage", viewContact)
 
 
-const openViewModal = async (row) => {
-  const response = await axiosInstance.get(
-    `${API_URL}api/role/edit/${row.id}`
-  );
+  const openViewModal = async (row) => {
+    const response = await axiosInstance.get(
+      `${API_URL}api/role/edit/${row.id}`
+    );
 
-  if (response.data?.status) {
-    setViewContact(response.data.data);
-    setViewModalOpen(true);
-  }
-};
+    if (response.data?.status) {
+      setViewContact(response.data.data);
+      setViewModalOpen(true);
+    }
+  };
 
 
   const fetchRoles = async () => {
@@ -125,13 +136,13 @@ const openViewModal = async (row) => {
         );
 
         setDepartments(activeDepartments);
-          //  set pss company options
-      const pssCompanyOptions = response.data.psscompany.map((company) => ({
-        label: company.name,
-        value: company.id,
-      }));
+        //  set pss company options
+        const pssCompanyOptions = response.data.psscompany.map((company) => ({
+          label: company.name,
+          value: company.id,
+        }));
 
-      setPssCompanyOptions(pssCompanyOptions);
+        setPssCompanyOptions(pssCompanyOptions);
       } else {
         setRoles([]);
         setPssCompanyOptions([]);
@@ -182,43 +193,43 @@ const openViewModal = async (row) => {
   const openEditModal = async (row) => {
 
 
-    try{
-          setEditingRoleId(row.id);
-    setIsEditModalOpen(true);
-    setIsAnimating(true);
+    try {
+      setEditingRoleId(row.id);
+      setIsEditModalOpen(true);
+      setIsAnimating(true);
 
-    const response = await axiosInstance.get(
-      `${API_URL}api/role/edit/${row.id}`
-    );
+      const response = await axiosInstance.get(
+        `${API_URL}api/role/edit/${row.id}`
+      );
 
-    console.log("openEditModal response", response.data);
+      console.log("openEditModal response", response.data);
 
-    if (response.data?.status === true) {
-      const data = response.data.data;
+      if (response.data?.status === true) {
+        const data = response.data.data;
 
-          console.log(
-  "Edit dept value:",
-  roleDetails.department_id,
-  typeof roleDetails.department_id
-);
+        console.log(
+          "Edit dept value:",
+          roleDetails.department_id,
+          typeof roleDetails.department_id
+        );
 
-    //    setRoleDetails({
-    //   role_name: row.role_name,
-    // department_id: row.department_id?.toString(),
-    // company_id: row.company_id, 
-    // status: row.status?.toString(),
-    // });
-    setRoleDetails({
-    role_name: data.role_name,
-    department_id: Number(data.department_id), // ✅ force number
-    company_id: data.company_id,
-    status: Number(data.status),
-  });
-    }
-    else{
-      toast.error("Failed to load role details"); 
-    }
-  }catch(err){
+        //    setRoleDetails({
+        //   role_name: row.role_name,
+        // department_id: row.department_id?.toString(),
+        // company_id: row.company_id, 
+        // status: row.status?.toString(),
+        // });
+        setRoleDetails({
+          role_name: data.role_name,
+          department_id: Number(data.department_id), // ✅ force number
+          company_id: data.company_id,
+          status: Number(data.status),
+        });
+      }
+      else {
+        toast.error("Failed to load role details");
+      }
+    } catch (err) {
       console.error("Edit fetch error:", err);
       toast.error("Unable to fetch role details");
     }
@@ -232,7 +243,7 @@ const openViewModal = async (row) => {
   const closeEditModal = () => {
     setIsAnimating(false);
     setEditingRoleId(null);
-    setRoleDetails({ role_name: "", status: "", department_id: "" , pssCompany: ""});
+    setRoleDetails({ role_name: "", status: "", department_id: "", pssCompany: "" });
     setErrors({});
     setTimeout(() => setIsEditModalOpen(false), 250);
   };
@@ -339,13 +350,13 @@ const openViewModal = async (row) => {
     try {
       const response = await axiosInstance.post(
         `${API_URL}api/role/update/${editingRoleId}`,
-         {
-      role_name: roleDetails.role_name,
-      department_id: roleDetails.department_id,
-      company_id: roleDetails.company_id, 
-      status: roleDetails.status,
-      updated_by: userid,
-    }
+        {
+          role_name: roleDetails.role_name,
+          department_id: roleDetails.department_id,
+          company_id: roleDetails.company_id,
+          status: roleDetails.status,
+          updated_by: userid,
+        }
       );
 
       if (response.data.status || response.data.success) {
@@ -367,16 +378,16 @@ const openViewModal = async (row) => {
   const validateRoleName = (value) => {
     const newErrors = { ...errors };
     if (!value || value.trim() === "") {
-    newErrors.role_name = ["Role name is required"];
-  } else if (value.length > MAX_ROLE_NAME_LENGTH) {
-    newErrors.role_name = [
-      `Role name cannot exceed ${MAX_ROLE_NAME_LENGTH} characters`
-    ];
-  } else {
-    delete newErrors.role_name;
-  }
+      newErrors.role_name = ["Role name is required"];
+    } else if (value.length > MAX_ROLE_NAME_LENGTH) {
+      newErrors.role_name = [
+        `Role name cannot exceed ${MAX_ROLE_NAME_LENGTH} characters`
+      ];
+    } else {
+      delete newErrors.role_name;
+    }
 
-  setErrors(newErrors);
+    setErrors(newErrors);
   };
 
   // Validate Status dynamically
@@ -521,9 +532,9 @@ const openViewModal = async (row) => {
   // console.log("columns", columns)
 
   const departmentOptions = departments.map((dept) => ({
-  label: dept.name || dept.department_name,
-  value: dept.id || dept._id.toString(),
-}));
+    label: dept.name || dept.department_name,
+    value: dept.id || dept._id.toString(),
+  }));
 
 
   let navigate = useNavigate();
@@ -542,14 +553,14 @@ const openViewModal = async (row) => {
             <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
               {/* <ToastContainer position="top-right" autoClose={3000} /> */}
 
-              {/* <p className="text-sm text-gray-500  cursor-pointer" onClick={() => navigate("/dashboard")}>
+              <p className="text-sm text-gray-500  cursor-pointer" onClick={() => navigate("/dashboard")}>
                 Dashboard
               </p>
-              <p>{">"}</p> */}
-              <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/employees")}>
+              <p>{">"}</p>
+              {/* <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/employees")}>
                 Employee
               </p>
-              <p>{">"}</p>
+              <p>{">"}</p> */}
               <p className="text-sm  md:text-md  text-[#1ea600]">Roles</p>
             </div>
 
@@ -565,7 +576,7 @@ const openViewModal = async (row) => {
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
 px-2 py-2 md:px-6 md:py-6">
-              <div className="datatable-container mt-4">
+              <div className="datatable-container md:mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
@@ -580,7 +591,7 @@ px-2 py-2 md:px-6 md:py-6">
                     <Dropdown
                       value={rows}
                       options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
@@ -607,7 +618,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                     <button
                       onClick={openAddModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
                     >
                       Add Role
                     </button>
@@ -615,10 +626,12 @@ px-2 py-2 md:px-6 md:py-6">
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
-                    className="mt-8"
+                    className="mt-2 md:mt-8"
                     value={roles}
                     paginator
                     rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     totalRecords={totalRecords}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
@@ -655,37 +668,37 @@ px-2 py-2 md:px-6 md:py-6">
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
+                  <div className="px-5 lg:px-14  py-5 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl ">Add Role</p>
 
-                          {/* Pss company */}
+                    {/* Pss company */}
 
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
+                      <label className="block text-md font-medium mb-2">
+                        Pss Company <span className="text-red-500">*</span>
+                      </label>
 
-  <div className="w-[50%]">
-    <Dropdown
-      value={pssCompany}
-      options={pssCompanyOptions}
-      onChange={(e) => {
-        setPssCompany(e.value);
-        validatePssCompany(e.value);
-      }}
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
+                      <div className="w-[50%]">
+                        <Dropdown
+                          value={pssCompany}
+                          options={pssCompanyOptions}
+                          onChange={(e) => {
+                            setPssCompany(e.value);
+                            validatePssCompany(e.value);
+                          }}
+                          placeholder="Select Pss Company"
+                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          // showClear
+                          filter
+                        />
 
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany[0]}
-      </p>
-    )}
-  </div>
-</div>
+                        {errors.pssCompany && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.pssCompany[0]}
+                          </p>
+                        )}
+                      </div>
+                    </div>
 
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
@@ -701,12 +714,12 @@ px-2 py-2 md:px-6 md:py-6">
                             setDepartment(e.value);
                             validateDepartment(e.value);
                           }}
-                           options={departmentOptions}
-                            placeholder="Select Department"
-                            filter
+                          options={departmentOptions}
+                          placeholder="Select Department"
+                          filter
                         />
-                          
-                        
+
+
 
                         {errors.department && (
                           <p className="text-red-500 text-sm mt-1">
@@ -793,76 +806,76 @@ px-2 py-2 md:px-6 md:py-6">
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
+                  <div className="px-5 lg:px-14 py-5 md:py-10 text-[#4A4A4A] font-semibold">
                     <p className="text-xl md:text-2xl ">Edit Role</p>
 
-    {/* Pss company */}
+                    {/* Pss company */}
 
                     <div className="mt-2 md:mt-8 flex justify-between items-center">
-  <label className="block text-md font-medium mb-2">
-    Pss Company <span className="text-red-500">*</span>
-  </label>
+                      <label className="block text-md font-medium mb-2">
+                        Pss Company <span className="text-red-500">*</span>
+                      </label>
 
-  <div className="w-[50%]">
-    <Dropdown
-       value={roleDetails.company_id}
-      options={pssCompanyOptions}
-      onChange={(e) => {
-        setRoleDetails({
-          ...roleDetails,
-         company_id: e.value,
-        });
-        validatePssCompany(e.value);
-      }}
-     
-      placeholder="Select Pss Company"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
+                      <div className="w-[50%]">
+                        <Dropdown
+                          value={roleDetails.company_id}
+                          options={pssCompanyOptions}
+                          onChange={(e) => {
+                            setRoleDetails({
+                              ...roleDetails,
+                              company_id: e.value,
+                            });
+                            validatePssCompany(e.value);
+                          }}
 
-    {errors.pssCompany && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.pssCompany[0]}
-      </p>
-    )}
-  </div>
-</div>
+                          placeholder="Select Pss Company"
+                          className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          // showClear
+                          filter
+                        />
 
-                    <div className="mt-10">
+                        {errors.pssCompany && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.pssCompany[0]}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="md:mt-10">
                       <div className="bg-white rounded-xl w-full">
-                        <div className="mt-8 flex justify-between items-center">
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2">
                             Department <span className="text-red-500">*</span>
                           </label>
 
-                        <div className="w-[50%]">
-    <Dropdown
-       value={roleDetails.department_id}
-      options={departmentOptions}
-      onChange={(e) => {
-        setRoleDetails({
-          ...roleDetails,
-         department_id: e.value,
-        });
-        validateDepartment(e.value);
-      }}
-     
-      placeholder="Select Department"
-      className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-      // showClear
-      filter
-    />
+                          <div className="w-[50%]">
+                            <Dropdown
+                              value={roleDetails.department_id}
+                              options={departmentOptions}
+                              onChange={(e) => {
+                                setRoleDetails({
+                                  ...roleDetails,
+                                  department_id: e.value,
+                                });
+                                validateDepartment(e.value);
+                              }}
 
-    {errors.department && (
-      <p className="text-red-500 text-sm mt-1">
-        {errors.department[0]}
-      </p>
-    )}
-  </div>
+                              placeholder="Select Department"
+                              className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                              // showClear
+                              filter
+                            />
+
+                            {errors.department && (
+                              <p className="text-red-500 text-sm mt-1">
+                                {errors.department[0]}
+                              </p>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="mt-8 flex justify-between items-center">
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Role Name <span className="text-red-500">*</span>
                           </label>
@@ -888,7 +901,7 @@ px-2 py-2 md:px-6 md:py-6">
                         </div>
 
 
-                        <div className="mt-8 flex justify-between items-center">
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Status <span className="text-red-500">*</span>
                           </label>

@@ -28,7 +28,6 @@ const Branch_Mainbar = () => {
   const [branchEditData, setBranchEditData] = useState(null);
   const [pssCompany, setPssCompany] = useState(null); // selected value
   const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
-
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   // const [page, setPage] = useState(1);
@@ -42,7 +41,17 @@ const Branch_Mainbar = () => {
   const storedDetails = localStorage.getItem("pssuser");
   const parsedDetails = storedDetails ? JSON.parse(storedDetails) : null;
   const userId = parsedDetails ? parsedDetails.id : null;
+  const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
 
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
   // Zod schema for branch validation
   const branchSchema = z.object({
     branch_name: z
@@ -102,11 +111,6 @@ const Branch_Mainbar = () => {
   });
 
   const navigate = useNavigate();
-
-  // const onPageChange = (e) => {
-  //   setPage(e.page + 1); // PrimeReact is 0-based
-  //   setRows(e.rows); // page size
-  // };
 
   const fetchBranches = async () => {
     setLoading(true);
@@ -399,7 +403,7 @@ const Branch_Mainbar = () => {
                         shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
                         px-2 py-2 md:px-6 md:py-6"
             >
-              <div className="datatable-container mt-4">
+              <div className="datatable-container md:mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
@@ -410,7 +414,7 @@ const Branch_Mainbar = () => {
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) =>  onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -437,7 +441,7 @@ const Branch_Mainbar = () => {
 
                     <button
                       onClick={() => openModal()}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
                     >
                       Add Branch
                     </button>
@@ -446,10 +450,12 @@ const Branch_Mainbar = () => {
                 <div className="table-scroll-container" id="datatable">
 
                   <DataTable
-                    className="mt-8"
+                    className="mt-2 md:mt-8"
                     value={branches}
                     paginator
                     rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
                     globalFilterFields={["branch_name",
@@ -497,7 +503,7 @@ const Branch_Mainbar = () => {
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
+                  <div className="px-5 lg:px-14  py-5 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl ">
                       {" "}
                       {branchEditData ? "Edit Branch" : "Add Branch"}

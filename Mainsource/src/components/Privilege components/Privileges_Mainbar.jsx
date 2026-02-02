@@ -61,6 +61,18 @@ const Privileges_Mainbar = () => {
   const [editPrivilegesModalOpen, setEditPrivilegesModalOpen] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
   // const [getEmpPriviligiesList, setEmpPriviligiesList] = useState([]);
 
 
@@ -762,18 +774,18 @@ const Privileges_Mainbar = () => {
               </h2>
 
               {/* filter */}
-              <div className="flex flex-wrap justify-between items-center w-full mt-1 md:mt-5 h-auto gap-2 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)]  px-2 py-2 md:px-6 md:py-6 ">
+              <div className="flex flex-wrap justify-between items-center w-full mt-2 md:mt-5 h-auto gap-2 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)]  px-2 py-2 md:px-6 md:py-6 ">
 
-                <div className="mt-5 flex justify-between gap-2 items-center">
+                <div className="md:mt-5 flex w-full md:w-[20%] justify-between gap-2 items-center">
                   <div className="">
                     <label
                       htmlFor="userpriviledges"
-                      className=" text-md font-medium mb-2 mt-3 whitespace-nowrap"
+                      className="text-md font-medium md:mb-2 md:mt-3 whitespace-nowrap"
                     >
                       Privileges For
                     </label>
                   </div>
-                  <div className="w-[50%] lg:w-[60%] rounded-md">
+                  <div className="w-full lg:w-[60%] rounded-md">
                     <select
                       name="userpriviledges"
                       id="userpriviledges"
@@ -818,7 +830,7 @@ px-2 py-2 md:px-6 md:py-6"
                 {/*DATA Table */}
 
 
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <div className="flex flex-wrap md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
                     {/* <span className="font-semibold text-base text-[#6B7280]">Show</span> */}
@@ -828,7 +840,7 @@ px-2 py-2 md:px-6 md:py-6"
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -836,7 +848,7 @@ px-2 py-2 md:px-6 md:py-6"
                     </span>
                   </div>
 
-                  <div className="flex flex-col md:flex-row flex-wrap items-center gap-5">
+                  <div className="flex md:flex-row flex-wrap items-center gap-5">
                     {/* Search box */}
                     <div className="relative w-64">
                       <FiSearch
@@ -852,15 +864,24 @@ px-2 py-2 md:px-6 md:py-6"
                                      focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
                     </div>
-
+                    </div>
+                    <div className="hidden md:block ">
                     <button
                       onClick={openPrivilegesModal}
-                      className=" px-6 py-2  bg-[#1ea600] text-white hover:bg-green-600 font-medium mt-3 md:mt-0  rounded-lg"
+                      className=" px-6 py-2 bg-[#1ea600] text-white hover:bg-green-600 font-medium rounded-lg"
                     >
                       Add Privileges
                     </button>
-                  </div>
+                    </div>
                 </div>
+                <div className="md:hidden flex justify-end items-end">
+                    <button
+                      onClick={openPrivilegesModal}
+                      className=" px-6 py-2 bg-[#1ea600] text-white hover:bg-green-600 font-medium rounded-lg"
+                    >
+                      Add Privileges
+                    </button>
+                    </div>
 
 
                 {/* Table Container with Relative Position */}
@@ -874,6 +895,8 @@ px-2 py-2 md:px-6 md:py-6"
                     value={normalizedTableData}
                     paginator
                     rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     globalFilter={globalFilter}
                     globalFilterFields={["roleName", "employeeName"]}
                     rowsPerPageOptions={[5, 10, 20]}
@@ -960,7 +983,7 @@ px-2 py-2 md:px-6 md:py-6"
                     </div>
 
                     {/* ROLE / EMPLOYEE DROPDOWN */}
-                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] items-center gap-4 mb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] items-center gap-4 mb-2 md:mb-10">
                       <label className="text-md font-medium">
                         {privilegeFor === "role" ? "Role" : "Employee"}
                       </label>
