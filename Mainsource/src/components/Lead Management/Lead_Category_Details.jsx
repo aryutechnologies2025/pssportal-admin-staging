@@ -32,9 +32,11 @@ import { FiSearch } from "react-icons/fi";
 const Lead_Category_Details = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const storedDetatis = localStorage.getItem("hrmsuser");
-  const parsedDetails = JSON.parse(null);
-  const userid = parsedDetails ? parsedDetails.id : null;
+   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
+
+  const userId = user?.id;
+  
+  const userRole = user?.role_id;
   const [errors, setErrors] = useState({});
   // console.log("errors:", errors);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -42,6 +44,18 @@ const Lead_Category_Details = () => {
   // console.log("categoryDetails", categoryDetails)
 
     const [rows, setRows] = useState(10);
+      const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
+  const [page, setPage] = useState(1);
+      const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+
     const [globalFilter, setGlobalFilter] = useState("");
   const [loading, setLoading] = useState(true); // State to manage loading
   let navigate = useNavigate();
@@ -57,10 +71,10 @@ const Lead_Category_Details = () => {
   const fetchCategoryType = async () => {
     try {
       const response = await axiosInstance.get(
-        // `${API_URL}/api/cate-mannagement-category/assetCategory`,
-        // {withCredentials: true}
+        `${API_URL}api/lead-category`,
+        
       );
-      // console.log("response get check", response);
+      console.log("response get check", response);
 
       setCategoryDetails(response?.data?.data)
       setLoading(false);
@@ -116,33 +130,62 @@ const Lead_Category_Details = () => {
     setCompanies(allCompanies);
   };
 
+const isDuplicateCategory = (inputName) => {
+  return categoryDetails.some(
+    (category) =>
+      category.name?.trim().toLowerCase() ===
+      inputName.trim().toLowerCase()
+  );
+};
 
   // create
   const handlesubmit = async (e) => {
     e.preventDefault();
+
+     const newErrors = {};
+
+  if (!name.trim()) {
+    newErrors.name = "Name is required";
+  }else if (isDuplicateCategory(name)) {
+    newErrors.name = "Category Name Already Exists";
+  }
+
+  if (status === "" || status === null) {
+    newErrors.status = "Status is required";
+  }
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
     try {
       const formdata = {
-        name: name,
+        name: name.trim(),
         status: status,
+        created_by: userId
 
       };
 
       const response = await axiosInstance.post(
-        // `${API_URL}/api/asset-mannagement-category/create-assetCategory`,
-        // formdata, {withCredentials: true}
+        `${API_URL}api/lead-category/create`,
+        formdata
       );
 
+console.log("Create Response : ",response)
 
+      
+      toast.success("  Category Created Successfully.");
       setIsAddModalOpen(false);
       setName("");
       setStatus("");
       setErrors("");
       fetchCategoryType();
 
-      toast.success("  Category Created Successfully.");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.errors) {
         setErrors(err.response.data.errors);
+
       } else {
         console.error("Error submitting form:", err);
       }
@@ -154,18 +197,48 @@ const Lead_Category_Details = () => {
   const [nameEdit, setNameEdit] = useState("");
   const [statusEdit, setStatusEdit] = useState("");
   const [editId, setEditid] = useState("");
+  console.log("EditId : ",editId)
 
-  const openEditModal = (row) => {
-    // console.log("rowData", row);
+  // const openEditModal = (row) => {
+  //   // console.log("rowData", row);
 
-    setEditid(row._id);
-    setNameEdit(row.name);
+  //   setEditid(row.id);
+  //   setNameEdit(row.name);
 
-    setStatusEdit(row.status);
+  //   setStatusEdit(row.status);
+
+  //   setIsEditModalOpen(true);
+  //   setTimeout(() => setIsAnimating(true), 10);
+  // };
+
+  const openEditModal = async (row) => {
+  try {
+    const res = await axiosInstance.get(
+      `${API_URL}api/lead-category/edit/${row.id}`
+    );
+
+    console.log("Open edit : ",res)
+    const data = res.data.data;
+
+    setEditid(data.id);
+    setNameEdit(data.name);
+    setStatusEdit(data.status);
 
     setIsEditModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
-  };
+  } catch (err) {
+    toast.error("Failed to load category details");
+  }
+};
+
+const isDuplicateOnEdit = (inputName, editId) => {
+  return categoryDetails.some(
+    (category) =>
+      category.id !== editId &&
+      category.name?.trim().toLowerCase() ===
+        inputName.trim().toLowerCase()
+  );
+};
 
 
   const handlesubmitedit = async (e) => {
@@ -176,6 +249,8 @@ const Lead_Category_Details = () => {
     const newErrors = {};
     if (!nameEdit.trim()) {
       newErrors.name = "Name is required.";
+    }else if (isDuplicateOnEdit(nameEdit, editId)) {
+      newErrors.name = "Category Name Already Exists";
     }
     if (!statusEdit) {
       newErrors.status = "Status is required.";
@@ -191,11 +266,11 @@ const Lead_Category_Details = () => {
         status: statusEdit,
       };
 
-      const response = await axiosInstance.put(
-        // `${API_URL}/api/asset-mannagement-category/edit-assetCategorydetails/${editId}`,
-        // formData, {withCredentials: true}
+      const response = await axiosInstance.post(
+        `${API_URL}api/lead-category/update/${editId}`,
+        formData,
       );
-      // console.log("response:", response);
+      console.log("updated response:", response);
 
 
       setIsEditModalOpen(false);
@@ -218,36 +293,31 @@ const Lead_Category_Details = () => {
 
   // delete
 
-  const deleteCategory = (editId) => {
-    Swal.fire({
+  const deleteCategory = async (editId) => {
+    console.log("Deleting Category ID:", editId);
+    const result = await Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to delete this Category?",
+      text: "This category will be deleted!",
       icon: "warning",
       showCancelButton: true,
+      confirmButtonColor: "#d33",
       confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axiosInstance
-          .delete(
-            // `${API_URL}/api/asset-mannagement-category/delete-assetCategoryDelete/${editId}`,{withCredentials: true}
-        )
-          .then((response) => {
-            if (response.data) {
-              toast.success("Category has been deleted.");
-              fetchCategoryType(); // Refresh 
-            } else {
-              Swal.fire("Error!", "Failed to delete Category.", "error");
-            }
-          })
-          .catch((error) => {
-
-            Swal.fire("Error!", "Failed to delete Category.", "error");
-          });
-      }
     });
-  };
 
+    if (!result.isConfirmed) return;
+
+    try {
+      await axiosInstance.delete(`${API_URL}api/lead-category/delete/`, {
+        data: {
+          record_id: editId,
+        },
+      });
+      toast.success("Category Deleted successfully");
+      fetchCategoryType();
+    } catch (error) {
+      toast.error("Failed To Delete Category");
+    }
+  };
   const dummyRoles = [
   {
     id: 1,
@@ -395,7 +465,7 @@ const columns = [
                                label: v,
                                value: v,
                              }))}
-                             onChange={(e) => setRows(e.value)}
+                             onChange={(e) => onRowsChange(e.value)}
                              className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                            />
                            <span className=" text-sm text-[#6B7280]">
@@ -431,19 +501,21 @@ const columns = [
                        {/* Responsive wrapper for the table */}
                        <div className="table-scroll-container">
                 <DataTable
-  value={dummyRoles}
+  value={categoryDetails}
    onRowClick={(e) => e.originalEvent.stopPropagation()}
-   
+   onPage={onPageChange}
   dataKey="id"
   paginator
   rows={rows}
+  first={(page - 1) * rows}
+  // totalRecords={totalRecords}
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 globalFilter={globalFilter}
                 globalFilterFields={
                     ["name", "status"]
                 }
   showGridlines
-  emptyMessage="No data found"
+  emptyMessage="No Data Found"
   className="mt-8"
   resizableColumns
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"

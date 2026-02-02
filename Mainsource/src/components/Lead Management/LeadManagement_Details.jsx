@@ -33,6 +33,7 @@ import { AiFillDelete } from "react-icons/ai";
 import { Capitalise } from "../../hooks/useCapitalise";
 import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import { IoClose } from "react-icons/io5";
+import { ca } from "zod/v4/locales";
 
 
 
@@ -48,7 +49,7 @@ const LeadManagement_Details = () => {
   const [errors, setErrors] = useState({});
   // console.log("....erors.... : ", errors);
   const [leads, setLeads] = useState([]);
-  // console.log("leads :", leads)
+  console.log("leads :", leads)
   const [totalRecords, setTotalRecords] = useState(0);
   const [editLeadForm, setEditLeadForm] = useState(null);
   // console.log("edit value", editLeadForm);
@@ -85,16 +86,7 @@ const LeadManagement_Details = () => {
     epoDate: ""
   });
 
-  const STATUS_MAP = {
-    open: "Open",
-    contacted: "Contacted",
-    interested: "Interested",
-    not_interested: "Not Interested",
-    customer: "Customer",
-    bad_timing: "Bad Timing",
-    not_picked: "Not Picked",
-    future_lead: "Future Lead",
-  };
+
 
   const validateImport = () => {
     let newErrors = {};
@@ -107,20 +99,24 @@ const LeadManagement_Details = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const [categoryOptions, setCategoryOptions] = useState([]);
+const [selectedCategory, setSelectedCategory] = useState(null);
+
   const [filters, setFilters] = useState({
     from_date: today,
     to_date: today,
     gender: "",
     platform: "",
     age: "",
-    city: ""
+    city: "",
+    category:"",
   });
 
   // apply filter
   const handleApplyFilter = () => {
     fetchLead(filters);
   };
-  console.log("filter check", handleApplyFilter)
+  // console.log("filter check", handleApplyFilter)
 
 
   const handleResetFilter = () => {
@@ -130,7 +126,8 @@ const LeadManagement_Details = () => {
       age: "",
       city: "",
       from_date: "",
-      to_date: ""
+      to_date: "",
+      category:""
     };
 
     setFilters(reset);
@@ -302,6 +299,10 @@ const LeadManagement_Details = () => {
         followup_status: statusForm.followUp === "yes" ? 1 : 0,
         created_by: userid,
         scheduled_date: statusForm.epoDate || null,
+        followup_date:
+    statusForm.followUp === "yes"
+      ? statusForm.followUpDate
+      : null,
       };
 
       if (statusForm.followUp === "yes") {
@@ -316,6 +317,7 @@ const LeadManagement_Details = () => {
       toast.success("Lead status updated successfully");
 
       await fetchStatusList(viewStatus.id);
+      fetchLead();
 
       // reset form
       setStatusForm({
@@ -325,7 +327,6 @@ const LeadManagement_Details = () => {
         followUpDate: "",
       });
 
-      fetchLead(); // optional (datatable refresh)
 
     } catch (error) {
       console.error("Status update failed", error);
@@ -358,7 +359,7 @@ const LeadManagement_Details = () => {
         `${API_URL}api/lead-management/create`,
         payload
       );
-      console.log("res", res);
+      console.log("Lead create res : ", res);
 
       if (res.data.success || res.data.status) {
         toast.success("Lead created successfully");
@@ -439,10 +440,16 @@ const LeadManagement_Details = () => {
         { params }
       );
 
-      console.log("API LIST", res.data.data);
+      console.log("API LIST : ", res.data.data);
 
       if (res.data.success) {
         let data = res.data.data || [];
+
+         // Normalize status values for consistent display
+      data = data.map(lead => ({
+        ...lead,
+        status: lead.status?.toString() || "" // Ensure status is string
+      }));
 
         //  FRONTEND FILTERING
         data = applyFrontendFilters(data, appliedFilters);
@@ -455,7 +462,7 @@ const LeadManagement_Details = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to fetch leads");
+      toast.error("Failed To Fetch Leads");
     } finally {
       setLoading(false);
     }
@@ -483,7 +490,7 @@ const LeadManagement_Details = () => {
         `${API_URL}api/lead-management/status-list/${id}`
       );
 
-      // console.log("Status List", res.data);
+      console.log("fetch Status List", res.data);
 
 
       setStatusList(res.data.leadstatus.notes);
@@ -588,9 +595,80 @@ const LeadManagement_Details = () => {
     }
   };
 
+  const fetchCategories = async () => {
+  try {
+    const res = await axiosInstance.get(
+      `${API_URL}api/lead-category`
+    );
+
+    if (res.data.success) {
+      const options = res.data.data
+        .filter(item => item.status === "1") // only active
+        .map(item => ({
+          label: item.name,   // shown in dropdown
+          value: item.id      // sent to filter
+        }));
+
+      setCategoryOptions(options);
+    }
+  } catch (error) {
+    toast.error("Failed to fetch categories");
+  }
+};
+
+useEffect(() => {
+  fetchCategories();
+})
+  const STATUS_MAP = {
+    open: "Open",
+    joined: "Joined",
+    interested: "Interested / scheduled",
+    not_interested: "Not Interested",
+    follow_up: "Follow Up",
+    not_picked: "Not Picked",
+    
+  };
+
+  const REVERSE_STATUS_MAP = Object.fromEntries(
+  Object.entries(STATUS_MAP).map(([k, v]) => [v, k])
+);
+
+  const getStatusValue = (label) => {
+  return Object.keys(STATUS_MAP).find(
+    key => STATUS_MAP[key] === label
+  ) || "";
+};
+
+const handleStatusChange = (row, newStatusKey) => {
+
+  //  Update UI immediately
+  setLeads(prev =>
+    prev.map(lead =>
+      lead.id === row.id
+        ? { ...lead, lead_status: newStatusKey }
+        : lead
+    )
+  );
+
+  //  Open modal
+  setViewStatus({ ...row, lead_status: newStatusKey });
+  setIsViewStatusOpen(true);
+
+  //  Prepare form
+  setStatusForm({
+    status: newStatusKey,
+    notes: "",
+    followUp: "no",
+    followUpDate: "",
+    epoDate: ""
+  });
+};
+
+
   // column
   const columns = [
     {
+      field: "sno",
       header: "S.No",
       body: (_, options) => options.rowIndex + 1,
       fixed: true,
@@ -644,44 +722,76 @@ const LeadManagement_Details = () => {
     //   header: "Date",
     //   body: (row) => formatToDDMMYYYY(row.created_time),
     // },
-    {
-      header: "Status",
-      body: (row) => (
-        <div className="flex items-center gap-2">
-          <select
-            className="border p-1"
-            value={row.status || ""}
-            onChange={(e) => {
-              setViewStatus(row);
-              setIsViewStatusOpen(true);
-              setStatusForm({
-                status: e.target.value,
-                notes: "",
-                followUp: "no",
-                followUpDate: ""
-              });
-            }}
-          >
-            <option value="">Select Status</option>
-            <option value="open">Open</option>
-            <option value="joined">Joined</option>
-            <option value="interested">Interested / scheduled</option>
-            <option value="not_interested">Not Interested</option>
-            <option value="follow_up">Follow Up</option>
-            <option value="not_picked">Not Picked</option>
-          </select>
+    // {
+    //   field: "status",
+    //   header: "Status",
+    //   body: (row) => (
+    //     <div className="flex items-center gap-2">
+    //       <select
+    //         className="border p-1"
+    //         value={row.lead_status?.toLowerCase() || ""}
+    //         onChange={(e) => {
+    //           setViewStatus(row);
+    //           setIsViewStatusOpen(true);
+    //           setStatusForm({
+    //             status: e.target.value,
+    //             notes: "",
+    //             followUp: "no",
+    //             followUpDate: ""
+    //           });
+    //         }}
+    //       >
+    //         <option value="">Select Status</option>
+    //         <option value="open">Open</option>
+    //         <option value="joined">Joined</option>
+    //         <option value="interested">Interested / scheduled</option>
+    //         <option value="not_interested">Not Interested</option>
+    //         <option value="follow_up">Follow Up</option>
+    //         <option value="not_picked">Not Picked</option>
+    //       </select>
+          
 
-          {/* VIEW STATUS HISTORY */}
-          <button
-            onClick={() => openStatusView(row)}
-            className="text-blue-600 hover:scale-110 transition"
-            title="View Status History"
-          >
-            <FaEye />
-          </button>
-        </div>
-      ),
-    },
+    //       {/* VIEW STATUS HISTORY */}
+    //       <button
+    //         onClick={() => openStatusView(row)}
+    //         className="text-blue-600 hover:scale-110 transition"
+    //         title="View Status History"
+    //       >
+    //         <FaEye />
+    //       </button>
+    //     </div>
+    //   ),
+      
+    // },
+
+{
+  field: "status",
+  header: "Status",
+  body: (row) => (
+    
+    <div className="flex items-center gap-2">
+      <select
+        className="border p-1"
+        value={row.lead_status}
+        onChange={(e) =>
+          handleStatusChange(row, e.target.value)
+        }
+      >
+        {Object.entries(STATUS_MAP).map(([key, label]) => (
+          <option key={key} value={key}>{label}</option>
+        ))}
+      </select>
+
+      <button
+        onClick={() => openStatusView(row)}
+        className="text-blue-600"
+      >
+        <FaEye />
+      </button>
+    </div>
+  ),
+},
+
     {
       field: "Action",
       header: "Action",
@@ -714,14 +824,16 @@ const LeadManagement_Details = () => {
   ];
 
   const [visibleColumnFields, setVisibleColumnFields] = useState(
-    columns.filter(col => col.fixed || ["full_name",  "gender", "phone", "age", "qualification", "city", "created_time", "status", "Action"].includes(col.field)).map(col => col.field)
+    columns.filter(col => col.fixed || 
+      ["full_name",  "gender", "phone", "age", "qualification", "city", "created_time","status", "Action"]
+      .includes(col.field)).map(col => col.field)
   );
-  console.log("visibleColumnFields", visibleColumnFields);
+  // console.log("visibleColumnFields", visibleColumnFields);
 
   const onColumnToggle = (event) => {
     let selectedFields = event.value;
     const fixedFields = columns.filter(col => col.fixed).map(col => col.field);
-    console.log("fixedFields", fixedFields);
+    // console.log("fixedFields", fixedFields);
     const validatedSelection = Array.from(new Set([...fixedFields, ...selectedFields]));
 
     setVisibleColumnFields(validatedSelection);
@@ -730,6 +842,14 @@ const LeadManagement_Details = () => {
     return columns.filter(col => visibleColumnFields.includes(col.field));
   }, [visibleColumnFields]);
 
+const statusDropdownOptions = [
+  { label: "Open", value: "open" },
+  { label: "Joined", value: "joined" },
+  { label: "Interested / Scheduled", value: "interested" },
+  { label: "Not Interested", value: "not_interested" },
+  { label: "Follow Up", value: "follow_up" },
+  { label: "Not Picked", value: "not_picked" },
+];
 
 
   return (
@@ -756,7 +876,7 @@ const LeadManagement_Details = () => {
             {/* Filter Section */}
             <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
 
-              <div className="flex flex-wrap items-end gap-4">
+              <div className="flex flex-wrap items-end justify-end gap-4">
 
                 {/* Start Date */}
                 <div className="flex flex-col gap-1">
@@ -861,9 +981,55 @@ const LeadManagement_Details = () => {
                   />
                 </div>
 
+{/* status */}
+
+<div className="flex flex-col gap-1">
+  <label className="text-sm font-medium text-[#6B7280]">
+    Status
+  </label>
+
+  <Dropdown
+    value={filters.status}
+    options={statusDropdownOptions}
+    onChange={(e) =>
+      setFilters((prev) => ({ ...prev, status: e.value }))
+    }
+    placeholder="Select Status"
+    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
+    panelClassName="text-sm"
+    filter
+  />
+</div>
+
+  {/* category */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                  <Dropdown
+                    className="h-10 px-3 rounded-md border"
+                    value={selectedCategory}
+    options={categoryOptions}
+                    onChange={(e) => {
+      setSelectedCategory(e.value);
+      setFilters(prev => ({
+        ...prev,
+        category_id: e.value
+      }));
+    }}
+                    placeholder="Select Category"
+                    filter
+                    filterPlaceholder="Search category"
+                    
+                    panelClassName="text-sm"
+                  />
+                    
+                  
+
+
+                </div>
+
 
                 {/* Buttons */}
-                <div className="flex gap-3 mt-6 md:mt-0">
+                <div className="flex gap-3 mt-6 md:mt-0 ">
                   <button
                     onClick={handleApplyFilter}
                     className="h-10 w-20 rounded-lg bg-[#1ea600] text-white font-medium hover:bg-[#33cd10]"
@@ -1172,7 +1338,9 @@ px-2 py-2 md:px-6 md:py-6">
                       </label>
                       <div className="w-[50%]">
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={10}
                           value={leadForm.phone}
                           onChange={(e) =>
                             handleChange("phone", e.target.value)
@@ -1217,7 +1385,7 @@ px-2 py-2 md:px-6 md:py-6">
                       <button
                         disabled={submitting}
                         onClick={handleAddLeadSubmit}
-                        className="bg-[#005AEF] hover:bg-[#2879FF]
+                        className="bg-[#1ea600] hover:bg-[#4BB452]
             text-white px-5 py-2 rounded-[10px]
             disabled:opacity-50"
                       >
@@ -1402,12 +1570,14 @@ px-2 py-2 md:px-6 md:py-6">
                       </label>
                       <div className="w-[50%]">
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
                           value={editLeadForm?.phone || ""}
+                          maxLength={10}
                           onChange={(e) =>
                             setEditLeadForm({ ...editLeadForm, phone: e.target.value })
                           }
-                          placeholder="Enter phone number"
+                          placeholder="Enter Phone Number"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
                       </div>
@@ -1446,7 +1616,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                       <button
                         onClick={handleUpdateLead}
-                        className="bg-[#005AEF] hover:bg-[#2879FF]
+                        className="bg-[#1ea600] hover:bg-[#4BB452]
             text-white px-5 py-2 rounded-[10px]"
                       >
                         Update
@@ -1908,7 +2078,7 @@ px-2 py-2 md:px-6 md:py-6">
                       </button>
                       <button
                         type="button"
-                        className="bg-[#005AEF] hover:bg-[#2879FF] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
                       >
                         Submit
