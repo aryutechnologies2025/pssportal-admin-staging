@@ -67,22 +67,22 @@ const Contract_Report_Detail = () => {
     const [dateFilter, setDateFilter] = useState("Today");
 
     const staticInterviewCandidates = [
-  { company_name: "ARYU", total_employees: 10 },
-  { company_name: "Infosys", total_employees: 8 },
-  { company_name: "Wipro", total_employees: 3 },
-];
+        { company_name: "ARYU", total_employees: 10 },
+        { company_name: "Infosys", total_employees: 8 },
+        { company_name: "Wipro", total_employees: 3 },
+    ];
 
-const staticCandidateJoining = [
-  { company: "ARYU", reference: "Ramesh", count: 5 },
-  { company: "Infosys", reference: "Suresh", count: 4 },
-  { company: "Wipro", reference: "Arjun", count: 1 },
-];
+    const staticCandidateJoining = [
+        { company: "ARYU", reference: "Ramesh", count: 5 },
+        { company: "Infosys", reference: "Suresh", count: 4 },
+        { company: "Wipro", reference: "Arjun", count: 1 },
+    ];
 
-const staticCandidateRelieved = [
-  { company: "ARYU", count: 1 },
-  { company: "Infosys", count: 2 },
-  { company: "Wipro", count: 1 },
-];
+    const staticCandidateRelieved = [
+        { company: "ARYU", count: 1 },
+        { company: "Infosys", count: 2 },
+        { company: "Wipro", count: 1 },
+    ];
 
 
     const handleDateChange = (value) => {
@@ -187,28 +187,28 @@ const staticCandidateRelieved = [
 
 
     // 4. Job Form Submissions Columns
-const candidateColumns = [
-  {
-    field: "sno",
-    header: "S.No",
-    body: (_, { rowIndex }) => rowIndex + 1,
-  },
-  {
-    field: "company",
-    header: "Company",
-  },
-  {
-    field: "reference",
-    header: "Reference Name",
-  },
-  {
-    field: "count",
-    header: "Count",
-  },
-];
+    const candidateColumns = [
+        {
+            field: "sno",
+            header: "S.No",
+            body: (_, { rowIndex }) => rowIndex + 1,
+        },
+        {
+            field: "company",
+            header: "Company",
+        },
+        {
+            field: "reference",
+            header: "Reference Name",
+        },
+        {
+            field: "count",
+            header: "Count",
+        },
+    ];
 
 
-        const relievedColumns = [
+    const relievedColumns = [
         {
             field: "sno",
             header: "S.No",
@@ -476,8 +476,8 @@ const candidateColumns = [
 
 
                         {/* <div className="bg-white rounded-2xl px-2 py-2 md:px-5 md:py-5 flex justify-between mt-1 "> */}
-                        <div className="flex justify-between items-center">
-                            <p className="font-semibold">Dashboard</p>
+                        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                            <p className="hidden md:block font-semibold">Dashboard</p>
 
                             {/* <div className="font-medium text-sm lg:text-base text-center lg:text-left mt-2 rounded-lg  focus:outline-none focus:ring-2 focus:ring-[#1ea600]"> */}
                             {/* <span>{day}, </span>
@@ -493,37 +493,37 @@ const candidateColumns = [
       
       /> */}
                             {/* </div> */}
-                            <div className="flex items-center gap-3  p-3 rounded-lg">
-                                <div>
+                            <div className="flex flex-col sm:flex-row md:flex-row gap-4  items-end p-3 rounded-lg w-full md:w-auto">
+                                <div className="w-full sm:w-auto">
                                     <label className="block text-sm font-medium mb-1">From Date</label>
                                     <input
                                         type="date"
-                                        className="border p-2 rounded-lg"
+                                        className="border p-2 rounded-lg w-full sm:w-[180px]"
                                         value={fromDate}
                                         onChange={(e) => setFromDate(e.target.value)}
                                     />
                                 </div>
 
-                                <div>
+                                <div className="w-full md:w-auto">
                                     <label className="block text-sm font-medium mb-1">To Date</label>
                                     <input
                                         type="date"
-                                        className="border p-2 rounded-lg"
+                                        className="border p-2 rounded-lg w-full md:w-[180px]"
                                         value={toDate}
                                         onChange={(e) => setToDate(e.target.value)}
                                     />
                                 </div>
 
-                                <div className="flex gap-2 mt-5">
+                                <div className="flex gap-2 w-full sm:w-auto">
                                     <button
                                         onClick={handleSubmit}
-                                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-lg  transition"
+                                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-lg  transition w-full sm:w-auto"
                                     >
                                         Submit
                                     </button>
                                     <button
                                         onClick={handleReset}
-                                        className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                                        className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition w-full sm:w-auto"
                                     >
                                         Reset
                                     </button>

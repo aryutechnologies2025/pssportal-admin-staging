@@ -51,6 +51,17 @@ const Employees_Card = () => {
   // console.log("roleFilter", roleFilter);
   const [dateFilter, setDateFilter] = useState("");
   const [employeeData, setEmployeeData] = useState([]);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
 
   console.log("employeeData :", employeeData);
 
@@ -630,13 +641,13 @@ const Employees_Card = () => {
             <p className="text-sm  md:text-md  text-[#1ea600]">Employees</p>
           </div>
 
-          <div className="flex flex-wrap  md:flex-row  justify-between items-center ">
+          <div className="flex flex-wrap md:flex-row justify-between items-center ">
             <div>
-              <p className="text-xl md:text-3xl  font-semibold mt-1 md:mt-4">
+              <p className="hidden md:block text-xl md:text-3xl font-semibold mt-1 md:mt-4">
                 Employees
               </p>
             </div>
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-3 w-full md:w-auto mt-2 md:mt-0">
               {/* ROLE FILTER */}
               <Dropdown
                 value={roleFilter}
@@ -644,13 +655,13 @@ const Employees_Card = () => {
                 options={roleDropdownOptions}
                 placeholder="All Roles"
                 filter
-                className="h-10 px-3 rounded-md border border-gray-300 text-sm focus:outline-none"
+                className="h-9 md:h-10 px-3 rounded-md border border-gray-300 text-sm focus:outline-none"
               />
 
               {/* ADD BUTTON */}
               <button
                 onClick={onClickAddNewMember}
-                className="h-10 flex items-center gap-2 text-sm text-white bg-[#1ea600] hover:bg-[#1c8005] font-medium px-4 rounded-lg"
+                className="h-9 md:h-10 flex items-center gap-2 text-sm text-white bg-[#1ea600] hover:bg-[#1c8005] font-medium px-4 rounded-lg"
               >
                 Add New Member
                 <BiSolidMessageAltAdd />
@@ -678,7 +689,7 @@ const Employees_Card = () => {
                 </select> */}
               </div>
 
-              <div className="datatable-container mt-4">
+              <div className="datatable-container md:mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
@@ -689,7 +700,7 @@ const Employees_Card = () => {
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span>Entries Per Page</span>
@@ -713,10 +724,12 @@ const Employees_Card = () => {
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
-                    className="mt-8"
+                    className="mt-2 md:mt-8"
                     value={employeeData}
                     paginator
-                    rows={10}
+                    rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter} // This makes the search work
                     showGridlines
@@ -747,9 +760,9 @@ const Employees_Card = () => {
                     className="absolute inset-0 z-40"
                     onClick={() => setShowCompanyModal(false)}
                   ></div>
-                  <div className="relative z-50 bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden overflow-y-auto p-2">
-                    <div className="flex justify-between items-center p-6 border-b">
-                      <h2 className="text-lg font-semibold mb-4">
+                  <div className="relative z-50 bg-white rounded-xl shadow-xl w-[80%] md:w-full max-w-4xl max-h-[90vh] overflow-hidden overflow-y-auto p-2">
+                    <div className="flex justify-between items-center p-3 md:p-6 border-b">
+                      <h2 className="text-sm md:text-lg font-semibold mb-2 md:mb-4">
                         Assign Company – {selectedEmployee.full_name}
                       </h2>
                       {/* Search box */}
@@ -776,7 +789,7 @@ const Employees_Card = () => {
                     </div>
 
                     {/* Company list */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 space-y-3 max-h-[200px] overflow-y-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 space-y-1 md:space-y-3 max-h-[200px] overflow-y-auto">
                       {filteredCompanyOptions.length > 0 ? (
                         filteredCompanyOptions.map((company) => (
                           <label

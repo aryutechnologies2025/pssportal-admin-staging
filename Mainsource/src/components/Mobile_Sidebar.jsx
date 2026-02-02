@@ -25,6 +25,9 @@ import { FaWpforms } from "react-icons/fa";
 import { ToastContainer } from "react-toastify";
 import { RxActivityLog } from "react-icons/rx";
 import { TbReport } from "react-icons/tb";
+import { VscReport } from "react-icons/vsc";
+import contractcandidates from "../assets/contract_Candidates.svg";
+import { LiaFileContractSolid } from "react-icons/lia";
 
 const Mobile_Sidebar = () => {
   let navigate = useNavigate();
@@ -32,8 +35,11 @@ const Mobile_Sidebar = () => {
   const [buttonLoading, setButtonLoading] = useState(false);
   const [arrowClicked, setArrowClicked] = useState(false);
   const [openContract, setOpenContract] = useState(false);
+  const [openReport, setOpenReport] = useState(false);
+ const [openInterview, setOpenInterview] = useState(false);
   const [hamburgerIconClicked, setHamburgerIconClicked] = useState(false);
   const [selectAnyOneClicked, setSelectAnyOneClicked] = useState(false);
+  const [selectOneClicked, setSelectOneClicked] = useState(false);
 
   const onClickSidebarMenu = (label) => {
     if (label === "/") {
@@ -203,15 +209,46 @@ const Mobile_Sidebar = () => {
                     </div>
                     <p>Dashboard</p>
                   </div>
+                  
+                  {/* report */}
+                   <div className="w-full">
+                    <div
+                      onClick={() => setOpenReport(!openReport)}
+                      className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
+      ${openReport ? "bg-green-100 text-[#4BB452]" : "text-gray-500 hover:bg-green-100"}
+    `}
+                    >
+                      <div className="flex items-center gap-2">
+                        <VscReport  />
+                        <span className="text-sm font-medium">Report</span>
+                      </div>
 
+                      {openReport ? <IoIosArrowUp /> : <IoIosArrowDown />}
+                    </div>
+
+                    {openReport && (
+                      <div className="ml-6 mt-1 flex flex-col gap-1">
+                        <button
+                          onClick={() => onClickSidebarMenu("contract-report")}
+                          className="text-left text-sm font-medium text-green-600 px-2 py-1 rounded-md hover:bg-green-50"
+                        >
+                          Contracts
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* pss */}
+                  <div className="w-full">
                   <div
                     onClick={() => setSelectAnyOneClicked(!selectAnyOneClicked)}
-                    className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer"
+                    className="flex items-center justify-between w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer"
                   >
-                    <div className="flex items-center justify-center h-5 w-5">
+                    <div className="flex items-center gap-2">
                       <IoPeopleOutline />
+                      <p>PSS</p>
                     </div>
-                    <p>PSS</p>
+                    
                     {selectAnyOneClicked ? (
                       <IoIosArrowUp />
                     ) : (
@@ -226,8 +263,14 @@ const Mobile_Sidebar = () => {
                         : "max-h-0 opacity-0"
                         }`}
                     >
-                      <div className="flex gap-2  items-start  ms-10 flex-col text-sm font-medium text-gray-500">
+                      <div className="flex gap-2 items-start ms-10 flex-col text-sm font-medium text-gray-500">
                        
+                       <button
+                          onClick={() => onClickSidebarMenu("psscompany")}
+                          className="hover:bg-green-100  w-full text-left px-2 py-1 rounded-md"
+                        >
+                          Companies
+                        </button>
                        <button
                           onClick={() => onClickSidebarMenu("branches")}
                           className="hover:bg-green-100  w-full text-left px-2 py-1 rounded-md"
@@ -247,6 +290,13 @@ const Mobile_Sidebar = () => {
                           Roles
                         </button>
                         <button
+                          onClick={() => onClickSidebarMenu("employees")}
+                          className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
+
+                        >
+                          Employees
+                        </button>
+                        <button
                           onClick={() => onClickSidebarMenu("permission")}
                           className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
 
@@ -254,11 +304,11 @@ const Mobile_Sidebar = () => {
                           Privileges
                         </button>
                         <button
-                          onClick={() => onClickSidebarMenu("employees")}
+                          onClick={() => onClickSidebarMenu("pssdailyattendance")}
                           className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
 
                         >
-                          Employees
+                          Attendance
                         </button>
                         <button
                           onClick={() => onClickSidebarMenu("dailywork-report")}
@@ -278,7 +328,9 @@ const Mobile_Sidebar = () => {
                       </div>
                     </div>
                   )}
+                  </div>
 
+                  {/* company */}
                   <div
                     onClick={() => onClickSidebarMenu("company")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
@@ -289,25 +341,31 @@ const Mobile_Sidebar = () => {
                     <p>Company</p>
                   </div>
 
-                  
-
-                  {/* CONTRACT MENU */}
-                  <div className="w-full">
+                  {/* Interview */}
+                   <div className="w-full">
                     <div
-                      onClick={() => setOpenContract(!openContract)}
+                      onClick={() => setOpenInterview(!openInterview)}
                       className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
-      ${openContract ? "bg-green-500 text-white" : "text-gray-600 hover:bg-green-100"}
+      ${openInterview ? "bg-green-100 text-[#4BB452]" : "text-gray-600 hover:bg-green-100"}
     `}
                     >
                       <div className="flex items-center gap-2">
-                        <FaFileContract />
-                        <span className="text-sm font-medium">Contract</span>
+                        <img
+                                            src={contractcandidates}
+                                            alt="contract"
+                                            className={`sidebar-icon transition-all duration-200 ${
+                                              openInterview === "/contractcandidates"
+                                                ? "brightness-0 invert pointer-events-none"
+                                                : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+                                            }`}
+                                          />
+                        <span className="text-sm font-medium">Interview</span>
                       </div>
 
-                      {openContract ? <IoIosArrowUp /> : <IoIosArrowDown />}
+                      {openInterview ? <IoIosArrowUp /> : <IoIosArrowDown />}
                     </div>
 
-                    {openContract && (
+                    {openInterview && (
                       <div className="ml-6 mt-1 flex flex-col gap-1">
                         <button
                           onClick={() => onClickSidebarMenu("contractcandidates")}
@@ -315,17 +373,74 @@ const Mobile_Sidebar = () => {
                         >
                           Candidates
                         </button>
-
-                        <button
-                          onClick={() => onClickSidebarMenu("attendance")}
-                          className="text-left text-sm font-medium text-gray-500 px-2 py-1 rounded-md hover:bg-green-50"
-                        >
-                          Attendance
-                        </button>
                       </div>
                     )}
                   </div>
 
+                  {/* Contract */}
+                   <div className="w-full">
+                  <div
+                    onClick={() => setSelectOneClicked(!selectOneClicked)}
+                    className="flex items-center justify-between w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <LiaFileContractSolid />
+                      <p>Contract</p>
+                    </div>
+                    
+                    {selectOneClicked ? (
+                      <IoIosArrowUp />
+                    ) : (
+                      <IoIosArrowDown />
+                    )}{" "}
+                  </div>
+
+                  {selectOneClicked && (
+                    <div
+                      className={`overflow-hidden w-full transition-all duration-700 ease-in-out ${selectOneClicked
+                        ? "max-h-45 opacity-100"
+                        : "max-h-0 opacity-0"
+                        }`}
+                    >
+                      <div className="flex gap-2 items-start ms-10 flex-col text-sm font-medium text-gray-500">
+                       
+                       <button
+                          onClick={() => onClickSidebarMenu("employeecontract")}
+                          className="hover:bg-green-100  w-full text-left px-2 py-1 rounded-md"
+                        >
+                          Employee
+                        </button>
+                       <button
+                          onClick={() => onClickSidebarMenu("attendance")}
+                          className="hover:bg-green-100  w-full text-left px-2 py-1 rounded-md"
+                        >
+                          Attendence
+                        </button>
+                        <button
+                          onClick={() => onClickSidebarMenu("boarding-point")}
+                          className="hover:bg-green-100  w-full text-left px-2 py-1 rounded-md"
+                        >
+                          Boarding Point
+                        </button>
+                        <button
+                          onClick={() => onClickSidebarMenu("education")}
+                          className="hover:bg-green-100  w-full text-left px-2 py-1 rounded-md"
+                        >
+                          Education
+                        </button>
+                        <button
+                          onClick={() => onClickSidebarMenu("relieved-contract")}
+                          className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
+
+                        >
+                          Relieved
+                        </button>
+                
+
+                      </div>
+                    </div>
+                  )}
+                  </div>
 
                   {/* <div
                     onClick={() => onClickSidebarMenu("Payroll")}
@@ -354,7 +469,7 @@ const Mobile_Sidebar = () => {
                     </div>
                     <p>Message</p>
                   </div> */}
-
+                  {/* job form */}
                   <div
                     onClick={() => onClickSidebarMenu("job-form")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
@@ -374,7 +489,8 @@ const Mobile_Sidebar = () => {
                     </div>
                     <p>Daily Work Report</p>
                   </div> */}
-
+                  
+                  {/* lead engine */}
                   <div
                     onClick={() => onClickSidebarMenu("lead-engine")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
@@ -384,7 +500,8 @@ const Mobile_Sidebar = () => {
                     </div>
                     <p>Lead Engine</p>
                   </div>
-
+                  
+                  {/* contact */}
                   <div
                     onClick={() => onClickSidebarMenu("contact")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
@@ -422,14 +539,13 @@ const Mobile_Sidebar = () => {
 
 {/* attendance report */}
                     <div
-                    onClick={() => onClickSidebarMenu("reports")}
+                    onClick={() => onClickSidebarMenu("assetmanagement")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
                   >
                     <div className="flex items-center justify-center h-5 w-5">
-                      <TbReportSearch />
-
+                     <MdManageAccounts />
                     </div>
-                    <p>Reports</p>
+                    <p>Asset</p>
                   </div>
 
                   <div

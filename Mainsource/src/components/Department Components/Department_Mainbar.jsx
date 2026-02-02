@@ -494,7 +494,7 @@ const Department_Mainbar = () => {
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
 px-2 py-2 md:px-6 md:py-6">
-              <div className="datatable-container mt-4">
+              <div className="datatable-container md:mt-4">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
@@ -529,7 +529,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                     <button
                       onClick={openAddModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
                     >
                       Add Departments
                     </button>
@@ -582,7 +582,7 @@ px-2 py-2 md:px-6 md:py-6">
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
+                  <div className="px-5 lg:px-14  py-5 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl ">Add Department</p>
 
                     {/* Pss company */}
@@ -695,7 +695,7 @@ px-2 py-2 md:px-6 md:py-6">
                     <IoIosArrowForward className="w-3 h-3" />
                   </div>
 
-                  <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
+                  <div className="px-5 lg:px-14 py-5 md:py-10 text-[#4A4A4A] font-semibold">
                     <p className="text-xl md:text-2xl ">Edit Department</p>
 
                     {/* Pss company */}
@@ -733,9 +733,9 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     </div>
 
-                    <div className="mt-10">
+                    <div className="md:mt-10">
                       <div className="bg-white rounded-xl w-full">
-                        <div className="mt-8 flex justify-between items-center">
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Department Name <span className="text-red-500">*</span>
                           </label>
@@ -760,7 +760,7 @@ px-2 py-2 md:px-6 md:py-6">
                         </div>
 
 
-                        <div className="mt-8 flex justify-between items-center">
+                        <div className="mt-2 md:mt-8 flex justify-between items-center">
                           <label className="block text-md font-medium mb-2 mt-3">
                             Status <span className="text-red-500">*</span>
                           </label>
@@ -788,7 +788,7 @@ px-2 py-2 md:px-6 md:py-6">
                         </div>
 
 
-                        <div className="flex justify-end gap-2 mt-14">
+                        <div className="flex justify-end gap-2 mt-5 md:mt-14">
                           <button onClick={closeEditModal}
                             className="border border-[#7C7C7C] text-base md:text-xl text-[#7C7C7C] hover:bg-[#7C7C7C] hover:text-black px-3 md:px-5 py-1 md:py-2 font-medium rounded-lg">
                             Cancel
