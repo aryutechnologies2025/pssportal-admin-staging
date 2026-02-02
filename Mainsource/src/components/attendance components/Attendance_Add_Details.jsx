@@ -464,6 +464,9 @@ const handleHeaderShiftToggle = (shiftId) => {
       body: (rowData) => (
         <div>
           <p className="">{rowData.name}</p>
+           {/* <p className="text-xs text-gray-500">
+            {rowData?.contract_employee?.employee_id}
+          </p> */}
           {/* <p className="text-sm text-gray-600">{rowData.employee_number}</p> */}
         </div>
       ),
