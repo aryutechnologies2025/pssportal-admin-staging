@@ -48,6 +48,19 @@ const Employee_contract_details = () => {
   const userId = user?.id;
   const userRole = user?.role_id;
 
+  const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
+
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];
   };
@@ -544,11 +557,11 @@ const Employee_contract_details = () => {
   // select file
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-   const [isRejoining, setIsRejoining] = useState(false);
+  const [isRejoining, setIsRejoining] = useState(false);
   const [rejoingnote, setRejoingnote] = useState("");
   console.log("rejoingnote", rejoingnote);
 
-  const [editempid ,setEditempid] = useState("");
+  const [editempid, setEditempid] = useState("");
   console.log("editempid", editempid);
 
 
@@ -703,16 +716,16 @@ const Employee_contract_details = () => {
       }));
     }
 
-     if (row.rejoingstatus) {
-    // rejoining status
-    setIsRejoining(row.rejoingstatus.rejoin_status === 1);
+    if (row.rejoingstatus) {
+      // rejoining status
+      setIsRejoining(row.rejoingstatus.rejoin_status === 1);
 
-    //  only rejoining note
-    setRejoingnote(row.rejoingstatus.rejoining_note || "");
-  } else {
-    setIsRejoining(false);
-    setRejoingnote("");
-  }
+      //  only rejoining note
+      setRejoingnote(row.rejoingstatus.rejoining_note || "");
+    } else {
+      setIsRejoining(false);
+      setRejoingnote("");
+    }
 
     return {
       id: row.id || null,
@@ -1053,10 +1066,9 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -1093,7 +1105,7 @@ const Employee_contract_details = () => {
     },
   ];
 
- 
+
 
   // create
   const onSubmit = async (data) => {
@@ -1308,35 +1320,35 @@ const Employee_contract_details = () => {
   console.log("logData", logData);
 
 
-const fetchLogs = async () => {
-  try {
-    const response = await axiosInstance.post(
-      `${API_URL}api/contract-employee/emp-rejoing-list/`,{
-      
-          employee_id: editempid
-        
+  const fetchLogs = async () => {
+    try {
+      const response = await axiosInstance.post(
+        `${API_URL}api/contract-employee/emp-rejoing-list/`, {
+
+        employee_id: editempid
+
       }
-    );
+      );
 
-    console.log("responselogs", response);
+      console.log("responselogs", response);
 
-    if (response.status === 200) {
-      setLogs(response.data.data);
-      // setShowLogs(true);
+      if (response.status === 200) {
+        setLogs(response.data.data);
+        // setShowLogs(true);
+      }
+
+
+
+    } catch (err) {
+      toast.error("Unable To Load Candidate Details");
     }
+  };
 
-   
-
-  } catch (err) {
-    toast.error("Unable To Load Candidate Details");
-  }
-};
-
-useEffect(() => {
-  if (editempid) {
-    fetchLogs();
-  }
-}, [editempid]);
+  useEffect(() => {
+    if (editempid) {
+      fetchLogs();
+    }
+  }, [editempid]);
 
 
   // const logData = [
@@ -1450,7 +1462,7 @@ useEffect(() => {
                       Company
                     </label>
 
-                    <div className="w-[60%] md:w-[100%]">
+                    <div className="w-full">
                       <Dropdown
                         value={selectedCompanyfilter}
                         onChange={(e) => setSelectedCompanyfilter(e.value)}
@@ -1497,7 +1509,7 @@ useEffect(() => {
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -1505,7 +1517,7 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-11">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-11">
                     {/* Search box */}
                     <div className="relative w-64">
                       <FiSearch
@@ -1519,22 +1531,22 @@ useEffect(() => {
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
                     </div>
-                    <div className="flex items-center">
+                    <div className="hidden md:flex items-center">
                       <button
                         onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium w-20 rounded-lg"
                       >
                         Import
                       </button>
                     </div>
                     {/* sample csv format download */}
-                    <div className="flex items-center">
+                    <div className="hidden md:flex items-center">
                       <button
                         onClick={handlCsvDownload}
                         className="
       flex items-center gap-2
-      px-5 py-2
-      text-sm font-semibold
+      px-5 md:px-2 py-2
+      text-xs md:text-sm font-semibold
       text-green-700
       bg-green-100
       rounded-full
@@ -1547,11 +1559,41 @@ useEffect(() => {
                     </div>
                     <button
                       onClick={openAddModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="hidden md:block px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
                     >
-                      + Add Employee
+                      Add Employee
                     </button>
                   </div>
+                </div>
+                {/* mobile view */}
+                <div className="flex md:hidden justify-between items-center gap-2">
+                  <button
+                    onClick={handlCsvDownload}
+                    className="
+      flex items-center gap-2
+      px-3 py-2
+      text-xs md:text-sm font-semibold
+      text-green-700
+      bg-green-100
+      rounded-full
+      hover:bg-green-200
+      transition
+    "
+                  >
+                    <FiDownload className="text-lg" /> Demo CSV
+                  </button>
+                  <button
+                    onClick={openImportAddModal}
+                    className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium w-fit rounded-lg"
+                  >
+                    Import
+                  </button>
+                  <button
+                    onClick={openAddModal}
+                    className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
+                  >
+                    Add Employee
+                  </button>
                 </div>
 
                 <div className="table-scroll-container" id="datatable">
@@ -1559,7 +1601,9 @@ useEffect(() => {
                     className="mt-8"
                     value={columnData}
                     paginator
-                    rows={10}
+                    rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
                     showGridlines
@@ -1598,9 +1642,8 @@ useEffect(() => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
-                    isAnimating ? "translate-x-0" : "translate-x-full"
-                  }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -1726,7 +1769,7 @@ useEffect(() => {
                           <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         )}
                         {isSubmitting ? "Uploading..." : "Submit"}
-                        Submit
+
                       </button>
                     </div>
                   </div>
@@ -2001,7 +2044,7 @@ useEffect(() => {
                         </label>
 
                         <div className="w-[50%] md:w-[60%] rounded-lg">
-                          <div className="flex gap-6">
+                          <div className="flex flex-wrap md:flex-nowrap gap-6">
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input
                                 type="radio"
@@ -2305,11 +2348,10 @@ useEffect(() => {
                                   : "Employee ID"
                               }
                               className={`w-full px-2 py-2 border rounded-[10px]
-          ${
-            companyEmpType === "automatic"
-              ? "bg-gray-100 cursor-not-allowed"
-              : "bg-white"
-          }`}
+          ${companyEmpType === "automatic"
+                                  ? "bg-gray-100 cursor-not-allowed"
+                                  : "bg-white"
+                                }`}
                             />
                             {errors.manual_value && (
                               <p className="text-red-500 text-sm mt-1">
@@ -2482,57 +2524,57 @@ useEffect(() => {
                           )}
                         </div>
                       </div>
-                        {editData && (
-                          <> 
-                      {/* rejoing */}
-                      <div className="mt-4 flex items-center justify-between">
-                        <label className="block text-md font-medium mb-2">
-                          Rejoining
-                        </label>
+                      {editData && (
+                        <>
+                          {/* rejoing */}
+                          <div className="mt-4 flex items-center justify-between">
+                            <label className="block text-md font-medium mb-2">
+                              Rejoining
+                            </label>
 
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={isRejoining}
-                            className="sr-only peer"
-                            onChange={(e) => setIsRejoining(e.target.checked)}
-                          />
-                          <div
-                            className="w-11 h-6 bg-gray-300 rounded-full peer 
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={isRejoining}
+                                className="sr-only peer"
+                                onChange={(e) => setIsRejoining(e.target.checked)}
+                              />
+                              <div
+                                className="w-11 h-6 bg-gray-300 rounded-full peer 
       peer-checked:bg-[#1ea600]
       after:content-[''] after:absolute after:top-[2px] after:left-[2px]
       after:bg-white after:rounded-full after:h-5 after:w-5
       after:transition-all peer-checked:after:translate-x-5"
-                          ></div>
-                        </label>
-                      </div>
-                      {/*  */}
-                      {isRejoining && (
-                        <div className="mt-3 flex justify-between items-start">
-                          <label className="block text-md font-medium mt-2">
-                            Rejoining Notes
-                          </label>
-
-                          <div className="w-[50%] md:w-[60%]">
-                            <textarea
-                              name="rejoingnote"
-                              value={rejoingnote}
-                              onChange={(e) => setRejoingnote(e.target.value)}
-                              rows={3}
-                              placeholder="Enter rejoining notes..."
-                              className="w-full px-2 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                            />
-
-                            {errors.rejoingnote && (
-                              <p className="text-red-500 text-sm mt-1">
-                                {errors.rejoingnote.message}
-                              </p>
-                            )}
+                              ></div>
+                            </label>
                           </div>
-                        </div>
+                          {/*  */}
+                          {isRejoining && (
+                            <div className="mt-3 flex justify-between items-start">
+                              <label className="block text-md font-medium mt-2">
+                                Rejoining Notes
+                              </label>
+
+                              <div className="w-[50%] md:w-[60%]">
+                                <textarea
+                                  name="rejoingnote"
+                                  value={rejoingnote}
+                                  onChange={(e) => setRejoingnote(e.target.value)}
+                                  rows={3}
+                                  placeholder="Enter rejoining notes..."
+                                  className="w-full px-2 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                />
+
+                                {errors.rejoingnote && (
+                                  <p className="text-red-500 text-sm mt-1">
+                                    {errors.rejoingnote.message}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
-                      </>
-                        )}
                       {/* Emergency Contacts */}
                       <div className="rounded-[10px] border-2 border-[#E0E0E0] bg-white py-2 px-2 lg:px-4 my-5">
                         {/* Header */}
@@ -2743,9 +2785,9 @@ useEffect(() => {
                         <button
                           type="submit"
                           className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                          // onClick={handleSubmit(onSubmit, (errors) =>
-                          //   console.log(errors),
-                          // )}
+                        // onClick={handleSubmit(onSubmit, (errors) =>
+                        //   console.log(errors),
+                        // )}
                         >
                           Submit
                         </button>
@@ -2808,104 +2850,104 @@ useEffect(() => {
               </div>
             )} */}
 
-  {showLogs && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
-    {/* Modal box */}
-    <div className="bg-white w-full md:w-[900px] rounded-2xl shadow-2xl overflow-hidden">
+            {showLogs && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
+                {/* Modal box */}
+                <div className="bg-white w-full md:w-[900px] rounded-2xl shadow-2xl overflow-hidden">
 
-      {/* Header */}
-      <div className="px-5 py-4 bg-green-600 text-white">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-lg font-semibold">
-              Employee Joining Logs
-            </h2>
+                  {/* Header */}
+                  <div className="px-5 py-4 bg-green-600 text-white">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h2 className="text-lg font-semibold">
+                          Employee Joining Logs
+                        </h2>
 
-            {/* Employee Name */}
-            <p className="mt-1 text-sm bg-white/20 inline-block px-3 py-1 rounded-full">
-              👤 {logData[0]?.employee?.name || "Employee"}
-            </p>
-          </div>
+                        {/* Employee Name */}
+                        <p className="mt-1 text-sm bg-white/20 inline-block px-3 py-1 rounded-full">
+                          👤 {logData[0]?.employee?.name || "Employee"}
+                        </p>
+                      </div>
 
-          <button
-            onClick={() => setShowLogs(false)}
-            className="text-white hover:text-red-200 text-xl"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
+                      <button
+                        onClick={() => setShowLogs(false)}
+                        className="text-white hover:text-red-200 text-xl"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
 
-      {/* Body */}
-      <div className="p-4 max-h-[500px] overflow-auto">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] border border-green-600 rounded-lg">
-            <thead className="bg-green-100 text-green-800 text-sm sticky top-0 z-10">
-              <tr>
-                <th className="px-3 py-2 text-center w-[60px]">S.No</th>
-                <th className="px-4 py-2 text-left">Company</th>
-                <th className="px-4 py-2 text-left">Employee ID</th>
-                <th className="px-4 py-2 text-left">Joining Date</th>
-                <th className="px-4 py-2 text-left">Rejoining Note</th>
-              </tr>
-            </thead>
+                  {/* Body */}
+                  <div className="p-4 max-h-[500px] overflow-auto">
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[700px] border border-green-600 rounded-lg">
+                        <thead className="bg-green-100 text-green-800 text-sm sticky top-0 z-10">
+                          <tr>
+                            <th className="px-3 py-2 text-center w-[60px]">S.No</th>
+                            <th className="px-4 py-2 text-left">Company</th>
+                            <th className="px-4 py-2 text-left">Employee ID</th>
+                            <th className="px-4 py-2 text-left">Joining Date</th>
+                            <th className="px-4 py-2 text-left">Rejoining Note</th>
+                          </tr>
+                        </thead>
 
-            <tbody className="text-sm">
-              {logData.length > 0 ? (
-                logData.map((item, index) => (
-                  <tr
-                    key={index}
-                    className="border-b hover:bg-green-50 transition"
-                  >
-                    <td className="px-3 py-2 text-center font-medium">
-                      {index + 1}
-                    </td>
+                        <tbody className="text-sm">
+                          {logData.length > 0 ? (
+                            logData.map((item, index) => (
+                              <tr
+                                key={index}
+                                className="border-b hover:bg-green-50 transition"
+                              >
+                                <td className="px-3 py-2 text-center font-medium">
+                                  {index + 1}
+                                </td>
 
-                    <td className="px-4 py-2 font-medium text-gray-800">
-                      {item.company?.company_name || "-"}
-                    </td>
+                                <td className="px-4 py-2 font-medium text-gray-800">
+                                  {item.company?.company_name || "-"}
+                                </td>
 
-                    <td className="px-4 py-2 text-gray-700">
-                      {item.employee_id || "-"}
-                    </td>
+                                <td className="px-4 py-2 text-gray-700">
+                                  {item.employee_id || "-"}
+                                </td>
 
-                    <td className="px-4 py-2 text-gray-700">
-                      {item.joining_date || "-"}
-                    </td>
+                                <td className="px-4 py-2 text-gray-700">
+                                  {item.joining_date || "-"}
+                                </td>
 
-                    <td className="px-4 py-2 text-gray-700 whitespace-pre-wrap">
-                      {item.rejoining_note || "—"}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-8 text-center text-gray-500"
-                  >
-                    No joining logs found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                                <td className="px-4 py-2 text-gray-700 whitespace-pre-wrap">
+                                  {item.rejoining_note || "—"}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td
+                                colSpan={5}
+                                className="px-4 py-8 text-center text-gray-500"
+                              >
+                                No joining logs found
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
-      {/* Footer */}
-      <div className="flex justify-end px-5 py-3 bg-gray-50 border-t">
-        <button
-          onClick={() => setShowLogs(false)}
-          className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 text-sm"
-        >
-          Close
-        </button>
-      </div>
+                  {/* Footer */}
+                  <div className="flex justify-end px-5 py-3 bg-gray-50 border-t">
+                    <button
+                      onClick={() => setShowLogs(false)}
+                      className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 text-sm"
+                    >
+                      Close
+                    </button>
+                  </div>
 
-    </div>
-  </div>
-)}
+                </div>
+              </div>
+            )}
 
 
             {isViewModalOpen && viewRow && (
@@ -3076,8 +3118,8 @@ useEffect(() => {
                         </h3>
 
                         {viewRow?.contacts &&
-                        Array.isArray(viewRow.contacts) &&
-                        viewRow.contacts.length > 0 ? (
+                          Array.isArray(viewRow.contacts) &&
+                          viewRow.contacts.length > 0 ? (
                           <table className="w-full border text-sm">
                             <thead className="bg-gray-100">
                               <tr>
@@ -3313,7 +3355,7 @@ useEffect(() => {
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
                         {viewExistingCandidate.documents &&
-                        viewExistingCandidate.documents.length > 0 ? (
+                          viewExistingCandidate.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewExistingCandidate.documents.map(
                               (doc, index) => (

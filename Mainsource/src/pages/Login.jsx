@@ -172,112 +172,85 @@ const Login = () => {
   const activeClass = "underline font-bold text-blue-600";
   const inactiveClass = "hover:underline";
   return (
-    <div className="min-h-screen flex flex-col justify-between">
-      <div>
-        <div className="flex  items-center justify-center pt-3">
-          {/* <img
-            src="/pssAgenciesLogo.svg"
-            alt="PSS Logo"
-            className="w-40 md:w-72 h-auto mx-auto mb-2 md:mt-7"
-          /> */}
+   <div className="min-h-screen flex flex-col justify-between">
+  <div>
+    {/* Logo */}
+    <div className="flex items-center justify-center pt-4 md:pt-6">
+      <img
+        src={logoPreview ? logoPreview : "/pssAgenciesLogo.svg"}
+        alt="PSS Logo"
+        className="w-32 sm:w-36 md:w-40 h-auto"
+      />
+    </div>
 
-          <img
-            src={logoPreview ? logoPreview : "/pssAgenciesLogo.svg"}
-            alt="PSS Logo"
-            className="w-40 md:w-40 h-auto mx-auto mb-2 md:mt-7"
+    {/* Main Section */}
+    <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-8 px-4 md:px-10 mt-8 md:mt-10">
+      
+      {/* Form */}
+      <div className="w-full md:w-1/2 flex flex-col items-center justify-center gap-3 md:gap-6">
+        <p className="text-black font-semibold text-lg sm:text-xl md:text-2xl">
+          ADMIN LOGIN
+        </p>
+
+        {/* Username */}
+        <div className="w-full max-w-sm flex items-center gap-3 bg-[#F8F9FB] px-4 py-3 rounded-xl shadow-sm border border-gray-200">
+          <LuUser className="size-5 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Username"
+            name="email"
+            onChange={handleInputChange}
+            className="bg-transparent w-full outline-none text-sm sm:text-base"
           />
-          {/* <h1 className="font-bold text-2xl md:text-4xl text-blue-500">PSS</h1> */}
         </div>
 
-        <div className="flex items-center flex-wrap-reverse justify-center mt-20 md:mt-5 ">
-          <div className="lg:basis-[50%] flex flex-col items-center justify-center gap-3">
-            <p className="text-black font-semibold text-xl md:text-2xl">
-              ADMIN LOGIN
-            </p>
-
-            <div className="w-full max-w-sm flex items-center gap-3 bg-[#F8F9FB] px-5 py-4 rounded-xl shadow-sm border border-gray-200">
-              <LuUser className="text-2xl text-gray-500" />
-              <input
-                type="text"
-                placeholder="Username"
-                name="email"
-                id="email"
-                onChange={handleInputChange}
-                className="bg-transparent w-full outline-none text-black placeholder-gray-500"
-                onKeyUp={handleKeyUp}
-              />
-            </div>
-            {error?.email && (
-              <p className="text-red-500 text-sm mt-1">{error.email}</p>
-            )}
-
-            {/* Password Field */}
-            <div className="relative w-full max-w-sm flex items-center gap-3 bg-[#F8F9FB] px-5 py-4 mt-4 rounded-xl shadow-sm border border-gray-200">
-              <SlLock className="text-2xl text-gray-500" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                name="password"
-                id="password"
-                onChange={handleInputChange}
-                className="bg-transparent w-full outline-none text-black placeholder-gray-500"
-                onKeyUp={handleKeyUp}
-              />
-              <span
-                onClick={togglePasswordVisibility}
-                className="absolute right-4 cursor-pointer text-gray-600"
-              >
-                {showPassword ? (
-                  <FaEye className="text-xl" />
-                ) : (
-                  <FaEyeSlash className="text-xl" />
-                )}
-              </span>
-            </div>
-
-            {error && (
-              <p className="text-red-500 text-sm mt-1">{error.message}</p>
-            )}
-
-            {/* <div className="recaptacha-login ">
-              <ReCAPTCHA
-                // sitekey="6Lf_dIMrAAAAAAAZI8KS0KRRyRk7NzMNRyXdgtfv" //live site keydcsddsdsddsdsd
-
-
-                sitekey="6LcendQqAAAAAEjG8NDVrTcYBiFZG1M24ILVt9cn" //local site key
-
-                onChange={handleCaptchaChange}
-              />
-            </div>
-            {requiredError && (
-              <p className="text-red-500 text-sm text-start">
-                {requiredError}
-              </p>
-            )} */}
-
-            <button
-              onClick={onCLickLogin}
-              // disabled={!captchaValue}
-              className="font-bold mt-3 text-sm bg-gradient-to-r from-[#91ee7c] to-[#1ea600] px-10 py-5 rounded-2xl text-white hover:scale-105 duration-300 transition-all"
-              // className={`${
-              //     captchaValue
-              //       ? "bg-gradient-to-r from-[#91ee7c] to-[#1ea600] text-white"
-              //       : "bg-gray-300 text-gray-700"
-              //   } font-semibold mt-3 text-sm  px-8 py-3 rounded-full  hover:scale-105 duration-300 `}
-            >
-              Login Now
-            </button>
-          </div>
-
-          <div className="basis-[50%]  ">
-            {/* <img src={login_image} alt="" /> */}
-            <img src={login_img_pss} alt="" className="h-[500px] " />
-          </div>
+        {/* Password */}
+        <div className="relative w-full max-w-sm flex items-center gap-3 bg-[#F8F9FB] px-4 py-3 rounded-xl shadow-sm border border-gray-200">
+          <SlLock className="size-5 text-gray-500" />
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            name="password"
+            onChange={handleInputChange}
+            className="bg-transparent w-full outline-none text-sm sm:text-base"
+          />
+          <span
+            onClick={togglePasswordVisibility}
+            className="absolute right-4 cursor-pointer text-gray-600"
+          >
+            {showPassword ? <FaEye /> : <FaEyeSlash />}
+          </span>
         </div>
+
+        {/* Error */}
+        {error?.message && (
+          <p className="text-red-500 text-sm text-center">{error.message}</p>
+        )}
+
+        {/* Button */}
+        <button
+          onClick={onCLickLogin}
+          className="w-[50%] md:w-[20%] font-bold mt-4 text-sm sm:text-base bg-gradient-to-r from-[#91ee7c] to-[#1ea600] px-6 py-3 md:py-5 rounded-xl text-white hover:scale-105 transition"
+        >
+          Login Now
+        </button>
       </div>
 
-      <Footer />
+      {/* Image */}
+      <div className="w-full md:w-1/2 flex justify-center">
+        <img
+          src={login_img_pss}
+          alt="login"
+          className="w-[80%] sm:w-[70%] md:w-full max-w-md h-auto"
+        />
+      </div>
+
     </div>
+  </div>
+
+  <Footer />
+</div>
+
   );
 };
 
