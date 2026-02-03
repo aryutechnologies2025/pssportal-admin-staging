@@ -225,7 +225,7 @@ const ContactCandidate = () => {
   ];
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen overflow-x-auto">
+    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-full min-h-screen overflow-x-auto">
       {loading ? (
         <Loader />
       ) : (
@@ -249,9 +249,9 @@ const ContactCandidate = () => {
 
             {/* filter */}
             <div className="flex flex-wrap justify-between items-center w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div className="flex flex-wrap justify-between items-start md:items-center gap-4">
                 {/* Start Date */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full md:w-[30%]">
                   <label className="text-sm font-medium text-[#6B7280]">
                     Start Date
                   </label>
@@ -264,7 +264,7 @@ const ContactCandidate = () => {
                 </div>
 
                 {/* End Date */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full md:w-[30%]">
                   <label className="text-sm font-medium text-[#6B7280]">
                     End Date
                   </label>
@@ -298,7 +298,7 @@ const ContactCandidate = () => {
 
                 {/* requirement */}
 
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 w-full md:w-[30%]">
                   <label className="text-sm font-medium text-[#6B7280]">
                     Requirement
                   </label>
@@ -333,7 +333,7 @@ const ContactCandidate = () => {
               </div>
 
               {/* Buttons */}
-              <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
+              <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4 mt-3 md:mt-0">
                 <button
                   onClick={handleApplyFilter}
                   className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
@@ -430,7 +430,7 @@ const ContactCandidate = () => {
 
             {viewModalOpen && viewContact && (
               <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-                <div className="relative bg-white w-[95%] md:w-[500px] rounded-xl shadow-lg p-6">
+                <div className="relative bg-white w-full md:w-[500px] rounded-xl shadow-lg p-4 md:p-6">
                   {/* Close Icon */}
                   <button
                     onClick={() => setViewModalOpen(false)}

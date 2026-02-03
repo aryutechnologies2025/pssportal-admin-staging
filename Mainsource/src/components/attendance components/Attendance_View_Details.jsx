@@ -103,7 +103,7 @@ const Attendance_View_Details = () => {
 
         // setAttendanceData(attendanceDetails);
 
-         const attendanceDetails =
+        const attendanceDetails =
           response?.data?.data?.details.map((emp) => ({
             ...emp,
             shifts:
@@ -283,12 +283,12 @@ const Attendance_View_Details = () => {
       prev.map((emp) =>
         emp.id === id
           ? {
-              ...emp,
-              attendance: status,
-              loginTime: status === "present" ? "09:00" : "",
-              logoutTime: status === "present" ? "18:00" : "",
-              notes: status === "absent" ? "Absent" : "",
-            }
+            ...emp,
+            attendance: status,
+            loginTime: status === "present" ? "09:00" : "",
+            logoutTime: status === "present" ? "18:00" : "",
+            notes: status === "absent" ? "Absent" : "",
+          }
           : emp,
       ),
     );
@@ -306,7 +306,7 @@ const Attendance_View_Details = () => {
       body: (rowData) => (
         <div>
           <p className="font-medium">{rowData?.contract_employee?.name}</p>
-           <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500">
             {rowData?.contract_employee?.employee_id}
           </p>
         </div>
@@ -340,12 +340,12 @@ const Attendance_View_Details = () => {
     //   ),
     // },
 
-        {
+    {
       field: "shifts",
       header: (
         <div
           className="flex items-center gap-1 cursor-pointer"
-          //  onClick={() => setShowShiftPopup(true)}
+        //  onClick={() => setShowShiftPopup(true)}
         >
           <span>Shift Allocation</span>
           {/* <FiChevronDown /> */}
@@ -364,9 +364,9 @@ const Attendance_View_Details = () => {
                     type="checkbox"
                     className="accent-green-600"
                     checked={!!selectedShift}
-                    // onChange={() =>
-                    //   handleShiftChange(rowData.employee_id, shift)
-                    // }
+                  // onChange={() =>
+                  //   handleShiftChange(rowData.employee_id, shift)
+                  // }
                   />
                   {shift.shift_name}
                 </label>
@@ -376,31 +376,31 @@ const Attendance_View_Details = () => {
                   //   <input
                   //     type="time"
                   //     value={selectedShift.start_time}
-                    
+
                   //     className="border rounded px-1 text-sm"
                   //   />
                   //   <input
                   //     type="time"
                   //     value={selectedShift.end_time}
-                  
+
                   //     className="border rounded px-1 text-sm"
                   //   />
                   // </div>
-                                  <div className="flex gap-2">
-                  <TimeDropdown
-  value={selectedShift.start_time}
-      disabled={true}
+                  <div className="flex gap-2">
+                    <TimeDropdown
+                      value={selectedShift.start_time}
+                      disabled={true}
 
 
-/>
+                    />
 
-<TimeDropdown
-  value={selectedShift.end_time}
-      disabled={true}
+                    <TimeDropdown
+                      value={selectedShift.end_time}
+                      disabled={true}
 
 
-/>
- </div>
+                    />
+                  </div>
                 )}
               </div>
             );
@@ -615,75 +615,75 @@ const Attendance_View_Details = () => {
             </div>
 
             {/* Header */}
-            <div className="mt-5 bg-white rounded-2xl shadow-lg p-6">
+            <div className="mt-2 first:md:mt-5 bg-white rounded-2xl shadow-lg p-3 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-800">
                     View Attendance
                   </h1>
-                 <div className="mt-3 flex flex-wrap items-center gap-6">
-  {/* Company */}
-  <div className="flex items-center text-sm">
-    <span className="text-gray-600">Company:</span>
-    <span className="ml-2 font-semibold text-gray-800">
-      {data?.company?.company_name || "-"}
-    </span>
-  </div>
+                  <div className="mt-1 md:mt-3 flex flex-wrap items-center gap-3 md:gap-6">
+                    {/* Company */}
+                    <div className="flex items-center text-sm">
+                      <span className="text-gray-600">Company:</span>
+                      <span className="ml-2 font-semibold text-gray-800">
+                        {data?.company?.company_name || "-"}
+                      </span>
+                    </div>
 
-  {/* Date */}
-  <div className="flex items-center text-sm">
-    <span className="text-gray-600">Date:</span>
-    <span className="ml-2 font-semibold text-gray-800">
-      {data?.attendance_date
-        ? formatToDDMMYYYY(data.attendance_date)
-        : "-"}
-    </span>
-  </div>
+                    {/* Date */}
+                    <div className="flex items-center text-sm">
+                      <span className="text-gray-600">Date:</span>
+                      <span className="ml-2 font-semibold text-gray-800">
+                        {data?.attendance_date
+                          ? formatToDDMMYYYY(data.attendance_date)
+                          : "-"}
+                      </span>
+                    </div>
 
-  {/* Present */}
-  <div className="flex items-center gap-2 rounded-full bg-green-100 px-4 py-1">
-    <span className="text-xs font-medium text-green-700 uppercase">
-      Present
-    </span>
-    <span className="text-lg font-bold text-green-800">
-      {counts?.present ?? 0}
-    </span>
-  </div>
+                    {/* Present */}
+                    <div className="flex items-center gap-2 rounded-full bg-green-100 px-4 py-1">
+                      <span className="text-xs font-medium text-green-700 uppercase">
+                        Present
+                      </span>
+                      <span className="text-lg font-bold text-green-800">
+                        {counts?.present ?? 0}
+                      </span>
+                    </div>
 
-  {/* Absent */}
-  <div className="flex items-center gap-2 rounded-full bg-red-100 px-4 py-1">
-    <span className="text-xs font-medium text-red-600 uppercase">
-      Absent
-    </span>
-    <span className="text-lg font-bold text-red-700">
-      {counts?.absent ?? 0}
-    </span>
-  </div>
+                    {/* Absent */}
+                    <div className="flex items-center gap-2 rounded-full bg-red-100 px-4 py-1">
+                      <span className="text-xs font-medium text-red-600 uppercase">
+                        Absent
+                      </span>
+                      <span className="text-lg font-bold text-red-700">
+                        {counts?.absent ?? 0}
+                      </span>
+                    </div>
 
-  {/* Not Marked */}
-  <div className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-1">
-    <span className="text-xs font-medium text-gray-600 uppercase">
-      Not Marked
-    </span>
-    <span className="text-lg font-bold text-gray-800">
-      {counts?.not_marked ?? 0}
-    </span>
-  </div>
-</div>
+                    {/* Not Marked */}
+                    <div className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-1">
+                      <span className="text-xs font-medium text-gray-600 uppercase">
+                        Not Marked
+                      </span>
+                      <span className="text-lg font-bold text-gray-800">
+                        {counts?.not_marked ?? 0}
+                      </span>
+                    </div>
+                  </div>
 
                 </div>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => navigate("/attendance")}
-                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
+                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-2 md:px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleEdit}
                     disabled={saving}
-                    className="bg-[#4BB452] hover:bg-[#5FD367] text-white px-4 md:px-5 py-2 rounded-lg disabled:opacity-50"
+                    className="bg-[#4BB452] hover:bg-[#5FD367] text-white text-sm md:text-base px-5 py-2 rounded-lg disabled:opacity-50"
                   >
                     Edit
                   </button>
