@@ -109,7 +109,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     platform: "",
     age: "",
     city: "",
-    category:"",
+    category:null,
+    lead_status:""
   });
 
   // apply filter
@@ -127,7 +128,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       city: "",
       from_date: "",
       to_date: "",
-      category:""
+      category:null,
+      lead_status:""
     };
 
     setFilters(reset);
@@ -442,6 +444,11 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       if (appliedFilters.to_date)
         params.to_date = appliedFilters.to_date;
 
+       if (appliedFilters.category)
+  params.category_id = appliedFilters.category;
+
+if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
+
       const res = await axiosInstance.get(
         `${API_URL}api/lead-management`,
         { params }
@@ -455,7 +462,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
          // Normalize status values for consistent display
       data = data.map(lead => ({
         ...lead,
-        status: lead.status?.toString() || "" // Ensure status is string
+        status: lead.status?.toString() || "", // Ensure status is string
+        lead_status: getStatusValue(lead.lead_status)
       }));
 
         //  FRONTEND FILTERING
@@ -482,11 +490,11 @@ const [selectedCategory, setSelectedCategory] = useState(null);
 
   
 
-  useEffect(() => {
-    if (viewStatus?.id) {
-      fetchStatusList(viewStatus.id);
-    }
-  }, [viewStatus?.id]);
+  // useEffect(() => {
+  //   if (viewStatus?.id) {
+  //     fetchStatusList(viewStatus.id);
+  //   }
+  // }, [viewStatus?.id]);
 
   // status view (view Api)
   const fetchStatusList = async (id) => {

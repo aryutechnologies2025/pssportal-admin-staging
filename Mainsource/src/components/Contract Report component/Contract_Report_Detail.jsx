@@ -183,6 +183,7 @@ const Contract_Report_Detail = () => {
         loadData();
         const date = new Date().toISOString().split("T")[0];
         setSelectedDate(date);
+        handleSubmit();
     }, []);
 
 
@@ -367,9 +368,9 @@ const Contract_Report_Detail = () => {
         });
     };
 
-    useEffect(() => {
-        handleSubmit();
-    }, []);
+    // useEffect(() => {
+    //     handleSubmit();
+    // }, []);
 
     const today = new Date().toISOString().split("T")[0];
 
@@ -386,6 +387,11 @@ const Contract_Report_Detail = () => {
             alert("Please select both From and To dates");
             return;
         }
+
+        if (new Date(fromDate) > new Date(toDate)) {
+    alert("From Date cannot be greater than To Date");
+    return;
+  }
 
         try {
             setLoading(true); // start loader
