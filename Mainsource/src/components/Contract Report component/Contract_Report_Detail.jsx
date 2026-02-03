@@ -195,12 +195,24 @@ const Contract_Report_Detail = () => {
             body: (_, { rowIndex }) => rowIndex + 1,
         },
         {
-            field: "company",
+            field: "company_name",
             header: "Company",
+            body: (rowData) => (
+                <div >
+                    <p >{rowData.company_name || "-"}</p>
+
+                </div>
+            ),
         },
         {
-            field: "reference",
+            field: "reference_name",
             header: "Reference Name",
+            body: (rowData) => (
+                <div >
+                    <p >{rowData.reference_name || "-"}</p>
+
+                </div>
+            ),
         },
         {
             field: "count",
@@ -217,9 +229,14 @@ const Contract_Report_Detail = () => {
 
         },
         {
-            field: "company",
+            field: "company_name",
             header: "Company",
-            // body: (row) => formatToDDMMYYYY(row.date),
+            body: (rowData) => (
+                <div >
+                    <p >{rowData.company_name || "-"}</p>
+
+                </div>
+            ),
 
         },
         {

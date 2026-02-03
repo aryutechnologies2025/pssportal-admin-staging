@@ -176,7 +176,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     post_code: "",
     city: "",
     state: "",
-    status: ""
+    status: "",
+    category: ""
   });
   // open add
   const openAddModal = () => {
@@ -197,7 +198,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         post_code: "",
         city: "",
         state: "",
-        status: ""
+        status: "",
+        category: ""
       });
       setErrors({});
     }, 300);
@@ -214,6 +216,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       post_code: lead.post_code,
       city: lead.city,
       state: lead.state,
+      category: lead.category_id,
       status: lead.status?.toString()
     });
 
@@ -242,6 +245,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         post_code: editLeadForm.post_code,
         city: editLeadForm.city,
         state: editLeadForm.state,
+        category_id: editLeadForm.category,
         status: editLeadForm.status,
         updated_by: userid
       };
@@ -277,6 +281,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     if (!leadForm.city) newErrors.city = "Enter a city";
     if (!leadForm.state) newErrors.state = "Enter a State";
     if (leadForm.status === "") newErrors.status = "select Status";
+    // if (!leadForm.category) newErrors.category = "Select Category";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -353,6 +358,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         post_code: leadForm.post_code,
         city: leadForm.city,
         state: leadForm.state,
+        // category_id: leadForm.category,
         status: leadForm.status,
         created_by: userid
       };
@@ -422,8 +428,11 @@ const [selectedCategory, setSelectedCategory] = useState(null);
 
   // lead status
   if (filters.lead_status) {
+    console.log("filtering by status : ",filters.lead_status)
     result = result.filter(item => item.lead_status === filters.lead_status);
   }
+
+  console.log("Filtered results count:", result.length);
     return result;
   };
 
@@ -481,6 +490,8 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
         setGenderOptions(res.data.gender || []);
         setPlatformOptions(res.data.platforms || {});
         setCityOptions(res.data.cities || []);
+        // setCategoryOptions(res.data.categories || []);
+        
       }
     } catch (err) {
       console.error(err);
@@ -737,7 +748,7 @@ const handleStatusChange = (row, newStatusKey) => {
     {
       field :"category_name",
       header: "Category Name",
-      body: (row) => row.category_name || "-"
+      body: (row) => Capitalise(row.category_name) || row.category_name || "-"
     },
     {
       field: "state",
@@ -1379,6 +1390,31 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     </div>
 
+                      {/* category */}
+                <div className="mt-6 flex justify-between items-center">
+                  <label className="text-sm font-medium">Category</label>
+                  <div className="w-[50%]">
+                  <Dropdown
+                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                    value={selectedCategory}
+                    
+    options={categoryOptions}
+                    onChange={(e) => {
+      setSelectedCategory(e.value);
+      handleChange("category_id", e.value);
+    }}
+                    placeholder="Select Category"
+                    filter
+                    filterPlaceholder="Search category"
+                    
+                    panelClassName="text-sm"
+                  />
+                    </div>
+                  
+
+
+                </div>
+
                     {/* Status */}
                     <div className="mt-6 flex justify-between items-center">
                       <label className="text-md font-medium">
@@ -1610,6 +1646,31 @@ px-2 py-2 md:px-6 md:py-6">
                         />
                       </div>
                     </div>
+
+                      {/* category */}
+                <div className="mt-6 flex justify-between items-center">
+                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                  <div className="w-[50%]">
+                  <Dropdown
+                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                    value={editLeadForm?.category_id || ""}
+                    
+    options={categoryOptions}
+                    onChange={(e) => {
+      // setSelectedCategory(e.value);
+      setEditLeadForm({ ...editLeadForm, category_id: e.value });
+    }}
+                    placeholder="Select Category"
+                    filter
+                    filterPlaceholder="Search category"
+                    
+                    panelClassName="text-sm"
+                  />
+                    </div>
+                  
+
+
+                </div>
 
                     {/* Status */}
                     <div className="mt-6 flex justify-between items-center">
