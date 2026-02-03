@@ -49,7 +49,7 @@ const ContractCandidates_Mainbar = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions : ", companyOptions);
-  
+
 
 
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
@@ -57,16 +57,16 @@ const ContractCandidates_Mainbar = () => {
   const userId = user?.id;
   const userRole = user?.role_id;
 
-   const getEducationName = (educationId) => {
+  const getEducationName = (educationId) => {
     const edu = educationOptions.find(e => e.value === educationId);
     return edu ? edu.label : "-";
   };
 
-const getCompanyName = (companyId) => {
+  const getCompanyName = (companyId) => {
 
-  const company = companyOptions.find(com => com.value === companyId);
-  return company ? company.label : "-";
-};
+    const company = companyOptions.find(com => com.value === companyId);
+    return company ? company.label : "-";
+  };
 
 
   const getTodayDate = () => {
@@ -98,16 +98,16 @@ const getCompanyName = (companyId) => {
       interviewStatus: z.string().min(1, "Interview status is required"),
       // candidateStatus: z.string().optional(),
       reference: z.string().optional(),
-// education: z.string().nullable().optional(),
+      // education: z.string().nullable().optional(),
 
-education: z
+      education: z
         .number({
           required_error: "Education is required",
           invalid_type_error: "Education is required",
         })
         .int()
         .positive("Education is required"),
-       
+
 
       // Make these optional in base schema, they'll be conditionally required
       rejectReason: z.string().optional(),
@@ -251,8 +251,18 @@ education: z
   const [selectedReference, setSelectedReference] = useState("");
   const [selectedReferenceForm, setSelectedReferenceForm] = useState("");
   const [filterEducation, setFilterEducation] = useState("");
-
-   const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
+  const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
+  const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+  
+    const onRowsChange = (value) => {
+      setRows(value);
+      setPage(1); // Reset to first page when changing rows per page
+    };
 
   // Table states
   // const [page, setPage] = useState(1);
@@ -388,7 +398,7 @@ education: z
   };
 
   const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
-  
+
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -399,43 +409,43 @@ education: z
 
   const [existingCandidate, setExistingCandidate] = useState(null);
   const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
- const [isExistingCandidateViewModalOpen, setIsExistingCandidateViewModalOpen] = useState(false);
+  const [isExistingCandidateViewModalOpen, setIsExistingCandidateViewModalOpen] = useState(false);
 
   const handleViewExisting = async (id) => {
-  try {
-    
-    const response = await axiosInstance.get(
-      `/api/contract-emp/edit/${id}`
-    );
+    try {
 
-    if (response.data?.success) {
-     setViewExistingCandidate(response.data.data); 
-      setIsExistingCandidateViewModalOpen(true);    
+      const response = await axiosInstance.get(
+        `/api/contract-emp/edit/${id}`
+      );
+
+      if (response.data?.success) {
+        setViewExistingCandidate(response.data.data);
+        setIsExistingCandidateViewModalOpen(true);
+      }
+
+
+
+    } catch (err) {
+      toast.error("Unable To Load Candidate Details");
     }
+  };
 
-   
+  const handleCloseViewExistingCandidate = () => {
+    setIsAddCandidateOpen(false);
 
-  } catch (err) {
-    toast.error("Unable To Load Candidate Details");
-  }
-};
+    reset();
 
-const handleCloseViewExistingCandidate = () => {
-  setIsAddCandidateOpen(false);
+    setIsExistingCandidateViewModalOpen(false);
+    setViewExistingCandidate(null);
+  };
 
-  reset();
+  const handleCloseAddCandidate = () => {
+    setIsAddCandidateOpen(false);
 
- setIsExistingCandidateViewModalOpen(false);
-  setViewExistingCandidate(null);
-};
-
-const handleCloseAddCandidate = () => {
-  setIsAddCandidateOpen(false);
-
-  reset();
-  setExistingCandidate(null);
-  setIsAadharDuplicate(false);
-};
+    reset();
+    setExistingCandidate(null);
+    setIsAadharDuplicate(false);
+  };
 
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -483,8 +493,8 @@ const handleCloseAddCandidate = () => {
       setIsModalOpen(false);
       setBackendValidationError(null);
       setExistingCandidate(null);
- 
-  reset();
+
+      reset();
 
     }, 250);
   };
@@ -521,8 +531,8 @@ const handleCloseAddCandidate = () => {
   const closeViewModal = () => {
     setIsViewModalOpen(false);
     setViewRow(null);
-     setIsExistingCandidateViewModalOpen(false);
-  setViewExistingCandidate(null);
+    setIsExistingCandidateViewModalOpen(false);
+    setViewExistingCandidate(null);
   };
 
   const resetImportForm = () => {
@@ -663,14 +673,14 @@ const handleCloseAddCandidate = () => {
       fileInputRef.current.value = "";
     }
   };
-const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
-if (isSubmitting) return; 
-  setIsSubmitting(true);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     // Reset errors
     setError({ file: "", date: "", company: "", import: [] });
 
@@ -749,10 +759,10 @@ if (isSubmitting) return;
 
       // Reset fields
       handleDeleteFile();
-      
+
       setSelectedDate(new Date().toISOString().split("T")[0]);
       setSelectedCompany(null);
-       closeImportAddModal();
+      closeImportAddModal();
 
       fetchContractCandidates();
     } catch (err) {
@@ -773,7 +783,7 @@ if (isSubmitting) return;
       } else {
         toast.error(message);
       }
-    }finally {
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -987,7 +997,7 @@ if (isSubmitting) return;
       header: "Company",
       body: (row) => getCompanyName(row.company_id),
     },
-    
+
     // {
     //   header: "Interview Status",
     //   field: "interview_Status",
@@ -1139,7 +1149,7 @@ if (isSubmitting) return;
       //   documents_length: data.documents?.length
       // });
 
-      
+
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
@@ -1288,20 +1298,20 @@ if (isSubmitting) return;
       console.log("errors:", error);
       const res = error?.response?.data;
 
-  if (res?.existing_id) {
-    // for Aadhaar already exists case
-    setExistingCandidate({
-      id: res.existing_id,
-      message: res.message
-    });
-  } else {
-    setExistingCandidate(null);
-    setTimeout(
-      () => toast.error(res?.message || "Server Error. Please Try Again."),
-      300
-    ); 
-    // setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
-  }
+      if (res?.existing_id) {
+        // for Aadhaar already exists case
+        setExistingCandidate({
+          id: res.existing_id,
+          message: res.message
+        });
+      } else {
+        setExistingCandidate(null);
+        setTimeout(
+          () => toast.error(res?.message || "Server Error. Please Try Again."),
+          300
+        );
+        // setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
+      }
     } finally {
       setLoading(false);
     }
@@ -1509,14 +1519,14 @@ if (isSubmitting) return;
                     />
                   </div>
 
-{/* company */}
+                  {/* company */}
 
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
                       Company
                     </label>
 
-                    <div className="w-[60%] md:w-[100%]">
+                    <div className="w-full">
                       <Dropdown
                         value={selectedCompanyfilter}
                         onChange={(e) => setSelectedCompanyfilter(e.value)}
@@ -1564,7 +1574,7 @@ if (isSubmitting) return;
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -1589,7 +1599,7 @@ if (isSubmitting) return;
                     <div className="flex items-center">
                       <button
                         onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                        className="hidden md:flex px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
                       >
                         Import
                       </button>
@@ -1599,7 +1609,7 @@ if (isSubmitting) return;
                       <button
                         onClick={handlCsvDownload}
                         className="
-                          flex items-center gap-2
+                          hidden md:flex items-center gap-2
                           px-5 py-2
                           text-sm font-semibold
                           text-green-700
@@ -1614,11 +1624,42 @@ if (isSubmitting) return;
                     </div>
                     <button
                       onClick={openAddModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="hidden md:flex px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
                     >
                       + Add Candidate
                     </button>
                   </div>
+                </div>
+
+                {/* mobile view */}
+                <div className="flex md:hidden justify-between gap-1">
+                  <button
+                        onClick={handlCsvDownload}
+                        className="
+                          flex items-center gap-2
+                          px-2 md:px-5 py-1 md:py-2
+                          text-xs md:text-base font-semibold
+                          text-green-700
+                          bg-green-100
+                          rounded-full
+                          hover:bg-green-200
+                          transition
+                        "
+                      >
+                        <FiDownload className="text-lg" /> Demo CSV
+                      </button>
+                      <button
+                        onClick={openImportAddModal}
+                        className="px-2 md:px-3 py-1 md:py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium w-15 md:w-20 rounded-lg"
+                      >
+                        Import
+                      </button>
+                      <button
+                      onClick={openAddModal}
+                      className="px-2 md:px-3 py-1 md:py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
+                    >
+                      +Candidate
+                    </button>
                 </div>
 
                 <div className="table-scroll-container" id="datatable">
@@ -1647,29 +1688,30 @@ if (isSubmitting) return;
                     ))}
                   </DataTable> */}
                   <DataTable
-  className="mt-8"
-  value={columnData}
-  paginator
-  rows={10}
-  rowsPerPageOptions={[10, 25, 50, 100]}
-  globalFilter={globalFilter}
-  showGridlines
-  resizableColumns
-  loading={loading}
-  paginatorClassName="custom-paginator"
-  paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
->
-  {columns.map((col, index) => (
-    <Column
-      key={index}
-      field={col.field}
-      header={col.header}
-      body={col.body}
-      style={col.style}
-    />
-  ))}
-</DataTable>
+                    className="mt-8"
+                    value={columnData}
+                    paginator
+                    rows={rows}
+                    onPage={onPageChange}
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    globalFilter={globalFilter}
+                    showGridlines
+                    resizableColumns
+                    loading={loading}
+                    paginatorClassName="custom-paginator"
+                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                  >
+                    {columns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+                        style={col.style}
+                      />
+                    ))}
+                  </DataTable>
 
                 </div>
               </div>
@@ -1803,16 +1845,16 @@ if (isSubmitting) return;
                         Submit
                       </button> */}
                       <button
-  onClick={handleFileSubmit}
-  disabled={isSubmitting}
-  className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+                        onClick={handleFileSubmit}
+                        disabled={isSubmitting}
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
              disabled:opacity-50 flex items-center gap-2"
->
-  {isSubmitting && (
-    <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-  )}
-  {isSubmitting ? "Uploading..." : "Submit"}
-</button>
+                      >
+                        {isSubmitting && (
+                          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        )}
+                        {isSubmitting ? "Uploading..." : "Submit"}
+                      </button>
 
                     </div>
                   </div>
@@ -2046,7 +2088,7 @@ if (isSubmitting) return;
                       </label>
 
                       <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <div className="flex gap-6">
+                        <div className="flex flex-wrap gap-6">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="radio"
@@ -2078,12 +2120,12 @@ if (isSubmitting) return;
 
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Marital Status 
+                        Marital Status
                         {/* <span className="text-red-500">*</span> */}
                       </label>
 
                       <div className="w-[50%] md:w-[60%] rounded-lg">
-                        <div className="flex gap-6">
+                        <div className="flex flex-wrap gap-6">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="radio"
@@ -2160,16 +2202,16 @@ if (isSubmitting) return;
                       </div>
                     </div>
                     {existingCandidate && (
-  <p className="text-sm text-red-600 mt-1">
-    {existingCandidate.message}{" "}
-    <span
-      className="underline text-green-600 cursor-pointer"
-      onClick={() => handleViewExisting(existingCandidate.id)}
-    >
-      Learn more
-    </span>
-  </p>
-)}
+                      <p className="text-sm text-red-600 mt-1">
+                        {existingCandidate.message}{" "}
+                        <span
+                          className="underline text-green-600 cursor-pointer"
+                          onClick={() => handleViewExisting(existingCandidate.id)}
+                        >
+                          Learn more
+                        </span>
+                      </p>
+                    )}
 
 
                     {/* pan no */}
@@ -2220,15 +2262,13 @@ if (isSubmitting) return;
                     </div> */}
 
                     {/* Education */}
-                    <div className="mt-4 mb-3 flex flex-col md:flex-row md:justify-between md:items-center">
+                    <div className="mt-4 mb-3 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
-                        Education 
+                        Education
                         {/* <span className="text-red-500">*</span> */}
                       </label>
 
-                      <div className="w-full md:w-[60%]">
-
-                        
+                      <div className="w-[50%] md:w-[60%] rounded-lg">
                         <input
                           type="hidden"
                           {...register("education", {
@@ -2647,8 +2687,8 @@ if (isSubmitting) return;
             )}
 
             {isViewModalOpen && viewRow && (
-              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-2 md:p-4">
+                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-3 md:p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
                   {/* Close Button */}
                   {/* <button
                     onClick={closeViewModal}
@@ -2659,10 +2699,10 @@ if (isSubmitting) return;
 
                   {/* Title and profile picture */}
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-6 border-b pb-4">
+                  <div className="flex flex-wrap items-center justify-between mb-2 md:mb-6 border-b pb-2 md:pb-4">
 
                     {/* Title */}
-                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                    <h2 className="text-md md:text-xl font-semibold text-[#1ea600]">
                       View Interview Candidate Details
                     </h2>
 
@@ -2686,7 +2726,7 @@ if (isSubmitting) return;
                       )}
 
                       {/* Action Icons */}
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-28 md:gap-4">
                         {/* Download */}
                         {/* <button
         title="Download"
@@ -2830,7 +2870,7 @@ if (isSubmitting) return;
               </div>
             )}
 
-             {isExistingCandidateViewModalOpen && viewExistingCandidate && (
+            {isExistingCandidateViewModalOpen && viewExistingCandidate && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
                 <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
                   {/* Close Button */}
