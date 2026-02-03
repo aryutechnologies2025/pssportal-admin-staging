@@ -781,7 +781,7 @@ const handleHeaderShiftToggle = (shiftId) => {
             </div> */}
 
             <div className="bg-white flex justify-between items-center w-full rounded-2xl shadow-md p-4 md:p-6 mt-5">
-              <div className="flex flex-row gap-2 md:gap-5">
+              <div className="flex flex-col md:flex-row gap-2 md:gap-5 w-full">
                 {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Company
@@ -802,7 +802,7 @@ const handleHeaderShiftToggle = (shiftId) => {
                   </select>
                 </div> */}
 
-                <div className="flex flex-col gap-1 w-[40%] md:w-[50%] ">
+                <div className="flex flex-col gap-1 w-full md:w-[50%] ">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Company
                   </label>
@@ -815,11 +815,11 @@ const handleHeaderShiftToggle = (shiftId) => {
                     }}
                     className=" uniform-field px-3 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     filter
-                    placeholder="Select Comoany"
+                    placeholder="Select Company"
                   />
                 </div>
 
-                <div className="flex flex-col gap-1 w-[40%] md:w-[50%]">
+                <div className="flex flex-col gap-1 w-full md:w-[50%]">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Date
                   </label>
@@ -906,7 +906,7 @@ px-2 py-2 md:px-6 md:py-6"
                     <button
                       onClick={handleSubmit}
                       disabled={loading}
-                      className="bg-[#4BB452] hover:bg-[#5FD367] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                      className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                     >
                       {loading ? "Submitting..." : "Submit"}
                     </button>

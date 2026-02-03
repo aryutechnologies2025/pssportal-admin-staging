@@ -907,13 +907,13 @@ function generateTimeOptions() {
             </div>
 
             {/* Header */}
-            <div className="mt-5 bg-white rounded-2xl shadow-lg p-6">
+            <div className="mt-2 md:mt-5 bg-white rounded-2xl shadow-lg p-3 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">
+                  <h1 className="text-xl md:text-2xl font-bold text-gray-800">
                     Edit Attendance
                   </h1>
-                  <div className="mt-3 flex flex-wrap items-center gap-6">
+                  <div className="mt-1 md:mt-3 flex flex-wrap items-center gap-3 md:gap-6">
                     {/* Company */}
                     <div className="flex items-center text-sm">
                       <span className="text-gray-600">Company:</span>
@@ -937,7 +937,7 @@ function generateTimeOptions() {
                       <span className="text-xs font-medium text-green-700 uppercase">
                         Present
                       </span>
-                      <span className="text-lg font-bold text-green-800">
+                      <span className="text-md md:text-lg font-bold text-green-800">
                         {counts?.present ?? 0}
                       </span>
                     </div>
@@ -947,7 +947,7 @@ function generateTimeOptions() {
                       <span className="text-xs font-medium text-red-600 uppercase">
                         Absent
                       </span>
-                      <span className="text-lg font-bold text-red-700">
+                      <span className="text-md md:text-lg font-bold text-red-700">
                         {counts?.absent ?? 0}
                       </span>
                     </div>
@@ -957,7 +957,7 @@ function generateTimeOptions() {
                       <span className="text-xs font-medium text-gray-600 uppercase">
                         Not Marked
                       </span>
-                      <span className="text-lg font-bold text-gray-800">
+                      <span className="text-md md:text-lg font-bold text-gray-800">
                         {counts?.not_marked ?? 0}
                       </span>
                     </div>
@@ -967,14 +967,14 @@ function generateTimeOptions() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => navigate("/attendance")}
-                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
+                    className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-2 md:px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-[#4BB452] hover:bg-[#5FD367] text-white px-4 md:px-5 py-2  rounded-lg disabled:opacity-50 transition-all duration-200"
+                    className="bg-[#4BB452] hover:bg-[#5FD367] text-white px-3 md:px-5 py-1 md:py-2  rounded-lg disabled:opacity-50 transition-all duration-200"
                   >
                     {saving ? "Saving..." : "Save Changes"}
                   </button>
@@ -1069,7 +1069,7 @@ function generateTimeOptions() {
                 onClick={() => setShowShiftPopup(false)} // Close when clicking outside
               >
                 <div
-                  className="bg-white w-[90%] max-w-[600px] rounded-lg shadow-lg p-4 overflow-y-auto max-h-[80vh]"
+                  className="bg-white w-[90%] max-w-[600px] rounded-lg shadow-lg p-2 md:p-4 overflow-y-auto max-h-[80vh]"
                   onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
                 >
                   {/* Header */}

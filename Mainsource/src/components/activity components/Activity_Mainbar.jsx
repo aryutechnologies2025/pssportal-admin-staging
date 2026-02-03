@@ -49,6 +49,16 @@ const Activity_Mainbar = () => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [createdbyData, setCreatedbyData] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
 
 
     const fetchActivity = async () => {
@@ -265,7 +275,7 @@ const columns = [
   px-2 py-2 md:px-6 md:py-6"
           >
             <div className="datatable-container">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                 {/* Entries per page */}
                 <div className="flex items-center gap-2">
                   {/* <span className="font-semibold text-base text-[#6B7280]">Show</span> */}
@@ -275,7 +285,7 @@ const columns = [
                       label: v,
                       value: v,
                     }))}
-                    onChange={(e) => setRows(e.value)}
+                    onChange={(e) => onRowsChange(e.value)}
                     className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                   <span className=" text-sm text-[#6B7280]">
@@ -283,7 +293,7 @@ const columns = [
                   </span>
                 </div>
 
-                <div className="flex flex-col md:flex-row flex-wrap items-center gap-5">
+                <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-5">
                   {/* Search box */}
                   <div className="relative w-64">
                     <FiSearch
@@ -311,6 +321,8 @@ const columns = [
                   dataKey="id"
                   paginator
                   rows={rows}
+                  first={(page - 1) * rows}
+                  onPage={onPageChange}
                   totalRecords={activity.length}
                   rowsPerPageOptions={[10, 25, 50, 100]}
                   globalFilter={globalFilter}
