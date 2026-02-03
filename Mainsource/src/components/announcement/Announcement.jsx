@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { FiSearch } from "react-icons/fi";
 import { Calendar } from "primereact/calendar";
 import { Dropdown } from "primereact/dropdown";
 import { Editor } from "primereact/editor";
@@ -31,17 +31,19 @@ import {
   formatToYYYYMMDD,
 } from "../../Utils/dateformat";
 import { AiOutlineEye } from "react-icons/ai";
-import { data } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export default function Announcements_Mainbar() {
+const Announcements_Mainbar = () => {
+  let navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([]);
   const [roles, setRoles] = useState([]);
-
   const [rows, setRows] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
+  console.log("global", globalFilter);
+  const [totalRecords, setTotalRecords] = useState(0);
+  console.log("total", totalRecords);
   const [loading, setLoading] = useState(false);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -49,22 +51,20 @@ export default function Announcements_Mainbar() {
   const onPageChange = (e) => {
     setPage(e.page + 1); // PrimeReact is 0-based
     setRows(e.rows);
-
   };
-
   const onRowsChange = (value) => {
     setRows(value);
     setPage(1); // Reset to first page when changing rows per page
   };
   const calendarRef = useRef(null);
-  //   view
+  // view
   const [viewData, setViewData] = useState(null);
   const openViewModal = async (row) => {
     const res = await axiosInstance.get(
       `${API_URL}api/announcement/edit/${row.id}`
     );
 
-    console.log("view DATA 👉", res.data.data);
+    console.log("view data", res.data.data);
     const data = res.data.data;
     setViewData(res.data.data);
   };
@@ -73,7 +73,7 @@ export default function Announcements_Mainbar() {
     setViewData(null);
   };
 
-  /* ================= ZOD SCHEMA ================= */
+  /* ZOD SCHEMA */
   const announcementSchema = z
     .object({
       date: z.date(),
@@ -94,7 +94,7 @@ export default function Announcements_Mainbar() {
       message: "Expiry date must be after Date",
     });
 
-  /* ================= DEFAULT VALUES ================= */
+  /* DEFAULT VALUES */
   const defaultValues = {
     date: new Date(),
     expiry_date: new Date(),
@@ -103,7 +103,7 @@ export default function Announcements_Mainbar() {
     status: "1",
   };
 
-  /* ================= FORM ================= */
+  /* FORM */
   const {
     control,
     handleSubmit,
@@ -114,7 +114,7 @@ export default function Announcements_Mainbar() {
     defaultValues,
   });
 
-  /* ================= FETCH ================= */
+  /* FETCH */
   useEffect(() => {
     fetchRoles();
     fetchAnnouncements();
@@ -129,7 +129,7 @@ export default function Announcements_Mainbar() {
       label: r.role_name,
       value: String(r.id),
     }));
-    // 👇 Add "All" at the top
+    //  Add "All" at the top
     setRoles([{ label: "All", value: "all" }, ...roleOptions]);
   };
 
@@ -137,53 +137,18 @@ export default function Announcements_Mainbar() {
     setLoading(true);
     const res = await axiosInstance.get(`${API_URL}api/announcement`);
     setAnnouncements(res.data.data);
+    // setGlobalFilter(res.data.data.length);
     setLoading(false);
   };
 
 
-  /* ================= MODAL ================= */
+  /* MODAL */
   const openAddModal = () => {
     reset(defaultValues);
     setEditingId(null);
     setModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
   };
-
-  //   const openEditModal = (row) => {
-  //     const allRoleIds = roles
-  //       .filter((r) => r.value !== "all")
-  //       .map((r) => String(r.value));
-
-  //     const isAllSelected = row.visible_roles?.length === allRoleIds.length;
-
-  //     reset({
-  //       date: new Date(row.start_date),
-  //       expiry_date: new Date(row.expiry_date),
-  //       message: row.message,
-  //       visible_roles:row.visible_roles,
-  //       status: row.status,
-  //     });
-
-  //     setEditingId(row.id);
-  //     setModalOpen(true);
-  //     setTimeout(() => setIsAnimating(true), 10);
-  //   };
-
-  // const openEditModal = (row) => {
-  //   const roleIds = row.visible_roles?.map((r) => String(r.id)) || [];
-
-  //   reset({
-  //     date: new Date(row.start_date),
-  //     expiry_date: new Date(row.expiry_date),
-  //     message: row.announcement_details,
-  //     visible_roles: roleIds,
-  //     status: String(row.status),
-  //   });
-
-  //   setEditingId(row.id);
-  //   setModalOpen(true);
-  //   setTimeout(() => setIsAnimating(true), 10);
-  // };
 
   const openEditModal = async (row) => {
     const res = await axiosInstance.get(
@@ -240,62 +205,6 @@ export default function Announcements_Mainbar() {
     return date.toISOString().split("T")[0];
   };
 
-  /* ================= SUBMIT ================= */
-  //   const onSubmit = async (data) => {
-
-  //     try {
-  //       let payload = {
-  //         start_date: formatToYYYYMMDD(data.date),
-  //         expiry_date: formatToYYYYMMDD(data.expiry_date),
-  //         announcement_details: data.message,
-  //         status: data.status,
-  //         visible_to: data.visible_roles,
-  //       };
-
-  //       if (data.visible_roles.includes("all")) {
-  //         payload.visible_to = roles
-  //           .filter((r) => r.value !== "all")
-  //           .map((r) => String(r.value));
-  //       }
-
-  //       if (editingId) {
-  //   await axiosInstance.post(
-  //     `${API_URL}api/announcement/update/${editingId}`,
-  //     payload
-  //   );
-
-  //   closeModal();
-
-  //   setTimeout(() => {
-  //     toast.success("Announcement updated successfully ✅");
-  //   }, 200);
-
-  // } else {
-  //   await axiosInstance.post(
-  //     `${API_URL}api/announcement/create`,
-  //     payload
-  //   );
-
-  //   closeModal();
-
-  //   setTimeout(() => {
-  //     toast.success("Announcement created successfully 🎉");
-  //   }, 200);
-  // }
-
-  // fetchAnnouncements();
-
-  //       closeModal();
-  //       fetchAnnouncements();
-  //     } catch (err) {
-  //       console.error(err);
-
-  //       toast.error(
-  //         err?.response?.data?.message || "Failed to create announcement "
-  //       );
-  //     }
-  //   };
-
   const onSubmit = async (data) => {
     try {
       let payload = {
@@ -344,10 +253,10 @@ export default function Announcements_Mainbar() {
   };
 
   useEffect(() => {
-    console.log("FORM ERRORS 👉", errors);
+    console.log("FORM ERRORS ", errors);
   }, [errors]);
 
-  /* ================= TABLE ================= */
+  /* TABLE */
   const columns = [
     { header: "S.No", body: (_, o) => o.rowIndex + 1, style: { width: 80 } },
     { field: "start_date", header: "Date" },
@@ -370,8 +279,8 @@ export default function Announcements_Mainbar() {
       body: (r) => (
         <span
           className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status == 1
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
+            ? "bg-green-100 text-green-600"
+            : "bg-red-100 text-red-600"
             }`}
         >
           {r.status == 1 ? "Active" : "Inactive"}
@@ -423,107 +332,107 @@ export default function Announcements_Mainbar() {
   ];
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen md:mt-5">
+    <div className="flex flex-col justify-between bg-gray-100  px-3 md:px-5 pt-2 md:pt-5 w-full min-h-screen overflow-x-auto">
       {loading ? (
         <Loader />
       ) : (
         <>
           <div>
             <Mobile_Sidebar />
-          </div>
 
-          {/* HEADER */}
-          <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
+            <div className="flex gap-2 items-center cursor-pointer">
+              <p
+                className="text-sm md:text-md text-gray-500  cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              >
+                Dashboard
+              </p>
+              <p>{">"}</p>
+
+              <p className="text-sm  md:text-md  text-[#1ea600]">Announcement</p>
+            </div>
+
+
+            {/* HEADER */}
+            {/* <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
             <p className="text-md md:text-xl font-semibold">Announcements</p>
-          </div>
+          </div> */}
 
-          <div
-            className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
+            <div
+              className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
           shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
           px-2 py-2 md:px-6 md:py-6"
-          >
-            <div className="datatable-container mt-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 mb-4">
-                {/* Entries per page */}
-                <div className="flex items-center gap-2">
-                  <Dropdown
-                    value={rows}
-                    options={[10, 25, 50].map((v) => ({ label: v, value: v }))}
-                    className="border"
-                    onChange={(e) => onRowsChange(e.value)}
-                  />
+            >
+              <div className="datatable-container mt-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 mb-4">
+                  {/* Entries per page */}
+                  <div className="flex items-center gap-2">
+                    <Dropdown
+                      value={rows}
+                      options={[10, 25, 50].map((v) => ({ label: v, value: v }))}
+                      className="border"
+                      onChange={(e) => onRowsChange(e.value)}
+                    />
 
-                  <span className="text-sm w-full text-[#6B7280]">
-                    Entries Per Page
-                  </span>
+                    <span className="text-sm w-full text-[#6B7280]">
+                      Entries Per Page
+                    </span>
+                  </div>
+
+                  <div className="flex justify-end w-full md:mb-4 gap-2 md:gap-4">
+                    <FiSearch
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
+
+                    <InputText
+                      value={globalFilter}
+                      onChange={(e) => setGlobalFilter(e.target.value)}
+                      placeholder="Search......"
+                      className="w-[50%]  pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
+                                 focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+
+                    <button
+                      onClick={openAddModal}
+                      className="hidden md:flex bg-[#1ea600] text-white text-xs md:text-base px-4 py-2 rounded-lg"
+                    >
+                      Add Announcement
+                    </button>
+                  </div>
                 </div>
-
-                <div className="flex justify-end w-full md:mb-4 gap-2 md:gap-4">
-                  <input
-                    value={globalFilter}
-                    onChange={(e) => setGlobalFilter(e.target.value)}
-                    placeholder="Search..."
-                    className="w-full md:w-[20%] max-w-sm px-3 py-1 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                  />
-
+                <div className="flex justify-end mb-2" >
                   <button
-                    onClick={openAddModal}
-                    className="hidden md:flex bg-[#1ea600] text-white text-xs md:text-base px-4 py-2 rounded-lg"
-                  >
-                    Add Announcement
-                  </button>
-                </div>
-              </div>
-              <div className="flex justify-end mb-2" >
-                <button
                     onClick={openAddModal}
                     className="flex md:hidden bg-[#1ea600] text-white text-sm md:text-base px-4 py-2 rounded-lg"
                   >
                     Add Announcement
                   </button>
-              </div>
-              <div className="table-scroll-container" id="datatable">
-                {/* <DataTable
-                              className="mt-8"
-                              value={roles}
-                              paginator
-                              rows={rows}
-                              totalRecords={totalRecords}
-                              rowsPerPageOptions={[10, 25, 50, 100]}
-                              globalFilter={globalFilter}
-                              showGridlines
-                              resizableColumns
-                              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                              paginatorClassName="custom-paginator"
-                              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                              loading={loading}
-                            >
-          
-                            
-                              {columns.map((col, index) => (
-                                <Column
-                                  key={index}
-                                  field={col.field}
-                                  header={col.header}
-                                  body={col.body}
-                                  style={col.style}
-                                />
-                              ))}
-                            </DataTable> */}
+                </div>
+                <div className="table-scroll-container" id="datatable">
+                  <DataTable
+                    className="mt-8"
+                    value={announcements}
+                    paginator
+                    rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
+                    totalRecords={totalRecords}
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    loading={loading}
+                    globalFilter={globalFilter}
+                    showGridlines
+                    resizableColumns
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    paginatorClassName="custom-paginator"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
 
-                <DataTable
-                  value={announcements}
-                  paginator
-                  rows={rows}
-                  first={(page - 1) * rows}
-                  onPage={onPageChange}
-                  //   loading={loading}
-                  globalFilter={globalFilter}
-                >
-                  {columns.map((c, i) => (
-                    <Column key={i} {...c} />
-                  ))}
-                </DataTable>
+                  >
+                    {columns.map((c, i) => (
+                      <Column key={i} {...c} />
+                    ))}
+                  </DataTable>
+                </div>
               </div>
             </div>
           </div>
@@ -868,3 +777,5 @@ export default function Announcements_Mainbar() {
     </div>
   );
 }
+
+export default Announcements_Mainbar
