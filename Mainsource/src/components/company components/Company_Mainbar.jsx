@@ -32,6 +32,7 @@ import axios from "axios";
 import { FaEye } from "react-icons/fa6";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { Capitalise } from "../../hooks/useCapitalise.jsx";
+import TimeDropdown from "../../hooks/TimeInput .jsx";
 
 const Company_Mainbar = () => {
   const navigate = useNavigate();
@@ -133,24 +134,20 @@ const Company_Mainbar = () => {
   };
 
   const handleView = async (row) => {
-
     try {
-    
+      const res = await axiosInstance.get(
+        `${API_URL}api/company/edit/${row.id}`,
+      );
 
-    const res = await axiosInstance.get(
-      `${API_URL}api/company/edit/${row.id}`
-    );
+      const data = res.data?.data || res.data;
 
-    const data = res.data?.data || res.data;
+      // console.log("Edit API response dataview:", data);
 
-    // console.log("Edit API response dataview:", data);
-
-    setViewRow(data);
-    setIsViewModalOpen(true);
-  } catch (error) {
-    console.error("Edit API error:", error);
-  }
-    
+      setViewRow(data);
+      setIsViewModalOpen(true);
+    } catch (error) {
+      console.error("Edit API error:", error);
+    }
   };
 
   const closeViewModal = () => {
@@ -244,47 +241,43 @@ const Company_Mainbar = () => {
   //   setTimeout(() => setIsEditAnimating(true), 30);
   // };
 
-
   const openEditModal = async (row) => {
     console.log("rowgn", row);
-  try {
-    
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/company/edit/${row.id}`,
+      );
 
-    const res = await axiosInstance.get(
-      `${API_URL}api/company/edit/${row.id}`
-    );
+      const data = res.data?.data || res.data;
 
-    const data = res.data?.data || res.data;
+      // console.log("Edit API response data:", data);
 
-    // console.log("Edit API response data:", data);
+      setEditRow(data);
 
-    setEditRow(data);
+      setEditFormData({
+        companyName: data.company_name || "",
+        address: data.address || "",
+        gstNumber: data.gst_number || "",
+        website: data.website_url || "",
+        target: data.target || "",
+        phone: data.phone_number || "",
+        supportEmail: data.support_email || "",
+        billingEmail: data.billing_email || "",
+        notes: data.notes || "",
+        status: data.status ?? "",
+        contacts: Array.isArray(data.contacts) ? data.contacts : [],
+        shifts: Array.isArray(data.shifts) ? data.shifts : [],
+        automaticName: data.prefix || "",
+        mode: data.company_emp_id || "",
+        latestnotes: data.latest?.notes || [],
+      });
 
-    setEditFormData({
-      companyName: data.company_name || "",
-      address: data.address || "",
-      gstNumber: data.gst_number || "",
-      website: data.website_url || "",
-      target: data.target || "",
-      phone: data.phone_number || "",
-      supportEmail: data.support_email || "",
-      billingEmail: data.billing_email || "",
-      notes: data.notes || "",
-      status: data.status ?? "",
-      contacts: Array.isArray(data.contacts) ? data.contacts : [],
-      shifts: Array.isArray(data.shifts) ? data.shifts : [],
-      automaticName: data.prefix || "",
-      mode: data.company_emp_id   || "",
-      latestnotes: data.latest?.notes || [],
-    });
-    
-
-    setIsEditModalOpen(true);
-    setTimeout(() => setIsEditAnimating(true), 30);
-  } catch (error) {
-    console.error("Edit API error:", error);
-  }
-};
+      setIsEditModalOpen(true);
+      setTimeout(() => setIsEditAnimating(true), 30);
+    } catch (error) {
+      console.error("Edit API error:", error);
+    }
+  };
 
   const closeEditModal = () => {
     setIsEditAnimating(false);
@@ -393,16 +386,22 @@ const Company_Mainbar = () => {
     });
   };
 
+  // const updateShifts = (index, field, value) => {
+  //   const updated = [...shifts];
+  //   updated[index][field] = value;
+  //   setShifts(updated);
+
+  //   setErrors((prev) => {
+  //     let newErrors = { ...prev };
+
+  //     return newErrors;
+  //   });
+  // };
+
   const updateShifts = (index, field, value) => {
-    const updated = [...shifts];
-    updated[index][field] = value;
-    setShifts(updated);
-
-    setErrors((prev) => {
-      let newErrors = { ...prev };
-
-      return newErrors;
-    });
+    setShifts((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+    );
   };
 
   const removeCompanyContact = (index) => {
@@ -433,13 +432,13 @@ const Company_Mainbar = () => {
 
   const hasAtLeastOneValidContact = () => {
     return contacts.some(
-      (c) => c.name?.trim() && c.role?.trim() && validatePhone(c.phone_number)
+      (c) => c.name?.trim() && c.role?.trim() && validatePhone(c.phone_number),
     );
   };
 
   const hasAtLeastOneValidShift = () => {
     return shifts.some(
-      (c) => c.shift_name?.trim() && c.start_time?.trim() && c.end_time?.trim()
+      (c) => c.shift_name?.trim() && c.start_time?.trim() && c.end_time?.trim(),
     );
   };
 
@@ -450,7 +449,7 @@ const Company_Mainbar = () => {
     }
 
     const filtered = allCompanies.filter(
-      (company) => company.status === filterStatus
+      (company) => company.status === filterStatus,
     );
 
     setCompanies(filtered);
@@ -483,7 +482,6 @@ const Company_Mainbar = () => {
       console.log("Fetched Companies List:", list);
 
       const mappedCompanies = list.map((item) => ({
-        
         id: item?._id || item?.id,
         companyName: item.company_name || "",
         address: item.address || "",
@@ -521,14 +519,12 @@ const Company_Mainbar = () => {
     const newErrors = {};
 
     //  Company Name
-    if (!companyName.trim())
-      newErrors.companyName = "Company Name is required";
+    if (!companyName.trim()) newErrors.companyName = "Company Name is required";
     else if (!validateCompanyName(companyName))
       newErrors.companyName = "Enter a valid Company Name";
 
     //  Address
-    if (!address.trim())
-      newErrors.address = "Address is required";
+    if (!address.trim()) newErrors.address = "Address is required";
     else if (!validateAddress(address))
       newErrors.address = "Enter a valid address";
 
@@ -580,7 +576,7 @@ const Company_Mainbar = () => {
           role_id: userRole,
           company_emp_id: mode || null,
           prefix: automaticName || null,
-        }
+        },
       );
 
       if (
@@ -598,11 +594,10 @@ const Company_Mainbar = () => {
     } catch (error) {
       console.error("Error adding company:", error);
       toast.error(
-        error.response?.data?.message || "Server error. Company not created."
+        error.response?.data?.message || "Server error. Company not created.",
       );
     }
   };
-
 
   //edit contacts
   const updateEditContact = (index, key, value) => {
@@ -688,7 +683,7 @@ const Company_Mainbar = () => {
 
         contact_details: editFormData.contacts
           .filter(
-            (c) => c.name?.trim() && c.role?.trim() && c.phone_number?.trim()
+            (c) => c.name?.trim() && c.role?.trim() && c.phone_number?.trim(),
           )
           .map((c) => ({
             name: c.name.trim(),
@@ -698,7 +693,9 @@ const Company_Mainbar = () => {
         shiftdetails: editFormData.shifts
           .filter(
             (s) =>
-              s.shift_name?.trim() && s.start_time?.trim() && s.end_time?.trim()
+              s.shift_name?.trim() &&
+              s.start_time?.trim() &&
+              s.end_time?.trim(),
           )
           .map((s) => ({
             shift_name: s.shift_name.trim(),
@@ -714,7 +711,7 @@ const Company_Mainbar = () => {
 
       await axiosInstance.post(
         `${API_URL}api/company/update/${editRow.id}`,
-        payload
+        payload,
       );
 
       toast.success("Company updated successfully");
@@ -773,17 +770,17 @@ const Company_Mainbar = () => {
     {
       header: "Target",
       field: "target",
-      body:(row) => row.target || "-"
+      body: (row) => row.target || "-",
     },
     {
       header: "Support Email",
       field: "supportEmail",
-      body:(row) => row.supportEmail || "-"
+      body: (row) => row.supportEmail || "-",
     },
     {
       header: "GST Number",
       field: "gstNumber",
-      body:(row) => row.gstNumber || "-"
+      body: (row) => row.gstNumber || "-",
     },
     {
       field: "status",
@@ -791,9 +788,10 @@ const Company_Mainbar = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${row.status === 0 || row.status === "0"
-              ? "text-[#DC2626] bg-[#fff0f0] "
-              : "text-[#16A34A] bg-[#e8fff0] "
+            ${
+              row.status === 0 || row.status === "0"
+                ? "text-[#DC2626] bg-[#fff0f0] "
+                : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -825,7 +823,6 @@ const Company_Mainbar = () => {
           <button
             // onClick={() => deleteCompany(row.id)}
             onClick={() => row?.id && deleteCompany(row.id)}
-
             className="text-[#db2525] bg-[#fff0f0] p-2 rounded-[10px] border cursor-pointer hover:scale-110 transition"
             title="Delete"
           >
@@ -933,12 +930,12 @@ const Company_Mainbar = () => {
                 </button>
               </div>
             </div>
-             <button
-                  onClick={openAddModal}
-                  className="flex md:hidden items-end px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
-                >
-                  Add Company
-                </button>
+            <button
+              onClick={openAddModal}
+              className="flex md:hidden items-end px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
+            >
+              Add Company
+            </button>
             {/* Responsive wrapper for the table */}
             <div className="table-scroll-container">
               <DataTable
@@ -1096,7 +1093,7 @@ const Company_Mainbar = () => {
                 {/* address */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Address 
+                    Address
                     <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1123,7 +1120,7 @@ const Company_Mainbar = () => {
                 {/* gst number */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    GST Number 
+                    GST Number
                     <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1228,7 +1225,7 @@ const Company_Mainbar = () => {
                 {/* support email */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Support Email 
+                    Support Email
                     <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1255,7 +1252,7 @@ const Company_Mainbar = () => {
                 {/* billing email */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Billing Email 
+                    Billing Email
                     <span className="text-red-500">*</span>
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1332,10 +1329,10 @@ const Company_Mainbar = () => {
                       <option value="0">InActive</option>
                     </select>
                     {errors.status && (
-                        <p className="text-red-500 text-sm mb-4 mt-1">
-                          {errors.status}
-                        </p>
-                      )}
+                      <p className="text-red-500 text-sm mb-4 mt-1">
+                        {errors.status}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -1385,7 +1382,7 @@ const Company_Mainbar = () => {
                                 updateCompanyContact(
                                   index,
                                   "name",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1410,7 +1407,7 @@ const Company_Mainbar = () => {
                                 updateCompanyContact(
                                   index,
                                   "role",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -1436,7 +1433,7 @@ const Company_Mainbar = () => {
                                   updateCompanyContact(
                                     index,
                                     "phone_number",
-                                    value
+                                    value,
                                   );
                                 }
                               }}
@@ -1490,7 +1487,6 @@ const Company_Mainbar = () => {
                       <span>End Time</span>
                     </div>
 
-
                     {shifts.map((item, index) => (
                       <div
                         key={index}
@@ -1519,10 +1515,11 @@ const Company_Mainbar = () => {
                                 updateShifts(
                                   index,
                                   "shift_name",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
+
                             {errors.companyShifts?.[index]?.shift_name && (
                               <p className="text-red-500 text-sm">
                                 {errors.companyShifts[index].shift_name}
@@ -1535,7 +1532,7 @@ const Company_Mainbar = () => {
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">Role</label> */}
                           <div className="w-full md:w-[90%] rounded-[10px]">
-                            <input
+                            {/* <input
                               type="Time"
                               placeholder="Start Time"
                               className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
@@ -1546,6 +1543,13 @@ const Company_Mainbar = () => {
                                   "start_time",
                                   e.target.value
                                 )
+                              }
+                            /> */}
+
+                            <TimeDropdown
+                              value={item.start_time}
+                              onChange={(val) =>
+                                updateShifts(index, "start_time", val)
                               }
                             />
                             {errors.companyShifts?.[index]?.start_time && (
@@ -1560,13 +1564,20 @@ const Company_Mainbar = () => {
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">CONTACT</label> */}
                           <div className="w-full md:w-[90%] rounded-[10px]">
-                            <input
+                            {/* <input
                               type="Time"
                               placeholder="End Time"
                               className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
                               value={item.end_time}
                               onChange={(e) =>
                                 updateShifts(index, "end_time", e.target.value)
+                              }
+                            /> */}
+
+                            <TimeDropdown
+                              value={item.end_time}
+                              onChange={(val) =>
+                                updateShifts(index, "end_time", val)
                               }
                             />
                             {errors.companyShifts?.[index]?.end_time && (
@@ -1807,7 +1818,7 @@ const Company_Mainbar = () => {
                 {/* website */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Website 
+                    Website
                     {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1834,7 +1845,7 @@ const Company_Mainbar = () => {
                 {/* Target */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Target 
+                    Target
                     {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1861,7 +1872,7 @@ const Company_Mainbar = () => {
                 {/* phone */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Phone 
+                    Phone
                     {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -1940,7 +1951,7 @@ const Company_Mainbar = () => {
                 {/* notes */}
                 <div className="mt-5 flex justify-between items-center">
                   <label className="block text-md font-medium mb-2">
-                    Notes 
+                    Notes
                     {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px]">
@@ -2091,7 +2102,7 @@ const Company_Mainbar = () => {
                                   updateEditContact(
                                     index,
                                     "phone_number",
-                                    value
+                                    value,
                                   );
                                 }
                               }}
@@ -2153,8 +2164,10 @@ const Company_Mainbar = () => {
                               disabled
                               title={item.company_shift_id}
                               className="border-2 ps-3 h-10 border-gray-300 w-full text-sm rounded-[10px]
-             bg-gray-100 cursor-not-allowed overflow-x-auto whitespace-nowrap"/>
-                            {errors.companyShifts?.[index]?.company_shift_id && (
+             bg-gray-100 cursor-not-allowed overflow-x-auto whitespace-nowrap"
+                            />
+                            {errors.companyShifts?.[index]
+                              ?.company_shift_id && (
                               <p className="text-red-500 text-sm">
                                 {errors.companyShifts[index].company_shift_id}
                               </p>
@@ -2175,7 +2188,7 @@ const Company_Mainbar = () => {
                                 updateEditShifts(
                                   index,
                                   "shift_name",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                             />
@@ -2187,11 +2200,10 @@ const Company_Mainbar = () => {
                           </div>
                         </div>
 
-                        {/* Role */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-1 md:mt-2">
                           {/* <label className="font-medium text-sm">Role</label> */}
                           <div className="w-full md:w-[90%] rounded-[10px]">
-                            <input
+                            {/* <input
                               type="time"
                               placeholder="Start Time"
                               className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
@@ -2203,6 +2215,12 @@ const Company_Mainbar = () => {
                                   e.target.value
                                 )
                               }
+                            /> */}
+                            <TimeDropdown
+                              value={item.start_time}
+                              onChange={(val) =>
+                                updateEditShifts(index, "start_time", val)
+                              }
                             />
                             {errors.companyShifts?.[index]?.start_time && (
                               <p className="text-red-500 text-sm">
@@ -2212,11 +2230,10 @@ const Company_Mainbar = () => {
                           </div>
                         </div>
 
-                        {/* Phone */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-1 md:mt-2">
                           {/* <label className="font-medium text-sm">CONTACT</label> */}
                           <div className="w-full md:w-[90%] rounded-[10px]">
-                            <input
+                            {/* <input
                               type="time"
                               placeholder="End Time"
                               value={item.end_time}
@@ -2228,6 +2245,12 @@ const Company_Mainbar = () => {
                                 )
                               }
                               className="border-2  ps-3 h-10 border-gray-300 w-full  text-sm font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600] "
+                            /> */}
+                            <TimeDropdown
+                              value={item.end_time}
+                              onChange={(val) =>
+                                updateEditShifts(index, "end_time", val)
+                              }
                             />
                             {errors.companyShifts?.[index]?.end_time && (
                               <p className="text-red-500 text-sm">
@@ -2263,144 +2286,151 @@ const Company_Mainbar = () => {
 
       {isViewModalOpen && viewRow && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-2 md:p-4">
-
-  <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
- 
- {/* Header */}
- <div className="flex justify-between items-center p-3 md:p-6 border-b sticky top-0 bg-white z-10">
-            <h2 className="text-xl font-semibold mb-1 md:mb-4 text-[#1ea600] hover:text-[#4BB452]">
-              Company Details
-            </h2>
-             {/* Close Button */}
-            <button
-              onClick={closeViewModal}
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
-            >
-              <IoIosCloseCircle size={28} />
-            </button>
+          <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center p-3 md:p-6 border-b sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-semibold mb-1 md:mb-4 text-[#1ea600] hover:text-[#4BB452]">
+                Company Details
+              </h2>
+              {/* Close Button */}
+              <button
+                onClick={closeViewModal}
+                className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+              >
+                <IoIosCloseCircle size={28} />
+              </button>
             </div>
 
-{/* body */}
-<div className="p-2 md:p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
-            {/* Company Info */}
-            <div className="grid grid-cols-2 gap-1 md:gap-4 text-sm">
-              <p>
-                <b>Company Name:</b> {viewRow.
-company_name}
-              </p>
-              <p>
-                <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
-              </p>
-              <p>
-                <b>Phone:</b> {viewRow.phone_number}
-              </p>
-              <p>
-                <b>Support Email:</b> {viewRow.support_email}
-              </p>
-              <p>
-                <b>Billing Email:</b> {viewRow.billing_email}
-              </p>
-              <p>
-                <b>Website:</b> {viewRow.website_url}
-              </p>
-              <p>
-                <b>Target:</b> {viewRow.target}
-              </p>
-
-              <p>
-                <b>GST Number:</b> {viewRow.gst_number}
-              </p>
-              <p>
-                <b>Employee ID Generation:</b> {Capitalise(viewRow?.company_emp_id
-)}
-              </p>
-
-              <p className="">
-                <b>Address:</b> {viewRow.address}
-              </p>
-              {viewRow?.prefix && (
+            {/* body */}
+            <div className="p-2 md:p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
+              {/* Company Info */}
+              <div className="grid grid-cols-2 gap-1 md:gap-4 text-sm">
                 <p>
-                  <b>Employee ID:</b> {viewRow.prefix}
+                  <b>Company Name:</b> {viewRow.company_name}
                 </p>
-              )}
+                <p>
+                  <b>Status:</b> {viewRow.status === 1 ? "Active" : "Inactive"}
+                </p>
+                <p>
+                  <b>Phone:</b> {viewRow.phone_number}
+                </p>
+                <p>
+                  <b>Support Email:</b> {viewRow.support_email}
+                </p>
+                <p>
+                  <b>Billing Email:</b> {viewRow.billing_email}
+                </p>
+                <p>
+                  <b>Website:</b> {viewRow.website_url}
+                </p>
+                <p>
+                  <b>Target:</b> {viewRow.target}
+                </p>
 
+                <p>
+                  <b>GST Number:</b> {viewRow.gst_number}
+                </p>
+                <p>
+                  <b>Employee ID Generation:</b>{" "}
+                  {Capitalise(viewRow?.company_emp_id)}
+                </p>
 
-              {/* <p className="col-span-2">
+                <p className="">
+                  <b>Address:</b> {viewRow.address}
+                </p>
+                {viewRow?.prefix && (
+                  <p>
+                    <b>Employee ID:</b> {viewRow.prefix}
+                  </p>
+                )}
+
+                {/* <p className="col-span-2">
                 <b>Shifts:</b> {viewRow.shifts.map(shift => `${shift.shift_name}`).join(", ")}
               </p> */}
-              <p className="col-span-2">
-                <b>Notes:</b> {viewRow.notes}
-              </p>
-            </div>
+                <p className="col-span-2">
+                  <b>Notes:</b> {viewRow.notes}
+                </p>
+              </div>
 
-            {/* Contacts */}
-            <div className="mt-1 md:mt-4">
-              <h3 className="font-semibold mb-1 md:mb-2">Contacts</h3>
+              {/* Contacts */}
+              <div className="mt-1 md:mt-4">
+                <h3 className="font-semibold mb-1 md:mb-2">Contacts</h3>
 
-              {viewRow.contacts?.length > 0 ? (
-                <table className="w-[50%] md:w-full border text-sm">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="border p-1 md:p-2">Name</th>
-                      <th className="border p-1 md:p-2">Role</th>
-                      <th className="border p-1 md:p-2">Phone</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {viewRow.contacts
-                      ?.filter((c) => c.name && c.role && c.phone_number)
-                      .map((c, i) => (
-                        <tr key={i}>
-                          <td className="border p-1 md:p-2">{c.name}</td>
-                          <td className="border p-1 md:p-2">{c.role}</td>
-                          <td className="border p-1 md:p-2">{c.phone_number}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No contacts available</p>
-              )}
-            </div>
+                {viewRow.contacts?.length > 0 ? (
+                  <table className="w-[50%] md:w-full border text-sm">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border p-1 md:p-2">Name</th>
+                        <th className="border p-1 md:p-2">Role</th>
+                        <th className="border p-1 md:p-2">Phone</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewRow.contacts
+                        ?.filter((c) => c.name && c.role && c.phone_number)
+                        .map((c, i) => (
+                          <tr key={i}>
+                            <td className="border p-1 md:p-2">{c.name}</td>
+                            <td className="border p-1 md:p-2">{c.role}</td>
+                            <td className="border p-1 md:p-2">
+                              {c.phone_number}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="text-gray-500">No contacts available</p>
+                )}
+              </div>
 
-            {/* shifts */}
+              {/* shifts */}
 
-             <div className="mt-2 md:mt-4">
-              <h3 className="font-semibold mb-1 md:mb-2">Shifts</h3>
+              <div className="mt-2 md:mt-4">
+                <h3 className="font-semibold mb-1 md:mb-2">Shifts</h3>
 
-              {viewRow.shifts?.length > 0 ? (
-                <table className="w-[50%] md:w-full border text-sm">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="border p-1 md:p-2">Shift Unique ID
-</th>
-                      <th className="border p-1 md:p-2">Shift Name
-</th>
-                      <th className="border p-1 md:p-2">Start Time
-</th>
-                      <th className="border p-1 md:p-2">End Time
-</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {viewRow.shifts
-                      ?.filter((shift) => shift.company_shift_id && shift.shift_name || shift.start_time ||shift.end_time )
-                      .map((shift, i) => (
-                        <tr key={i}>
-                          <td className="border p-1 md:p-2">{shift.company_shift_id || "-"}</td>
-                          <td className="border p-1 md:p-2">{shift.shift_name || "-"}</td>
-                          <td className="border p-1 md:p-2">{shift.start_time || "-"}</td>
-                          <td className="border p-1 md:p-2">{shift.end_time || "-"}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No Shifts available</p>
-              )}
+                {viewRow.shifts?.length > 0 ? (
+                  <table className="w-[50%] md:w-full border text-sm">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="border p-1 md:p-2">Shift Unique ID</th>
+                        <th className="border p-1 md:p-2">Shift Name</th>
+                        <th className="border p-1 md:p-2">Start Time</th>
+                        <th className="border p-1 md:p-2">End Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {viewRow.shifts
+                        ?.filter(
+                          (shift) =>
+                            (shift.company_shift_id && shift.shift_name) ||
+                            shift.start_time ||
+                            shift.end_time,
+                        )
+                        .map((shift, i) => (
+                          <tr key={i}>
+                            <td className="border p-1 md:p-2">
+                              {shift.company_shift_id || "-"}
+                            </td>
+                            <td className="border p-1 md:p-2">
+                              {shift.shift_name || "-"}
+                            </td>
+                            <td className="border p-1 md:p-2">
+                              {shift.start_time || "-"}
+                            </td>
+                            <td className="border p-1 md:p-2">
+                              {shift.end_time || "-"}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="text-gray-500">No Shifts available</p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
         </div>
       )}
 

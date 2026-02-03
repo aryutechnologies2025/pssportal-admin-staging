@@ -619,7 +619,7 @@ function generateTimeOptions() {
             );
             return (
               <div key={shift.id} className="flex items-center gap-2">
-                <label className="flex items-center gap-1">
+                <label className="flex items-center min-w-[60px] gap-1">
                   <input
                     type="checkbox"
                     className="accent-green-600"
