@@ -487,10 +487,10 @@ const Setting_Mainbar = () => {
             <p className="text-xs text-[#1ea600]">Setting</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow p-6 mt-4">
+          <div className="bg-white rounded-2xl shadow p-3 md:p-6 mt-2 md:mt-4">
             <h2 className="text-2xl font-medium mb-6">General Setting</h2>
 
-               <div className="flex flex-wrap gap-y-5 gap-x-14 mt-5">                   {/* Favicon Upload */}                   <div className="flex flex-col gap-2 w-full md:w-[40%]">
+               <div className="flex flex-wrap gap-y-5 gap-x-14 md:mt-5">                   {/* Favicon Upload */}                   <div className="flex flex-col gap-2 w-full md:w-[40%]">
                     <label className="block text-sm font-medium text-gray-700">                      Favicon                     </label>
 
                      <input

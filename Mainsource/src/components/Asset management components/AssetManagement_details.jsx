@@ -886,14 +886,14 @@ const dummyAssetData = [
                         </div>
                         <div className="flex justify-start mt-2 md:mt-0 gap-1 items-center">
                                 <p
-                                    className="text-sm text-gray-500 cursor-pointer"
+                                    className="text-xs md:text-sm text-gray-500 cursor-pointer"
                                     onClick={() => navigate("/dashboard")}
                                 >
                                     Dashboard
                                 </p>
                                 <p>{">"}</p>
 
-                                <p className="text-xsmd:text-sm text-[#1ea600]">Assets</p>
+                                <p className="text-xs md:text-sm text-[#1ea600]">Assets</p>
                             </div>
 
                         {/* Add Button */}
@@ -905,19 +905,19 @@ const dummyAssetData = [
                             <div className="flex flex-wrap md:flex-nowrap justify-end items-center gap-1 md:gap-3">
                                 <button
                                     onClick={() => navigate("/assetcategory")}
-                                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
+                                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] text-xs md:text-sm font-medium  w-fit rounded-lg"
                                 >
                                     Category
                                 </button>
                                 <button
                                     onClick={() => navigate("/assetsubcategory")}
-                                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
+                                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] text-xs md:text-sm font-medium  w-fit rounded-lg"
                                 >
                                     Subcategory
                                 </button>
                                 <button
                                     onClick={openAddModal}
-                                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
+                                    className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] text-xs md:text-sm font-medium  w-fit rounded-lg"
                                 >
                                     Add
                                 </button>
@@ -983,7 +983,7 @@ const dummyAssetData = [
                                                 : []; */}
 
 
-                                    <div className="grid grid-cols-2 gap-y-3 text-sm">
+                                    <div className="grid grid-cols-2 gap-y-3 text-xs md:text-sm">
                                         <p><b>Asset Category : </b><br />{selectedInvoice.assetCategory?.name || "-"}</p>
                                         <p><b>Asset Subcategory : </b><br />{selectedInvoice.assetSubCategory?.name || "-"}</p>
                                         <p><b>Ledger : </b><br />{selectedInvoice.ledger}</p>
@@ -1232,7 +1232,7 @@ const dummyAssetData = [
                                             <label className="block text-md font-medium mb-2">
                                                 Depreciation Percentage(%)<span className="text-red-500">*</span>
                                             </label>
-                                            <div className="w-[60%] md:w-[50%]">
+                                            <div className="w-full md:w-[50%]">
                                                 <input
                                                     type="number"
                                                     value={depreciationPercentage}
@@ -1581,7 +1581,7 @@ const dummyAssetData = [
                                                     filter
                                                     placeholder="Select Category"
                                                     maxSelectedLabels={3}
-                                                    className={`w-full   rounded-lg px-3 py-2  focus:outline-none focus:ring-2 focus:ring-[#1ea600]
+                                                    className={`w-full   rounded-lg px-3 py-1 md:py-2  focus:outline-none focus:ring-2 focus:ring-[#1ea600]
                                                     border ${errors.assetCategory ? "border-red-500" : "border-gray-300"}`}
                                                     display="chip"
                                                 />
@@ -1609,7 +1609,7 @@ const dummyAssetData = [
                                                     filter
                                                     placeholder="Select subCategory"
                                                     maxSelectedLabels={3}
-                                                    className={`w-full   rounded-lg px-3 py-2  focus:outline-none focus:ring-2 focus:ring-[#1ea600]
+                                                    className={`w-full   rounded-lg px-3 py-1 md:py-2  focus:outline-none focus:ring-2 focus:ring-[#1ea600]
                                                     border ${errors.assetCategory ? "border-red-500" : "border-gray-300"}`}
                                                     display="chip"
                                                 />
@@ -1721,7 +1721,7 @@ const dummyAssetData = [
                                             <label className="block text-md font-medium mb-2">
                                                 Depreciation Percentage(%)<span className="text-red-500">*</span>
                                             </label>
-                                            <div className="w-[60%] md:w-[50%]">
+                                            <div className="w-full md:w-[50%]">
                                                 <input
                                                     type="number"
                                                     value={depreciationPercentageEdit}

@@ -864,20 +864,20 @@ const Company_Mainbar = () => {
               options={statusOptions}
               onChange={(e) => setFilterStatus(e.value)}
               placeholder="Select Status "
-              className="w-fit border border-gray-300  text-[#7C7C7C] text-sm rounded-md placeholder:text-gray-400"
+              className="w-fit border border-gray-300  text-[#7C7C7C] text-xs md:text-sm rounded-md placeholder:text-gray-400"
             />
           </div>
           {/* Buttons */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
+          <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-2 md:gap-4 mt-2 md:mt-0">
             <button
               onClick={handleApplyFilter}
-              className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
+              className="h-10 rounded-lg px-1 md:px-2 py-1 md:py-2  bg-[#1ea600] text-white text-sm md:text-base font-medium w-20 hover:bg-[#33cd10] transition "
             >
               Apply
             </button>
             <button
               onClick={handleResetFilter}
-              className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
+              className="h-10 rounded-lg bg-gray-100 px-1 md:px-2  py-1 md:py-2  text-[#7C7C7C] text-sm md:text-base font-medium w-20 hover:bg-gray-200 transition "
             >
               Reset
             </button>
@@ -910,7 +910,7 @@ const Company_Mainbar = () => {
 
               <div className="flex flex-col md:flex-row flex-wrap items-center gap-5">
                 {/* Search box */}
-                <div className="relative w-64">
+                <div className="relative w-full md:w-64">
                   <FiSearch
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                     size={18}
@@ -927,12 +927,18 @@ const Company_Mainbar = () => {
 
                 <button
                   onClick={openAddModal}
-                  className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
+                  className="hidden md:block px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
                 >
                   Add Company
                 </button>
               </div>
             </div>
+             <button
+                  onClick={openAddModal}
+                  className="flex md:hidden items-end px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
+                >
+                  Add Company
+                </button>
             {/* Responsive wrapper for the table */}
             <div className="table-scroll-container">
               <DataTable
@@ -988,7 +994,7 @@ const Company_Mainbar = () => {
               </div>
 
               <div className="p-2 md:p-5">
-                <p className="text-xl md:text-2xl">Company</p>
+                <p className="text-xl md:text-2xl"> Add Company</p>
 
                 {/* company name */}
                 <div className="mt-5 flex  justify-between items-center">
@@ -1016,7 +1022,7 @@ const Company_Mainbar = () => {
 
                 {/* id generted */}
 
-                <div className="mt-5 flex  justify-between items-center">
+                <div className="mt-5 flex justify-between items-center">
                   {/* Radio buttons to select mode */}
 
                   <label className="block text-md font-medium mb-2">
@@ -1024,7 +1030,7 @@ const Company_Mainbar = () => {
                     {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                       <label className="flex items-center gap-2">
                         <input
                           type="radio"
@@ -1369,7 +1375,7 @@ const Company_Mainbar = () => {
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               placeholder="Contact Name"
@@ -1394,7 +1400,7 @@ const Company_Mainbar = () => {
                         {/* Role */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">Role</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               placeholder="Role Name"
@@ -1419,7 +1425,7 @@ const Company_Mainbar = () => {
                         {/* Phone */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">CONTACT</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="number"
                               placeholder="Phone Number"
@@ -1503,7 +1509,7 @@ const Company_Mainbar = () => {
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               placeholder="Shift Name"
@@ -1528,7 +1534,7 @@ const Company_Mainbar = () => {
                         {/* Start Time */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">Role</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="Time"
                               placeholder="Start Time"
@@ -1553,7 +1559,7 @@ const Company_Mainbar = () => {
                         {/* End Time */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">CONTACT</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="Time"
                               placeholder="End Time"
@@ -1672,7 +1678,7 @@ const Company_Mainbar = () => {
                     {/* <span className="text-red-500">*</span> */}
                   </label>
                   <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                       <label className="flex items-center gap-2">
                         <input
                           type="radio"
@@ -1999,7 +2005,7 @@ const Company_Mainbar = () => {
                 {/* contacts */}
                 <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg md:text-xl font-semibold">
+                    <p className="text-md md:text-xl font-semibold">
                       Company Contacts
                     </p>
                     <IoAddCircleSharp
@@ -2007,8 +2013,8 @@ const Company_Mainbar = () => {
                       onClick={addEditContact}
                     />
                   </div>
-                  <div className="mt-4">
-                    <div className="grid grid-cols-3 font-semibold text-sm md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
+                  <div className="mt-2 md:mt-4">
+                    <div className="grid grid-cols-3 font-semibold text-xs md:text-base text-[#4A4A4A] bg-gray-50  p-2 rounded-[10px] text-center">
                       <span className="">Name</span>
                       <span>Role</span>
                       <span>Phone No</span>
@@ -2017,7 +2023,7 @@ const Company_Mainbar = () => {
                     {editFormData.contacts.map((item, index) => (
                       <div
                         key={index}
-                        className="relative grid grid-cols-3 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                        className="relative grid grid-cols-3 gap-2 md:gap-4 border p-1 md:p-3 rounded-[10px] mt-1 md:mt-3 bg-gray-50"
                       >
                         {/* Remove */}
                         {index > 0 && (
@@ -2032,7 +2038,7 @@ const Company_Mainbar = () => {
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               placeholder="Contact Name"
@@ -2053,7 +2059,7 @@ const Company_Mainbar = () => {
                         {/* Role */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">Role</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               placeholder="Role Name"
@@ -2074,7 +2080,7 @@ const Company_Mainbar = () => {
                         {/* Phone */}
                         <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
                           {/* <label className="font-medium text-sm">CONTACT</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="number"
                               placeholder="Phone Number"
@@ -2106,7 +2112,7 @@ const Company_Mainbar = () => {
                 {/* shift allocation */}
                 <div className="rounded-[10px] border-2 border-[#E0E0E0]  bg-white py-2 px-2 lg:px-4 my-5">
                   <div className="flex justify-between items-center">
-                    <p className="text-lg md:text-xl font-semibold">
+                    <p className="text-md md:text-xl font-semibold">
                       Shift Allocation
                     </p>
                     <IoAddCircleSharp
@@ -2114,8 +2120,8 @@ const Company_Mainbar = () => {
                       onClick={addEditShifts}
                     />
                   </div>
-                  <div className="mt-4">
-                    <div className="grid grid-cols-4 font-semibold text-sm md:text-base bg-gray-50 p-2 rounded-[10px] text-center">
+                  <div className="mt-2 md:mt-4">
+                    <div className="grid grid-cols-4 font-semibold text-xs md:text-base bg-gray-50 p-2 rounded-[10px] text-center">
                       <span>Shift Unique ID</span>
                       <span>Shift Name</span>
                       <span>Start Time</span>
@@ -2125,7 +2131,7 @@ const Company_Mainbar = () => {
                     {editFormData.shifts.map((item, index) => (
                       <div
                         key={index}
-                        className="relative grid grid-cols-4 gap-4 border p-3 rounded-[10px] mt-3 bg-gray-50"
+                        className="relative grid grid-cols-4 gap-1 md:gap-4 border p-1 md:p-3 rounded-[10px] mt-1 md:mt-3 bg-gray-50"
                       >
                         {/* Remove */}
                         {index > 0 && (
@@ -2137,10 +2143,10 @@ const Company_Mainbar = () => {
                         {/* <div key={index} className="mt-4 p-4 border rounded-xl bg-gray-50"> */}
 
                         {/* shift unique ID */}
-                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-1 md:mt-2">
                           {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               value={item.company_shift_id}
@@ -2156,10 +2162,10 @@ const Company_Mainbar = () => {
                           </div>
                         </div>
                         {/* Full Name */}
-                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-1 md:mt-2">
                           {/* <label className="font-medium text-sm">FULL NAME</label> */}
 
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="text"
                               placeholder="shift Name"
@@ -2182,9 +2188,9 @@ const Company_Mainbar = () => {
                         </div>
 
                         {/* Role */}
-                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-1 md:mt-2">
                           {/* <label className="font-medium text-sm">Role</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="time"
                               placeholder="Start Time"
@@ -2207,9 +2213,9 @@ const Company_Mainbar = () => {
                         </div>
 
                         {/* Phone */}
-                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-2">
+                        <div className="flex flex-col xl:flex-row gap-1 justify-between mt-1 md:mt-2">
                           {/* <label className="font-medium text-sm">CONTACT</label> */}
-                          <div className="w-[60%] md:w-[90%] rounded-[10px]">
+                          <div className="w-full md:w-[90%] rounded-[10px]">
                             <input
                               type="time"
                               placeholder="End Time"
@@ -2256,13 +2262,13 @@ const Company_Mainbar = () => {
       </div>
 
       {isViewModalOpen && viewRow && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-2 md:p-4">
 
   <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
  
  {/* Header */}
- <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
-            <h2 className="text-xl font-semibold mb-4 text-[#1ea600] hover:text-[#4BB452]">
+ <div className="flex justify-between items-center p-3 md:p-6 border-b sticky top-0 bg-white z-10">
+            <h2 className="text-xl font-semibold mb-1 md:mb-4 text-[#1ea600] hover:text-[#4BB452]">
               Company Details
             </h2>
              {/* Close Button */}
@@ -2275,9 +2281,9 @@ const Company_Mainbar = () => {
             </div>
 
 {/* body */}
-<div className="p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
+<div className="p-2 md:p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
             {/* Company Info */}
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-2 gap-1 md:gap-4 text-sm">
               <p>
                 <b>Company Name:</b> {viewRow.
 company_name}
@@ -2328,16 +2334,16 @@ company_name}
             </div>
 
             {/* Contacts */}
-            <div className="mt-4">
-              <h3 className="font-semibold mb-2">Contacts</h3>
+            <div className="mt-1 md:mt-4">
+              <h3 className="font-semibold mb-1 md:mb-2">Contacts</h3>
 
               {viewRow.contacts?.length > 0 ? (
-                <table className="w-full border text-sm">
+                <table className="w-[50%] md:w-full border text-sm">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="border p-2">Name</th>
-                      <th className="border p-2">Role</th>
-                      <th className="border p-2">Phone</th>
+                      <th className="border p-1 md:p-2">Name</th>
+                      <th className="border p-1 md:p-2">Role</th>
+                      <th className="border p-1 md:p-2">Phone</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2345,9 +2351,9 @@ company_name}
                       ?.filter((c) => c.name && c.role && c.phone_number)
                       .map((c, i) => (
                         <tr key={i}>
-                          <td className="border p-2">{c.name}</td>
-                          <td className="border p-2">{c.role}</td>
-                          <td className="border p-2">{c.phone_number}</td>
+                          <td className="border p-1 md:p-2">{c.name}</td>
+                          <td className="border p-1 md:p-2">{c.role}</td>
+                          <td className="border p-1 md:p-2">{c.phone_number}</td>
                         </tr>
                       ))}
                   </tbody>
@@ -2359,20 +2365,20 @@ company_name}
 
             {/* shifts */}
 
-             <div className="mt-4">
-              <h3 className="font-semibold mb-2">Shifts</h3>
+             <div className="mt-2 md:mt-4">
+              <h3 className="font-semibold mb-1 md:mb-2">Shifts</h3>
 
               {viewRow.shifts?.length > 0 ? (
-                <table className="w-full border text-sm">
+                <table className="w-[50%] md:w-full border text-sm">
                   <thead className="bg-gray-100">
                     <tr>
-                      <th className="border p-2">Shift Unique ID
+                      <th className="border p-1 md:p-2">Shift Unique ID
 </th>
-                      <th className="border p-2">Shift Name
+                      <th className="border p-1 md:p-2">Shift Name
 </th>
-                      <th className="border p-2">Start Time
+                      <th className="border p-1 md:p-2">Start Time
 </th>
-                      <th className="border p-2">End Time
+                      <th className="border p-1 md:p-2">End Time
 </th>
                     </tr>
                   </thead>
@@ -2381,10 +2387,10 @@ company_name}
                       ?.filter((shift) => shift.company_shift_id && shift.shift_name || shift.start_time ||shift.end_time )
                       .map((shift, i) => (
                         <tr key={i}>
-                          <td className="border p-2">{shift.company_shift_id || "-"}</td>
-                          <td className="border p-2">{shift.shift_name || "-"}</td>
-                          <td className="border p-2">{shift.start_time || "-"}</td>
-                          <td className="border p-2">{shift.end_time || "-"}</td>
+                          <td className="border p-1 md:p-2">{shift.company_shift_id || "-"}</td>
+                          <td className="border p-1 md:p-2">{shift.shift_name || "-"}</td>
+                          <td className="border p-1 md:p-2">{shift.start_time || "-"}</td>
+                          <td className="border p-1 md:p-2">{shift.end_time || "-"}</td>
                         </tr>
                       ))}
                   </tbody>

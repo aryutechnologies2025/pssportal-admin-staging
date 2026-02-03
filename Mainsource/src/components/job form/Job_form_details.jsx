@@ -1451,7 +1451,7 @@ const columnMap = {
                     <p
                       onClick={() => multiSelectRef.current.show()}
                       className="flex items-center justify-between gap-2 
-             w-40 px-3 py-2 
+             w-full md:w-40 px-3 py-2 
              border border-gray-300 rounded-md 
              cursor-pointer text-[#7c7c7c]
              hover:bg-gray-100 transition-all text-sm"
@@ -1464,9 +1464,9 @@ const columnMap = {
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between  gap-5 mb-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between  gap-5 md:mb-4">
                   {/* Search box */}
-                  <div className="relative w-64">
+                  <div className="relative md:w-64">
                     <FiSearch
                       className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                       size={18}
@@ -1477,7 +1477,7 @@ const columnMap = {
                       onChange={(e) => setGlobalFilter(e.target.value)}
 
                       placeholder="Search......"
-                      className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
+                      className="w-40 md:w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
                focus:outline-none focus:ring-2 focus:ring-[#1ea600] placeholder:text-[#7C7C7C]  "
 
                     />
@@ -1486,7 +1486,7 @@ const columnMap = {
                   <div className="">
                     <button
                       onClick={exportToCSV}
-                      className=" flex items-center gap-2 bg-[#7C7C7C] hover:bg-[#9C9C9C] text-white font-medium px-4 py-2 rounded-md "
+                      className="hidden md:flex items-center gap-2 bg-[#7C7C7C] hover:bg-[#9C9C9C] text-white font-medium px-4 py-2 rounded-md "
                     >
                       + Export CSV
                       <FaFileExport />
@@ -1495,6 +1495,15 @@ const columnMap = {
 
                 </div>
               </div>
+              <div className="flex md:hidden justify-end ">
+                    <button
+                      onClick={exportToCSV}
+                      className="flex md:hidden items-center gap-2 bg-[#7C7C7C] hover:bg-[#9C9C9C] text-white font-medium px-4 py-2 rounded-md "
+                    >
+                      + Export CSV
+                      <FaFileExport />
+                    </button>
+                  </div>
 
               {/* <div className="flex flex-col w-full mt-1 md:mt-5 h-auto  rounded-2xl bg-white shadow-lg px-3 py-3 md:px-6 md:py-6 "> */}
 

@@ -1045,13 +1045,13 @@ const Attendance_Mainbar = () => {
                 <div className="w-full flex gap-4">
                   <button
                     onClick={handleApplyFilter}
-                    className="px-2 md:px-3 py-2 h-10 rounded-lg bg-[#1ea600] hover:bg-[#4BB452] text-white font-medium w-20  transition "
+                    className="px-2 md:px-3 py-1 md:py-2 h-8 md:h-10 rounded-lg bg-[#1ea600] hover:bg-[#4BB452] text-white text-xs md:text-sm font-medium w-20  transition "
                   >
                     Apply
                   </button>
                   <button
                     onClick={handleResetFilter}
-                    className="px-2 md:px-3 py-2 h-10 rounded-lg bg-gray-100 text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition"
+                    className="px-2 md:px-3 py-1 md:py-2 h-8 md:h-10 rounded-lg bg-gray-100 text-[#7C7C7C] text-xs md:text-sm font-medium w-20 hover:bg-gray-200 transition"
                   >
                     Reset
                   </button>
@@ -1110,7 +1110,7 @@ px-2 py-2 md:px-6 md:py-6">
                     <div className="flex items-center">
                       <button
                         onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                        className="hidden md:block px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
                       >
                         Import
                       </button>
@@ -1120,8 +1120,8 @@ px-2 py-2 md:px-6 md:py-6">
                     <div className="flex items-center">
                       <button
                         onClick={handlCsvDownload}
-                        className="
-      flex items-center gap-2
+                        className="hidden
+      md:flex items-center gap-2
       px-5 py-2
       text-sm font-semibold
       text-green-700
@@ -1136,11 +1136,42 @@ px-2 py-2 md:px-6 md:py-6">
                     </div>
                     <button
                       onClick={() => navigate('/attendance-add')}
-                      className="px-2 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium   w-fit rounded-lg transition-all duration-200"
+                      className="hidden md:block px-2 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium   w-fit rounded-lg transition-all duration-200"
                     >
-                      + Add Attendance
+                       Add Attendance
                     </button>
                   </div>
+                </div>
+                {/* mobile view */}
+                <div className="flex md:hidden justify-between items-center gap-1">
+                  
+                  <button
+                        onClick={handlCsvDownload}
+                        className="
+      flex items-center gap-2
+      px-1 md:px-2 py-2
+      text-xs md:text-sm font-semibold
+      text-green-700
+      bg-green-100
+      rounded-full
+      hover:bg-green-200
+      transition
+    "
+                      >
+                        <FiDownload className="text-lg" /> Demo CSV
+                      </button>
+                      <button
+                        onClick={openImportAddModal}
+                        className="px-1 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-xs md:text-base font-medium w-20 rounded-lg"
+                      >
+                        Import
+                      </button>
+                   <button
+                      onClick={() => navigate('/attendance-add')}
+                      className="px-1 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  text-xs md:text-base w-fit rounded-lg transition-all duration-200"
+                    >
+                       +Attendance
+                    </button>
                 </div>
 
                 <DataTable

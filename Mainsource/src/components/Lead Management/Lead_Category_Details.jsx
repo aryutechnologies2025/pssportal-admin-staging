@@ -304,11 +304,23 @@ const isDuplicateOnEdit = (inputName, editId) => {
     if (!result.isConfirmed) return;
 
     try {
-      await axiosInstance.delete(`${API_URL}api/lead-category/delete/`, {
-        data: {
-          record_id: editId,
-        },
-      });
+      // await axiosInstance.post(`${API_URL}api/lead-category/delete?record_id=${editId}`,
+      //   {
+      //   params: {
+      //     record_id: editId,
+      //   },
+      // }
+    // );
+    await axiosInstance.post(
+  `${API_URL}api/lead-category/delete`,
+  {},
+  {
+    params: {
+      record_id: editId,
+    },
+  }
+);
+
       toast.success("Category Deleted successfully");
       fetchCategoryType();
     } catch (error) {
