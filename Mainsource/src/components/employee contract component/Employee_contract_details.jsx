@@ -2516,6 +2516,7 @@ const Employee_contract_details = () => {
                             <option value="">Select a status</option>
                             <option value="1">Active</option>
                             <option value="0">InActive</option>
+                            <option value="2">Relieved</option>
                           </select>
                           {errors.status && (
                             <p className="text-red-500 text-sm mt-1">

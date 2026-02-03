@@ -67,25 +67,27 @@ const Lead_Category_Details = () => {
   //  view
   useEffect(() => {
     fetchCategoryType();
-  }, []);
-  const fetchCategoryType = async () => {
-    try {
-      const response = await axiosInstance.get(
-        `${API_URL}api/lead-category`,
-        
-      );
-      console.log("response get check", response);
+  }, [filters.status]);
+const fetchCategoryType = async () => {
+  try {
+    const params = {};
 
-      setCategoryDetails(response?.data?.data)
-      setLoading(false);
-
-
-    } catch (err) {
-      setErrors("Failed To Fetch Category.");
-      setLoading(false);
-
+    if (filters.status !== "" && filters.status !== null) {
+      params.status = filters.status;
     }
-  };
+
+    const response = await axiosInstance.get(
+      `${API_URL}api/lead-category`,
+      { params }
+    );
+
+    setCategoryDetails(response?.data?.data || []);
+    setLoading(false);
+  } catch (err) {
+    setErrors("Failed To Fetch Category.");
+    setLoading(false);
+  }
+};
 
   const openAddModal = () => {
     setIsAddModalOpen(true);
@@ -112,23 +114,18 @@ const Lead_Category_Details = () => {
       { label: "Inactive", value: 0 },
     ];
 
-  const handleApplyFilter = () => {
-    if (filterStatus === null) {
-      setCompanies(allCompanies);
-      return;
-    }
+const handleApplyFilter = () => {
+  setFilters({
+    status: filterStatus ?? "",
+  });
+};
 
-    const filtered = allCompanies.filter(
-      (company) => company.status === filterStatus
-    );
 
-    setCompanies(filtered);
-  };
+const handleResetFilter = () => {
+  setFilterStatus(null);
+  setFilters({ status: "" });
+};
 
-  const handleResetFilter = () => {
-    setFilterStatus(null);
-    setCompanies(allCompanies);
-  };
 
 const isDuplicateCategory = (inputName) => {
   return categoryDetails.some(
