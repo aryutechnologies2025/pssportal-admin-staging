@@ -411,12 +411,19 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     }
 
     // category
+    // if (filters.category) {
+    //   result = result.filter(item =>
+    //     item.category?.toLowerCase() === filters.category.toLowerCase()
+    //   );
+    // }
     if (filters.category) {
-      result = result.filter(item =>
-        item.category?.toLowerCase() === filters.category.toLowerCase()
-      );
-    }
+    result = result.filter(item => item.category_id === filters.category);
+  }
 
+  // lead status
+  if (filters.lead_status) {
+    result = result.filter(item => item.lead_status === filters.lead_status);
+  }
     return result;
   };
 
@@ -728,6 +735,11 @@ const handleStatusChange = (row, newStatusKey) => {
       body: (row) => Capitalise(row.city),
     },
     {
+      field :"category_name",
+      header: "Category Name",
+      body: (row) => row.category_name || "-"
+    },
+    {
       field: "state",
       header: "State",
       body: (row) => Capitalise(row.state),
@@ -1004,10 +1016,10 @@ const statusDropdownOptions = [
   </label>
 
   <Dropdown
-    value={filters.status}
+    value={filters.lead_status}
     options={statusDropdownOptions}
     onChange={(e) =>
-      setFilters((prev) => ({ ...prev, status: e.value }))
+      setFilters((prev) => ({ ...prev, lead_status: e.value }))
     }
     placeholder="Select Status"
     className="h-10 rounded-md border border-[#D9D9D9] text-sm"
@@ -1021,13 +1033,14 @@ const statusDropdownOptions = [
                   <label className="text-sm font-medium text-[#6B7280]">Category</label>
                   <Dropdown
                     className="h-10 px-3 rounded-md border"
-                    value={selectedCategory}
+                    // value={selectedCategory}
+                    value={filters.category}
     options={categoryOptions}
                     onChange={(e) => {
-      setSelectedCategory(e.value);
+      // setSelectedCategory(e.value);
       setFilters(prev => ({
         ...prev,
-        category_id: e.value
+        category: e.value
       }));
     }}
                     placeholder="Select Category"
