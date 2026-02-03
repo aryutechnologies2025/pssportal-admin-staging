@@ -331,20 +331,20 @@ const columns = [
             {/* Add Button */}
             <div className="flex justify-between mt-4 md:mt-8">
               <div className="">
-                <h1 className="text-2xl md:text-3xl font-semibold">Asset Category</h1>
+                <h1 className="text-xl md:text-3xl font-semibold">Asset Category</h1>
               </div>
               <div className="flex justify-between gap-2">
                 <button
                   onClick={() =>
                     navigate(-1)
                   }
-                  className="bg-gray-500 hover:bg-gray-600 px-2 md:px-3 py-2  text-white font-medium w-20 rounded-lg"
+                  className="bg-gray-500 hover:bg-gray-600 px-2 md:px-3 py-2  text-white text-xs md:text-sm font-medium w-20 rounded-lg"
                 >
                   Back
                 </button>
                 <button
                   onClick={openAddModal}
-                  className=" px-2 md:px-3 py-2 bg-[#1ea600] text-white  hover:bg-[#33cd10] font-medium w-20 rounded-lg"
+                  className=" px-2 md:px-3 py-2 bg-[#1ea600] text-white  hover:bg-[#33cd10] text-xs md:text-sm font-medium w-20 rounded-lg"
                 >
                   Add
                 </button>

@@ -57,6 +57,17 @@ const BoardingPoint_Detail = () => {
     const [companyLoading, setCompanyLoading] = useState(false);
     const [allBoardPoints, setAllBoardPoints] = useState([]); // master data
 const [filteredBoardPoints, setFilteredBoardPoints] = useState([]);
+const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
 
 
 
@@ -508,16 +519,16 @@ const handleResetFilter = () => {
                                 />
                             </div>
                             {/* Buttons */}
-                            <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
+                            <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4 mt-2 md:mt-0">
                                 <button
                                     onClick={handleApplyFilter}
-                                    className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
+                                    className="h-10 rounded-lg px-1 md:px-2 py-2  bg-[#1ea600] text-white text-xs md:text-base font-medium w-20 hover:bg-[#33cd10] transition "
                                 >
                                     Apply
                                 </button>
                                 <button
                                     onClick={handleResetFilter}
-                                    className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
+                                    className="h-10 rounded-lg bg-gray-100 px-1 md:px-2 py-2  text-[#7C7C7C] text-xs md:text-base font-medium w-20 hover:bg-gray-200 transition "
                                 >
                                     Reset
                                 </button>
@@ -535,7 +546,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         <Dropdown
                                             value={rows}
                                             options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                                            onChange={(e) => setRows(e.value)}
+                                            onChange={(e) => onRowsChange(e.value)}
                                             className="w-20 border"
                                         />
 
@@ -563,7 +574,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                                         <button
                                             onClick={openAddModal}
-                                            className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                                            className="px-1 md:px-3 py-2 text-white bg-[#1ea600] hover:bg-[#4BB452] text-xs md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
                                         >
                                             Add Boarding Point
                                         </button>
@@ -575,6 +586,8 @@ px-2 py-2 md:px-6 md:py-6">
                                         value={filteredBoardPoints}
                                         paginator
                                         rows={rows}
+                                        first={(page-1) * rows}
+                                        onPage={onPageChange}
                                         totalRecords={totalRecords}
                                         rowsPerPageOptions={[10, 25, 50, 100]}
                                         globalFilter={globalFilter}
@@ -612,7 +625,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         <IoIosArrowForward className="w-3 h-3" />
                                     </div>
 
-                                    <div className="px-5 lg:px-14  py-2 md:py-10 text-[#4A4A4A] font-medium">
+                                    <div className="px-5 lg:px-14  py-5 md:py-10 text-[#4A4A4A] font-medium">
                                         <p className="text-xl md:text-2xl ">Add Boarding Point</p>
 
                                         {/* Company */}
@@ -713,7 +726,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         <IoIosArrowForward className="w-3 h-3" />
                                     </div>
 
-                                    <div className="px-5 lg:px-14 py-10 text-[#4A4A4A] font-semibold">
+                                    <div className="px-5 lg:px-14 py-5 md:py-10 text-[#4A4A4A] font-semibold">
                                         <p className="text-xl md:text-2xl ">Edit Role</p>
 
                                         {/* Pss company */}
