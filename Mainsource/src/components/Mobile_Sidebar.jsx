@@ -28,6 +28,7 @@ import { TbReport } from "react-icons/tb";
 import { VscReport } from "react-icons/vsc";
 import contractcandidates from "../assets/contract_Candidates.svg";
 import { LiaFileContractSolid } from "react-icons/lia";
+import { MdCampaign } from "react-icons/md";
 
 const Mobile_Sidebar = () => {
   let navigate = useNavigate();
@@ -511,6 +512,18 @@ const Mobile_Sidebar = () => {
 
                     </div>
                     <p>Contact</p>
+                  </div>
+
+                  {/* contact */}
+                  <div
+                    onClick={() => onClickSidebarMenu("announcement")}
+                    className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
+                  >
+                    <div className="flex items-center justify-center h-5 w-5">
+                       <MdCampaign />
+
+                    </div>
+                    <p>Announcement</p>
                   </div>
 
 {/* activity */}

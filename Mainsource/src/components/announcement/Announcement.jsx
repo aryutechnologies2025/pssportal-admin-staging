@@ -45,6 +45,17 @@ export default function Announcements_Mainbar() {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [page, setPage] = useState(1);
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
   const calendarRef = useRef(null);
   //   view
   const [viewData, setViewData] = useState(null);
@@ -128,7 +139,7 @@ export default function Announcements_Mainbar() {
     setAnnouncements(res.data.data);
     setLoading(false);
   };
- 
+
 
   /* ================= MODAL ================= */
   const openAddModal = () => {
@@ -358,11 +369,10 @@ export default function Announcements_Mainbar() {
       header: "Status",
       body: (r) => (
         <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            r.status == 1
+          className={`px-3 py-1 rounded-full text-xs font-semibold ${r.status == 1
               ? "bg-green-100 text-green-600"
               : "bg-red-100 text-red-600"
-          }`}
+            }`}
         >
           {r.status == 1 ? "Active" : "Inactive"}
         </span>
@@ -413,7 +423,7 @@ export default function Announcements_Mainbar() {
   ];
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen mt-5">
+    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen md:mt-5">
       {loading ? (
         <Loader />
       ) : (
@@ -424,7 +434,7 @@ export default function Announcements_Mainbar() {
 
           {/* HEADER */}
           <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
-            <p className="text-xl font-semibold">Announcements</p>
+            <p className="text-md md:text-xl font-semibold">Announcements</p>
           </div>
 
           <div
@@ -433,35 +443,44 @@ export default function Announcements_Mainbar() {
           px-2 py-2 md:px-6 md:py-6"
           >
             <div className="datatable-container mt-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-3 mb-4">
                 {/* Entries per page */}
                 <div className="flex items-center gap-2">
                   <Dropdown
                     value={rows}
                     options={[10, 25, 50].map((v) => ({ label: v, value: v }))}
-                    onChange={(e) => setRows(e.value)}
+                    className="border"
+                    onChange={(e) => onRowsChange(e.value)}
                   />
 
-                  <span className=" text-sm text-[#6B7280]">
+                  <span className="text-sm w-full text-[#6B7280]">
                     Entries Per Page
                   </span>
                 </div>
 
-                <div className="flex justify-end w-full mb-4 gap-2 md:gap-4">
-                 <input
-  value={globalFilter}
-  onChange={(e) => setGlobalFilter(e.target.value)}
-  placeholder="Search..."
-  className=" max-w-sm px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-/>
+                <div className="flex justify-end w-full md:mb-4 gap-2 md:gap-4">
+                  <input
+                    value={globalFilter}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full md:w-[20%] max-w-sm px-3 py-1 md:py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
 
                   <button
                     onClick={openAddModal}
-                    className="bg-[#1ea600] text-white px-4 py-2 rounded-lg"
+                    className="hidden md:flex bg-[#1ea600] text-white text-xs md:text-base px-4 py-2 rounded-lg"
                   >
                     Add Announcement
                   </button>
                 </div>
+              </div>
+              <div className="flex justify-end mb-2" >
+                <button
+                    onClick={openAddModal}
+                    className="flex md:hidden bg-[#1ea600] text-white text-sm md:text-base px-4 py-2 rounded-lg"
+                  >
+                    Add Announcement
+                  </button>
               </div>
               <div className="table-scroll-container" id="datatable">
                 {/* <DataTable
@@ -496,6 +515,8 @@ export default function Announcements_Mainbar() {
                   value={announcements}
                   paginator
                   rows={rows}
+                  first={(page - 1) * rows}
+                  onPage={onPageChange}
                   //   loading={loading}
                   globalFilter={globalFilter}
                 >
@@ -525,20 +546,20 @@ export default function Announcements_Mainbar() {
                 </div>
                 <form
                   onSubmit={handleSubmit(onSubmit)}
-                  className="px-6 py-8 space-y-6 h-[calc(100vh-60px)] overflow-y-auto"
+                  className="px-3 md:px-6 py-4 md:py-8 space-y-6 h-[calc(100vh-60px)] overflow-y-auto"
                 >
-                  <h2 className="text-2xl font-semibold">
+                  <h2 className="text-xl md:text-2xl font-semibold">
                     {editingId ? "Edit" : "Add"} Announcement
                   </h2>
 
                   {/* DATE */}
 
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col md:flex-row justify-between ">
                     <label className="text-sm font-medium text-gray-700">
                       Date <span className="text-red-500">*</span>
                     </label>
 
-                    <div className="w-[50%] relative">
+                    <div className="w-full md:w-[50%] relative">
                       {/* 1️⃣ Create a ref for the Calendar */}
                       <Controller
                         name="date"
@@ -586,12 +607,12 @@ export default function Announcements_Mainbar() {
 
                   {/* EXPIRY */}
 
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col md:flex-row justify-between ">
                     <label className="text-sm font-medium text-gray-700">
                       Expiry Date <span className="text-red-500">*</span>
                     </label>
 
-                    <div className="w-[50%]">
+                    <div className="w-full md:w-[50%]">
                       <Controller
                         name="expiry_date"
                         control={control}
@@ -636,9 +657,9 @@ export default function Announcements_Mainbar() {
                   </div>
 
                   {/* MESSAGE */}
-                  <div>
-                    <label>Message *</label>
-                    <div className="w-full mt-2">
+                  <div className="flex flex-col md:flex-row justify-between  text-gray-700">
+                    <label>Message <span className="text-red-500">*</span></label>
+                    <div className="w-full md:w-[50%] mt-2">
                       <Controller
                         name="message"
                         control={control}
@@ -659,9 +680,9 @@ export default function Announcements_Mainbar() {
                   </div>
 
                   {/* VISIBLE ROLES */}
-                  <div className="flex justify-between items-center">
-                    <label>Visible Roles *</label>
-                    <div className="w-[50%] ">
+                  <div className="flex flex-col md:flex-row justify-between text-gray-700">
+                    <label>Visible Roles <span className="text-red-500">*</span></label>
+                    <div className="w-full md:w-[50%] ">
                       <Controller
                         name="visible_roles"
                         control={control}
@@ -725,12 +746,12 @@ export default function Announcements_Mainbar() {
                   </div>
 
                   {/* STATUS */}
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col md:flex-row justify-between ">
                     <label className="text-sm font-medium text-gray-700">
                       Status <span className="text-red-500">*</span>
                     </label>
 
-                    <div className="w-[50%]">
+                    <div className="w-full md:w-[50%]">
                       <Controller
                         name="status"
                         control={control}
@@ -781,21 +802,21 @@ export default function Announcements_Mainbar() {
             <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
               <div className="relative bg-white rounded-xl shadow-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
                 {/* Header */}
-                <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
-                  <h2 className="text-xl font-semibold text-[#1ea600] hover:text-[#4BB452]">
+                <div className="flex justify-between items-center p-3 md:p-6 border-b sticky top-0 bg-white z-10">
+                  <h2 className="text-md md:text-xl font-semibold text-[#1ea600] hover:text-[#4BB452]">
                     Announcement Details
                   </h2>
 
                   <button
                     onClick={closeViewModal}
-                    className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+                    className="absolute top-2 md:top-4 right-2 md:right-4 text-gray-500 hover:text-red-500"
                   >
                     <IoIosCloseCircle size={28} />
                   </button>
                 </div>
 
                 {/* Body */}
-                <div className="p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
+                <div className="p-3 md:p-6 overflow-y-auto max-h-[calc(90vh-96px)]">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <p>
                       <b>Start Date:</b>{" "}
