@@ -347,7 +347,7 @@ const DailyWorkReport_Details = () => {
                         </div>
 
                         {/* Filter Section */}
-                        <div className="hidden md:block w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
+                        <div className="hidden md:flex justify-between w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
 
                             <div className="flex flex-wrap items-end gap-4">
                                 {/* Start Date */}
@@ -428,8 +428,18 @@ const DailyWorkReport_Details = () => {
                                     </button>
 
                                 </div>
+                                 </div>
 
-                            </div>
+                             <div className="flex items-end gap-3 mt-6 md:mt-0">
+                                        <button
+                                        onClick={() => navigate('/monthly-workreport')}
+                                        className="h-10 w-20 rounded-lg text-sm bg-[#1ea600] hover:bg-[#23880c] text-white "
+                                    >
+                                        Monthly Report
+                                    </button>
+                                </div>
+
+                           
                         </div>
                         {/* filter section mobile view  */}
                         <div className="block md:hidden w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
