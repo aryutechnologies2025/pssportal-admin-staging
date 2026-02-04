@@ -54,14 +54,12 @@ const Employees_Card = () => {
   const onPageChange = (e) => {
     setPage(e.page + 1); // PrimeReact is 0-based
     setRows(e.rows);
-
   };
 
   const onRowsChange = (value) => {
     setRows(value);
     setPage(1); // Reset to first page when changing rows per page
   };
-
 
   console.log("employeeData :", employeeData);
 
@@ -280,29 +278,73 @@ const Employees_Card = () => {
   //     }
   //   };
 
+  // const handleReferenceChange = async (id, referenceType, checked) => {
+  //   console.log("id:", id, "type:", referenceType, "checked:", checked);
+
+  //   try {
+  //     // const payload = {
+  //     //   job_form_referal: checked ? 1 : 0,
+  //     //   // job_form_ext_referal: checked ? 1 : 0,
+  //     //   type: checked ? referenceType : null,
+  //     // };
+
+  //     const payload =
+  // referenceType === "internal"
+  //   ? {
+  //       job_form_referal: checked ? 1 : 0,
+  //       // job_form_ext_referal: 0,
+  //       type: "internal",
+  //     }
+  //   : {
+  //       job_form_ext_referal: checked ? 1 : 0,
+  //       // job_form_referal: 0,
+  //       type: "external",
+  //     };
+
+  //     const res = await axiosInstance.post(
+  //       `/api/employees/job-referal/${id}`,
+  //       payload,
+  //     );
+
+  //     if (res.status === 200) {
+  //       toast.success("Reference updated successfully!");
+
+  //       setEmployeeData((prev) =>
+  //         prev.map((emp) =>
+  //           emp.id === id
+  //             ? {
+  //                 ...emp,
+  //                 job_form_referal: payload.job_form_referal,
+  //                 reference_type: payload.reference_type,
+  //               }
+  //             : emp,
+  //         ),
+  //       );
+  //     }
+  //     fetchEmployees();
+  //   } catch (error) {
+  //     console.error("Failed to update reference:", error);
+  //   }
+  // };
+
   const handleReferenceChange = async (id, referenceType, checked) => {
     console.log("id:", id, "type:", referenceType, "checked:", checked);
 
     try {
-      // const payload = {
-      //   job_form_referal: checked ? 1 : 0,
-      //   // job_form_ext_referal: checked ? 1 : 0,
-      //   type: checked ? referenceType : null,
-      // };
-
       const payload =
-  referenceType === "internal"
-    ? {
-        job_form_referal: checked ? 1 : 0,
-        job_form_ext_referal: 0,
-        type: "internal",
-      }
-    : {
-        job_form_ext_referal: checked ? 1 : 0,
-        job_form_referal: 0,
-        type: "external",
-      };
+        referenceType === "internal"
+          ? {
+              job_form_referal: checked ? 1 : 0,
+              // job_form_ext_referal: 0,
+              reference_type: checked ? "internal" : null,
+            }
+          : {
+              // job_form_ext_referal: checked ? 1 : 0,
+              // job_form_referal: 0,
+                jb_referal: checked ? 1 : 0,
 
+              reference_type: checked ? "external" : null,
+            };
 
       const res = await axiosInstance.post(
         `/api/employees/job-referal/${id}`,
@@ -318,12 +360,14 @@ const Employees_Card = () => {
               ? {
                   ...emp,
                   job_form_referal: payload.job_form_referal,
+                  job_form_ext_referal: payload.job_form_ext_referal,
                   reference_type: payload.reference_type,
                 }
               : emp,
           ),
         );
       }
+
       fetchEmployees();
     } catch (error) {
       console.error("Failed to update reference:", error);
@@ -400,14 +444,14 @@ const Employees_Card = () => {
       body: (row) => {
         const name = row.full_name || "-";
         const id = row.role.role_name || "-";
-        console.log("check id",id,name)
-        return(
-        <div>
-        <div>{name}</div>
-        <div>{id}</div>
-        </div>
+        console.log("check id", id, name);
+        return (
+          <div>
+            <div>{name}</div>
+            <div>{id}</div>
+          </div>
         );
-    },
+      },
     },
 
     // {
@@ -473,7 +517,7 @@ const Employees_Card = () => {
       field: "reference",
       header: "Interview Reference",
       body: (row) => {
-        // Debug: console.log("Row Reference Value:", row.reference);
+        Debug: console.log("Row Reference Value:", row);
         return (
           <div
             className="flex justify-center"
@@ -492,12 +536,12 @@ const Employees_Card = () => {
 
             <input
               type="checkbox"
-              checked={
-                row.job_form_referal == 1 &&
-                row.reference_type === "internal"
-              }
+             checked={row.job_form_referal == "1"}
+
+              onClick={(e) => e.stopPropagation()}
+          
               onChange={(e) =>
-                handleReferenceChange(row.id, e.target.checked, "internal")
+                handleReferenceChange(row.id, "internal", e.target.checked)
               }
               className="w-4 h-4 cursor-pointer accent-green-600"
             />
@@ -521,14 +565,16 @@ const Employees_Card = () => {
           >
             <input
               type="checkbox"
-              checked={
-                row.job_form_referal == 1 &&
-                row.reference_type === "external"
-              }
+             checked={row.jb_referal == "1"}
+
+              onClick={(e) => e.stopPropagation()}
+              // onChange={(e) =>
+              //   handleReferenceChange(row.id, e.target.checked, "external")
+              // }
               onChange={(e) =>
-                handleReferenceChange(row.id, e.target.checked, "external")
+                handleReferenceChange(row.id, "external", e.target.checked)
               }
-              className="w-4 h-4 cursor-pointer accent-blue-600"
+              className="w-4 h-4 cursor-pointer accent-green-600"
             />
           </div>
         );

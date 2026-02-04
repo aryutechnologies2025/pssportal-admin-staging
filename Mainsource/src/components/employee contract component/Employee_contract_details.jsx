@@ -52,14 +52,12 @@ const Employee_contract_details = () => {
   const onPageChange = (e) => {
     setPage(e.page + 1); // PrimeReact is 0-based
     setRows(e.rows);
-
   };
 
   const onRowsChange = (value) => {
     setRows(value);
     setPage(1); // Reset to first page when changing rows per page
   };
-
 
   const getTodayDate = () => {
     return new Date().toISOString().split("T")[0];
@@ -192,7 +190,7 @@ const Employee_contract_details = () => {
 
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
-  console.log("companyEmpType", companyEmpType);
+  // console.log("companyEmpType", companyEmpType);
 
   // Table states
   // const [page, setPage] = useState(1);
@@ -291,7 +289,7 @@ const Employee_contract_details = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewRow, setViewRow] = useState(null);
 
-  console.log("viewRow", viewRow);
+  // console.log("viewRow", viewRow);
 
   const [existingCandidate, setExistingCandidate] = useState(null);
   const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
@@ -314,9 +312,6 @@ const Employee_contract_details = () => {
       toast.error("Unable To Load Candidate Details");
     }
   };
-
-
-
 
   const handleCloseViewExistingCandidate = () => {
     setIsExistingCandidateViewModalOpen(false);
@@ -495,7 +490,7 @@ const Employee_contract_details = () => {
   // company list
   const fetchCompanyList = async () => {
     try {
-      const response = await axiosInstance.get("/api/company");
+      // const response = await axiosInstance.get("/api/company");
       console.log("response check", response);
 
       if (response.data.success) {
@@ -559,11 +554,10 @@ const Employee_contract_details = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRejoining, setIsRejoining] = useState(false);
   const [rejoingnote, setRejoingnote] = useState("");
-  console.log("rejoingnote", rejoingnote);
+  // console.log("rejoingnote", rejoingnote);
 
   const [editempid, setEditempid] = useState("");
-  console.log("editempid", editempid);
-
+  // console.log("editempid", editempid);
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
@@ -776,7 +770,8 @@ const Employee_contract_details = () => {
           : [{ name: "", relationship: "", phone_number: "" }],
     };
   };
-
+ const [showLogs, setShowLogs] = useState(false);
+  const [logData, setLogs] = useState([]);
   const openEditModal = async (row) => {
     // console.log("open edit row", row);
 
@@ -793,7 +788,7 @@ const Employee_contract_details = () => {
       const normalizedData = normalizeEditData(rowData);
 
       setEditData(normalizedData);
-
+      setLogs(rowData?.rejoingdetails);
 
       if (normalizedData.profile_picture) {
         // If it's already a full URL, use it; otherwise, append base URL
@@ -881,6 +876,7 @@ const Employee_contract_details = () => {
       const response = await axiosInstance.get(
         `api/contract-employee?${queryParams}`,
       );
+
       if (response.data.success) {
         setBoardingPoints(response.data.data.boardingpoints || []);
         setEducations(response.data.data.educations || []);
@@ -1029,8 +1025,15 @@ const Employee_contract_details = () => {
     {
       header: "Name",
       field: "name",
-      body: (row) => Capitalise(row.name || "-"),
+      body: (row) => (
+        <div>
+          <div className="font-semibold">{Capitalise(row.name || "-")}</div>
+
+          <div className="text-xs text-gray-500">{row.employee_id || "-"}</div>
+        </div>
+      ),
     },
+
     {
       header: "Phone",
       field: "phone_number",
@@ -1066,9 +1069,10 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${row.status === 0 || row.status === "0"
-              ? "text-[#DC2626] bg-[#fff0f0] "
-              : "text-[#16A34A] bg-[#e8fff0] "
+            ${
+              row.status === 0 || row.status === "0"
+                ? "text-[#DC2626] bg-[#fff0f0] "
+                : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -1104,8 +1108,6 @@ const Employee_contract_details = () => {
       style: { textAlign: "center", width: "120px" },
     },
   ];
-
-
 
   // create
   const onSubmit = async (data) => {
@@ -1297,7 +1299,6 @@ const Employee_contract_details = () => {
     document.body.removeChild(link);
   };
 
-
   const [boardingPoints, setBoardingPoints] = useState([]);
   const [educations, setEducations] = useState([]);
 
@@ -1313,43 +1314,35 @@ const Employee_contract_details = () => {
     value: String(e.id),
   }));
 
+ 
 
-  const [showLogs, setShowLogs] = useState(false);
-  const [logData, setLogs] = useState([]);
+  // console.log("logData", logData);
 
-  console.log("logData", logData);
+  // const fetchLogs = async () => {
+  //   try {
+  //     const response = await axiosInstance.post(
+  //       `${API_URL}api/contract-employee/emp-rejoing-list/`,
+  //       {
+  //         employee_id: editempid,
+  //       },
+  //     );
 
+  //     console.log("responselogs", response);
 
-  const fetchLogs = async () => {
-    try {
-      const response = await axiosInstance.post(
-        `${API_URL}api/contract-employee/emp-rejoing-list/`, {
+  //     if (response.status === 200) {
+  //       setLogs(response.data.data);
+  //       // setShowLogs(true);
+  //     }
+  //   } catch (err) {
+  //     toast.error("Unable To Load Candidate Details");
+  //   }
+  // };
 
-        employee_id: editempid
-
-      }
-      );
-
-      console.log("responselogs", response);
-
-      if (response.status === 200) {
-        setLogs(response.data.data);
-        // setShowLogs(true);
-      }
-
-
-
-    } catch (err) {
-      toast.error("Unable To Load Candidate Details");
-    }
-  };
-
-  useEffect(() => {
-    if (editempid) {
-      fetchLogs();
-    }
-  }, [editempid]);
-
+  // useEffect(() => {
+  //   if (editempid) {
+  //     fetchLogs();
+  //   }
+  // }, [editempid]);
 
   // const logData = [
   //   {
@@ -1642,8 +1635,9 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
-                    }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
+                    isAnimating ? "translate-x-0" : "translate-x-full"
+                  }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -1769,7 +1763,6 @@ const Employee_contract_details = () => {
                           <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         )}
                         {isSubmitting ? "Uploading..." : "Submit"}
-
                       </button>
                     </div>
                   </div>
@@ -2348,10 +2341,11 @@ const Employee_contract_details = () => {
                                   : "Employee ID"
                               }
                               className={`w-full px-2 py-2 border rounded-[10px]
-          ${companyEmpType === "automatic"
-                                  ? "bg-gray-100 cursor-not-allowed"
-                                  : "bg-white"
-                                }`}
+          ${
+            companyEmpType === "automatic"
+              ? "bg-gray-100 cursor-not-allowed"
+              : "bg-white"
+          }`}
                             />
                             {errors.manual_value && (
                               <p className="text-red-500 text-sm mt-1">
@@ -2538,7 +2532,9 @@ const Employee_contract_details = () => {
                                 type="checkbox"
                                 checked={isRejoining}
                                 className="sr-only peer"
-                                onChange={(e) => setIsRejoining(e.target.checked)}
+                                onChange={(e) =>
+                                  setIsRejoining(e.target.checked)
+                                }
                               />
                               <div
                                 className="w-11 h-6 bg-gray-300 rounded-full peer 
@@ -2560,7 +2556,9 @@ const Employee_contract_details = () => {
                                 <textarea
                                   name="rejoingnote"
                                   value={rejoingnote}
-                                  onChange={(e) => setRejoingnote(e.target.value)}
+                                  onChange={(e) =>
+                                    setRejoingnote(e.target.value)
+                                  }
                                   rows={3}
                                   placeholder="Enter rejoining notes..."
                                   className="w-full px-2 py-2 border border-gray-300 rounded-[10px] text-sm focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
@@ -2786,9 +2784,9 @@ const Employee_contract_details = () => {
                         <button
                           type="submit"
                           className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                        // onClick={handleSubmit(onSubmit, (errors) =>
-                        //   console.log(errors),
-                        // )}
+                          // onClick={handleSubmit(onSubmit, (errors) =>
+                          //   console.log(errors),
+                          // )}
                         >
                           Submit
                         </button>
@@ -2855,7 +2853,6 @@ const Employee_contract_details = () => {
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
                 {/* Modal box */}
                 <div className="bg-white w-full md:w-[900px] rounded-2xl shadow-2xl overflow-hidden">
-
                   {/* Header */}
                   <div className="px-5 py-4 bg-green-600 text-white">
                     <div className="flex justify-between items-start">
@@ -2885,11 +2882,17 @@ const Employee_contract_details = () => {
                       <table className="w-full min-w-[700px] border border-green-600 rounded-lg">
                         <thead className="bg-green-100 text-green-800 text-sm sticky top-0 z-10">
                           <tr>
-                            <th className="px-3 py-2 text-center w-[60px]">S.No</th>
+                            <th className="px-3 py-2 text-center w-[60px]">
+                              S.No
+                            </th>
                             <th className="px-4 py-2 text-left">Company</th>
                             <th className="px-4 py-2 text-left">Employee ID</th>
-                            <th className="px-4 py-2 text-left">Joining Date</th>
-                            <th className="px-4 py-2 text-left">Rejoining Note</th>
+                            <th className="px-4 py-2 text-left">
+                              Joining Date
+                            </th>
+                            <th className="px-4 py-2 text-left">
+                              Rejoining Note
+                            </th>
                           </tr>
                         </thead>
 
@@ -2945,11 +2948,9 @@ const Employee_contract_details = () => {
                       Close
                     </button>
                   </div>
-
                 </div>
               </div>
             )}
-
 
             {isViewModalOpen && viewRow && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
@@ -3119,8 +3120,8 @@ const Employee_contract_details = () => {
                         </h3>
 
                         {viewRow?.contacts &&
-                          Array.isArray(viewRow.contacts) &&
-                          viewRow.contacts.length > 0 ? (
+                        Array.isArray(viewRow.contacts) &&
+                        viewRow.contacts.length > 0 ? (
                           <table className="w-full border text-sm">
                             <thead className="bg-gray-100">
                               <tr>
@@ -3356,7 +3357,7 @@ const Employee_contract_details = () => {
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
                         {viewExistingCandidate.documents &&
-                          viewExistingCandidate.documents.length > 0 ? (
+                        viewExistingCandidate.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewExistingCandidate.documents.map(
                               (doc, index) => (
