@@ -792,7 +792,7 @@ const Sidebar = () => {
               </div>
 
               {/* lead management */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-dashboard")}
                   className={`flex items-center w-full flex-grow
@@ -800,6 +800,26 @@ const Sidebar = () => {
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
     ${
       currentPath === "/lead-dashboard"
+        ? "bg-[#4BB452] text-white"
+        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+    }`}
+                >
+                  <MdLeaderboard className="w-5 " />
+
+                  {!arrowClicked && (
+                    <p className="text-sm font-medium">Lead Engine</p>
+                  )}
+                </div>
+              </div> */}
+
+                            <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("lead-engine")}
+                  className={`flex items-center w-full flex-grow
+    ${arrowClicked ? "justify-center" : "justify-normal"}
+    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+    ${
+      currentPath === "/lead-engine"
         ? "bg-[#4BB452] text-white"
         : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
     }`}

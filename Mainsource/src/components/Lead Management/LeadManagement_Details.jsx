@@ -377,7 +377,7 @@ setTimeout(() => {
           toast.success(res.data?.message || "Lead created successfully");
         }, 600);
         closeAddModal();
-        fetchLead();
+        fetchLead({});
       } else {
         toast.error("Failed to create lead");
       }
@@ -1114,7 +1114,7 @@ const statusDropdownOptions = [
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
 px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container mt-4">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-5">
                     <div>
