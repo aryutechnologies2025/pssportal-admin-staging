@@ -1041,10 +1041,13 @@ function generateTimeOptions() {
                 rows={rows}
                 rowsPerPageOptions={[10, 20, 50]}
                 globalFilter={globalFilter}
-                globalFilterFields={[
+                  globalFilterFields={[
                   "contract_employee.name",
+                  "contract_employee.employee_id",
                   "employee_number",
                   "attendance",
+                
+
                 ]}
                 showGridlines
                 resizableColumns

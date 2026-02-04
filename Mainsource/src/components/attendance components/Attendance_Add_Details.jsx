@@ -33,10 +33,10 @@ const Attendance_add_details = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
   );
-    const [filters, setFilters] = useState({
-      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    });
-    console.log("filter",filters);
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  });
+  console.log("filter", filters);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [editData, setEditData] = useState(null);
   const [companies, setCompanies] = useState([]);
@@ -46,7 +46,6 @@ const Attendance_add_details = () => {
   const onPageChange = (e) => {
     setPage(e.page + 1); // PrimeReact is 0-based
     setRows(e.rows);
-
   };
 
   const onRowsChange = (value) => {
@@ -80,6 +79,7 @@ const Attendance_add_details = () => {
         ...emp,
         attendance: null,
         shifts: [],
+        shiftText: "",
       }));
 
       const shifts = res.data.shifts.map((shift) => ({
@@ -91,6 +91,10 @@ const Attendance_add_details = () => {
 
       setAttendanceData(employees);
       setShiftOptions(shifts);
+           setFilters({
+        global: { value: globalFilter, matchMode: "contains" },
+      });
+
     } catch (err) {
       console.error("Error fetching employees & shifts", err);
     }
@@ -156,9 +160,9 @@ const Attendance_add_details = () => {
       prev.map((emp) =>
         emp.id === id
           ? {
-            ...emp,
-            attendance: status,
-          }
+              ...emp,
+              attendance: status,
+            }
           : emp,
       ),
     );
@@ -400,13 +404,13 @@ const Attendance_add_details = () => {
           shifts: exists
             ? emp.shifts.filter((s) => s.shift_id !== shift.id) // remove shift if unchecked
             : [
-              ...emp.shifts,
-              {
-                shift_id: shift.id,
-                start_time: shift.start_time, // default start
-                end_time: shift.end_time, // default end
-              },
-            ],
+                ...emp.shifts,
+                {
+                  shift_id: shift.id,
+                  start_time: shift.start_time, // default start
+                  end_time: shift.end_time, // default end
+                },
+              ],
         };
       }),
     );
@@ -418,11 +422,11 @@ const Attendance_add_details = () => {
       prev.map((emp) =>
         emp.id === empId
           ? {
-            ...emp,
-            shifts: emp.shifts.map((s) =>
-              s.shift_id === shiftId ? { ...s, [field]: value } : s,
-            ),
-          }
+              ...emp,
+              shifts: emp.shifts.map((s) =>
+                s.shift_id === shiftId ? { ...s, [field]: value } : s,
+              ),
+            }
           : emp,
       ),
     );
@@ -450,13 +454,13 @@ const Attendance_add_details = () => {
           shifts: exists
             ? emp.shifts.filter((s) => s.shift_id !== shiftId) // uncheck all
             : [
-              ...emp.shifts,
-              {
-                shift_id: shiftId,
-                start_time: shiftDefault.start_time,
-                end_time: shiftDefault.end_time,
-              },
-            ],
+                ...emp.shifts,
+                {
+                  shift_id: shiftId,
+                  start_time: shiftDefault.start_time,
+                  end_time: shiftDefault.end_time,
+                },
+              ],
         };
       }),
     );
@@ -474,7 +478,7 @@ const Attendance_add_details = () => {
       body: (row) => {
         const name = row.name || "-";
         const id = row.employee_id || "-";
-        console.log("check id", id, name)
+        console.log("check id", id, name);
         return (
           <div>
             <div>{name}</div>
@@ -493,8 +497,9 @@ const Attendance_add_details = () => {
         >
           <span>Shift Allocation</span>
           <i
-            className={`pi pi-chevron-down text-xs transition-transform ${showShiftPopup ? "rotate-180" : ""
-              }`}
+            className={`pi pi-chevron-down text-xs transition-transform ${
+              showShiftPopup ? "rotate-180" : ""
+            }`}
           />
         </div>
       ),
@@ -701,6 +706,18 @@ const Attendance_add_details = () => {
     name: company.name, // Keep original name for reference
   }));
 
+
+
+    const onGlobalFilterChange = (e) => {
+    const value = e.target.value;
+
+    setGlobalFilter(value);
+
+    setFilters({
+      global: { value, matchMode: "contains" },
+    });
+  };
+
   return (
     <div className="flex flex-col justify-between bg-gray-100 w-screen min-h-screen px-3 md:px-5 pt-2 md:pt-10">
       {loading ? (
@@ -878,15 +895,7 @@ px-2 py-2 md:px-6 md:py-6"
 
                       <InputText
                         value={globalFilter}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setGlobalFilter(value);
-
-                          setFilters((prev) => ({
-                            ...prev,
-                            global: { ...prev.global, value },
-                          }));
-                        }}
+                        onChange={onGlobalFilterChange}
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9]
                                    focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
@@ -912,14 +921,9 @@ px-2 py-2 md:px-6 md:py-6"
                   onPage={onPageChange}
                   rowsPerPageOptions={[10, 20]}
                   loading={loading}
-                    filters={filters}
-                    globalFilterFields={[
-                      "name",
-                      "id",
-                      "attendance",
-                      "status",
-                    ]}
-                  globalFilter={globalFilter} // Global search filter
+                  filters={filters}
+                  globalFilterFields={["name", "employee_id", "attendance"]}
+                  // globalFilter={globalFilter} 
                   showGridlines
                   resizableColumns
                 >
