@@ -336,14 +336,14 @@ const Employees_Card = () => {
           ? {
               job_form_referal: checked ? 1 : 0,
               // job_form_ext_referal: 0,
-              reference_type: checked ? "internal" : null,
+              reference_type:  "internal",
             }
           : {
               // job_form_ext_referal: checked ? 1 : 0,
               // job_form_referal: 0,
                 jb_referal: checked ? 1 : 0,
 
-              reference_type: checked ? "external" : null,
+              reference_type: "external" ,
             };
 
       const res = await axiosInstance.post(

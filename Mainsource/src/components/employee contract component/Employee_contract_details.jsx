@@ -552,8 +552,10 @@ const Employee_contract_details = () => {
   // select file
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRejoining, setIsRejoining] = useState(false);
+  const [isRejoining, setIsRejoining] = useState(true);
   const [rejoingnote, setRejoingnote] = useState("");
+  const [rejoinTouched, setRejoinTouched] = useState(false);
+
   // console.log("rejoingnote", rejoingnote);
 
   const [editempid, setEditempid] = useState("");
@@ -712,7 +714,7 @@ const Employee_contract_details = () => {
 
     if (row.rejoingstatus) {
       // rejoining status
-      setIsRejoining(row.rejoingstatus.rejoin_status === 1);
+      setIsRejoining(row.rejoingstatus.rejoin_status);
 
       //  only rejoining note
       setRejoingnote(row.rejoingstatus.rejoining_note || "");
@@ -770,7 +772,7 @@ const Employee_contract_details = () => {
           : [{ name: "", relationship: "", phone_number: "" }],
     };
   };
- const [showLogs, setShowLogs] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
   const [logData, setLogs] = useState([]);
   const openEditModal = async (row) => {
     // console.log("open edit row", row);
@@ -1108,7 +1110,9 @@ const Employee_contract_details = () => {
       style: { textAlign: "center", width: "120px" },
     },
   ];
+  const [rejoinType, setRejoinType] = useState(null);
 
+  console.log("rejoinType", rejoinType);
   // create
   const onSubmit = async (data) => {
     try {
@@ -1120,42 +1124,42 @@ const Employee_contract_details = () => {
         documents_length: data.documents?.length,
       });
 
-      if (isRejoining === true) {
-        if (!rejoingnote) {
-          toast.error("Rejoining notes required");
-          return;
-        }
+      // if (isRejoining === true) {
+      //   if (!rejoingnote) {
+      //     toast.error("Rejoining notes required");
+      //     return;
+      //   }
 
-        const rejoiningPayload = {
-          parent_id: editData?.id,
-          company_id: editData?.company,
-          boarding_point_id: editData?.boardingPoint,
-          address: editData?.address,
-          joining_date: editData?.joinedDate,
-          rejoin_status: 1,
-          employee_id: editData?.manual_value,
-          rejoining_note: rejoingnote,
+      //   const rejoiningPayload = {
+      //     parent_id: editData?.id,
+      //     company_id: editData?.company,
+      //     boarding_point_id: editData?.boardingPoint,
+      //     address: editData?.address,
+      //     joining_date: editData?.joinedDate,
+      //     rejoin_status: 1,
+      //     employee_id: editData?.manual_value,
+      //     rejoining_note: rejoingnote,
 
-          created_by: userId,
-        };
+      //     created_by: userId,
+      //   };
 
-        console.log("Rejoining payload:", rejoiningPayload);
+      //   console.log("Rejoining payload:", rejoiningPayload);
 
-        await axiosInstance.post(
-          `${API_URL}api/contract-employee/emp-rejoing-create`,
-          rejoiningPayload,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          },
-        );
+      //   await axiosInstance.post(
+      //     `${API_URL}api/contract-employee/emp-rejoing-create`,
+      //     rejoiningPayload,
+      //     {
+      //       headers: {
+      //         "Content-Type": "multipart/form-data",
+      //       },
+      //     },
+      //   );
 
-        toast.success("Rejoining created successfully");
-        closeAddModal();
-        fetchContractCandidates();
-        return; //  VERY IMPORTANT (stop next API)
-      }
+      //   toast.success("Rejoining created successfully");
+      //   closeAddModal();
+      //   fetchContractCandidates();
+      //   return; //  VERY IMPORTANT (stop next API)
+      // }
       const createCandidate = {
         name: data.name,
         address: data.address || "test",
@@ -1189,10 +1193,16 @@ const Employee_contract_details = () => {
         employee_id: data.manual_value,
         bank_name: data.bankName,
 
-        // status: data.status,
-        status: 1,
+        status: data.status,
+        // status: 1,
         created_by: userId,
         role_id: userRole,
+        rejoining_note: rejoingnote,
+        rejoin_status: isRejoining,
+        // rejoin_type: 1,
+        // ...(rejoinType === 1 && { rejoin_type: 1 }),
+        ...(rejoinTouched ? { rejoin_type: 1} : {}),
+        // rejoin_type: isRejoining ? 1 : null,
       };
 
       const formData = new FormData();
@@ -1313,8 +1323,6 @@ const Employee_contract_details = () => {
     label: e.eduction_name,
     value: String(e.id),
   }));
-
- 
 
   // console.log("logData", logData);
 
@@ -2510,7 +2518,7 @@ const Employee_contract_details = () => {
                             <option value="">Select a status</option>
                             <option value="1">Active</option>
                             <option value="0">InActive</option>
-                            <option value="2">Relieved</option>
+                            {/* <option value="2">Relieved</option> */}
                           </select>
                           {errors.status && (
                             <p className="text-red-500 text-sm mt-1">
@@ -2528,14 +2536,28 @@ const Employee_contract_details = () => {
                             </label>
 
                             <label className="relative inline-flex items-center cursor-pointer">
+                              {/* <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={isRejoining === 1}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setIsRejoining(checked ? 1 : 0); 
+                                  setRejoinType(1); 
+                                }}
+                              /> */}
+
                               <input
                                 type="checkbox"
-                                checked={isRejoining}
                                 className="sr-only peer"
-                                onChange={(e) =>
-                                  setIsRejoining(e.target.checked)
-                                }
+                                checked={isRejoining === 1}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setIsRejoining(checked ? 1 : 0); 
+                                  setRejoinTouched(true);
+                                }}
                               />
+
                               <div
                                 className="w-11 h-6 bg-gray-300 rounded-full peer 
       peer-checked:bg-[#1ea600]
@@ -2546,7 +2568,7 @@ const Employee_contract_details = () => {
                             </label>
                           </div>
                           {/*  */}
-                          {isRejoining && (
+                         {isRejoining === 1 && (
                             <div className="mt-3 flex justify-between items-start">
                               <label className="block text-md font-medium mt-2">
                                 Rejoining Notes
