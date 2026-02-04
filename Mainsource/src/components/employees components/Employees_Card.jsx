@@ -391,6 +391,11 @@ const Employees_Card = () => {
     },
 
     {
+      header: "Employee ID",
+      field: "gen_employee_id",
+    },
+
+    {
       header: "Name",
       body: (row) => {
         const name = row.full_name || "-";

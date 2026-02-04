@@ -10,7 +10,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
-
+import { FilterMatchMode } from "primereact/api";
 import { IoIosArrowForward, IoIosCloseCircle } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
 import { TfiPencilAlt } from "react-icons/tfi";
@@ -37,6 +37,9 @@ import Swal from "sweetalert2";
 const Announcements_Mainbar = () => {
   let navigate = useNavigate();
   const [announcements, setAnnouncements] = useState([]);
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  });
   const [roles, setRoles] = useState([]);
   const [rows, setRows] = useState(10);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -140,7 +143,6 @@ const Announcements_Mainbar = () => {
     // setGlobalFilter(res.data.data.length);
     setLoading(false);
   };
-
 
   /* MODAL */
   const openAddModal = () => {
@@ -380,17 +382,28 @@ const Announcements_Mainbar = () => {
                   </div>
 
                   <div className="flex justify-end w-full md:mb-4 gap-2 md:gap-4">
-                    <FiSearch
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                      size={18}
-                    />
 
-                    <InputText
+                    {/* <InputText
                       value={globalFilter}
                       onChange={(e) => setGlobalFilter(e.target.value)}
                       placeholder="Search......"
                       className="w-[50%]  pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
                                  focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    /> */}
+                    <InputText
+                      value={globalFilter}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setGlobalFilter(value);
+
+                        setFilters((prev) => ({
+                          ...prev,
+                          global: { ...prev.global, value },
+                        }));
+                      }}
+                      placeholder="Search......"
+                      className="w-[50%] pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9]
+             focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
 
                     <button
@@ -410,6 +423,7 @@ const Announcements_Mainbar = () => {
                   </button>
                 </div>
                 <div className="table-scroll-container" id="datatable">
+
                   <DataTable
                     className="mt-8"
                     value={announcements}
@@ -417,17 +431,21 @@ const Announcements_Mainbar = () => {
                     rows={rows}
                     first={(page - 1) * rows}
                     onPage={onPageChange}
-                    totalRecords={totalRecords}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
                     loading={loading}
-                    globalFilter={globalFilter}
+                    filters={filters}
+                    globalFilterFields={[
+                      "start_date",
+                      "expiry_date",
+                      "announcement_details",
+                      "status",
+                    ]}
                     showGridlines
                     resizableColumns
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                     paginatorClassName="custom-paginator"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-
                   >
+
                     {columns.map((c, i) => (
                       <Column key={i} {...c} />
                     ))}

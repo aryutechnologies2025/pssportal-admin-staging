@@ -178,6 +178,7 @@ const DailyWorkReport_Details = () => {
 
       const formattedData = res.data.data.map((item, index) => ({
         id: index + 1,
+        employee_id: item.employee_id,
         employee_name: item.employee_name,
         date: item.date,
         status: item.status,
@@ -249,11 +250,27 @@ const DailyWorkReport_Details = () => {
     //     header: "Employee ID",
     // },
 
+    // {
+    //   field: "employee_name",
+    //   header: "EMPLOYEE NAME",
+    //   body: (row) => Capitalise(row.employee_name) || row.employee_name || "-",
+    // },
+    
     {
-      field: "employee_name",
-      header: "EMPLOYEE NAME",
-      body: (row) => Capitalise(row.employee_name) || row.employee_name || "-",
+      header: "Name",
+      body: (row) => {
+        const name = row.employee_name || "-";
+        const id = row.employee_id || "-";
+        console.log("check id",id)
+        return(
+        <div>
+        <div>{name}</div>
+        <div>{id}</div>
+        </div>
+        );
     },
+    },
+
     {
       field: "date",
       header: "Date",
