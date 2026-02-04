@@ -750,7 +750,7 @@ const Attendance_View_Details = () => {
                 rows={rows}
                 rowsPerPageOptions={[10, 20, 50]}
                 globalFilter={globalFilter}
-                globalFilterFields={["contract_employee.name", "attendance"]}
+                globalFilterFields={["contract_employee.name","contract_employee.employee_id", "attendance"]}
                 showGridlines
                 resizableColumns
                 className="mt-4"
