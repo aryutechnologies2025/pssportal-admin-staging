@@ -256,11 +256,13 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       );
 
       if (res.data.success || res.data.status) {
-        toast.success("Lead updated successfully");
+        setTimeout(() => {
+          toast.success(res.data?.message || "Lead updated successfully");
+        }, 600);
         closeEditModal();
         fetchLead();
       }
-    } catch {
+    } catch (error) {
       toast.error("Failed to update lead");
     }
   };
@@ -320,8 +322,9 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         `${API_URL}api/lead-management/status-update/${viewStatus.id}`,
         payload
       );
-
-      toast.success("Lead status updated successfully");
+setTimeout(() => {
+      toast.success("Lead status updated successfully");    
+    }, 600);
 
       await fetchStatusList(viewStatus.id);
       fetchLead();
@@ -370,7 +373,9 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       console.log("Lead create res : ", res);
 
       if (res.data.success || res.data.status) {
-        toast.success("Lead created successfully");
+        setTimeout(() => {
+          toast.success(res.data?.message || "Lead created successfully");
+        }, 600);
         closeAddModal();
         fetchLead();
       } else {
@@ -426,9 +431,13 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     result = result.filter(item => item.category_id === filters.category);
   }
 
+
+
+  console.log("result",result)
   // lead status
   if (filters.lead_status) {
     console.log("filtering by status : ",filters.lead_status)
+    let a=result.map(item=> console.log(item.lead_status))
     result = result.filter(item => item.lead_status === filters.lead_status);
   }
 
@@ -479,7 +488,7 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
       data = data.map(lead => ({
         ...lead,
         status: lead.status?.toString() || "", // Ensure status is string
-        lead_status: getStatusValue(lead.lead_status)
+        lead_status: normalizeLeadStatus(lead.lead_status)
       }));
 
         //  FRONTEND FILTERING
@@ -615,7 +624,9 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
       console.log("Delete response:", res.data);
 
       if (res.data?.success === true) {
-        toast.success("Lead deleted successfully");
+        setTimeout(() => {
+          toast.success(res.data?.message || "Lead deleted successfully");
+        }, 600);
         fetchLead(); // refresh table
       } else {
         toast.error(res.data?.message || "Delete failed");
@@ -671,6 +682,19 @@ useEffect(() => {
     key => STATUS_MAP[key] === label
   ) || "";
 };
+
+const normalizeLeadStatus = (status) => {
+  if (!status) return "";
+
+  
+  if (STATUS_MAP[status]) return status;
+
+ 
+  if (REVERSE_STATUS_MAP[status]) return REVERSE_STATUS_MAP[status];
+
+  return "";
+};
+
 
 const handleStatusChange = (row, newStatusKey) => {
 
@@ -755,11 +779,11 @@ const handleStatusChange = (row, newStatusKey) => {
       header: "State",
       body: (row) => Capitalise(row.state),
     },
-    // {
-    //   field: "created_time",
-    //   header: "Date",
-    //   body: (row) => formatToDDMMYYYY(row.created_time),
-    // },
+    {
+      field: "created_time",
+      header: "Date",
+      body: (row) => formatToDDMMYYYY(row.created_time),
+    },
     // {
     //   field: "status",
     //   header: "Status",
@@ -1040,7 +1064,7 @@ const statusDropdownOptions = [
 </div>
 
   {/* category */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">Category</label>
                   <Dropdown
                     className="h-10 px-3 rounded-md border"
@@ -1064,8 +1088,7 @@ const statusDropdownOptions = [
                   
 
 
-                </div>
-
+                </div> */}
 
                 {/* Buttons */}
                 <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end">
@@ -1391,7 +1414,7 @@ px-2 py-2 md:px-6 md:py-6">
                     </div>
 
                       {/* category */}
-                <div className="mt-6 flex justify-between items-center">
+                {/* <div className="mt-6 flex justify-between items-center">
                   <label className="text-sm font-medium">Category</label>
                   <div className="w-[50%]">
                   <Dropdown
@@ -1413,7 +1436,7 @@ px-2 py-2 md:px-6 md:py-6">
                   
 
 
-                </div>
+                </div> */}
 
                     {/* Status */}
                     <div className="mt-6 flex justify-between items-center">
@@ -1648,7 +1671,7 @@ px-2 py-2 md:px-6 md:py-6">
                     </div>
 
                       {/* category */}
-                <div className="mt-6 flex justify-between items-center">
+                {/* <div className="mt-6 flex justify-between items-center">
                   <label className="text-sm font-medium text-[#6B7280]">Category</label>
                   <div className="w-[50%]">
                   <Dropdown
@@ -1670,7 +1693,7 @@ px-2 py-2 md:px-6 md:py-6">
                   
 
 
-                </div>
+                </div> */}
 
                     {/* Status */}
                     <div className="mt-6 flex justify-between items-center">
@@ -2156,7 +2179,7 @@ px-2 py-2 md:px-6 md:py-6">
                     )}
 
                       {/* category */}
-                <div className="mt-3 flex justify-between items-center">
+                {/* <div className="mt-3 flex justify-between items-center">
                   <label className="block text-md font-medium">Category</label>
                   <div className="w-[60%] md:w-[50%]">
                   <Dropdown
@@ -2180,7 +2203,7 @@ px-2 py-2 md:px-6 md:py-6">
                   
 
 </div>
-                </div>
+                </div> */}
 
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
                       <button
