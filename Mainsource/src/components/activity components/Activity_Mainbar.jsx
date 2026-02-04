@@ -83,41 +83,7 @@ console.log("ACTIVITY Response.....: ",res)
     fetchActivity();
   }, []);
 
-  // const columns = [
-  //   {
-  //     header: "S.No",
-  //     body: ( _,options) => options.rowIndex + 1,
-  //     style: { textAlign: "center", width: "80px" },
-  //     fixed: true,
-  //   },
-  //   // {
-  //   //   header: "Employee ID",
-  //   //   field: "employee_id",
-  //   //   body: (row) => row?.employee_id || "_",
-  //   // },
-  //   {
-  //     header: "Employee Name",
-  //     field: "employeeName",
-  //   body: (row) => row?.employee_name || "_",
-  //   },
-  //   {
-  //     header: "Role",
-  //     field: "role",
-  //     body: (row) => row.role_name || "_",
-  //   },
-   
-  //   {
-  //     header: "Reason",
-  //     field: "reason",
-  //     body: (row) => Capitalise(row.reason || "_")  ,
-  //   },
-  //   {
-  //       header: "Date & Time",
-  //       field: "dateTime",
-  //       body: (row) =>
-  //   row.created_at ? formatIndianDateTime12Hr(row.created_at) : "-",
-  //   }
-  // ];
+  
   const parseLocationDetails = (location) => {
   if (!location) return "-";
 
@@ -161,9 +127,19 @@ const columns = [
     style: { textAlign: "center", width: "80px" },
   },
   {
-    header: "Employee Name",
-    body: (row) => row?.employee_name || "_",
-  },
+      header: "Name",
+      body: (row) => {
+        const name = row.employee_name || "-";
+        const id = row.employee_id || "-";
+        console.log("check id", id, name);
+        return (
+          <div>
+            <div>{name}</div>
+            <div>{id}</div>
+          </div>
+        );
+      },
+    },
   {
     header: "Role",
     body: (row) => row.role_name || "_",
