@@ -1505,7 +1505,7 @@ const ContractCandidates_Mainbar = () => {
                   </div>
 
                   {/* education */}
-                  <div className="flex flex-col gap-1">
+                  {/* <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
                       Education
                     </label>
@@ -1517,7 +1517,7 @@ const ContractCandidates_Mainbar = () => {
                       filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md placeholder:text-gray-400"
                     />
-                  </div>
+                  </div> */}
 
                   {/* company */}
 
