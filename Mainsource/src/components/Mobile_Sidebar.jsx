@@ -212,7 +212,7 @@ const Mobile_Sidebar = () => {
                   </div>
                   
                   {/* report */}
-                   <div className="w-full">
+                   {/* <div className="w-full">
                     <div
                       onClick={() => setOpenReport(!openReport)}
                       className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
@@ -237,7 +237,7 @@ const Mobile_Sidebar = () => {
                         </button>
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* pss */}
                   <div className="w-full">

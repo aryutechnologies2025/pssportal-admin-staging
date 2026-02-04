@@ -206,8 +206,8 @@ const Sidebar = () => {
               </div>
 
               {/* report */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
-                {/* Parent Item */}
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+             
                 <div
                   onClick={() => toggleMenu("report")}
                   className={`flex items-center w-full flex-grow
@@ -234,7 +234,6 @@ const Sidebar = () => {
                   )}
                 </div>
 
-                {/* Dropdown Items */}
                 {!arrowClicked && (
                   <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
@@ -245,7 +244,7 @@ const Sidebar = () => {
                     }`}
                   >
                     <div className="flex gap-2 ms-8 flex-col text-sm font-medium text-gray-500">
-                      {/* Contract */}
+                     
                       <button
                         onClick={() => {
                           navigate("/contract-report");
@@ -263,7 +262,7 @@ const Sidebar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* PSS Employee Dropdown */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
