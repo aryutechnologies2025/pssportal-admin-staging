@@ -81,6 +81,7 @@ function App() {
 
         <Routes>
           <Route path="*" element={<PageNotFound />} />
+          
           <Route path="/" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/permission" element={<Permission />} />
