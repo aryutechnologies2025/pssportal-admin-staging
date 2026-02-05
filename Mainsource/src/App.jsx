@@ -59,6 +59,7 @@ import Relieved_Main from "./components/relieved component/Relieved_Main";
 import Lead_Dashboard from "./components/Lead Management/Lead_Dashboard";
 import Lead_Dashboard_Main from "./pages/Lead_Dashboard_Main";
 import Lead_Category_Main from "./pages/Lead_Category_Main";
+import Lead_AssignedTo_Main from "./pages/Lead_AssignedTo_Main";
 
 function App() {
   return (
@@ -142,6 +143,7 @@ function App() {
           <Route path="setting" element={<Setting />} />
           <Route path="lead-engine" element={<LeadManagement />} />
           <Route path="lead-dashboard" element={<Lead_Dashboard_Main />} />
+          <Route path="lead-assignedto" element={<Lead_AssignedTo_Main />} />
           <Route path="lead-category" element={<Lead_Category_Main />} />
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
           <Route path="announcement" element={<Announcement_Mainbar_page />} />
