@@ -330,6 +330,7 @@ const ContractCandidates_Mainbar = () => {
       selectedEducation,
       filterInterviewStatus,
       filterCandidateStatus,
+      filterCompany: selectedCompanyfilter
     });
     //  applyFilters()
   };
@@ -343,6 +344,7 @@ const ContractCandidates_Mainbar = () => {
     setFilterEducation("");
     setFilterInterviewStatus("");
     setFilterCandidateStatus("");
+    setSelectedCompanyfilter("");
     fetchContractCandidates();
   };
 
@@ -906,6 +908,7 @@ const ContractCandidates_Mainbar = () => {
         education: filterEducation,
         interview_status: filterInterviewStatus,
         joining_status: filterCandidateStatus,
+        company_id: selectedCompanyfilter
       };
 
       const queryParams = new URLSearchParams(payload).toString();
