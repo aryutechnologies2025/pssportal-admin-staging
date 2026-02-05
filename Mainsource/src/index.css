@@ -423,3 +423,22 @@ tbody {
   z-index: 999999 !important;
 }
 
+
+/* custom checkbox */
+/*  Make the checkbox border always visible */
+.p-datatable .p-checkbox .p-checkbox-box {
+    border: 1px solid #bdc3c7 !important; /* Adjust color as needed */
+    /* background: #ffffff; */
+}
+
+/*  Style for when the checkbox is hovered or focused */
+.p-datatable .p-checkbox .p-checkbox-box:not(.p-highlight):not(.p-disabled):hover {
+    border-color: #3b82f6 !important;
+}
+
+/*  Remove the blue background from selected rows */
+.p-datatable .p-datatable-tbody > tr.p-highlight {
+    background: transparent !important; /* Removes blue background */
+    color: inherit !important;          /* Keeps text color the same */
+}
+

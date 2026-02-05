@@ -36,8 +36,7 @@ import { IoClose } from "react-icons/io5";
 import { ca, fi } from "zod/v4/locales";
 
 
-
-const LeadManagement_Details = () => {
+const LeadAssignedTo = () => {
   let navigate = useNavigate();
   const multiSelectRef = useRef(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -86,7 +85,8 @@ const LeadManagement_Details = () => {
     epoDate: ""
   });
 
-  
+  const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState([]);
 
 
   const validateImport = () => {
@@ -101,7 +101,7 @@ const LeadManagement_Details = () => {
   };
 
   const [categoryOptions, setCategoryOptions] = useState([]);
-const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [filters, setFilters] = useState({
     from_date: today,
@@ -110,8 +110,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     platform: "",
     age: "",
     city: "",
-    category:null,
-    lead_status:""
+    category: null,
+    lead_status: ""
   });
 
   // apply filter
@@ -129,8 +129,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       city: "",
       from_date: "",
       to_date: "",
-      category:null,
-      lead_status:""
+      category: null,
+      lead_status: ""
     };
 
     setFilters(reset);
@@ -139,7 +139,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
 
   // open view
   const openViewModal = (row) => {
-    console.log("OPen view : ",row)
+    console.log("OPen view : ", row)
     setViewContact(row);
     setIsViewModalOpen(true);
     setTimeout(() => setIsViewAnimating(true), 50);
@@ -182,7 +182,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     category: null,
     // category:[]
   });
-// console.log("leadForm : ",leadForm);
+  // console.log("leadForm : ",leadForm);
 
   // open add
   const openAddModal = () => {
@@ -211,7 +211,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
   };
   // open edit
   const openEditModal = (lead) => {
-    console.log("Open Edit modal : ",lead)
+    console.log("Open Edit modal : ", lead)
     setEditLeadForm({
       id: lead.id,
       is_organic: lead.is_organic ? "true" : "false",
@@ -223,10 +223,10 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       city: lead.city,
       state: lead.state,
       // category: lead.category_id,
-    //  lead_category_id: lead.lead_category_id
-    //   ? [lead.lead_category_id]
-    //   : [],
-    lead_category_id: lead.lead_category_id ?? null,
+      //  lead_category_id: lead.lead_category_id
+      //   ? [lead.lead_category_id]
+      //   : [],
+      lead_category_id: lead.lead_category_id ?? null,
       status: lead.status?.toString()
     });
 
@@ -322,9 +322,9 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         created_by: userid,
         scheduled_date: statusForm.epoDate || null,
         followup_date:
-    statusForm.followUp === "yes"
-      ? statusForm.followUpDate
-      : null,
+          statusForm.followUp === "yes"
+            ? statusForm.followUpDate
+            : null,
       };
 
       if (statusForm.followUp === "yes") {
@@ -335,9 +335,9 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         `${API_URL}api/lead-management/status-update/${viewStatus.id}`,
         payload
       );
-setTimeout(() => {
-      toast.success("Lead status updated successfully");    
-    }, 600);
+      setTimeout(() => {
+        toast.success("Lead status updated successfully");
+      }, 600);
 
       await fetchStatusList(viewStatus.id);
       fetchLead();
@@ -397,9 +397,8 @@ setTimeout(() => {
       } else {
         toast.error("Failed to create lead");
       }
-    } catch (err)
-     {
-      console.log("Error",err)
+    } catch (err) {
+      console.log("Error", err)
       toast.error("Something went wrong");
     } finally {
       setSubmitting(false);
@@ -446,20 +445,20 @@ setTimeout(() => {
     //   );
     // }
     if (filters.category) {
-    result = result.filter(item => item.lead_category_id === filters.category);
-  }
+      result = result.filter(item => item.lead_category_id === filters.category);
+    }
 
 
 
-  console.log("result",result)
-  // lead status
-  if (filters.lead_status) {
-    console.log("filtering by status : ",filters.lead_status)
-    let a=result.map(item=> console.log(item.lead_status))
-    result = result.filter(item => item.lead_status === filters.lead_status);
-  }
+    console.log("result", result)
+    // lead status
+    if (filters.lead_status) {
+      console.log("filtering by status : ", filters.lead_status)
+      let a = result.map(item => console.log(item.lead_status))
+      result = result.filter(item => item.lead_status === filters.lead_status);
+    }
 
-  console.log("Filtered results count:", result.length);
+    console.log("Filtered results count:", result.length);
     return result;
   };
 
@@ -487,10 +486,10 @@ setTimeout(() => {
       if (appliedFilters.to_date)
         params.to_date = appliedFilters.to_date;
 
-       if (appliedFilters.category)
-  params.lead_category_id = appliedFilters.category;
+      if (appliedFilters.category)
+        params.lead_category_id = appliedFilters.category;
 
-if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
+      if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
       const res = await axiosInstance.get(
         `${API_URL}api/lead-management`,
@@ -502,14 +501,14 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
       if (res.data.success) {
         let data = res.data.data || [];
 
-         // Normalize status values for consistent display
-      data = data.map(lead => ({
-        ...lead,
-        status: lead.status?.toString() || "", // Ensure status is string
-        lead_status: normalizeLeadStatus(lead.lead_status),
-         category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
-        category_id: lead.lead_category_id // Use the correct field
-      }));
+        // Normalize status values for consistent display
+        data = data.map(lead => ({
+          ...lead,
+          status: lead.status?.toString() || "", // Ensure status is string
+          lead_status: normalizeLeadStatus(lead.lead_status),
+          category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
+          category_id: lead.lead_category_id // Use the correct field
+        }));
 
         //  FRONTEND FILTERING
         data = applyFrontendFilters(data, appliedFilters);
@@ -520,14 +519,14 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
         setPlatformOptions(res.data.platforms || {});
         setCityOptions(res.data.cities || []);
         // setCategoryOptions(res.data.categories || []);
-              // Set category options from response
-      // if (res.data.lead_category) {
-      //   const categoryOptions = res.data.lead_category.map(cat => ({
-      //     label: cat.name,
-      //     value: cat.id
-      //   }));
-      //   setCategoryOptions(categoryOptions);
-      // }
+        // Set category options from response
+        // if (res.data.lead_category) {
+        //   const categoryOptions = res.data.lead_category.map(cat => ({
+        //     label: cat.name,
+        //     value: cat.id
+        //   }));
+        //   setCategoryOptions(categoryOptions);
+        // }
 
       }
     } catch (err) {
@@ -543,7 +542,7 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
   console.log("statusList", statusList);
 
-  
+
 
   // useEffect(() => {
   //   if (viewStatus?.id) {
@@ -600,8 +599,8 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
       console.log("FILE OBJECT:", selectedFiles[0]); // should show name, size
 
       if (selectedCategory) {
-      formData.append("lead_category_id", selectedCategory);
-    }
+        formData.append("lead_category_id", selectedCategory);
+      }
 
       const res = await axiosInstance.post(
         `${API_URL}api/lead-management/import`,
@@ -672,29 +671,29 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
   };
 
   const fetchCategories = async () => {
-  try {
-    const res = await axiosInstance.get(
-      `${API_URL}api/lead-category`
-    );
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/lead-category`
+      );
 
-    if (res.data.success) {
-      const options = res.data.data
-        .filter(item => item.status === "1") // only active
-        .map(item => ({
-          label: item.name,   // shown in dropdown
-          value: item.id      // sent to filter
-        }));
+      if (res.data.success) {
+        const options = res.data.data
+          .filter(item => item.status === "1") // only active
+          .map(item => ({
+            label: item.name,   // shown in dropdown
+            value: item.id      // sent to filter
+          }));
 
-      setCategoryOptions(options);
+        setCategoryOptions(options);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch categories");
     }
-  } catch (error) {
-    toast.error("Failed to fetch categories");
-  }
-};
+  };
 
-useEffect(() => {
-  fetchCategories();
-},[])
+  useEffect(() => {
+    fetchCategories();
+  }, [])
   const STATUS_MAP = {
     open: "Open",
     joined: "Joined",
@@ -702,108 +701,108 @@ useEffect(() => {
     not_interested: "Not Interested",
     follow_up: "Follow Up",
     not_picked: "Not Picked",
-    
+
   };
 
   const REVERSE_STATUS_MAP = Object.fromEntries(
-  Object.entries(STATUS_MAP).map(([k, v]) => [v, k])
-);
+    Object.entries(STATUS_MAP).map(([k, v]) => [v, k])
+  );
 
   const getStatusValue = (label) => {
-  return Object.keys(STATUS_MAP).find(
-    key => STATUS_MAP[key] === label
-  ) || "";
-};
+    return Object.keys(STATUS_MAP).find(
+      key => STATUS_MAP[key] === label
+    ) || "";
+  };
 
-const normalizeLeadStatus = (status) => {
-  if (!status) return "";
-
-  
-  if (STATUS_MAP[status]) return status;
-
- 
-  if (REVERSE_STATUS_MAP[status]) return REVERSE_STATUS_MAP[status];
-
-  return "";
-};
+  const normalizeLeadStatus = (status) => {
+    if (!status) return "";
 
 
-const handleStatusChange = (row, newStatusKey) => {
-
-  //  Update UI immediately
-  setLeads(prev =>
-    prev.map(lead =>
-      lead.id === row.id
-        ? { ...lead, lead_status: newStatusKey }
-        : lead
-    )
-  );
-
-  //  Open modal
-  setViewStatus({ ...row, lead_status: newStatusKey });
-  setIsViewStatusOpen(true);
-
-  //  Prepare form
-  setStatusForm({
-    status: newStatusKey,
-    notes: "",
-    followUp: "no",
-    followUpDate: "",
-    epoDate: ""
-  });
-};
+    if (STATUS_MAP[status]) return status;
 
 
-const [selectedRows, setSelectedRows] = useState([]);
-const [selectedLeads, setSelectedLeads] = useState([]);
+    if (REVERSE_STATUS_MAP[status]) return REVERSE_STATUS_MAP[status];
+
+    return "";
+  };
 
 
-const allSelected =
-  leads.length > 0 && selectedRows.length === leads.length;
+  const handleStatusChange = (row, newStatusKey) => {
 
-const toggleSelectAll = () => {
-  if (selectedRows.length === leads.length) {
-    setSelectedRows([]);
-  } else {
-    setSelectedRows(leads.map(row => row.id));
-  }
-};
+    //  Update UI immediately
+    setLeads(prev =>
+      prev.map(lead =>
+        lead.id === row.id
+          ? { ...lead, lead_status: newStatusKey }
+          : lead
+      )
+    );
+
+    //  Open modal
+    setViewStatus({ ...row, lead_status: newStatusKey });
+    setIsViewStatusOpen(true);
+
+    //  Prepare form
+    setStatusForm({
+      status: newStatusKey,
+      notes: "",
+      followUp: "no",
+      followUpDate: "",
+      epoDate: ""
+    });
+  };
 
 
-const toggleRowSelection = (id) => {
-  setSelectedRows(prev =>
-    prev.includes(id)
-      ? prev.filter(rowId => rowId !== id)
-      : [...prev, id]
-  );
-};
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedLeads, setSelectedLeads] = useState([]);
+
+
+  const allSelected =
+    leads.length > 0 && selectedRows.length === leads.length;
+
+  const toggleSelectAll = () => {
+    if (selectedRows.length === leads.length) {
+      setSelectedRows([]);
+    } else {
+      setSelectedRows(leads.map(row => row.id));
+    }
+  };
+
+
+  const toggleRowSelection = (id) => {
+    setSelectedRows(prev =>
+      prev.includes(id)
+        ? prev.filter(rowId => rowId !== id)
+        : [...prev, id]
+    );
+  };
 
 
 
   // column
   const columns = [
 
-// {
-//   field: "select",
-//   header: () => (
-//     <input
-//       type="checkbox"
-//       checked={allSelected}
-//       onClick={(e) => e.stopPropagation()}
-//       onChange={(e) => toggleSelectAll(e.target.checked)}
-//     />
-//   ),
-//   body: (row) => (
-//     <input
-//       type="checkbox"
-//       checked={selectedRows.includes(row.id)}
-//       onClick={(e) => e.stopPropagation()}
-//       onChange={() => toggleRowSelection(row.id)}
-//     />
-//   ),
-//   style: { width: "50px", textAlign: "center" },
-//   fixed: true
-// },
+    // {
+    //   field: "select",
+    //   header: () => (
+    //     <input
+    //       type="checkbox"
+    //       checked={allSelected}
+    //       onClick={(e) => e.stopPropagation()}
+    //       onChange={(e) => toggleSelectAll(e.target.checked)}
+    //     />
+    //   ),
+    //   body: (row) => (
+    //     <input
+    //       type="checkbox"
+    //       checked={selectedRows.includes(row.id)}
+    //       onClick={(e) => e.stopPropagation()}
+    //       onChange={() => toggleRowSelection(row.id)}
+    //     />
+    //   ),
+    //   style: { width: "50px", textAlign: "center" },
+    //   fixed: true
+    // },
 
 
     {
@@ -852,7 +851,7 @@ const toggleRowSelection = (id) => {
       body: (row) => Capitalise(row.city),
     },
     {
-      field :"category_name",
+      field: "category_name",
       header: "Category Name",
       body: (row) => Capitalise(row?.category?.name) || row.category_name || "-"
     },
@@ -893,7 +892,7 @@ const toggleRowSelection = (id) => {
     //         <option value="follow_up">Follow Up</option>
     //         <option value="not_picked">Not Picked</option>
     //       </select>
-          
+
 
     //       {/* VIEW STATUS HISTORY */}
     //       <button
@@ -905,36 +904,36 @@ const toggleRowSelection = (id) => {
     //       </button>
     //     </div>
     //   ),
-      
+
     // },
 
-{
-  field: "status",
-  header: "Status",
-  body: (row) => (
-    
-    <div className="flex items-center gap-2">
-      <select
-        className="border p-1"
-        value={row.lead_status}
-        onChange={(e) =>
-          handleStatusChange(row, e.target.value)
-        }
-      >
-        {Object.entries(STATUS_MAP).map(([key, label]) => (
-          <option key={key} value={key}>{label}</option>
-        ))}
-      </select>
+    {
+      field: "status",
+      header: "Status",
+      body: (row) => (
 
-      <button
-        onClick={() => openStatusView(row)}
-        className="text-blue-600"
-      >
-        <FaEye />
-      </button>
-    </div>
-  ),
-},
+        <div className="flex items-center gap-2">
+          <select
+            className="border p-1"
+            value={row.lead_status}
+            onChange={(e) =>
+              handleStatusChange(row, e.target.value)
+            }
+          >
+            {Object.entries(STATUS_MAP).map(([key, label]) => (
+              <option key={key} value={key}>{label}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => openStatusView(row)}
+            className="text-blue-600"
+          >
+            <FaEye />
+          </button>
+        </div>
+      ),
+    },
 
     {
       field: "Action",
@@ -968,9 +967,9 @@ const toggleRowSelection = (id) => {
   ];
 
   const [visibleColumnFields, setVisibleColumnFields] = useState(
-    columns.filter(col => col.fixed || 
-      ["full_name",  "gender", "phone", "age", "qualification", "city","category_name", "created_time","status", "Action"]
-      .includes(col.field)).map(col => col.field)
+    columns.filter(col => col.fixed ||
+      ["full_name", "gender", "phone", "age", "qualification", "city", "category_name", "created_time", "status", "Action"]
+        .includes(col.field)).map(col => col.field)
   );
   // console.log("visibleColumnFields", visibleColumnFields);
 
@@ -986,14 +985,14 @@ const toggleRowSelection = (id) => {
     return columns.filter(col => visibleColumnFields.includes(col.field));
   }, [visibleColumnFields]);
 
-const statusDropdownOptions = [
-  { label: "Open", value: "open" },
-  { label: "Joined", value: "joined" },
-  { label: "Interested / Scheduled", value: "interested" },
-  { label: "Not Interested", value: "not_interested" },
-  { label: "Follow Up", value: "follow_up" },
-  { label: "Not Picked", value: "not_picked" },
-];
+  const statusDropdownOptions = [
+    { label: "Open", value: "open" },
+    { label: "Joined", value: "joined" },
+    { label: "Interested / Scheduled", value: "interested" },
+    { label: "Not Interested", value: "not_interested" },
+    { label: "Follow Up", value: "follow_up" },
+    { label: "Not Picked", value: "not_picked" },
+  ];
 
 
   return (
@@ -1014,20 +1013,20 @@ const statusDropdownOptions = [
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">Lead Engine</p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">Assigned To</p>
             </div>
 
             {/* Filter Section */}
-            <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
+            <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4 space-x-5">
 
-              <div className="flex flex-wrap gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2  gap-5">
 
                 {/* Start Date */}
-                <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
                   <input
                     type="date"
-                    className="border h-10 px-3 rounded-md"
+                    className="border w-full md:w-48 h-10 px-3 rounded-md"
                     value={filters.from_date}
                     onChange={(e) =>
                       setFilters(prev => ({ ...prev, from_date: e.target.value }))
@@ -1036,11 +1035,11 @@ const statusDropdownOptions = [
                 </div>
 
                 {/* End Date */}
-                <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-between gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">End Date</label>
                   <input
                     type="date"
-                    className="border h-10 px-3 rounded-md"
+                    className="border w-full md:w-48 h-10 px-3 rounded-md"
                     value={filters.to_date}
                     onChange={(e) =>
                       setFilters(prev => ({ ...prev, to_date: e.target.value }))
@@ -1048,8 +1047,22 @@ const statusDropdownOptions = [
                   />
                 </div>
 
+                {/* employee */}
+                <div className="flex items-center justify-between gap-11">
+                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
+                  <Dropdown
+                    value={selectedEmployeeDetails}
+                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
+                    options={selectedEmployee}
+                    optionLabel="label"
+                    placeholder="Select Employee"
+                    filter
+                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                </div>
+
                 {/* Gender */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">Gender</label>
                   <select
                     className="h-10 px-3 rounded-md border"
@@ -1063,7 +1076,7 @@ const statusDropdownOptions = [
                     <option value="female">Female</option>
                     <option value="other">Other</option>
                   </select>
-                </div>
+                </div> */}
 
 
                 {/* Platform */}
@@ -1088,7 +1101,7 @@ const statusDropdownOptions = [
                 </div> */}
 
                 {/* age */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">Age</label>
                   <select
                     className="h-10 px-3 rounded-md border"
@@ -1105,10 +1118,10 @@ const statusDropdownOptions = [
                   </select>
 
 
-                </div>
+                </div> */}
 
                 {/* city */}
-                <div className="flex flex-col gap-1">
+                {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">City</label>
 
                   <Dropdown
@@ -1123,62 +1136,58 @@ const statusDropdownOptions = [
                     className="h-10 rounded-md border border-[#D9D9D9] text-sm"
                     panelClassName="text-sm"
                   />
+                </div> */}
+
+                {/* status */}
+
+                <div className="flex items-center justify-between gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">
+                    Status
+                  </label>
+
+                  <MultiSelect
+                    value={filters.lead_status}
+                    options={statusDropdownOptions}
+                    onChange={(e) =>
+                      setFilters((prev) => ({ ...prev, lead_status: e.value }))
+                    }
+                    placeholder="Select Status"
+                    className="h-10 w-full md:w-48 rounded-md border border-[#D9D9D9] text-sm"
+                    panelClassName="text-sm"
+                    filter
+                  />
                 </div>
 
-{/* status */}
-
-<div className="flex flex-col gap-1">
-  <label className="text-sm font-medium text-[#6B7280]">
-    Status
-  </label>
-
-  <Dropdown
-    value={filters.lead_status}
-    options={statusDropdownOptions}
-    onChange={(e) =>
-      setFilters((prev) => ({ ...prev, lead_status: e.value }))
-    }
-    placeholder="Select Status"
-    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
-    panelClassName="text-sm"
-    filter
-  />
-</div>
-
-  {/* category */}
-                <div className="flex flex-col gap-1">
+                {/* category */}
+                <div className="flex items-center justify-between gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">Category</label>
-                  <Dropdown
-                    className="h-10 px-3 rounded-md border"
+                  <MultiSelect
+                    className="h-10 px-3 w-full md:w-48 rounded-md border text-sm"
                     // value={selectedCategory}
                     value={filters.category}
-    options={categoryOptions}
+                    options={categoryOptions}
                     onChange={(e) => {
-      // setSelectedCategory(e.value);
-      setFilters(prev => ({
-        ...prev,
-        category: e.value
-      }));
-    }}
+                      // setSelectedCategory(e.value);
+                      setFilters(prev => ({
+                        ...prev,
+                        category: e.value
+                      }));
+                    }}
                     placeholder="Select Category"
                     filter
                     filterPlaceholder="Search category"
-                    
+
                     panelClassName="text-sm"
                   />
-                    
-                  
-
-
                 </div>
-
-                {/* Buttons */}
-                <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end">
+              </div>
+                              {/* Buttons */}
+                <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end my-5">
                   <button
                     onClick={handleApplyFilter}
                     className="h-10 w-20 rounded-lg bg-[#1ea600] text-white font-medium hover:bg-[#33cd10]"
                   >
-                    Apply
+                    Submit
                   </button>
 
                   <button
@@ -1188,8 +1197,6 @@ const statusDropdownOptions = [
                     Reset
                   </button>
                 </div>
-
-              </div>
             </div>
 
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
@@ -1207,7 +1214,7 @@ px-2 py-2 md:px-6 md:py-6">
                         className="w-20 border"
                       />
 
-                      <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
+                      {/* <span className=" text-sm text-[#6B7280]">Entries Per Page</span> */}
 
                     </div>
                     <div className="relative inline-block">
@@ -1242,59 +1249,15 @@ px-2 py-2 md:px-6 md:py-6">
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center gap-5">
-                    {/* Search box */}
-                    <div className="relative w-64">
-                      <FiSearch
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        size={18}
-                      />
 
-                      <InputText
-                        value={globalFilter}
-                        onChange={(e) => setGlobalFilter(e.target.value)}
-
-                        placeholder="Search......"
-                        className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
-               focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-
-                      />
-                    </div>
-                    <div className="flex justify-between items-center gap-5">
-                      <button
-                        onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
-                      >
-                        Import
-                      </button>
-
-                      <button
-                        onClick={openAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
-                      >
-                        Add Lead
-                      </button>
-
-                      {/* <button
-                        onClick={() => navigate("/lead-assignedto")}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
-                      >
-                        Assigned To
-                      </button> */}
-
-                    </div>
-
-                    
-
-                  </div>
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
                     className="mt-8"
                     value={leads}
                     selection={selectedLeads}
-  onSelectionChange={(e) => setSelectedLeads(e.value)}
-  dataKey="id"
+                    onSelectionChange={(e) => setSelectedLeads(e.value)}
+                    dataKey="id"
                     // onRowClick={(e) => e.originalEvent.stopPropagation()}
                     paginator
                     rows={rows}
@@ -1308,7 +1271,7 @@ px-2 py-2 md:px-6 md:py-6">
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     loading={loading}
                   >
-                    {/* <Column selectionMode="multiple" headerStyle={{ width: '50px' }} /> */}
+                    <Column selectionMode="multiple" headerStyle={{ width: '50px' }} />
                     {dynamicColumns.map((col, index) => (
                       <Column
                         key={index}
@@ -1346,44 +1309,44 @@ px-2 py-2 md:px-6 md:py-6">
                   <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl">Add Lead </p>
 
-<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                    {/* Is Organic */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Is Organic <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[50%] flex gap-6">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="is_organic"
-                            value="true"
-                            checked={leadForm.is_organic === "true"}
-                            onChange={(e) =>
-                              handleChange("is_organic", e.target.value)
-                            }
-                          />
-                          Yes
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                      {/* Is Organic */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Is Organic <span className="text-red-500">*</span>
                         </label>
 
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="is_organic"
-                            value="false"
-                            checked={leadForm.is_organic === "false"}
-                            onChange={(e) =>
-                              handleChange("is_organic", e.target.value)
-                            }
-                          />
-                          No
-                        </label>
+                        <div className="w-[50%] flex gap-6">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="is_organic"
+                              value="true"
+                              checked={leadForm.is_organic === "true"}
+                              onChange={(e) =>
+                                handleChange("is_organic", e.target.value)
+                              }
+                            />
+                            Yes
+                          </label>
+
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="is_organic"
+                              value="false"
+                              checked={leadForm.is_organic === "false"}
+                              onChange={(e) =>
+                                handleChange("is_organic", e.target.value)
+                              }
+                            />
+                            No
+                          </label>
+                        </div>
                       </div>
-                    </div>
 
-                                          {/* category */}
-                {/* <div className="mt-6 flex justify-between items-center">
+                      {/* category */}
+                      {/* <div className="mt-6 flex justify-between items-center">
                   <label className="text-sm font-medium">Category</label>
                   <div className="w-[50%]">
                   <MultiSelect
@@ -1408,184 +1371,184 @@ px-2 py-2 md:px-6 md:py-6">
                     </div>
                 </div> */}
 
-    <div className="w-full flex justify-between items-center">
-                  <label className="text-sm font-medium">Category</label>
-                  <div className="w-[50%]">
-                  <Dropdown
-                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                    // value={selectedCategory}
-                    value={leadForm.category}
-                    
-    options={categoryOptions}
-                    onChange={(e) =>
-    setLeadForm(prev => ({
-      ...prev,
-      category: e.value
-    }))
-  }
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-                    
-                    panelClassName="text-sm"
-                  />
-                  {/* {errors.category && (
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-sm font-medium">Category</label>
+                        <div className="w-[50%]">
+                          <Dropdown
+                            className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                            // value={selectedCategory}
+                            value={leadForm.category}
+
+                            options={categoryOptions}
+                            onChange={(e) =>
+                              setLeadForm(prev => ({
+                                ...prev,
+                                category: e.value
+                              }))
+                            }
+                            placeholder="Select Category"
+                            filter
+                            filterPlaceholder="Search category"
+
+                            panelClassName="text-sm"
+                          />
+                          {/* {errors.category && (
       <p className="text-red-500 text-sm mt-1">{errors.category}</p>
     )} */}
-                    </div>
-                </div>
+                        </div>
+                      </div>
 
-                
 
-                    {/* Full Name */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Full Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          value={leadForm.full_name}
-                          onChange={(e) =>
-                            handleChange("full_name", e.target.value)
-                          }
-                          placeholder="Enter full name"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
-                        />
-                        {errors.full_name && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.full_name}
-                          </p>
-                        )}
+
+                      {/* Full Name */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Full Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            value={leadForm.full_name}
+                            onChange={(e) =>
+                              handleChange("full_name", e.target.value)
+                            }
+                            placeholder="Enter full name"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
+                          />
+                          {errors.full_name && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {errors.full_name}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Date of Birth */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Date of Birth <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="date"
+                            value={leadForm.dob}
+                            onChange={(e) => handleChange("dob", e.target.value)}
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Post Code */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Post Code <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="number"
+                            value={leadForm.post_code}
+                            onChange={(e) => handleChange("post_code", e.target.value)}
+                            placeholder="Enter post code"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      {/* City */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          City <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            value={leadForm.city}
+                            onChange={(e) => handleChange("city", e.target.value)}
+                            placeholder="Enter city"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      {/* State */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          State <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            value={leadForm.state}
+                            onChange={(e) => handleChange("state", e.target.value)}
+                            placeholder="Enter state"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Gender */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Gender <span className="text-red-500">*</span>
+                        </label>
+
+                        <div className="w-[50%]">
+                          <select
+                            value={leadForm.gender}
+                            onChange={(e) => handleChange("gender", e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg"
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+
+
+                      {/* Phone */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Phone <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={10}
+                            value={leadForm.phone}
+                            onChange={(e) =>
+                              handleChange("phone", e.target.value)
+                            }
+                            placeholder="Enter phone number"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+
+
+                      {/* Status */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Status <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <select
+                            value={leadForm.status}
+                            onChange={(e) =>
+                              handleChange("status", e.target.value)
+                            }
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          >
+                            <option value="">Select Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Date of Birth */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Date of Birth <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="date"
-                          value={leadForm.dob}
-                          onChange={(e) => handleChange("dob", e.target.value)}
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Post Code */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Post Code <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="number"
-                          value={leadForm.post_code}
-                          onChange={(e) => handleChange("post_code", e.target.value)}
-                          placeholder="Enter post code"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
-                      </div>
-                    </div>
-
-                    {/* City */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        City <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          value={leadForm.city}
-                          onChange={(e) => handleChange("city", e.target.value)}
-                          placeholder="Enter city"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
-                      </div>
-                    </div>
-
-                    {/* State */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        State <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          value={leadForm.state}
-                          onChange={(e) => handleChange("state", e.target.value)}
-                          placeholder="Enter state"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Gender */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Gender <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[50%]">
-                        <select
-                          value={leadForm.gender}
-                          onChange={(e) => handleChange("gender", e.target.value)}
-                          className="w-full px-3 py-2 border rounded-lg"
-                        >
-                          <option value="">Select Gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                    </div>
-
-
-                    {/* Phone */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Phone <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={10}
-                          value={leadForm.phone}
-                          onChange={(e) =>
-                            handleChange("phone", e.target.value)
-                          }
-                          placeholder="Enter phone number"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
-                      </div>
-                    </div>
-
-
-
-                    {/* Status */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Status <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <select
-                          value={leadForm.status}
-                          onChange={(e) =>
-                            handleChange("status", e.target.value)
-                          }
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="1">Active</option>
-                          <option value="0">Inactive</option>
-                        </select>
-                      </div>
-                    </div>
-</div>
 
                     {/* Buttons */}
                     <div className="flex justify-end gap-2 mt-10">
@@ -1600,7 +1563,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                       <button
                         disabled={submitting}
-                       type="button"
+                        type="button"
                         onClick={handleAddLeadSubmit}
                         className="bg-[#1ea600] hover:bg-[#4BB452]
             text-white px-5 py-2 rounded-[10px]
@@ -1635,42 +1598,42 @@ px-2 py-2 md:px-6 md:py-6">
                   <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
                     <p className="text-xl md:text-2xl">Edit Lead </p>
 
-<div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                    {/* Is Organic */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Is Organic <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] flex gap-6">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="edit_is_organic"
-                            value="true"
-                            checked={editLeadForm?.is_organic === "true"}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
-                            }
-                          />
-                          Yes
+                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                      {/* Is Organic */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Is Organic <span className="text-red-500">*</span>
                         </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="edit_is_organic"
-                            value="false"
-                            checked={editLeadForm?.is_organic === "false"}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
-                            }
-                          />
-                          No
-                        </label>
+                        <div className="w-[50%] flex gap-6">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="edit_is_organic"
+                              value="true"
+                              checked={editLeadForm?.is_organic === "true"}
+                              onChange={(e) =>
+                                setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
+                              }
+                            />
+                            Yes
+                          </label>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="radio"
+                              name="edit_is_organic"
+                              value="false"
+                              checked={editLeadForm?.is_organic === "false"}
+                              onChange={(e) =>
+                                setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
+                              }
+                            />
+                            No
+                          </label>
+                        </div>
                       </div>
-                    </div>
 
-                                          {/* category */}
-                {/* <div className="w-full flex justify-between items-center">
+                      {/* category */}
+                      {/* <div className="w-full flex justify-between items-center">
                   <label className="text-sm font-medium text-[#6B7280]">Category</label>
                   <div className="w-[50%]">
                   <MultiSelect
@@ -1695,184 +1658,184 @@ px-2 py-2 md:px-6 md:py-6">
                 </div> */}
 
                       <div className="w-full flex justify-between items-center">
-                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
-                  <div className="w-[50%]">
-                  <Dropdown
-                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                    value={editLeadForm?.lead_category_id || ""}
-                    
-    options={categoryOptions}
-                   onChange={(e) =>
-    setEditLeadForm(prev => ({
-      ...prev,
-      lead_category_id: e.value
-    }))
-  }
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-                    
-                    panelClassName="text-sm"
-                  />
-                    </div>
-                  
+                        <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                        <div className="w-[50%]">
+                          <Dropdown
+                            className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                            value={editLeadForm?.lead_category_id || ""}
+
+                            options={categoryOptions}
+                            onChange={(e) =>
+                              setEditLeadForm(prev => ({
+                                ...prev,
+                                lead_category_id: e.value
+                              }))
+                            }
+                            placeholder="Select Category"
+                            filter
+                            filterPlaceholder="Search category"
+
+                            panelClassName="text-sm"
+                          />
+                        </div>
 
 
-                </div>
 
-                    {/* Full Name */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Full Name <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          value={editLeadForm?.full_name || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, full_name: e.target.value })
-                          }
-                          placeholder="Enter full name"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
-                        />
                       </div>
-                    </div>
 
-                    {/* Date of Birth */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Date of Birth <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="date"
-                          value={editLeadForm?.dob || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, dob: e.target.value })
-                          }
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
+                      {/* Full Name */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Full Name <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            value={editLeadForm?.full_name || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, full_name: e.target.value })
+                            }
+                            placeholder="Enter full name"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Post Code */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Post Code <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="number"
-                          value={editLeadForm?.post_code || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, post_code: e.target.value })
-                          }
-                          placeholder="Enter post code"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
+                      {/* Date of Birth */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Date of Birth <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="date"
+                            value={editLeadForm?.dob || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, dob: e.target.value })
+                            }
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* City */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        City <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          value={editLeadForm?.city || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, city: e.target.value })
-                          }
-                          placeholder="Enter city"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
+                      {/* Post Code */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Post Code <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="number"
+                            value={editLeadForm?.post_code || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, post_code: e.target.value })
+                            }
+                            placeholder="Enter post code"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* State */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        State <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          value={editLeadForm?.state || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, state: e.target.value })
-                          }
-                          placeholder="Enter state"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
+                      {/* City */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          City <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            value={editLeadForm?.city || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, city: e.target.value })
+                            }
+                            placeholder="Enter city"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Gender */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Gender <span className="text-red-500">*</span>
-                      </label>
-
-                      <div className="w-[50%]">
-                        <select
-                          value={editLeadForm?.gender || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, gender: e.target.value })
-                          }
-                          className="w-full px-3 py-2 border rounded-lg"
-                        >
-                          <option value="">Select Gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                          <option value="other">Other</option>
-                        </select>
+                      {/* State */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          State <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            value={editLeadForm?.state || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, state: e.target.value })
+                            }
+                            placeholder="Enter state"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
                       </div>
-                    </div>
 
+                      {/* Gender */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Gender <span className="text-red-500">*</span>
+                        </label>
 
-                    {/* Phone */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Phone <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          value={editLeadForm?.phone || ""}
-                          maxLength={10}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, phone: e.target.value })
-                          }
-                          placeholder="Enter Phone Number"
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        />
+                        <div className="w-[50%]">
+                          <select
+                            value={editLeadForm?.gender || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, gender: e.target.value })
+                            }
+                            className="w-full px-3 py-2 border rounded-lg"
+                          >
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
 
 
-
-                    {/* Status */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Status <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%]">
-                        <select
-                          value={editLeadForm?.status || ""}
-                          onChange={(e) =>
-                            setEditLeadForm({ ...editLeadForm, status: e.target.value })
-                          }
-                          className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                        >
-                          <option value="">Select Status</option>
-                          <option value="1">Active</option>
-                          <option value="0">Inactive</option>
-                        </select>
+                      {/* Phone */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Phone <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={editLeadForm?.phone || ""}
+                            maxLength={10}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, phone: e.target.value })
+                            }
+                            placeholder="Enter Phone Number"
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          />
+                        </div>
                       </div>
-                    </div>
+
+
+
+                      {/* Status */}
+                      <div className="w-full flex justify-between items-center">
+                        <label className="text-md font-medium">
+                          Status <span className="text-red-500">*</span>
+                        </label>
+                        <div className="w-[50%]">
+                          <select
+                            value={editLeadForm?.status || ""}
+                            onChange={(e) =>
+                              setEditLeadForm({ ...editLeadForm, status: e.target.value })
+                            }
+                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                          >
+                            <option value="">Select Status</option>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Buttons */}
@@ -1901,84 +1864,84 @@ px-2 py-2 md:px-6 md:py-6">
 
             {/* status */}
             {isViewStatusOpen && viewStatus && (
-  <div
-    className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
-    onClick={() => setIsViewStatusOpen(false)}
-  >
-    {/* STOP CLICK INSIDE */}
-    <div
-      className="bg-white rounded-xl w-full max-w-4xl mx-4 shadow-xl h-[80vh] flex flex-col"
-      onClick={(e) => e.stopPropagation()}
-    >
-      
-      {/* HEADER */}
-      <div className="px-6 py-4 border-b bg-green-50 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-green-700">
-          Update Lead Status
-        </h2>
-          <button
-       onClick={() => setIsViewStatusOpen(false)}
-        className="p-1 rounded-full
+              <div
+                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
+                onClick={() => setIsViewStatusOpen(false)}
+              >
+                {/* STOP CLICK INSIDE */}
+                <div
+                  className="bg-white rounded-xl w-full max-w-4xl mx-4 shadow-xl h-[80vh] flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+
+                  {/* HEADER */}
+                  <div className="px-6 py-4 border-b bg-green-50 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-green-700">
+                      Update Lead Status
+                    </h2>
+                    <button
+                      onClick={() => setIsViewStatusOpen(false)}
+                      className="p-1 rounded-full
                    text-gray-600 hover:bg-red-100 hover:text-red-600 transition"
-      >
-        <IoClose size={22} />
-      </button>
-      </div>
+                    >
+                      <IoClose size={22} />
+                    </button>
+                  </div>
 
-      {/* SCROLLABLE BODY */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6 green-scroll">
-        {/* Status */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Status</label>
-          <select
-            className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-            value={statusForm.status}
-            onChange={(e) =>
-              setStatusForm({ ...statusForm, status: e.target.value })
-            }
-          >
-            <option value="open">Open</option>
-            <option value="joined">Joined</option>
-            <option value="interested">Interested / schedule</option>
-            <option value="not_interested">Not Interested</option>
-            <option value="follow_up">Follow Up</option>
-            <option value="not_picked">Not Picked</option>
-          </select>
-        </div>
+                  {/* SCROLLABLE BODY */}
+                  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6 green-scroll">
+                    {/* Status */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Status</label>
+                      <select
+                        className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+                        value={statusForm.status}
+                        onChange={(e) =>
+                          setStatusForm({ ...statusForm, status: e.target.value })
+                        }
+                      >
+                        <option value="open">Open</option>
+                        <option value="joined">Joined</option>
+                        <option value="interested">Interested / schedule</option>
+                        <option value="not_interested">Not Interested</option>
+                        <option value="follow_up">Follow Up</option>
+                        <option value="not_picked">Not Picked</option>
+                      </select>
+                    </div>
 
-        {/* Interested */}
-        {statusForm.status === "interested" && (
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Schedule Date
-            </label>
-            <input
-              type="date"
-              className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-              value={statusForm.epoDate}
-              onChange={(e) =>
-                setStatusForm({ ...statusForm, epoDate: e.target.value })
-              }
-            />
-          </div>
-        )}
+                    {/* Interested */}
+                    {statusForm.status === "interested" && (
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Schedule Date
+                        </label>
+                        <input
+                          type="date"
+                          className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+                          value={statusForm.epoDate}
+                          onChange={(e) =>
+                            setStatusForm({ ...statusForm, epoDate: e.target.value })
+                          }
+                        />
+                      </div>
+                    )}
 
-        {/* Notes */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Notes</label>
-          <textarea
-            className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-            rows="3"
-            value={statusForm.notes}
-            onChange={(e) =>
-              setStatusForm({ ...statusForm, notes: e.target.value })
-            }
-          />
-        </div>
+                    {/* Notes */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Notes</label>
+                      <textarea
+                        className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+                        rows="3"
+                        value={statusForm.notes}
+                        onChange={(e) =>
+                          setStatusForm({ ...statusForm, notes: e.target.value })
+                        }
+                      />
+                    </div>
 
-        {/* Follow up */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* <div>
+                    {/* Follow up */}
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* <div>
             <label className="block text-sm font-medium mb-1">
               Next Follow Up?
             </label>
@@ -2009,105 +1972,105 @@ px-2 py-2 md:px-6 md:py-6">
             </div>
           </div> */}
 
-          {/* {statusForm.followUp === "yes" && ( */}
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Follow Up Date
-              </label>
-              <input
-                type="date"
-                className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                value={statusForm.followUpDate}
-                onChange={(e) =>
-                  setStatusForm({
-                    ...statusForm,
-                    followUpDate: e.target.value,
-                  })
-                }
-              />
-            </div>
-          {/* )} */}
-        </div>
+                      {/* {statusForm.followUp === "yes" && ( */}
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Follow Up Date
+                        </label>
+                        <input
+                          type="date"
+                          className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
+                          value={statusForm.followUpDate}
+                          onChange={(e) =>
+                            setStatusForm({
+                              ...statusForm,
+                              followUpDate: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      {/* )} */}
+                    </div>
 
-         <div className="flex justify-end gap-3 pt-6">
-          <button
-            className="px-4 py-2 border rounded-md hover:bg-gray-100"
-            onClick={() => setIsViewStatusOpen(false)}
-          >
-            Cancel
-          </button>
+                    <div className="flex justify-end gap-3 pt-6">
+                      <button
+                        className="px-4 py-2 border rounded-md hover:bg-gray-100"
+                        onClick={() => setIsViewStatusOpen(false)}
+                      >
+                        Cancel
+                      </button>
 
-          <button
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            onClick={handleStatusSubmit}
-          >
-            Submit
-          </button>
-        </div>
+                      <button
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                        onClick={handleStatusSubmit}
+                      >
+                        Submit
+                      </button>
+                    </div>
 
-        {/* Status History */}
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-green-100">
-              <tr>
-                <th className="border px-3 py-2">S.No</th>
-                <th className="border px-3 py-2">Status</th>
-                <th className="border px-3 py-2">Follow Up</th>
-                <th className="border px-3 py-2">Notes</th>
-                <th className="border px-3 py-2">Created Date</th>
-                <th className="border px-3 py-2">Follow Date</th>
-                <th className="border px-3 py-2">scheduled Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {statusList?.length ? (
-                statusList.map((item, index) => (
-                  <tr key={index} className="hover:bg-green-50">
-                    <td className="border px-3 py-2 text-center">
-                      {index + 1}
-                    </td>
-                    <td className="border px-3 py-2 capitalize">
-                      {item.status}
-                    </td>
-                    <td className="border px-3 py-2 text-center">
-                      {/* {item.followUp ? "Yes" : "No"} */}
-                      {item.followup_status === "1" ? "Yes" : "No"}
+                    {/* Status History */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-green-100">
+                          <tr>
+                            <th className="border px-3 py-2">S.No</th>
+                            <th className="border px-3 py-2">Status</th>
+                            <th className="border px-3 py-2">Follow Up</th>
+                            <th className="border px-3 py-2">Notes</th>
+                            <th className="border px-3 py-2">Created Date</th>
+                            <th className="border px-3 py-2">Follow Date</th>
+                            <th className="border px-3 py-2">scheduled Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {statusList?.length ? (
+                            statusList.map((item, index) => (
+                              <tr key={index} className="hover:bg-green-50">
+                                <td className="border px-3 py-2 text-center">
+                                  {index + 1}
+                                </td>
+                                <td className="border px-3 py-2 capitalize">
+                                  {item.status}
+                                </td>
+                                <td className="border px-3 py-2 text-center">
+                                  {/* {item.followUp ? "Yes" : "No"} */}
+                                  {item.followup_status === "1" ? "Yes" : "No"}
 
-                    </td>
-                    <td className="border px-3 py-2">
-                      {Capitalise(item.notes || "-")}
-                    </td>
-                    <td className="border px-3 py-2">
-                      {formatToDDMMYYYY(item.created_at)}
-                    </td>
-                    <td className="border px-3 py-2">
-                      {formatToDDMMYYYY(item.followup_date)}
-                    </td>
-                    <td className="border px-3 py-2">
-                      {formatToDDMMYYYY(item.scheduled_date)}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="5"
-                    className="border px-3 py-4 text-center text-gray-500"
-                  >
-                    No status history found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                                </td>
+                                <td className="border px-3 py-2">
+                                  {Capitalise(item.notes || "-")}
+                                </td>
+                                <td className="border px-3 py-2">
+                                  {formatToDDMMYYYY(item.created_at)}
+                                </td>
+                                <td className="border px-3 py-2">
+                                  {formatToDDMMYYYY(item.followup_date)}
+                                </td>
+                                <td className="border px-3 py-2">
+                                  {formatToDDMMYYYY(item.scheduled_date)}
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td
+                                colSpan="5"
+                                className="border px-3 py-4 text-center text-gray-500"
+                              >
+                                No status history found
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
 
-        {/* FOOTER (NORMAL POSITION) */}
-       
-      </div>
-    </div>
-  </div>
-)}
+                    {/* FOOTER (NORMAL POSITION) */}
+
+                  </div>
+                </div>
+              </div>
+            )}
 
 
             {/*status list view  */}
@@ -2339,33 +2302,33 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     )}
 
-                      {/* category */}
-                <div className="mt-3 flex justify-between items-center">
-                  <label className="block text-md font-medium">Category</label>
-                  <div className="w-[60%] md:w-[50%]">
-                  <Dropdown
-                    className="uniform-field w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    // value={selectedCategory}
-                    value={filters.category_id || ""}
-    options={categoryOptions}
-                    onChange={(e) => {
-      setSelectedCategory(e.value);
-      setFilters(prev => ({
-        ...prev,
-        category_id: e.value
-      }));
-    }}
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-                    
-                    panelClassName="text-sm"
-                  />
-                    
-                  
+                    {/* category */}
+                    <div className="mt-3 flex justify-between items-center">
+                      <label className="block text-md font-medium">Category</label>
+                      <div className="w-[60%] md:w-[50%]">
+                        <Dropdown
+                          className="uniform-field w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          // value={selectedCategory}
+                          value={filters.category_id || ""}
+                          options={categoryOptions}
+                          onChange={(e) => {
+                            setSelectedCategory(e.value);
+                            setFilters(prev => ({
+                              ...prev,
+                              category_id: e.value
+                            }));
+                          }}
+                          placeholder="Select Category"
+                          filter
+                          filterPlaceholder="Search category"
 
-</div>
-                </div>
+                          panelClassName="text-sm"
+                        />
+
+
+
+                      </div>
+                    </div>
 
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
                       <button
@@ -2398,4 +2361,5 @@ px-2 py-2 md:px-6 md:py-6">
     </div >
   );
 };
-export default LeadManagement_Details;
+
+export default LeadAssignedTo;
