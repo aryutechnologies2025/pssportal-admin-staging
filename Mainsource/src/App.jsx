@@ -61,25 +61,28 @@ import Lead_Dashboard_Main from "./pages/Lead_Dashboard_Main";
 import Lead_Category_Main from "./pages/Lead_Category_Main";
 import Lead_AssignedTo_Main from "./pages/Lead_AssignedTo_Main";
 import MonthlyWorkReport_Main from "./components/Daily work report component/MonthlyWorkReport_Main";
+import ProtectedRoute from "./auth/Protected_Route";
+import { useState } from "react";
 
 function App() {
-  return (
-    <>
-      <BrowserRouter>
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          style={{ zIndex: 999999 }} 
-        />
+  const user = JSON.parse(localStorage.getItem("pssuser"));
+  const isLoggedIn = !!user;
 
-        <Routes>
-          <Route path="*" element={<PageNotFound />} />
-          <Route path="/" element={<Login />} />
+  return (
+    <BrowserRouter>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        style={{ zIndex: 999999 }}
+      />
+
+      <Routes>
+        {/* PUBLIC */}
+        <Route path="/" element={<Login />} />
+        <Route path="*" element={<PageNotFound />} />
+
+        {/* PROTECTED ROOT */}
+        <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/permission" element={<Permission />} />
           <Route path="/roles" element={<Roles />} />
@@ -151,10 +154,15 @@ function App() {
           <Route path="contract-report" element={<Contract_Report_main />} />
           <Route path="relieved-contract" element={<Relieved_Main />} />
           <Route path="monthly-workreport" element={<MonthlyWorkReport_Main />} />
-        </Routes>
-      </BrowserRouter>
-    </>
+          
+
+
+
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
+
 
 export default App;

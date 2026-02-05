@@ -425,7 +425,7 @@ tbody {
 
 
 /* custom checkbox */
-/*  Make the checkbox border always visible */
+/*   checkbox border always visible */
 .p-datatable .p-checkbox .p-checkbox-box {
     border: 1px solid #bdc3c7 !important; /* Adjust color as needed */
     /* background: #ffffff; */

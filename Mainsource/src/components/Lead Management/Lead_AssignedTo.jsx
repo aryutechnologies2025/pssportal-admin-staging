@@ -66,8 +66,60 @@ const LeadAssignedTo = () => {
   const [isViewStatusOpen, setIsViewStatusOpen] = useState(false);
   const [viewStatus, setViewStatus] = useState(null);
   const [cityOptions, setCityOptions] = useState([]);
-  const [isStatusViewOpen, setIsStatusViewOpen] = useState(false);
-  const [statusViewLead, setStatusViewLead] = useState(null);
+
+  const today = new Date().toISOString().split("T")[0];
+    const [filters, setFilters] = useState({
+      from_date: today,
+      to_date: today,
+      gender: "",
+      platform: "",
+      age: "",
+      city: "",
+      category:null,
+      lead_status:""
+    });
+  
+      const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState([]);
+  
+const dummyEmployees = [
+  { label: "Ravi Kumar", value: 101 },
+  { label: "Anita Sharma", value: 102 },
+  { label: "Suresh Patel", value: 103 },
+  { label: "Neha Singh", value: 104 },
+  { label: "Mohammed Ali", value: 105 }
+];
+
+  const isFilterComplete =
+  filters.category &&
+  selectedEmployeeDetails &&
+  filters.from_date &&
+  filters.to_date &&
+  filters.lead_status;
+
+
+
+  // lead for allocation
+  const [selectedLeads, setSelectedLeads] = useState([]);
+const [showLeadTable, setShowLeadTable] = useState(false);
+ const [selectedRows, setSelectedRows] = useState([]);
+  
+ useEffect(() => {
+  if (isFilterComplete) {
+    fetchLead(filters);
+    setShowLeadTable(true);
+  } else {
+    setShowLeadTable(false);
+    setSelectedLeads([]);
+  }
+}, [
+  filters.category,
+  filters.from_date,
+  filters.to_date,
+  filters.lead_status,
+  selectedEmployeeDetails
+]);
+
   const cityDropdownOptions = cityOptions.map(city => ({
     label: city,
     value: city
@@ -75,7 +127,7 @@ const LeadAssignedTo = () => {
 
   console.log("viewStatus", viewStatus);
 
-  const today = new Date().toISOString().split("T")[0];
+
 
   const [statusForm, setStatusForm] = useState({
     status: "",
@@ -85,8 +137,7 @@ const LeadAssignedTo = () => {
     epoDate: ""
   });
 
-  const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
-  const [selectedEmployee, setSelectedEmployee] = useState([]);
+
 
 
   const validateImport = () => {
@@ -103,16 +154,7 @@ const LeadAssignedTo = () => {
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const [filters, setFilters] = useState({
-    from_date: today,
-    to_date: today,
-    gender: "",
-    platform: "",
-    age: "",
-    city: "",
-    category: null,
-    lead_status: ""
-  });
+ 
 
   // apply filter
   const handleApplyFilter = () => {
@@ -492,8 +534,8 @@ const LeadAssignedTo = () => {
       if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
       const res = await axiosInstance.get(
-        `${API_URL}api/lead-management`,
-        { params }
+        // `${API_URL}api/lead-management`,
+        // { params }
       );
 
       console.log("API LIST : ", res.data.data);
@@ -753,8 +795,7 @@ const LeadAssignedTo = () => {
   };
 
 
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedLeads, setSelectedLeads] = useState([]);
+ 
 
 
   const allSelected =
@@ -811,179 +852,21 @@ const LeadAssignedTo = () => {
       body: (_, options) => options.rowIndex + 1,
       fixed: true,
     },
+    
     {
-      field: "full_name",
-      header: "Full Name",
-      body: (row) => Capitalise(row.full_name),
-    },
-    // {
-    //   header: "Date Of Birth",
-    //   body: (row) => formatToDDMMYYYY(row.date_of_birth),
-    // },
-    {
-      field: "post_code",
-      header: "Post Code",
-      body: (rowData) => (
-        <div className="">
-          {rowData.post_code
-            ? rowData.post_code.replace(/^[a-zA-Z]:/, "") // removes prefix like z: or x:
-            : "-"}
-        </div>
-      ),
-    },
-    {
-      field: "gender",
-      header: "Gender",
-      body: (row) => Capitalise(row.gender),
-      //  body: (row) => Capitalise(row.gender),
-    },
-    {
+          field: "full_name",
+          header: "Full Name",
+          body: (row) => Capitalise(row.full_name),
+        },
+
+        {
       field: "phone",
       header: "Phone"
     },
-    {
-      field: "age",
-      header: "Age",
-    },
-    {
-      field: "city",
-      header: "City",
-      body: (row) => Capitalise(row.city),
-    },
-    {
-      field: "category_name",
-      header: "Category Name",
-      body: (row) => Capitalise(row?.category?.name) || row.category_name || "-"
-    },
-    {
-      field: "state",
-      header: "State",
-      body: (row) => Capitalise(row.state),
-    },
-    {
-      field: "created_time",
-      header: "Date",
-      body: (row) => formatToDDMMYYYY(row.created_time),
-    },
-    // {
-    //   field: "status",
-    //   header: "Status",
-    //   body: (row) => (
-    //     <div className="flex items-center gap-2">
-    //       <select
-    //         className="border p-1"
-    //         value={row.lead_status?.toLowerCase() || ""}
-    //         onChange={(e) => {
-    //           setViewStatus(row);
-    //           setIsViewStatusOpen(true);
-    //           setStatusForm({
-    //             status: e.target.value,
-    //             notes: "",
-    //             followUp: "no",
-    //             followUpDate: ""
-    //           });
-    //         }}
-    //       >
-    //         <option value="">Select Status</option>
-    //         <option value="open">Open</option>
-    //         <option value="joined">Joined</option>
-    //         <option value="interested">Interested / scheduled</option>
-    //         <option value="not_interested">Not Interested</option>
-    //         <option value="follow_up">Follow Up</option>
-    //         <option value="not_picked">Not Picked</option>
-    //       </select>
 
-
-    //       {/* VIEW STATUS HISTORY */}
-    //       <button
-    //         onClick={() => openStatusView(row)}
-    //         className="text-blue-600 hover:scale-110 transition"
-    //         title="View Status History"
-    //       >
-    //         <FaEye />
-    //       </button>
-    //     </div>
-    //   ),
-
-    // },
-
-    {
-      field: "status",
-      header: "Status",
-      body: (row) => (
-
-        <div className="flex items-center gap-2">
-          <select
-            className="border p-1"
-            value={row.lead_status}
-            onChange={(e) =>
-              handleStatusChange(row, e.target.value)
-            }
-          >
-            {Object.entries(STATUS_MAP).map(([key, label]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
-          </select>
-
-          <button
-            onClick={() => openStatusView(row)}
-            className="text-blue-600"
-          >
-            <FaEye />
-          </button>
-        </div>
-      ),
-    },
-
-    {
-      field: "Action",
-      header: "Action",
-      body: (row) => (
-        <div className="flex justify-center gap-3">
-          <button
-            onClick={() => openViewModal(row)}
-            className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
-          >
-            <FaEye />
-          </button>
-
-          <TfiPencilAlt
-            onClick={() => openEditModal(row)}
-            className="text-[#1ea600] cursor-pointer hover:scale-110 transition"
-            title="Edit"
-          />
-
-
-          <RiDeleteBin6Line
-            onClick={() => deleteLead(row.id)}
-            className="text-red-500 cursor-pointer hover:scale-110 transition"
-            title="Delete"
-          />
-        </div>
-      ),
-      style: { textAlign: "center", fontWeight: "medium" },
-      fixed: true
-    },
   ];
 
-  const [visibleColumnFields, setVisibleColumnFields] = useState(
-    columns.filter(col => col.fixed ||
-      ["full_name", "gender", "phone", "age", "qualification", "city", "category_name", "created_time", "status", "Action"]
-        .includes(col.field)).map(col => col.field)
-  );
-  // console.log("visibleColumnFields", visibleColumnFields);
 
-  const onColumnToggle = (event) => {
-    let selectedFields = event.value;
-    const fixedFields = columns.filter(col => col.fixed).map(col => col.field);
-    // console.log("fixedFields", fixedFields);
-    const validatedSelection = Array.from(new Set([...fixedFields, ...selectedFields]));
-
-    setVisibleColumnFields(validatedSelection);
-  };
-  const dynamicColumns = useMemo(() => {
-    return columns.filter(col => visibleColumnFields.includes(col.field));
-  }, [visibleColumnFields]);
 
   const statusDropdownOptions = [
     { label: "Open", value: "open" },
@@ -1019,36 +902,33 @@ const LeadAssignedTo = () => {
             {/* Filter Section */}
             <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4 space-x-5">
 
-              <div className="grid grid-cols-1 md:grid-cols-2  gap-5">
+              <div className="grid grid-cols-1 gap-5">
 
-                {/* Start Date */}
-                <div className="flex items-center justify-between gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
-                  <input
-                    type="date"
-                    className="border w-full md:w-48 h-10 px-3 rounded-md"
-                    value={filters.from_date}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, from_date: e.target.value }))
-                    }
-                  />
-                </div>
+                               {/* category */}
+                <div className="flex items-center justify-between gap-1 w-[50%]">
+                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                  <MultiSelect
+                    className="uniform-field h-10 px-3 w-full md:w-48 rounded-md border text-sm"
+                    // value={selectedCategory}
+                    value={filters.category}
+                    options={categoryOptions}
+                    onChange={(e) => {
+                      // setSelectedCategory(e.value);
+                      setFilters(prev => ({
+                        ...prev,
+                        category: e.value
+                      }));
+                    }}
+                    placeholder="Select Category"
+                    filter
+                    filterPlaceholder="Search category"
 
-                {/* End Date */}
-                <div className="flex items-center justify-between gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">End Date</label>
-                  <input
-                    type="date"
-                    className="border w-full md:w-48 h-10 px-3 rounded-md"
-                    value={filters.to_date}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, to_date: e.target.value }))
-                    }
+                    panelClassName="text-sm"
                   />
                 </div>
 
                 {/* employee */}
-                <div className="flex items-center justify-between gap-11">
+                <div className="flex items-center justify-between gap-1 w-[50%]">
                   <label className="text-sm font-medium text-[#6B7280]">Employee</label>
                   <Dropdown
                     value={selectedEmployeeDetails}
@@ -1138,9 +1018,36 @@ const LeadAssignedTo = () => {
                   />
                 </div> */}
 
-                {/* status */}
 
-                <div className="flex items-center justify-between gap-1">
+                 {/* Start Date */}
+                <div className="flex items-center justify-between gap-1 w-[50%]">
+                  <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
+                  <input
+                    type="date"
+                    className="border w-full md:w-48 h-10 px-3 rounded-md"
+                    value={filters.from_date}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, from_date: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* End Date */}
+                <div className="flex items-center justify-between gap-1 w-[50%]">
+                  <label className="text-sm font-medium text-[#6B7280]">End Date</label>
+                  <input
+                    type="date"
+                    className="border w-full md:w-48 h-10 px-3 rounded-md"
+                    value={filters.to_date}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, to_date: e.target.value }))
+                    }
+                  />
+                </div>
+
+                                              {/* status */}
+
+                <div className="flex items-center justify-between gap-1 w-[50%]">
                   <label className="text-sm font-medium text-[#6B7280]">
                     Status
                   </label>
@@ -1152,59 +1059,71 @@ const LeadAssignedTo = () => {
                       setFilters((prev) => ({ ...prev, lead_status: e.value }))
                     }
                     placeholder="Select Status"
-                    className="h-10 w-full md:w-48 rounded-md border border-[#D9D9D9] text-sm"
+                    className="uniform-field h-10 w-full md:w-48 rounded-md border border-[#D9D9D9] text-sm"
                     panelClassName="text-sm"
                     filter
-                  />
-                </div>
-
-                {/* category */}
-                <div className="flex items-center justify-between gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
-                  <MultiSelect
-                    className="h-10 px-3 w-full md:w-48 rounded-md border text-sm"
-                    // value={selectedCategory}
-                    value={filters.category}
-                    options={categoryOptions}
-                    onChange={(e) => {
-                      // setSelectedCategory(e.value);
-                      setFilters(prev => ({
-                        ...prev,
-                        category: e.value
-                      }));
-                    }}
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-
-                    panelClassName="text-sm"
                   />
                 </div>
               </div>
+
+
+
+{/* {showLeadTable && ( */}
+  <div className="mt-6 rounded-xl bg-white shadow p-4 transition-all w-[70%]">
+
+    <h3 className="text-md font-medium mb-3 text-gray-700">
+      Select Leads to Assign
+    </h3>
+
+    <DataTable
+      value={leads}
+      selection={selectedLeads}
+      onSelectionChange={(e) => setSelectedLeads(e.value)}
+      dataKey="id"
+      rowClassName={(row) =>
+        row.isAssigned ? "bg-red-50 text-red-500" : ""
+      }
+    >
+      <Column
+        selectionMode="multiple"
+        headerStyle={{ width: "50px" }}
+        selectionDisabled={(row) => row.isAssigned}
+      />
+
+      {columns.map((col, i) => (
+        <Column key={i} {...col} />
+      ))}
+    </DataTable>
+
+  </div>
+{/* )} */}
+              
+
+              
                               {/* Buttons */}
-                <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end my-5">
+                <div className="flex gap-3 mt-5 md:mt-10 justify-end items-end ">
                   <button
-                    onClick={handleApplyFilter}
+                    // onClick={handleApplyFilter}
                     className="h-10 w-20 rounded-lg bg-[#1ea600] text-white font-medium hover:bg-[#33cd10]"
                   >
                     Submit
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={handleResetFilter}
                     className="h-10 w-20 rounded-lg bg-gray-100 text-[#7C7C7C] font-medium hover:bg-gray-200"
                   >
                     Reset
-                  </button>
+                  </button> */}
                 </div>
             </div>
 
-            <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
+            {/* <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
 px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container mt-4">
                 <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-3 mb-4">
-                  {/* Entries per page */}
+                
                   <div className="flex items-center gap-5">
                     <div>
                       <Dropdown
@@ -1214,7 +1133,7 @@ px-2 py-2 md:px-6 md:py-6">
                         className="w-20 border"
                       />
 
-                      {/* <span className=" text-sm text-[#6B7280]">Entries Per Page</span> */}
+                      <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
 
                     </div>
                     <div className="relative inline-block">
@@ -1285,1073 +1204,9 @@ px-2 py-2 md:px-6 md:py-6">
 
                 </div>
               </div>
-            </div>
+            </div> */}
 
-            {/* Add Modal */}
-            {isAddModalOpen && (
-              <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50">
-                <div className="absolute inset-0" onClick={closeAddModal}></div>
-
-                <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[60vw]
-      bg-white shadow-lg transform transition-transform duration-500 ease-in-out
-      ${isAnimating ? "translate-x-0" : "translate-x-full"}`}
-                >
-                  {/* Close Arrow */}
-                  <div
-                    className="w-6 h-6 rounded-full mt-2 ms-2 border-2 bg-white border-gray-300
-        flex items-center justify-center cursor-pointer"
-                    onClick={closeAddModal}
-                  >
-                    <IoIosArrowForward className="w-3 h-3" />
-                  </div>
-
-                  <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
-                    <p className="text-xl md:text-2xl">Add Lead </p>
-
-                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                      {/* Is Organic */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Is Organic <span className="text-red-500">*</span>
-                        </label>
-
-                        <div className="w-[50%] flex gap-6">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="is_organic"
-                              value="true"
-                              checked={leadForm.is_organic === "true"}
-                              onChange={(e) =>
-                                handleChange("is_organic", e.target.value)
-                              }
-                            />
-                            Yes
-                          </label>
-
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="is_organic"
-                              value="false"
-                              checked={leadForm.is_organic === "false"}
-                              onChange={(e) =>
-                                handleChange("is_organic", e.target.value)
-                              }
-                            />
-                            No
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* category */}
-                      {/* <div className="mt-6 flex justify-between items-center">
-                  <label className="text-sm font-medium">Category</label>
-                  <div className="w-[50%]">
-                  <MultiSelect
-                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                    value={selectedCategory}
-                    // value={leadForm.lead_category_id}
-                    
-    options={categoryOptions}
-                    onChange={(e) => {
-      setSelectedCategory(e.value);
-      handleChange("category", e.value);
-    }}
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-                    
-                    panelClassName="text-sm"
-                  />
-                  {errors.lead_category_id && (
-      <p className="text-red-500 text-sm mt-1">{errors.lead_category_id}</p>
-    )}
-                    </div>
-                </div> */}
-
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-sm font-medium">Category</label>
-                        <div className="w-[50%]">
-                          <Dropdown
-                            className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                            // value={selectedCategory}
-                            value={leadForm.category}
-
-                            options={categoryOptions}
-                            onChange={(e) =>
-                              setLeadForm(prev => ({
-                                ...prev,
-                                category: e.value
-                              }))
-                            }
-                            placeholder="Select Category"
-                            filter
-                            filterPlaceholder="Search category"
-
-                            panelClassName="text-sm"
-                          />
-                          {/* {errors.category && (
-      <p className="text-red-500 text-sm mt-1">{errors.category}</p>
-    )} */}
-                        </div>
-                      </div>
-
-
-
-                      {/* Full Name */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            value={leadForm.full_name}
-                            onChange={(e) =>
-                              handleChange("full_name", e.target.value)
-                            }
-                            placeholder="Enter full name"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
-                          />
-                          {errors.full_name && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.full_name}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Date of Birth */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Date of Birth <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="date"
-                            value={leadForm.dob}
-                            onChange={(e) => handleChange("dob", e.target.value)}
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Post Code */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Post Code <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="number"
-                            value={leadForm.post_code}
-                            onChange={(e) => handleChange("post_code", e.target.value)}
-                            placeholder="Enter post code"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* City */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          City <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            value={leadForm.city}
-                            onChange={(e) => handleChange("city", e.target.value)}
-                            placeholder="Enter city"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* State */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          State <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            value={leadForm.state}
-                            onChange={(e) => handleChange("state", e.target.value)}
-                            placeholder="Enter state"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Gender */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Gender <span className="text-red-500">*</span>
-                        </label>
-
-                        <div className="w-[50%]">
-                          <select
-                            value={leadForm.gender}
-                            onChange={(e) => handleChange("gender", e.target.value)}
-                            className="w-full px-3 py-2 border rounded-lg"
-                          >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                      </div>
-
-
-                      {/* Phone */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Phone <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={10}
-                            value={leadForm.phone}
-                            onChange={(e) =>
-                              handleChange("phone", e.target.value)
-                            }
-                            placeholder="Enter phone number"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-
-
-                      {/* Status */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Status <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <select
-                            value={leadForm.status}
-                            onChange={(e) =>
-                              handleChange("status", e.target.value)
-                            }
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          >
-                            <option value="">Select Status</option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex justify-end gap-2 mt-10">
-                      <button
-                        onClick={closeAddModal}
-                        className="border border-[#7C7C7C] text-[#7C7C7C]
-            hover:bg-[#FEE2E2] hover:text-[#DC2626]
-            px-5 py-2 rounded-[10px]"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        disabled={submitting}
-                        type="button"
-                        onClick={handleAddLeadSubmit}
-                        className="bg-[#1ea600] hover:bg-[#4BB452]
-            text-white px-5 py-2 rounded-[10px]
-            disabled:opacity-50"
-                      >
-                        {submitting ? "Submitting..." : "Submit"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Edit Modal */}
-            {isEditModalOpen && (
-              <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50">
-                <div className="absolute inset-0" onClick={closeEditModal}></div>
-
-                <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[60vw]
-        bg-white shadow-lg transform transition-transform duration-500 ease-in-out
-        ${isAnimating ? "translate-x-0" : "translate-x-full"}`}
-                >
-                  {/* Close Arrow */}
-                  <div
-                    className="w-6 h-6 rounded-full mt-2 ms-2 border-2 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
-                    onClick={closeEditModal}
-                  >
-                    <IoIosArrowForward className="w-3 h-3" />
-                  </div>
-
-                  <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
-                    <p className="text-xl md:text-2xl">Edit Lead </p>
-
-                    <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                      {/* Is Organic */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Is Organic <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%] flex gap-6">
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="edit_is_organic"
-                              value="true"
-                              checked={editLeadForm?.is_organic === "true"}
-                              onChange={(e) =>
-                                setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
-                              }
-                            />
-                            Yes
-                          </label>
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name="edit_is_organic"
-                              value="false"
-                              checked={editLeadForm?.is_organic === "false"}
-                              onChange={(e) =>
-                                setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
-                              }
-                            />
-                            No
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* category */}
-                      {/* <div className="w-full flex justify-between items-center">
-                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
-                  <div className="w-[50%]">
-                  <MultiSelect
-                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                    value={editLeadForm?.leadcategory_id || ""}
-                    
-    options={categoryOptions}
-                    onChange={(e) => {
-      // setSelectedCategory(e.value);
-      setEditLeadForm({ ...editLeadForm, category_id: e.value });
-    }}
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-                    
-                    panelClassName="text-sm"
-                  />
-                    </div>
-                  
-
-
-                </div> */}
-
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-sm font-medium text-[#6B7280]">Category</label>
-                        <div className="w-[50%]">
-                          <Dropdown
-                            className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                            value={editLeadForm?.lead_category_id || ""}
-
-                            options={categoryOptions}
-                            onChange={(e) =>
-                              setEditLeadForm(prev => ({
-                                ...prev,
-                                lead_category_id: e.value
-                              }))
-                            }
-                            placeholder="Select Category"
-                            filter
-                            filterPlaceholder="Search category"
-
-                            panelClassName="text-sm"
-                          />
-                        </div>
-
-
-
-                      </div>
-
-                      {/* Full Name */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Full Name <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            value={editLeadForm?.full_name || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, full_name: e.target.value })
-                            }
-                            placeholder="Enter full name"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Date of Birth */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Date of Birth <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="date"
-                            value={editLeadForm?.dob || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, dob: e.target.value })
-                            }
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Post Code */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Post Code <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="number"
-                            value={editLeadForm?.post_code || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, post_code: e.target.value })
-                            }
-                            placeholder="Enter post code"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* City */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          City <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            value={editLeadForm?.city || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, city: e.target.value })
-                            }
-                            placeholder="Enter city"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* State */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          State <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            value={editLeadForm?.state || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, state: e.target.value })
-                            }
-                            placeholder="Enter state"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Gender */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Gender <span className="text-red-500">*</span>
-                        </label>
-
-                        <div className="w-[50%]">
-                          <select
-                            value={editLeadForm?.gender || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, gender: e.target.value })
-                            }
-                            className="w-full px-3 py-2 border rounded-lg"
-                          >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                      </div>
-
-
-                      {/* Phone */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Phone <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            value={editLeadForm?.phone || ""}
-                            maxLength={10}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, phone: e.target.value })
-                            }
-                            placeholder="Enter Phone Number"
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          />
-                        </div>
-                      </div>
-
-
-
-                      {/* Status */}
-                      <div className="w-full flex justify-between items-center">
-                        <label className="text-md font-medium">
-                          Status <span className="text-red-500">*</span>
-                        </label>
-                        <div className="w-[50%]">
-                          <select
-                            value={editLeadForm?.status || ""}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, status: e.target.value })
-                            }
-                            className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                          >
-                            <option value="">Select Status</option>
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex justify-end gap-2 mt-10">
-                      <button
-                        onClick={closeEditModal}
-                        className="border border-[#7C7C7C] text-[#7C7C7C]
-            hover:bg-[#FEE2E2] hover:text-[#DC2626]
-            px-5 py-2 rounded-[10px]"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        onClick={handleUpdateLead}
-                        className="bg-[#1ea600] hover:bg-[#4BB452]
-            text-white px-5 py-2 rounded-[10px]"
-                      >
-                        Update
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* status */}
-            {isViewStatusOpen && viewStatus && (
-              <div
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
-                onClick={() => setIsViewStatusOpen(false)}
-              >
-                {/* STOP CLICK INSIDE */}
-                <div
-                  className="bg-white rounded-xl w-full max-w-4xl mx-4 shadow-xl h-[80vh] flex flex-col"
-                  onClick={(e) => e.stopPropagation()}
-                >
-
-                  {/* HEADER */}
-                  <div className="px-6 py-4 border-b bg-green-50 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-green-700">
-                      Update Lead Status
-                    </h2>
-                    <button
-                      onClick={() => setIsViewStatusOpen(false)}
-                      className="p-1 rounded-full
-                   text-gray-600 hover:bg-red-100 hover:text-red-600 transition"
-                    >
-                      <IoClose size={22} />
-                    </button>
-                  </div>
-
-                  {/* SCROLLABLE BODY */}
-                  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6 green-scroll">
-                    {/* Status */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Status</label>
-                      <select
-                        className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                        value={statusForm.status}
-                        onChange={(e) =>
-                          setStatusForm({ ...statusForm, status: e.target.value })
-                        }
-                      >
-                        <option value="open">Open</option>
-                        <option value="joined">Joined</option>
-                        <option value="interested">Interested / schedule</option>
-                        <option value="not_interested">Not Interested</option>
-                        <option value="follow_up">Follow Up</option>
-                        <option value="not_picked">Not Picked</option>
-                      </select>
-                    </div>
-
-                    {/* Interested */}
-                    {statusForm.status === "interested" && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Schedule Date
-                        </label>
-                        <input
-                          type="date"
-                          className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                          value={statusForm.epoDate}
-                          onChange={(e) =>
-                            setStatusForm({ ...statusForm, epoDate: e.target.value })
-                          }
-                        />
-                      </div>
-                    )}
-
-                    {/* Notes */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Notes</label>
-                      <textarea
-                        className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                        rows="3"
-                        value={statusForm.notes}
-                        onChange={(e) =>
-                          setStatusForm({ ...statusForm, notes: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    {/* Follow up */}
-                    <div className="grid grid-cols-2 gap-6">
-                      {/* <div>
-            <label className="block text-sm font-medium mb-1">
-              Next Follow Up?
-            </label>
-            <div className="flex gap-6 mt-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="yes"
-                  checked={statusForm.followUp === "yes"}
-                  onChange={(e) =>
-                    setStatusForm({ ...statusForm, followUp: e.target.value })
-                  }
-                />
-                Yes
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="no"
-                  checked={statusForm.followUp === "no"}
-                  onChange={(e) =>
-                    setStatusForm({ ...statusForm, followUp: e.target.value })
-                  }
-                />
-                No
-              </label>
-            </div>
-          </div> */}
-
-                      {/* {statusForm.followUp === "yes" && ( */}
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Follow Up Date
-                        </label>
-                        <input
-                          type="date"
-                          className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                          value={statusForm.followUpDate}
-                          onChange={(e) =>
-                            setStatusForm({
-                              ...statusForm,
-                              followUpDate: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      {/* )} */}
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-6">
-                      <button
-                        className="px-4 py-2 border rounded-md hover:bg-gray-100"
-                        onClick={() => setIsViewStatusOpen(false)}
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                        onClick={handleStatusSubmit}
-                      >
-                        Submit
-                      </button>
-                    </div>
-
-                    {/* Status History */}
-                    <div className="border rounded-lg overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-green-100">
-                          <tr>
-                            <th className="border px-3 py-2">S.No</th>
-                            <th className="border px-3 py-2">Status</th>
-                            <th className="border px-3 py-2">Follow Up</th>
-                            <th className="border px-3 py-2">Notes</th>
-                            <th className="border px-3 py-2">Created Date</th>
-                            <th className="border px-3 py-2">Follow Date</th>
-                            <th className="border px-3 py-2">scheduled Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {statusList?.length ? (
-                            statusList.map((item, index) => (
-                              <tr key={index} className="hover:bg-green-50">
-                                <td className="border px-3 py-2 text-center">
-                                  {index + 1}
-                                </td>
-                                <td className="border px-3 py-2 capitalize">
-                                  {item.status}
-                                </td>
-                                <td className="border px-3 py-2 text-center">
-                                  {/* {item.followUp ? "Yes" : "No"} */}
-                                  {item.followup_status === "1" ? "Yes" : "No"}
-
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {Capitalise(item.notes || "-")}
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {formatToDDMMYYYY(item.created_at)}
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {formatToDDMMYYYY(item.followup_date)}
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {formatToDDMMYYYY(item.scheduled_date)}
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td
-                                colSpan="5"
-                                className="border px-3 py-4 text-center text-gray-500"
-                              >
-                                No status history found
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* FOOTER (NORMAL POSITION) */}
-
-                  </div>
-                </div>
-              </div>
-            )}
-
-
-            {/*status list view  */}
-            {isStatusViewOpen && statusViewLead && (
-              <div
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
-                onClick={closeStatusView}
-              >
-                <div
-                  className="bg-white rounded-xl w-[900px] p-6 shadow-lg relative"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={closeStatusView}
-                    className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
-                  >
-                    <IoCloseCircle size={22} />
-                  </button>
-
-                  <h2 className="text-lg font-semibold mb-4">
-                    Status History – {statusViewLead.full_name}
-                  </h2>
-
-                  {/* STATUS TABLE */}
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="border px-3 py-2">S.No</th>
-                          <th className="border px-3 py-2">Status</th>
-                          <th className="border px-3 py-2">Follow Up</th>
-                          <th className="border px-3 py-2">Notes</th>
-                          <th className="border px-3 py-2">Date</th>
-                        </tr>
-                      </thead>
-
-                      <tbody>
-                        {statusList?.length ? (
-                          statusList.map((item, index) => (
-                            <tr key={index}>
-                              <td className="border px-3 py-2 text-center">
-                                {index + 1}
-                              </td>
-                              <td className="border px-3 py-2 capitalize">
-                                {item.status}
-                              </td>
-                              <td className="border px-3 py-2 text-center">
-                                {item.followUp ? "Yes" : "No"}
-                              </td>
-                              <td className="border px-3 py-2">
-                                {item.notes || "-"}
-                              </td>
-                              <td className="border px-3 py-2">
-                                {formatToDDMMYYYY(item.followup_date)}
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="5" className="text-center py-4 text-gray-500">
-                              No status history found
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* view modal */}
-            {isViewModalOpen && viewContact && (
-              <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50">
-                {/* Overlay click */}
-                <div className="absolute inset-0" onClick={closeViewModal}></div>
-
-                {/* Slide Panel */}
-                <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw]
-      bg-white shadow-lg transform transition-transform duration-500 ease-in-out
-      ${isViewAnimating ? "translate-x-0" : "translate-x-full"}`}
-                >
-                  {/* Close Arrow */}
-                  <div
-                    className="w-6 h-6 rounded-full mt-2 ms-2 border-2 bg-white border-gray-300
-        flex items-center justify-center cursor-pointer"
-                    onClick={closeViewModal}
-                  >
-                    <IoIosArrowForward className="w-3 h-3" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
-                    <p className="text-xl md:text-2xl mb-6">View Lead Details</p>
-
-                    {/* Reusable Field */}
-                    {[
-                      ["Lead ID", viewContact.lead_id],
-                      ["Category Name", viewContact?.category?.name],
-                      ["Created Time", viewContact.created_time],
-                      ["Ad ID", viewContact.ad_id],
-                      ["Ad Name", viewContact.ad_name],
-                      ["Adset ID", viewContact.adset_id],
-                      ["Adset Name", viewContact.adset_name],
-                      ["Campaign ID", viewContact.campaign_id],
-                      ["Campaign Name", viewContact.campaign_name],
-                      ["Form ID", viewContact.form_id],
-                      ["Form Name", viewContact.form_name],
-                      ["Is Organic", viewContact.is_organic ? "Yes" : "No"],
-                      ["Full Name", viewContact.full_name],
-                      ["Gender", viewContact.gender],
-                      ["Phone", viewContact.phone],
-                      ["Date of Birth", formatToDDMMYYYY(viewContact.date_of_birth)],
-                      ["Post Code", viewContact.post_code],
-                      ["City", viewContact.city],
-                      ["State", viewContact.state],
-                    ].map(([label, value], i) => (
-                      <div key={i} className="mt-6 flex justify-between items-center">
-                        <label className="text-md font-medium">{label}</label>
-                        <div className="w-[50%] border px-3 py-2 text-gray-700">
-                          {value || "-"}
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Status */}
-                    <div className="mt-6 flex justify-between items-center">
-                      <label className="text-md font-medium">Status</label>
-                      <div className="w-[50%]">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold
-              ${viewContact.status === "0" || viewContact.status === 0
-                              ? "bg-red-100 text-red-600"
-                              : "bg-green-100 text-green-600"}`}
-                        >
-                          {viewContact.status === "0" || viewContact.status === 0
-                            ? "Inactive"
-                            : "Active"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex justify-end mt-10">
-                      <button
-                        onClick={closeViewModal}
-                        className="border border-[#7C7C7C] text-[#7C7C7C]
-            hover:bg-[#FEE2E2] hover:text-[#DC2626]
-            px-5 py-2 rounded-[10px]"
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* import add modal */}
-            {isImportAddModalOpen && (
-              <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
-                {/* Overlay */}
-                <div
-                  className="absolute inset-0 "
-                  onClick={() => {
-                    closeImportAddModal();
-                    resetImportForm();
-                  }}
-                >
-                  <IoIosArrowForward className="w-3 h-3" />
-                </div>
-
-                <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
-                    }`}
-                >
-                  <div
-                    className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
-                    title="Toggle Sidebar"
-                    onClick={() => {
-                      closeImportAddModal();
-                      resetImportForm();
-                    }}
-                  >
-                    <IoIosArrowForward className="w-3 h-3" />
-                  </div>
-
-                  <div className="p-5">
-                    <p className="text-xl md:text-2xl font-medium">
-                      Lead
-                    </p>
-
-                    {/* File Upload */}
-                    <div className="mt-3 flex justify-between items-center">
-                      <label className="block text-md font-medium">
-                        File Upload
-                      </label>
-
-                      <div className="w-[60%] md:w-[50%]">
-                        <input
-                          type="file"
-                          accept=".csv,.xls,.xlsx"
-                          onChange={(e) => setSelectedFiles(e.target.files)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                        />
-                        {errors.file && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.file}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    {/* IMPORT ERRORS */}
-                    {errors.import?.length > 0 && (
-                      // <div className="mt-4 bg-red-50 border border-red-300 p-3 rounded-lg max-h-48 overflow-auto">
-                      <div className="mt-4">
-                        <p className="text-red-700 font-semibold mb-2"></p>
-
-                        {Array.isArray(errors.import) ? (
-                          errors.import.map((item, idx) => (
-                            <p key={idx} className="text-sm text-red-600">
-                              Row {item.row}: {item.errors.join(", ")}
-                            </p>
-                          ))
-                        ) : (
-                          <p className="text-red-600">{errors.import}</p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* category */}
-                    <div className="mt-3 flex justify-between items-center">
-                      <label className="block text-md font-medium">Category</label>
-                      <div className="w-[60%] md:w-[50%]">
-                        <Dropdown
-                          className="uniform-field w-full px-3 py-2 border border-gray-300 rounded-lg"
-                          // value={selectedCategory}
-                          value={filters.category_id || ""}
-                          options={categoryOptions}
-                          onChange={(e) => {
-                            setSelectedCategory(e.value);
-                            setFilters(prev => ({
-                              ...prev,
-                              category_id: e.value
-                            }));
-                          }}
-                          placeholder="Select Category"
-                          filter
-                          filterPlaceholder="Search category"
-
-                          panelClassName="text-sm"
-                        />
-
-
-
-                      </div>
-                    </div>
-
-                    <div className="flex  justify-end gap-2 mt-6 md:mt-14">
-                      <button
-                        onClick={() => {
-                          closeImportAddModal();
-                          resetImportForm();
-                        }}
-                        className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                        onClick={handleFileSubmit}
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+           
 
           </div>
         </>
