@@ -61,7 +61,7 @@ import Lead_Dashboard_Main from "./pages/Lead_Dashboard_Main";
 import Lead_Category_Main from "./pages/Lead_Category_Main";
 import Lead_AssignedTo_Main from "./pages/Lead_AssignedTo_Main";
 import MonthlyWorkReport_Main from "./components/Daily work report component/MonthlyWorkReport_Main";
-
+   
 function App() {
   return (
     <>
@@ -76,6 +76,7 @@ function App() {
           pauseOnHover
           style={{ zIndex: 999999 }} 
         />
+
 
         <Routes>
           <Route path="*" element={<PageNotFound />} />
