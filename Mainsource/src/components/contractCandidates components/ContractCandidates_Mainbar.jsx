@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { TfiPencilAlt, TfiPrinter } from "react-icons/tfi";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import { IoIosArrowForward } from "react-icons/io";
+import { toast } from "react-toastify";
 
+import "react-toastify/dist/ReactToastify.css";
 import { DataTable } from "primereact/datatable";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
@@ -17,7 +19,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { FaEye } from "react-icons/fa6";
-import { toast } from "react-toastify";
 
 import Swal from "sweetalert2";
 import { IoIosCloseCircle } from "react-icons/io";
