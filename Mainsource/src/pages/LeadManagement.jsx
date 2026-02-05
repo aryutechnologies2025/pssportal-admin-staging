@@ -7,8 +7,8 @@ const LeadManagement = () => {
   return (
     <div className="flex ">
       <div className="bg-gray-100 md:bg-white">
-        <Lead_Sidebar />
-        {/* <Sidebar /> */}
+        {/* <Lead_Sidebar /> */}
+        <Sidebar />
       </div>
      <LeadManagement_Details />
     </div>
