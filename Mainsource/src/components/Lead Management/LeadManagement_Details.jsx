@@ -78,6 +78,9 @@ const LeadManagement_Details = () => {
 
   const today = new Date().toISOString().split("T")[0];
 
+    const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
+    const [selectedEmployee, setSelectedEmployee] = useState([]);
+
   const [statusForm, setStatusForm] = useState({
     status: "",
     notes: "",
@@ -1167,10 +1170,21 @@ const statusDropdownOptions = [
                     panelClassName="text-sm"
                   />
                     
-                  
-
-
                 </div>
+
+                                {/* employee */}
+                                {/* <div className="flex items-center justify-between gap-1 w-[50%]">
+                                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
+                                  <Dropdown
+                                    value={selectedEmployeeDetails}
+                                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
+                                    options={selectedEmployee}
+                                    optionLabel="label"
+                                    placeholder="Select Employee"
+                                    filter
+                                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                  />
+                                </div> */}
 
                 {/* Buttons */}
                 <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end">
