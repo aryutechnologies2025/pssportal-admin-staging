@@ -122,30 +122,43 @@ function MonthlyWorkReport_Detail() {
     const headers = ["Date", "Day", "Employee ID", "Employee Name", "Login Time", "Logout Time", "Total Hours", "Message"];
 
     const rows = tasklist.flatMap((day) => {
-      if (!day.messages || day.messages.length === 0) {
-        return [[
-          day.date,
-          day.day,
-          day.employee_id || "-",
-          day.employee_name || "-",
-          day.login_time || "-",
-          day.logout_time || "-",
-          day.total_hours || "-",
-          "No messages"
-        ]];
-      }
+  const employeeId =
+    day.employee_id ||
+    day.employee?.id ||
+    day.emp_id ||
+    "-";
 
-      return day.messages.map((msg) => [
-        day.date,
-        day.day,
-        day.employee_id || "-",
-        day.employee_name || "-",
-        day.login_time || "-",
-        day.logout_time || "-",
-        day.total_hours || "-",
-        msg.replace(/<[^>]+>/g, "") // remove HTML
-      ]);
-    });
+  const employeeName =
+    day.employee_name ||
+    day.employee?.name ||
+    day.emp_name ||
+    "-";
+
+  if (!day.messages || day.messages.length === 0) {
+    return [[
+      day.date,
+      day.day,
+      employeeId,
+      employeeName,
+      day.login_time || "-",
+      day.logout_time || "-",
+      day.total_hours || "-",
+      "No messages"
+    ]];
+  }
+
+  return day.messages.map((msg) => [
+    day.date,
+    day.day,
+    employeeId,
+    employeeName,
+    day.login_time || "-",
+    day.logout_time || "-",
+    day.total_hours || "-",
+    msg.replace(/<[^>]+>/g, "")
+  ]);
+});
+
 
     const csvContent = [
       headers,
