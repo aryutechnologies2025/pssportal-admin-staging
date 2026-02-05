@@ -15,6 +15,7 @@ import Loader from "../Loader";
 import { FiSearch } from "react-icons/fi";
 import { FiChevronDown } from "react-icons/fi";
 import TimeDropdown from "../../hooks/TimeInput .jsx";
+import { FilterMatchMode } from "primereact/api";
 
 const Attendance_add_details = () => {
   const navigate = useNavigate();
@@ -32,22 +33,25 @@ const Attendance_add_details = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [filters, setFilters] = useState({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  });
+  console.log("filter", filters);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [editData, setEditData] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [shiftOptions, setShiftOptions] = useState([]);
   console.log("shiftOptions", shiftOptions);
-const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const onPageChange = (e) => {
-setPage(e.page + 1); // PrimeReact is 0-based
-setRows(e.rows);
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+  };
 
-};
-
-const onRowsChange = (value) => {
-setRows(value);
-setPage(1); // Reset to first page when changing rows per page};
-};
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page};
+  };
   const fetchCompanies = async () => {
     try {
       const res = await axiosInstance.get(`${API_URL}api/company`);
@@ -75,6 +79,7 @@ setPage(1); // Reset to first page when changing rows per page};
         ...emp,
         attendance: null,
         shifts: [],
+        shiftText: "",
       }));
 
       const shifts = res.data.shifts.map((shift) => ({
@@ -86,6 +91,10 @@ setPage(1); // Reset to first page when changing rows per page};
 
       setAttendanceData(employees);
       setShiftOptions(shifts);
+           setFilters({
+        global: { value: globalFilter, matchMode: "contains" },
+      });
+
     } catch (err) {
       console.error("Error fetching employees & shifts", err);
     }
@@ -465,17 +474,18 @@ setPage(1); // Reset to first page when changing rows per page};
     },
 
     {
-      field: "employee_name",
-      header: "Employee Name",
-      body: (rowData) => (
-        <div>
-          <p className="">{rowData.name}</p>
-          {/* <p className="text-xs text-gray-500">
-            {rowData?.contract_employee?.employee_id}
-          </p> */}
-          {/* <p className="text-sm text-gray-600">{rowData.employee_number}</p> */}
-        </div>
-      ),
+      header: "Name",
+      body: (row) => {
+        const name = row.name || "-";
+        const id = row.employee_id || "-";
+        console.log("check id", id, name);
+        return (
+          <div>
+            <div>{name}</div>
+            <div>{id}</div>
+          </div>
+        );
+      },
     },
 
     {
@@ -696,6 +706,18 @@ setPage(1); // Reset to first page when changing rows per page};
     name: company.name, // Keep original name for reference
   }));
 
+
+
+    const onGlobalFilterChange = (e) => {
+    const value = e.target.value;
+
+    setGlobalFilter(value);
+
+    setFilters({
+      global: { value, matchMode: "contains" },
+    });
+  };
+
   return (
     <div className="flex flex-col justify-between bg-gray-100 w-screen min-h-screen px-3 md:px-5 pt-2 md:pt-10">
       {loading ? (
@@ -708,20 +730,20 @@ setPage(1); // Reset to first page when changing rows per page};
             </div>
             <div className="flex justify-start mt-2 md:mt-0 gap-1 items-center ">
               <p
-                className="text:xs md:text-sm text-gray-500  cursor-pointer"
+                className="text-xs md:text-sm text-gray-500  cursor-pointer"
                 onClick={() => navigate("/")}
               >
                 Dashboard
               </p>
               <p>{">"}</p>
               <p
-                className="text:xs md:text-sm text-gray-500  cursor-pointer"
+                className="text-xs md:text-sm text-gray-500  cursor-pointer"
                 onClick={() => navigate("/attendance")}
               >
                 Attendance
               </p>
               <p>{">"}</p>
-              <p className="text:xs md:text-sm    text-[#1ea600]">
+              <p className="text-xs md:text-sm    text-[#1ea600]">
                 Attendance Add
               </p>
             </div>
@@ -750,7 +772,7 @@ setPage(1); // Reset to first page when changing rows per page};
             </div> */}
 
             <div className="bg-white flex justify-between items-center w-full rounded-2xl shadow-md p-4 md:p-6 mt-5">
-              <div className="flex flex-col md:flex-row gap-5 md:gap-10">
+              <div className="flex flex-col md:flex-row gap-5 w-full md:w-[50%] md:gap-10">
                 {/* <div className="flex flex-col gap-1">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Company
@@ -771,7 +793,7 @@ setPage(1); // Reset to first page when changing rows per page};
                   </select>
                 </div> */}
 
-                <div className="flex flex-col gap-1">
+                <div className="w-full md:w-[50%] flex flex-col gap-1">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Company
                   </label>
@@ -784,11 +806,11 @@ setPage(1); // Reset to first page when changing rows per page};
                     }}
                     className=" uniform-field px-3 py-2 rounded-md border border-[#D9D9D9] text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     filter
-                    placeholder="Select Comoany"
+                    placeholder="Select Company"
                   />
                 </div>
 
-                <div className=" flex flex-col  gap-1 ">
+                <div className="w-full md:w-[50%] flex flex-col  gap-1 ">
                   <label className="text-sm font-semibold text-[#6B7280]">
                     Date
                   </label>
@@ -863,12 +885,20 @@ px-2 py-2 md:px-6 md:py-6"
                         size={18}
                       />
 
-                      <InputText
+                      {/* <InputText
                         value={globalFilter}
                         onChange={(e) => setGlobalFilter(e.target.value)}
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] 
                          focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                      /> */}
+
+                      <InputText
+                        value={globalFilter}
+                        onChange={onGlobalFilterChange}
+                        placeholder="Search......"
+                        className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9]
+                                   focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
                     </div>
 
@@ -887,10 +917,13 @@ px-2 py-2 md:px-6 md:py-6"
                   value={attendanceData}
                   paginator
                   rows={rows}
-                  first={(page -1) * rows}
+                  first={(page - 1) * rows}
                   onPage={onPageChange}
                   rowsPerPageOptions={[10, 20]}
-                  globalFilter={globalFilter} // Global search filter
+                  loading={loading}
+                  filters={filters}
+                  globalFilterFields={["name", "employee_id", "attendance"]}
+                  // globalFilter={globalFilter} 
                   showGridlines
                   resizableColumns
                 >

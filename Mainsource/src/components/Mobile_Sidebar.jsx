@@ -212,7 +212,7 @@ const Mobile_Sidebar = () => {
                   </div>
                   
                   {/* report */}
-                   <div className="w-full">
+                   {/* <div className="w-full">
                     <div
                       onClick={() => setOpenReport(!openReport)}
                       className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer
@@ -237,7 +237,7 @@ const Mobile_Sidebar = () => {
                         </button>
                       </div>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* pss */}
                   <div className="w-full">
@@ -429,13 +429,13 @@ const Mobile_Sidebar = () => {
                         >
                           Education
                         </button>
-                        <button
+                        {/* <button
                           onClick={() => onClickSidebarMenu("relieved-contract")}
                           className="hover:bg-green-100 w-full text-left px-2 py-1 rounded-md"
 
                         >
                           Relieved
-                        </button>
+                        </button> */}
                 
 
                       </div>
@@ -514,8 +514,8 @@ const Mobile_Sidebar = () => {
                     <p>Contact</p>
                   </div>
 
-                  {/* contact */}
-                  <div
+                  {/* announcement */}
+                  {/* <div
                     onClick={() => onClickSidebarMenu("announcement")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
                   >
@@ -524,7 +524,7 @@ const Mobile_Sidebar = () => {
 
                     </div>
                     <p>Announcement</p>
-                  </div>
+                  </div> */}
 
 {/* activity */}
                       <div
@@ -538,20 +538,10 @@ const Mobile_Sidebar = () => {
                     <p>Activity</p>
                   </div>
 
-{/* asset management */}
-                    {/* <div
-                    onClick={() => onClickSidebarMenu("assetmanagement")}
-                    className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
-                  >
-                    <div className="flex items-center justify-center h-5 w-5">
-                      <MdManageAccounts />
 
-                    </div>
-                    <p>Asset</p>
-                  </div> */}
 
 {/* attendance report */}
-                    <div
+                    {/* <div
                     onClick={() => onClickSidebarMenu("assetmanagement")}
                     className="flex items-center w-full hover:bg-green-100 hover:text-[#4BB452] px-3 py-2 rounded-lg gap-2 text-gray-500 text-sm font-medium cursor-pointer"
                   >
@@ -559,7 +549,7 @@ const Mobile_Sidebar = () => {
                      <MdManageAccounts />
                     </div>
                     <p>Asset</p>
-                  </div>
+                  </div> */}
 
                   <div
                     onClick={() => onClickSidebarMenu("setting")}

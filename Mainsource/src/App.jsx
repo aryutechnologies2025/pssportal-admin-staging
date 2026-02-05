@@ -60,6 +60,7 @@ import Lead_Dashboard from "./components/Lead Management/Lead_Dashboard";
 import Lead_Dashboard_Main from "./pages/Lead_Dashboard_Main";
 import Lead_Category_Main from "./pages/Lead_Category_Main";
 import Lead_AssignedTo_Main from "./pages/Lead_AssignedTo_Main";
+import MonthlyWorkReport_Main from "./components/Daily work report component/MonthlyWorkReport_Main";
 
 function App() {
   return (
@@ -149,6 +150,7 @@ function App() {
           <Route path="announcement" element={<Announcement_Mainbar_page />} />
           <Route path="contract-report" element={<Contract_Report_main />} />
           <Route path="relieved-contract" element={<Relieved_Main />} />
+          <Route path="monthly-workreport" element={<MonthlyWorkReport_Main />} />
         </Routes>
       </BrowserRouter>
     </>
