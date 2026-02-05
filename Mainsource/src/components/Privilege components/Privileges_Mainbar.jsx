@@ -186,7 +186,7 @@ const Privileges_Mainbar = () => {
   };
   const actionMap = {
     add: "create",
-    view: "list",
+    view: "view",
     edit: "edit",
     delete: "delete",
     import: "import",
@@ -417,7 +417,7 @@ const Privileges_Mainbar = () => {
         create: Number(item.is_create),
         edit: Number(item.is_edit),
         delete: Number(item.is_delete),
-        list: Number(item.is_view),
+        view: Number(item.is_view),
         import: Number(item.is_import),
         filter: Number(item.is_filter),
       };
@@ -1050,7 +1050,7 @@ px-2 py-2 md:px-6 md:py-6"
                                                   create: prev?.[moduleKey]?.create ?? 0,
                                                   edit: prev?.[moduleKey]?.edit ?? 0,
                                                   delete: prev?.[moduleKey]?.delete ?? 0,
-                                                  list: prev?.[moduleKey]?.list ?? 0,
+                                                  view: prev?.[moduleKey]?.view ?? 0,
                                                   import: prev?.[moduleKey]?.import ?? 0,
                                                   filter: prev?.[moduleKey]?.filter ?? 0,
                                                   [permissionKey]: e.target.checked ? 1 : 0,
@@ -1212,7 +1212,7 @@ px-2 py-2 md:px-6 md:py-6"
                                                   create: prev?.[moduleKey]?.create ?? 0,
                                                   edit: prev?.[moduleKey]?.edit ?? 0,
                                                   delete: prev?.[moduleKey]?.delete ?? 0,
-                                                  list: prev?.[moduleKey]?.list ?? 0,
+                                                  view: prev?.[moduleKey]?.view ?? 0,
                                                   import: prev?.[moduleKey]?.import ?? 0,
                                                   filter: prev?.[moduleKey]?.filter ?? 0,
                                                   [permissionKey]: isChecked,
