@@ -36,17 +36,17 @@ import { set } from "zod";
 const Relieved_Detail = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [roles, setRoles] = useState([]);
+    const [relieved, setRelieved] = useState([]);
     const [loading, setLoading] = useState(true);
     const [departments, setDepartments] = useState([]);
     const [department, setDepartment] = useState("");
     const [pssCompany, setPssCompany] = useState(null); // selected value
     const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
 
-    // Fetch roles from the API
+    // Fetch relieved from the API
 
     useEffect(() => {
-        fetchRoles();
+        fetchRelieved();
     }, []);
 
 
@@ -108,15 +108,15 @@ const Relieved_Detail = () => {
     };
 
 
-    const fetchRoles = async () => {
+    const fetchRelieved = async () => {
         try {
             const response = await axiosInstance.get(`${API_URL}api/role`);
 
             console.log("...RoleFetching All.... : ", response.data);
 
             if (response.data.status === true) {
-                // roles
-                setRoles(response.data.data || []);
+                // relieved
+                setRelieved(response.data.data || []);
                 setTotalRecords(response.data.data.length || 0);
 
                 // departments (from SAME API)
@@ -133,14 +133,14 @@ const Relieved_Detail = () => {
 
                 setPssCompanyOptions(pssCompanyOptions);
             } else {
-                setRoles([]);
+                setRelieved([]);
                 setPssCompanyOptions([]);
                 setDepartments([]);
                 setTotalRecords(0);
             }
         } catch (err) {
-            console.error("Failed to fetch roles", err);
-            setRoles([]);
+            console.error("Failed to fetch relieved", err);
+            setRelieved([]);
             setDepartments([]);
             setPssCompanyOptions([]);
             setTotalRecords(0);
@@ -316,7 +316,7 @@ const Relieved_Detail = () => {
 
             if (response.data.status === true || response.data.success === true) {
                 toast.success("Role created successfully");
-                fetchRoles();
+                fetchRelieved();
                 setDepartment("");
                 closeAddModal();
             } else {
@@ -351,7 +351,7 @@ const Relieved_Detail = () => {
             if (response.data.status || response.data.success) {
                 toast.success("Role updated successfully");
                 closeEditModal();
-                fetchRoles();
+                fetchRelieved();
             } else {
                 toast.error("Failed to update role");
             }
@@ -394,7 +394,7 @@ const Relieved_Detail = () => {
 
 
 
-    const deleteRoles = (roleId) => {
+    const deleteRelieved = (roleId) => {
         Swal.fire({
             title: "Are you sure?",
             text: "Do you want to delete this role?",
@@ -427,7 +427,7 @@ const Relieved_Detail = () => {
                         console.log("Delete response:", response.data);
                         if (response.data.status === true || response.data.success === true) {
                             toast.success("Role has been deleted.");
-                            fetchRoles(); // Refresh the roles list
+                            fetchRelieved(); // Refresh the relieved list
 
                         } else {
                             Swal.fire("Error!", response.data.message || "Failed to delete role.", "error");
@@ -524,7 +524,7 @@ const Relieved_Detail = () => {
                     />
 
                     <RiDeleteBin6Line
-                        onClick={() => deleteRoles(row.id)}
+                        onClick={() => deleteRelieved(row.id)}
                         className="text-red-500 cursor-pointer hover:scale-110 transition"
                         title="Delete"
                     />
@@ -571,7 +571,7 @@ const Relieved_Detail = () => {
                         {/* Add Button */}
                         {/* <div className="flex justify-between mt-1 md:mt-4">
               <div className="">
-                <h1 className="text-3xl font-semibold">Roles</h1>
+                <h1 className="text-3xl font-semibold">Relieved</h1>
               </div>
 
               
@@ -631,7 +631,7 @@ px-2 py-2 md:px-6 md:py-6">
                                 <div className="table-scroll-container" id="datatable">
                                     <DataTable
                                         className="mt-8"
-                                        value={roles}
+                                        value={relieved}
                                         paginator
                                         rows={rows}
                                         totalRecords={totalRecords}

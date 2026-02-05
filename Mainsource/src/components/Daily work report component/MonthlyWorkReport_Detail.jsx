@@ -122,30 +122,43 @@ function MonthlyWorkReport_Detail() {
     const headers = ["Date", "Day", "Employee ID", "Employee Name", "Login Time", "Logout Time", "Total Hours", "Message"];
 
     const rows = tasklist.flatMap((day) => {
-      if (!day.messages || day.messages.length === 0) {
-        return [[
-          day.date,
-          day.day,
-          day.employee_id || "-",
-          day.employee_name || "-",
-          day.login_time || "-",
-          day.logout_time || "-",
-          day.total_hours || "-",
-          "No messages"
-        ]];
-      }
+  const employeeId =
+    day.employee_id ||
+    day.employee?.id ||
+    day.emp_id ||
+    "-";
 
-      return day.messages.map((msg) => [
-        day.date,
-        day.day,
-        day.employee_id || "-",
-        day.employee_name || "-",
-        day.login_time || "-",
-        day.logout_time || "-",
-        day.total_hours || "-",
-        msg.replace(/<[^>]+>/g, "") // remove HTML
-      ]);
-    });
+  const employeeName =
+    day.employee_name ||
+    day.employee?.name ||
+    day.emp_name ||
+    "-";
+
+  if (!day.messages || day.messages.length === 0) {
+    return [[
+      day.date,
+      day.day,
+      employeeId,
+      employeeName,
+      day.login_time || "-",
+      day.logout_time || "-",
+      day.total_hours || "-",
+      "No messages"
+    ]];
+  }
+
+  return day.messages.map((msg) => [
+    day.date,
+    day.day,
+    employeeId,
+    employeeName,
+    day.login_time || "-",
+    day.logout_time || "-",
+    day.total_hours || "-",
+    msg.replace(/<[^>]+>/g, "")
+  ]);
+});
+
 
     const csvContent = [
       headers,
@@ -184,7 +197,7 @@ function MonthlyWorkReport_Detail() {
             Daily Work Report
           </p>
           <p>{">"}</p>
-          <p className="text-xs md:text-md  text-[#1ea600]">Monthly Work Report</p>
+          <p className="text-xs md:text-md  text-[#1ea600]">Monthly Work Reports</p>
         </div>
 
         <div className="bg-white mt-2 md:mt-8 px-5 py-5 rounded-2xl">
@@ -267,7 +280,7 @@ function MonthlyWorkReport_Detail() {
 
             {/* reports desgins */}
             <div className=" mt-2 md:mt-0 p-2 md:p-5 bg-gray-100 min-h-screen">
-              <h1 className="text-2xl font-bold mb-6">Monthly Work Report</h1>
+              <h1 className="text-2xl font-bold mb-6">Monthly Work Reports</h1>
               {/* {selectedEmployeeDeatils && selectedEmployeeDeatils.length > 0 ? ( */}
               <div className="max-h-[800px] overflow-y-auto p-1 md:p-4 bg-gray-100 rounded-xl">
                 {loading ? (

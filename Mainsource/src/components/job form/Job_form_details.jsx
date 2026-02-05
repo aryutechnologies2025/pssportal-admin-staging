@@ -128,10 +128,24 @@ const Job_form_details = () => {
   const [selectedGender, setSelectedGender] = useState("");
   console.log("Selected Gender....... : ", selectedGender);
 
-  const referenceOptions = [
-    ...new Set(reference?.map(item => item.reference))
-  ].map(ref => ({ label: ref, value: ref }));
+  // const referenceOptions = [
+  //   ...new Set(reference?.map(item => item.reference))
+  // ].map(ref => ({ label: ref, value: ref }));
 
+//   const referenceOptions = reference?.map(item => ({
+//   label: item.full_name,
+//   value: item.id,   
+// }),{label: "other", value:"other"});
+
+const referenceOptions = [
+  ...(reference?.map(item => ({
+    label: item.full_name,
+    value: item.id,
+  })) || []),
+  { label: "Other", value: "other" },
+];
+  console.log("referenceOptions",referenceOptions)
+  
   const districtOptions = [
     ...new Set(districts?.map(item => item.district))
   ].map(dist => ({ label: dist, value: dist }));
@@ -390,9 +404,7 @@ const generateCSV = (data) => {
         setReference(response.data?.reference)
         setDistricts(response.data?.district)
         setGenders(response.data?.gender)
-
         const meta = response.data.meta;
-
         setPage(meta.current_page);
         setRows(meta.per_page);
         setTotalRecords(meta.total);
