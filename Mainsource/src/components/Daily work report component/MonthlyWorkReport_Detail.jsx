@@ -25,11 +25,11 @@ function MonthlyWorkReport_Detail() {
   // console.log("selectedEmployeeName", selectedEmployeeName);
   const [tasklist, setTasklist] = useState([]);
   console.log("tasklist", tasklist)
-  const storedDetatis = localStorage.getItem("pssemployee");
+  const storedDetatis = localStorage.getItem("pssuser");
   const parsedDetails = JSON.parse(storedDetatis);
   const userid = parsedDetails ? parsedDetails.id : null;
   // const userId = user?.id;
-  console.log("user", userid)
+  console.log("user", storedDetatis)
 
   const reset = () => {
     const today = new Date();
