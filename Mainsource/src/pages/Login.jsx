@@ -12,6 +12,7 @@ import axios from "axios";
 import { API_URL } from "../Config";
 import axiosInstance from "../axiosConfig.js";
 import ReCAPTCHA from "react-google-recaptcha";
+import api from "../api.js"
 
 const Login = () => {
   let navigate = useNavigate();
