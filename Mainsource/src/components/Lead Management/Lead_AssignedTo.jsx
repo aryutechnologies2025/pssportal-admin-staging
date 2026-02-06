@@ -904,6 +904,20 @@ const [showLeadTable, setShowLeadTable] = useState(false);
 
               <div className="grid grid-cols-1 gap-5">
 
+                  {/* employee */}
+                <div className="flex items-center justify-between gap-1 w-[50%]">
+                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
+                  <Dropdown
+                    value={selectedEmployeeDetails}
+                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
+                    options={selectedEmployee}
+                    optionLabel="label"
+                    placeholder="Select Employee"
+                    filter
+                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                </div>
+
                                {/* category */}
                 <div className="flex items-center justify-between gap-1 w-[50%]">
                   <label className="text-sm font-medium text-[#6B7280]">Category</label>
@@ -924,20 +938,6 @@ const [showLeadTable, setShowLeadTable] = useState(false);
                     filterPlaceholder="Search category"
 
                     panelClassName="text-sm"
-                  />
-                </div>
-
-                {/* employee */}
-                <div className="flex items-center justify-between gap-1 w-[50%]">
-                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
-                  <Dropdown
-                    value={selectedEmployeeDetails}
-                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
-                    options={selectedEmployee}
-                    optionLabel="label"
-                    placeholder="Select Employee"
-                    filter
-                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
 

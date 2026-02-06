@@ -866,7 +866,7 @@ const toggleRowSelection = (id) => {
     },
     {
       field :"category_name",
-      header: "Category Name",
+      header: "Platform ",
       body: (row) => Capitalise(row?.category?.name) || row.category_name || "-"
     },
     {
@@ -1158,9 +1158,9 @@ const statusDropdownOptions = [
   />
 </div>
 
-  {/* category */}
+  {/* platform */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                  <label className="text-sm font-medium text-[#6B7280]">Platform</label>
                   <Dropdown
                     className="h-10 px-3 rounded-md border"
                     // value={selectedCategory}
@@ -1432,7 +1432,7 @@ px-2 py-2 md:px-6 md:py-6">
                 </div> */}
 
     <div className="w-full flex justify-between items-center">
-                  <label className="text-sm font-medium">Category</label>
+                  <label className="text-sm font-medium">Platform</label>
                   <div className="w-[50%]">
                   <Dropdown
                     className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
@@ -1718,7 +1718,7 @@ px-2 py-2 md:px-6 md:py-6">
                 </div> */}
 
                       <div className="w-full flex justify-between items-center">
-                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                  <label className="text-sm font-medium text-[#6B7280]">Platform</label>
                   <div className="w-[50%]">
                   <Dropdown
                     className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"

@@ -425,7 +425,7 @@ const columns = [
               </p>
               <p>{">"}</p>
               
-              <p className="text-xs md:text-sm text-[#1ea600] cursor-pointer">Category</p>
+              <p className="text-xs md:text-sm text-[#1ea600] cursor-pointer">Platform</p>
             </div>
 
   {/* filter */}
@@ -503,7 +503,7 @@ const columns = [
                              onClick={openAddModal}
                              className="px-2 md:px-3 py-2   text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg"
                            >
-                             Add Category
+                             Add Platform
                            </button>
                          </div>
                        </div>
@@ -564,7 +564,7 @@ const columns = [
                   </div>
 
                   <div className="p-5">
-                    <p className="text-2xl md:text-3xl font-medium">Category</p>
+                    <p className="text-2xl md:text-3xl font-medium">Platform</p>
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Name <span className="text-red-500">*</span>
