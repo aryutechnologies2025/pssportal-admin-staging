@@ -239,7 +239,7 @@ const Lead_Sidebar = () => {
                   <TbCategory className="w-5 h-5 "/>
 
                   {!arrowClicked && (
-                    <p className="text-sm font-medium">Category</p>
+                    <p className="text-sm font-medium">Platform</p>
                   )}
                 </div>
               </div>

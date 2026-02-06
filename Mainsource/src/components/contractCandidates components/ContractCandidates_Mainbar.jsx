@@ -46,28 +46,28 @@ const ContractCandidates_Mainbar = () => {
   const joiningStatus = searchParams.get("joining_status");
 
 
-// useEffect(() => {
-//   const resolvedCompanyId = companyId ?? selectedCompanyfilter;
-//   const resolvedStartDate = startDate ?? filterStartDate;
-//   const resolvedEndDate = endDate ?? filterEndDate;
-//     const resolvedJoiningStatus =
-//     joiningStatus ?? filterCandidateStatus;
+useEffect(() => {
+  const resolvedCompanyId = companyId ?? selectedCompanyfilter;
+  const resolvedStartDate = startDate ?? filterStartDate;
+  const resolvedEndDate = endDate ?? filterEndDate;
+    const resolvedJoiningStatus =
+    joiningStatus ?? filterCandidateStatus;
   
 
-//   // sync UI
-//   if (companyId) setSelectedCompanyfilter(companyId);
-//   if (startDate) setFilterStartDate(startDate);
-//   if (endDate) setFilterEndDate(endDate);
-//   if (joiningStatus)
-//     setFilterCandidateStatus(joiningStatus);
+  // sync UI
+  if (companyId) setSelectedCompanyfilter(companyId);
+  if (startDate) setFilterStartDate(startDate);
+  if (endDate) setFilterEndDate(endDate);
+  if (joiningStatus)
+    setFilterCandidateStatus(joiningStatus);
 
-//   fetchContractCandidates({
-//     companyId: resolvedCompanyId,
-//     startDate: resolvedStartDate,
-//     endDate: resolvedEndDate,
-//     joiningStatus: resolvedJoiningStatus,
-//   });
-// }, [companyId, startDate, endDate, joiningStatus]);
+  fetchContractCandidates({
+    companyId: resolvedCompanyId,
+    startDate: resolvedStartDate,
+    endDate: resolvedEndDate,
+    joiningStatus: resolvedJoiningStatus,
+  });
+}, [companyId, startDate, endDate, joiningStatus]);
 
   // console.log("Psspermission", Psspermission);
 
@@ -280,6 +280,19 @@ const ContractCandidates_Mainbar = () => {
   // console.log("selectedEducation.......:....",selectedEducation)
   const [educationOptions, setEducationOptions] = useState([]);
   const [filterEducation, setFilterEducation] = useState("");
+const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
+  const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+  
+    const onRowsChange = (value) => {
+      setRows(value);
+      setPage(1); // Reset to first page when changing rows per page
+    };
+
 
   // Table states
   // const [page, setPage] = useState(1);
@@ -355,17 +368,26 @@ useEffect(() => {
   };
 
   // Reset filters
-  const handleResetFilter = () => {
-    const today = new Date().toISOString().split("T")[0];
-    setFilterStartDate(today);
-    setFilterEndDate(today);
-    setSelectedReference("");
-    setFilterEducation("");
-    setFilterInterviewStatus("");
-    setFilterCandidateStatus("");
-    fetchContractCandidates();
-    setFilterGender("");
-  };
+  // Reset filters
+const handleResetFilter = () => {
+  const today = new Date().toISOString().split("T")[0];
+
+  setFilterStartDate(today);
+  setFilterEndDate(today);
+  setSelectedReference("");
+  setFilterEducation("");
+  setFilterInterviewStatus("");
+  setFilterCandidateStatus("");
+  setSelectedCompanyfilter("");
+
+  //rest use for both navigation and auto fetch on filter change from dashboard
+  fetchContractCandidates({
+    companyId: "",
+    startDate: today,
+    endDate: today,
+  });
+};
+
 
   const fetchId = async (payload) => {
     // console.log("payload", payload);
@@ -509,6 +531,16 @@ console.log("existingCandidate", existingCandidate)
     }
   };
 
+    const handleCloseViewExistingCandidate = () => {
+    setIsExistingCandidateViewModalOpen(false);
+
+    reset();
+
+    setIsExistingCandidateViewModalOpen(false);
+    setViewExistingCandidate(null);
+  };
+
+
   const handleView = async (row) => {
     try {
       const res = await axiosInstance.get(
@@ -554,24 +586,24 @@ console.log("existingCandidate", existingCandidate)
   //   }
   // }, [ModalOpen]);
 
-  // const fetchCompanyList = async () => {
-  //   try {
-  //     const response = await axiosInstance.get("/api/company");
-  //     console.log("response check", response);
+    // const fetchCompanyList = async () => {
+    //   try {
+    //     const response = await axiosInstance.get("/api/company");
+    //     console.log("response check", response);
 
-  //     if (response.data.success) {
-  //       const companies = response.data.data.map((company) => ({
-  //         label: company.company_name,
-  //         value: company.id,
-  //       }));
-  //       // console.log("companies",companies)
+    //     if (response.data.success) {
+    //       const companies = response.data.data.map((company) => ({
+    //         label: company.company_name,
+    //         value: company.id,
+    //       }));
+    //       // console.log("companies",companies)
 
-  //       setCompanyOptions(companies);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching companies:", error);
-  //   }
-  // };
+    //       setCompanyOptions(companies);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching companies:", error);
+    //   }
+    // };
 
   //image and document state and handling
   const [photo, setPhoto] = useState(null);
@@ -904,17 +936,44 @@ console.log("existingCandidate", existingCandidate)
     }
   };
 
-  const fetchContractCandidates = async () => {
-    try {
-      setLoading(true);
+    const fetchContractCandidates = async (params = {}) => {
+  const finalCompanyId =
+    params.companyId ?? selectedCompanyfilter ?? "";
+
+  const finalStartDate =
+    params.startDate ?? filterStartDate;
+
+  const finalEndDate =
+    params.endDate ?? filterEndDate;
+
+   const finalJoiningStatus =
+    params.joiningStatus ?? filterCandidateStatus ?? "";
+
+  console.log("FINAL FETCH:", {
+    finalCompanyId,
+    finalStartDate,
+    finalEndDate,
+    finalJoiningStatus
+  });
+    setLoading(true);
+    try  {
+      
       const payload = {
-        startDate: filterStartDate,
-        endDate: filterEndDate,
-        reference: selectedReference,
-        education: filterEducation,
-        interview_status: filterInterviewStatus,
-        joining_status: filterCandidateStatus,
-      };
+      startDate: finalStartDate,
+      endDate: finalEndDate,
+      reference: selectedReference,
+      education: filterEducation,
+      interview_status: filterInterviewStatus,
+       joining_status: finalJoiningStatus || "",
+      company_id: finalCompanyId
+    };
+
+    // REMOVE undefined keys
+  Object.keys(payload).forEach(
+    (key) => payload[key] === undefined && delete payload[key]
+  ); 
+
+
       const queryParams = new URLSearchParams(payload).toString();
 
       const response = await axiosInstance.get(
@@ -955,10 +1014,10 @@ console.log("existingCandidate", existingCandidate)
     }
   };
 
-  useEffect(() => {
-    fetchContractCandidates();
-    // fetchCompanyList();
-  }, []);
+  // useEffect(() => {
+  //   fetchContractCandidates();
+  //   // fetchCompanyList();
+  // }, []);
 
   //   const companyDropdown = companyOptions;
   // const educationDropdown = educationOptions;
@@ -979,7 +1038,8 @@ console.log("existingCandidate", existingCandidate)
 
     try {
       await axiosInstance.delete(`${API_URL}api/contract-emp/delete/${id}`);
-      toast.success("Contract Candidates deleted successfully");
+      setTimeout(() => {
+      toast.success("Contract Candidates deleted successfully")},500);
       fetchContractCandidates();
     } catch (error) {
       toast.error("Failed to delete Contract Candidates");
@@ -995,6 +1055,11 @@ console.log("existingCandidate", existingCandidate)
     link.click();
     window.document.body.removeChild(link);
   };
+
+const getCompanyName = (companyId) => {
+  const company = companyOptions.find(com => com.value === String(companyId));
+  return company ? company.label : "-";
+};
 
   const getEducationName = (educationId) => {
     const edu = educationOptions.find((e) => e.value === educationId);
@@ -1026,6 +1091,12 @@ console.log("existingCandidate", existingCandidate)
       header: "Education",
       body: (row) => getEducationName(row.education_id),
     },
+
+     {
+      header: "Company",
+      body: (row) => getCompanyName(row.company_id),
+    },
+
     // {
     //   header: "Interview Status",
     //   field: "interview_Status",
@@ -1503,7 +1574,8 @@ console.log("createCandidate",createCandidate)
       // }
 
       /*  SUCCESS */
-      toast.success(editData ? "Updated Successfully" : "Created Successfully");
+      setTimeout(() => {
+      toast.success(editData ? "Updated Successfully" : "Created Successfully")},300);
       closeAddModal();
       fetchContractCandidates();
     }catch (error) {
@@ -1523,7 +1595,7 @@ console.log("createCandidate",createCandidate)
           300
         );
       }
-        // setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
+        setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
       } finally {
       setLoading(false);
     }
@@ -1718,6 +1790,27 @@ console.log("createCandidate",createCandidate)
                         className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
                       />
                     </div>
+
+                     {/* company */}
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Company
+                    </label>
+
+                    <div className="w-full">
+                      <Dropdown
+                        value={selectedCompanyfilter}
+                        onChange={(e) => setSelectedCompanyfilter(e.value)}
+                        options={companyOptions}
+                        optionLabel="label"
+                        placeholder="Select Company"
+                        filter
+                        className="w-full border border-gray-300 rounded-lg"
+                      />
+                    </div>
+                  </div>
+
 
                     {/* Buttons */}
                     <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
@@ -3012,6 +3105,192 @@ console.log("createCandidate",createCandidate)
                 </div>
               </div>
             )}
+
+
+          {isExistingCandidateViewModalOpen && viewExistingCandidate && (
+              <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
+                  {/* Close Button */}
+                  {/* <button
+                    onClick={closeViewModal}
+                    className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+                  >
+                    <IoIosCloseCircle size={28} />
+                  </button> */}
+
+                  {/* Title and profile picture */}
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6 border-b pb-4">
+
+                    {/* Title */}
+                    <h2 className="text-xl font-semibold text-[#1ea600]">
+                      View Existing Candidate Details
+                    </h2>
+
+                    {/* Profile Picture */}
+                    <div className="flex items-center gap-6">
+
+                      {viewExistingCandidate.profile_picture ? (
+                        <img
+                          src={
+                            viewExistingCandidate.profile_picture.startsWith("http")
+                              ? viewExistingCandidate.profile_picture
+                              : `${API_URL}${viewExistingCandidate.profile_picture}`
+                          }
+                          alt="Profile"
+                          className="w-20 h-24 rounded-md object-cover border-2 border-gray-200 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-20 h-24 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-dashed text-xs">
+                          No Photo
+                        </div>
+                      )}
+
+                      {/* Action Icons */}
+                      <div className="flex items-center gap-4">
+                        {/* Download */}
+                        {/* <button
+        title="Download"
+        onClick={() => handleDownload(viewRow)}
+        className="text-gray-500 hover:text-green-600"
+      >
+        <IoMdDownload size={26} />
+      </button> */}
+
+                        {/* Print */}
+                        <button
+                          title="Print"
+                          onClick={() => window.print()}
+                          className="text-gray-500 hover:text-green-600"
+                        >
+                          <TfiPrinter size={24} />
+                        </button>
+
+                        {/* Close */}
+                        <button
+                          title="Close"
+                          onClick={handleCloseViewExistingCandidate}
+                          className="text-gray-500 hover:text-red-500"
+                        >
+                          <IoIosCloseCircle size={26} />
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* body */}
+                  <div className="pr-2 overflow-y-auto ">
+                    {/* Candidate Info */}
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+
+                      <p>
+                        <b>Company:</b>{" "}
+                        {companyOptions.find(c => c.value === viewExistingCandidate.company_id)?.label || "-"}
+                      </p>
+
+                      <p>
+                        <b>Name:</b> {viewExistingCandidate.name}
+                      </p>
+                      <p>
+                        <b>Phone:</b> {viewExistingCandidate.phone_number}
+                      </p>
+
+                      <p>
+                        <b>Aadhar Number:</b> {viewExistingCandidate.aadhar_number}
+                      </p>
+
+                      <p>
+                        <b>Pan Number:</b> {viewExistingCandidate.pan_number || "-"}
+                      </p>
+                      <p>
+                        <b>Gender:</b> {viewExistingCandidate.gender || "-"}
+                      </p>
+                      <p>
+                        <b>Marital Status:</b> {viewExistingCandidate.marital_status || "-"}
+                      </p>
+                      <p>
+                        <b>Education:</b>{" "}
+                        {viewExistingCandidate.education?.eduction_name || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Date:</b> {formatToDDMMYYYY(viewExistingCandidate.interview_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Interview Status:</b>{" "}
+                        <span className="font-medium">
+                          {viewExistingCandidate.interview_status || "-"}
+                        </span>
+                      </p>
+
+                      <p>
+                        <b>Candidate Status:</b> {viewExistingCandidate.joining_status || "-"}
+                      </p>
+                      <p>
+                        <b>Joining Date:</b> {formatToDDMMYYYY(viewExistingCandidate.joining_date) || "-"}
+                      </p>
+                      <p>
+                        <b>Joined Date:</b>{" "}
+                        {viewExistingCandidate.joined_date
+                          ? formatToDDMMYYYY(viewExistingCandidate.joined_date)
+                          : "-"}
+                      </p>
+                      <p>
+                        <b>Reference:</b> {viewExistingCandidate.reference || "-"}
+                      </p>
+                      {viewExistingCandidate?.other_reference !== null && (
+                        <p>
+                          <b>Other Reference:</b> {viewExistingCandidate.other_reference || "-"}
+                        </p>
+                      )}
+
+
+                      <p className="col-span-2">
+                        <b>Notes:</b>{" "}
+                        {viewExistingCandidate.notes_details?.[0]?.notes ||
+                          "No notes available"}
+                      </p>
+
+                      <div className="col-span-2 pt-4">
+                        <b className="block mb-2 text-gray-700">Documents:</b>
+                        {/* Check if documents is an array and has items */}
+                        {viewExistingCandidate.documents && viewExistingCandidate.documents.length > 0 ? (
+                          <div className="space-y-2">
+                            {viewExistingCandidate.documents.map((doc, index) => (
+                              <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
+                                <span className="text-gray-600 truncate flex-1">
+                                  {doc.original_name || `Document ${index + 1}`}
+                                </span>
+
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
+                                    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+                                  >
+                                    View/Print
+                                  </button>
+                                  {/* <button
+    onClick={() =>
+      window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
+    }
+    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-green-100"
+  >
+    Download
+  </button> */}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic">No documents uploaded.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </>
       )}
@@ -3021,3 +3300,4 @@ console.log("createCandidate",createCandidate)
 };
 
 export default ContractCandidates_Mainbar;
+
