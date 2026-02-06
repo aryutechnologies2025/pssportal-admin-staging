@@ -10,7 +10,7 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import { Dropdown } from "primereact/dropdown";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate,useSearchParams } from "react-router-dom";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FiDownload, FiSearch } from "react-icons/fi";
@@ -34,10 +34,7 @@ import Footer from "../Footer";
 import { Capitalise } from "../../hooks/useCapitalise";
 import CameraPhoto from "../../Utils/cameraPhoto";
 
-const ContractCandidates_Mainbar = () => {
 
-
-  // console.log("Psspermission", Psspermission);
 
 const ContractCandidates_Mainbar = () => {
 
@@ -49,30 +46,30 @@ const ContractCandidates_Mainbar = () => {
   const joiningStatus = searchParams.get("joining_status");
 
 
-useEffect(() => {
-  const resolvedCompanyId = companyId ?? selectedCompanyfilter;
-  const resolvedStartDate = startDate ?? filterStartDate;
-  const resolvedEndDate = endDate ?? filterEndDate;
-    const resolvedJoiningStatus =
-    joiningStatus ?? filterCandidateStatus;
+// useEffect(() => {
+//   const resolvedCompanyId = companyId ?? selectedCompanyfilter;
+//   const resolvedStartDate = startDate ?? filterStartDate;
+//   const resolvedEndDate = endDate ?? filterEndDate;
+//     const resolvedJoiningStatus =
+//     joiningStatus ?? filterCandidateStatus;
   
 
-  // sync UI
-  if (companyId) setSelectedCompanyfilter(companyId);
-  if (startDate) setFilterStartDate(startDate);
-  if (endDate) setFilterEndDate(endDate);
-  if (joiningStatus)
-    setFilterCandidateStatus(joiningStatus);
+//   // sync UI
+//   if (companyId) setSelectedCompanyfilter(companyId);
+//   if (startDate) setFilterStartDate(startDate);
+//   if (endDate) setFilterEndDate(endDate);
+//   if (joiningStatus)
+//     setFilterCandidateStatus(joiningStatus);
 
-  fetchContractCandidates({
-    companyId: resolvedCompanyId,
-    startDate: resolvedStartDate,
-    endDate: resolvedEndDate,
-    joiningStatus: resolvedJoiningStatus,
-  });
-}, [companyId, startDate, endDate, joiningStatus]);
+//   fetchContractCandidates({
+//     companyId: resolvedCompanyId,
+//     startDate: resolvedStartDate,
+//     endDate: resolvedEndDate,
+//     joiningStatus: resolvedJoiningStatus,
+//   });
+// }, [companyId, startDate, endDate, joiningStatus]);
 
-
+  // console.log("Psspermission", Psspermission);
 
   // console.log("canCreate", canFilter);
   //navigation
@@ -85,7 +82,6 @@ useEffect(() => {
   const [backendValidationError, setBackendValidationError] = useState(null);
   const [employeeIds, setEmployeeIds] = useState([]);
 
-//auto fetch on filter change from dashboard
   const user = localStorage.getItem("pssuser");
   // console.log("user", user);
 
@@ -347,7 +343,7 @@ useEffect(() => {
 
   const handleApplyFilter = () => {
     //  filter logic here
-      fetchContractCandidates({
+    console.log({
       filterStartDate,
       filterEndDate,
       selectedReference,
@@ -359,25 +355,6 @@ useEffect(() => {
   };
 
   // Reset filters
-const handleResetFilter = () => {
-  const today = new Date().toISOString().split("T")[0];
-
-  setFilterStartDate(today);
-  setFilterEndDate(today);
-  setSelectedReference("");
-  setFilterEducation("");
-  setFilterInterviewStatus("");
-  setFilterCandidateStatus("");
-  setSelectedCompanyfilter("");
-
-  //rest use for both navigation and auto fetch on filter change from dashboard
-  fetchContractCandidates({
-    companyId: "",
-    startDate: today,
-    endDate: today,
-  });
-};
-
   const handleResetFilter = () => {
     const today = new Date().toISOString().split("T")[0];
     setFilterStartDate(today);
@@ -450,47 +427,6 @@ const handleResetFilter = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0],
   );
-
-  const [existingCandidate, setExistingCandidate] = useState(null);
-  const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
-  const [isExistingCandidateViewModalOpen, setIsExistingCandidateViewModalOpen] = useState(false);
-
-  const handleViewExisting = async (id) => {
-    try {
-
-      const response = await axiosInstance.get(
-        `/api/contract-emp/edit/${id}`
-      );
-
-      if (response.data?.success) {
-        setViewExistingCandidate(response.data.data);
-        setIsExistingCandidateViewModalOpen(true);
-      }
-
-
-
-    } catch (err) {
-      toast.error("Unable To Load Candidate Details");
-    }
-  };
-
-  const handleCloseViewExistingCandidate = () => {
-    setIsExistingCandidateViewModalOpen(false);
-
-    reset();
-
-    setIsExistingCandidateViewModalOpen(false);
-    setViewExistingCandidate(null);
-  };
-
-  const handleCloseAddCandidate = () => {
-    setIsAddCandidateOpen(false);
-
-    reset();
-    setExistingCandidate(null);
-    setIsAadharDuplicate(false);
-  };
-
 
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewRow, setViewRow] = useState(null);
@@ -968,51 +904,10 @@ console.log("existingCandidate", existingCandidate)
     }
   };
 
-  useEffect(() => {
-  if (companyId) {
-    setSelectedCompanyfilter(Number(companyId));
-  }
-}, [companyId]);
-
-
-  const fetchContractCandidates = async (params = {}) => {
-  const finalCompanyId =
-    params.companyId ?? selectedCompanyfilter ?? "";
-
-  const finalStartDate =
-    params.startDate ?? filterStartDate;
-
-  const finalEndDate =
-    params.endDate ?? filterEndDate;
-
-   const finalJoiningStatus =
-    params.joiningStatus ?? filterCandidateStatus ?? "";
-
-  console.log("FINAL FETCH:", {
-    finalCompanyId,
-    finalStartDate,
-    finalEndDate,
-    finalJoiningStatus
-  });
-    setLoading(true);
   const fetchContractCandidates = async () => {
     try {
       setLoading(true);
       const payload = {
-      startDate: finalStartDate,
-      endDate: finalEndDate,
-      reference: selectedReference,
-      education: filterEducation,
-      interview_status: filterInterviewStatus,
-       joining_status: finalJoiningStatus || "",
-      company_id: finalCompanyId
-    };
-
-    // REMOVE undefined keys
-  Object.keys(payload).forEach(
-    (key) => payload[key] === undefined && delete payload[key]
-  ); 
-
         startDate: filterStartDate,
         endDate: filterEndDate,
         reference: selectedReference,
@@ -1059,14 +954,6 @@ console.log("existingCandidate", existingCandidate)
       setLoading(false);
     }
   };
-
-
-useEffect(() => {
-  fetchCompanyList();
-}, []);
-
-
-  
 
   useEffect(() => {
     fetchContractCandidates();
@@ -1832,20 +1719,6 @@ console.log("createCandidate",createCandidate)
                       />
                     </div>
 
-                  {/* Buttons */}
-                  <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
-                    <button
-                      onClick={handleApplyFilter}
-                      className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
-                    >
-                      Apply
-                    </button>
-                    <button
-                      onClick={handleResetFilter}
-                      className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
-                    >
-                      Reset
-                    </button>
                     {/* Buttons */}
                     <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
                       <button
@@ -1868,8 +1741,8 @@ console.log("createCandidate",createCandidate)
 
             {/* Table Section */}
             <div className="flex flex-col  w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
-              <div className="datatable-container mt-4">
-                <div className="flex flex-col  md:flex-row md:items-center md:justify-between gap-3 mb-4">
+              <div className="datatable-container  mt-4">
+                <div className="flex flex-wrap md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
                     {/* <span className="font-semibold text-base text-[#6B7280]">
@@ -1881,7 +1754,7 @@ console.log("createCandidate",createCandidate)
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -1904,7 +1777,7 @@ console.log("createCandidate",createCandidate)
                       />
                     </div>
                   
-                      <div className="flex items-center">
+                      <div className="hidden md:flex items-center">
                         <button
                           onClick={openImportAddModal}
                           className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
@@ -1915,18 +1788,18 @@ console.log("createCandidate",createCandidate)
                    
 
                     {/* sample csv format download */}
-                    <div className="flex items-center">
+                    <div className="hidden md:flex items-center">
                       <button
                         onClick={handlCsvDownload}
                         className="
                           flex items-center gap-2
-                          px-5 py-2
-                          text-sm font-semibold
-                          text-green-700
-                          bg-green-100
-                          rounded-full
-                          hover:bg-green-200
-                          transition
+      px-5 md:px-2 py-2
+      text-xs md:text-sm font-semibold
+      text-green-700
+      bg-green-100
+      rounded-full
+      hover:bg-green-200
+      transition-all duration-200
                         "
                       >
                         <FiDownload className="text-lg" /> Demo CSV
@@ -1957,34 +1830,6 @@ console.log("createCandidate",createCandidate)
                     paginatorClassName="custom-paginator"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                     loading={loading}
-                  >
-                    {columns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                        style={col.style}
-                      />
-                    ))}
-                  </DataTable> */}
-                  <DataTable
-                    className="mt-8"
-                    value={columnData}
-                    paginator
-                    onPage={onPageChange}
-                    first={(page - 1) * rows}
-                    
-                    rows={rows}
-                   
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                    globalFilter={globalFilter}
-                    showGridlines
-                    resizableColumns
-                    loading={loading}
-                    paginatorClassName="custom-paginator"
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                   >
                     {columns.map((col, index) => (
                       <Column
