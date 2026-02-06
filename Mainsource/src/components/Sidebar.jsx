@@ -206,7 +206,7 @@ const Sidebar = () => {
               </div>
 
               {/* report */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
              
                 <div
                   onClick={() => toggleMenu("report")}
@@ -262,7 +262,7 @@ const Sidebar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* PSS Employee Dropdown */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>

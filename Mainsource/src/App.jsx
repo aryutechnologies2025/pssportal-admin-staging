@@ -63,6 +63,7 @@ import Lead_AssignedTo_Main from "./pages/Lead_AssignedTo_Main";
 import MonthlyWorkReport_Main from "./components/Daily work report component/MonthlyWorkReport_Main";
 import ProtectedRoute from "./auth/Protected_Route";
 import { useState } from "react";
+import PublicRoute from "./auth/PublicRoute ";
 
 function App() {
   const user = JSON.parse(localStorage.getItem("pssuser"));
@@ -78,7 +79,10 @@ function App() {
 
       <Routes>
         {/* PUBLIC */}
-        <Route path="/" element={<Login />} />
+
+        <Route element={<PublicRoute />}>
+          <Route path="/" element={<Login />} />
+        </Route>
         <Route path="*" element={<PageNotFound />} />
 
         {/* PROTECTED ROOT */}
@@ -120,7 +124,7 @@ function App() {
           <Route path="employeedetails/:id" element={<EmployeeDetails />} />
           <Route path="editemployeedetails/:id" element={<CreateEmployee />} />
           <Route path="attendance" element={<Attendance />} />
-          <Route path="boarding-point" element={<BoardingPoint_Main/>} />
+          <Route path="boarding-point" element={<BoardingPoint_Main />} />
           <Route path="education" element={<Education_Main />} />
           <Route
             path="monthlyattendancedetails"
@@ -153,16 +157,16 @@ function App() {
           <Route path="announcement" element={<Announcement_Mainbar_page />} />
           <Route path="contract-report" element={<Contract_Report_main />} />
           <Route path="relieved-contract" element={<Relieved_Main />} />
-          <Route path="monthly-workreport" element={<MonthlyWorkReport_Main />} />
-          
+          <Route
+            path="monthly-workreport"
+            element={<MonthlyWorkReport_Main />}
+          />
 
-
-
+          {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
 
 export default App;
