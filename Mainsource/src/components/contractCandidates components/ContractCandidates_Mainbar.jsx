@@ -9,7 +9,7 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import { Dropdown } from "primereact/dropdown";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FiSearch } from "react-icons/fi";
@@ -34,6 +34,40 @@ import { FiDownload } from "react-icons/fi";
 
 
 const ContractCandidates_Mainbar = () => {
+
+  const [searchParams] = useSearchParams();
+
+  const companyId = searchParams.get("company_id");
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
+  const joiningStatus = searchParams.get("joining_status");
+
+
+useEffect(() => {
+  const resolvedCompanyId = companyId ?? selectedCompanyfilter;
+  const resolvedStartDate = startDate ?? filterStartDate;
+  const resolvedEndDate = endDate ?? filterEndDate;
+    const resolvedJoiningStatus =
+    joiningStatus ?? filterCandidateStatus;
+  
+
+  // sync UI
+  if (companyId) setSelectedCompanyfilter(companyId);
+  if (startDate) setFilterStartDate(startDate);
+  if (endDate) setFilterEndDate(endDate);
+  if (joiningStatus)
+    setFilterCandidateStatus(joiningStatus);
+
+  fetchContractCandidates({
+    companyId: resolvedCompanyId,
+    startDate: resolvedStartDate,
+    endDate: resolvedEndDate,
+    joiningStatus: resolvedJoiningStatus,
+  });
+}, [companyId, startDate, endDate, joiningStatus]);
+
+
+
   //navigation
   const navigate = useNavigate();
   const [editData, setEditData] = useState(null);
@@ -50,6 +84,7 @@ const ContractCandidates_Mainbar = () => {
   const [companyOptions, setCompanyOptions] = useState([]);
   console.log("companyOptions : ", companyOptions);
 
+//auto fetch on filter change from dashboard
 
 
   const user = JSON.parse(localStorage.getItem("pssuser") || "null");
@@ -323,7 +358,7 @@ const ContractCandidates_Mainbar = () => {
 
   const handleApplyFilter = () => {
     //  filter logic here
-    console.log({
+      fetchContractCandidates({
       filterStartDate,
       filterEndDate,
       selectedReference,
@@ -336,17 +371,25 @@ const ContractCandidates_Mainbar = () => {
   };
 
   // Reset filters
-  const handleResetFilter = () => {
-    const today = new Date().toISOString().split("T")[0];
-    setFilterStartDate(today);
-    setFilterEndDate(today);
-    setSelectedReference("");
-    setFilterEducation("");
-    setFilterInterviewStatus("");
-    setFilterCandidateStatus("");
-    setSelectedCompanyfilter("");
-    fetchContractCandidates();
-  };
+const handleResetFilter = () => {
+  const today = new Date().toISOString().split("T")[0];
+
+  setFilterStartDate(today);
+  setFilterEndDate(today);
+  setSelectedReference("");
+  setFilterEducation("");
+  setFilterInterviewStatus("");
+  setFilterCandidateStatus("");
+  setSelectedCompanyfilter("");
+
+  //rest use for both navigation and auto fetch on filter change from dashboard
+  fetchContractCandidates({
+    companyId: "",
+    startDate: today,
+    endDate: today,
+  });
+};
+
 
   const fetchId = async (payload) => {
     console.log("payload", payload);
@@ -433,7 +476,7 @@ const ContractCandidates_Mainbar = () => {
   };
 
   const handleCloseViewExistingCandidate = () => {
-    setIsAddCandidateOpen(false);
+    setIsExistingCandidateViewModalOpen(false);
 
     reset();
 
@@ -898,18 +941,48 @@ const ContractCandidates_Mainbar = () => {
 
   };
 
-  const fetchContractCandidates = async () => {
+  useEffect(() => {
+  if (companyId) {
+    setSelectedCompanyfilter(Number(companyId));
+  }
+}, [companyId]);
+
+
+  const fetchContractCandidates = async (params = {}) => {
+  const finalCompanyId =
+    params.companyId ?? selectedCompanyfilter ?? "";
+
+  const finalStartDate =
+    params.startDate ?? filterStartDate;
+
+  const finalEndDate =
+    params.endDate ?? filterEndDate;
+
+   const finalJoiningStatus =
+    params.joiningStatus ?? filterCandidateStatus ?? "";
+
+  console.log("FINAL FETCH:", {
+    finalCompanyId,
+    finalStartDate,
+    finalEndDate,
+    finalJoiningStatus
+  });
     setLoading(true);
     try {
       const payload = {
-        startDate: filterStartDate,
-        endDate: filterEndDate,
-        reference: selectedReference,
-        education: filterEducation,
-        interview_status: filterInterviewStatus,
-        joining_status: filterCandidateStatus,
-        company_id: selectedCompanyfilter
-      };
+      startDate: finalStartDate,
+      endDate: finalEndDate,
+      reference: selectedReference,
+      education: filterEducation,
+      interview_status: filterInterviewStatus,
+       joining_status: finalJoiningStatus || "",
+      company_id: finalCompanyId
+    };
+
+    // REMOVE undefined keys
+  Object.keys(payload).forEach(
+    (key) => payload[key] === undefined && delete payload[key]
+  ); 
 
       const queryParams = new URLSearchParams(payload).toString();
 
@@ -943,10 +1016,13 @@ const ContractCandidates_Mainbar = () => {
   };
 
 
-  useEffect(() => {
-    fetchContractCandidates();
-    fetchCompanyList();
-  }, []);
+useEffect(() => {
+  fetchCompanyList();
+}, []);
+
+
+  
+
 
   // delete
   const handleDelete = async (id) => {
@@ -1546,7 +1622,7 @@ const ContractCandidates_Mainbar = () => {
                   {/* Buttons */}
                   <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
                     <button
-                      onClick={fetchContractCandidates}
+                      onClick={handleApplyFilter}
                       className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
                     >
                       Apply
@@ -1694,15 +1770,18 @@ const ContractCandidates_Mainbar = () => {
                     className="mt-8"
                     value={columnData}
                     paginator
-                    rows={rows}
                     onPage={onPageChange}
+                    first={(page - 1) * rows}
+                    
+                    rows={rows}
+                   
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
                     showGridlines
                     resizableColumns
                     loading={loading}
                     paginatorClassName="custom-paginator"
-                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
                   >
                     {columns.map((col, index) => (
