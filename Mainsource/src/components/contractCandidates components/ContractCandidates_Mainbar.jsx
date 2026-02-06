@@ -1451,7 +1451,8 @@ console.log("existingCandidate", existingCandidate)
       }
 
 
-// console.log("createCandidate",createCandidate)
+console.log("createCandidate",createCandidate)
+
       /* ---------------- API CALL ---------------- */
       const url = editData
         ? `/api/contract-emp/update/${editData.id}`
@@ -1707,9 +1708,9 @@ console.log("existingCandidate", existingCandidate)
           
 
             {/* Table Section */}
-            <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
+            <div className="flex flex-col  w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container mt-4">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <div className="flex flex-col  md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
                     {/* <span className="font-semibold text-base text-[#6B7280]">
@@ -1729,7 +1730,7 @@ console.log("existingCandidate", existingCandidate)
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-11">
+                  <div className="flex flex-wrap items-center gap-11">
                     {/* Search box */}
                     <div className="relative w-64">
                       <FiSearch
