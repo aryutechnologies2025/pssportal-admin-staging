@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
-
-// import DataTable from "datatables.net-react";
-// import DT from "datatables.net-dt";
-// import "datatables.net-responsive-dt/css/responsive.dataTables.css";
-// DataTable.use(DT);
 import { DataTable } from "primereact/datatable";
 import { Dropdown } from "primereact/dropdown";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import Loader from "../Loader";
-// import axios from "../../api/axiosConfig";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig.js";
-
 import { TfiPencilAlt } from "react-icons/tfi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import ReactDOM from "react-dom";
@@ -42,35 +35,28 @@ const Relieved_Detail = () => {
     const [department, setDepartment] = useState("");
     const [pssCompany, setPssCompany] = useState(null); // selected value
     const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
-
+      const [page, setPage] = useState(1);
+       const onPageChange = (e) => {
+        setPage(e.page + 1); // PrimeReact is 0-based
+        setRows(e.rows);
+    
+      };
+    
+      const onRowsChange = (value) => {
+        setRows(value);
+        setPage(1); // Reset to first page when changing rows per page
+      };
     // Fetch relieved from the API
 
     useEffect(() => {
         fetchRelieved();
     }, []);
 
-
-    const validateDepartment = (value) => {
-        const newErrors = { ...errors };
-        if (!value) {
-            newErrors.department = ["Department is required"];
-        } else {
-            delete newErrors.department;
-        }
-        setErrors(newErrors);
-    };
-
-    const validatePssCompany = (value) => {
-        const newErrors = { ...errors };
-        if (!value) {
-            newErrors.pssCompany = ["PSS Company is required"];
-        } else {
-            delete newErrors.pssCompany;
-        }
-        setErrors(newErrors);
-    };
-
-    const [role_name, setRole_Name] = useState("");
+   const [employeeName, setEmployeeName] = useState("");
+   const [company, setCompany] = useState("");
+   const [joinedDate, setJoinedDate] = useState("");
+   const [relievedDate, setRelievedDate] = useState("");
+   const [aadharNo, setAadharNo] = useState("");
 
     const [status, setStatus] = useState("");
     const [errors, setErrors] = useState({});
@@ -86,7 +72,7 @@ const Relieved_Detail = () => {
     const userid = parsedDetails ? parsedDetails.id : null;
     // console.log("userid.... : ",userid)
 
-    const [editingRoleId, setEditingRoleId] = useState(null);
+    const [editingRelievedId, setEditingRelievedId] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
     const [rows, setRows] = useState(10);
     const [globalFilter, setGlobalFilter] = useState("");
@@ -95,54 +81,31 @@ const Relieved_Detail = () => {
     const [viewContact, setViewContact] = useState(null);
     console.log("viewMessage", viewContact)
 
-
-    const openViewModal = async (row) => {
-        const response = await axiosInstance.get(
-            `${API_URL}api/role/edit/${row.id}`
-        );
-
-        if (response.data?.status) {
-            setViewContact(response.data.data);
-            setViewModalOpen(true);
-        }
-    };
+//    if (!relievedDetails.employeeName) newErrors.employeeName = "Employee name is required";
+// if (!relievedDetails.company) newErrors.company = "Company is required";
+// if (!relievedDetails.joinedDate) newErrors.joinedDate = "Joining date is required";
 
 
+    // list
     const fetchRelieved = async () => {
         try {
-            const response = await axiosInstance.get(`${API_URL}api/role`);
+            const response = await axiosInstance.get(`${API_URL}api/relieved`);
 
-            console.log("...RoleFetching All.... : ", response.data);
+            console.log("...Relieved Fetching All.... : ", response.data);
 
             if (response.data.status === true) {
                 // relieved
                 setRelieved(response.data.data || []);
                 setTotalRecords(response.data.data.length || 0);
 
-                // departments (from SAME API)
-                const activeDepartments = (response.data.departments || []).filter(
-                    (dept) => dept.status === "1" || dept.status === 1
-                );
 
-                setDepartments(activeDepartments);
-                //  set pss company options
-                const pssCompanyOptions = response.data.psscompany.map((company) => ({
-                    label: company.name,
-                    value: company.id,
-                }));
-
-                setPssCompanyOptions(pssCompanyOptions);
             } else {
                 setRelieved([]);
-                setPssCompanyOptions([]);
-                setDepartments([]);
                 setTotalRecords(0);
             }
         } catch (err) {
             console.error("Failed to fetch relieved", err);
             setRelieved([]);
-            setDepartments([]);
-            setPssCompanyOptions([]);
             setTotalRecords(0);
         } finally {
             setLoading(false);
@@ -162,122 +125,78 @@ const Relieved_Detail = () => {
 
         setTimeout(() => {
             setIsAddModalOpen(false);
-            setRole_Name("");
-            setDepartment("");
-            setPssCompany("");
+            setEmployeeName("");
+            setCompany("");
+            setJoinedDate("");
+            setRelievedDate("");
+            setAadharNo("");
             setStatus("");
             setErrors({});
         }, 300);
     };
 
 
-    const [roleDetails, setRoleDetails] = useState({
-        role_name: "",
-        department_id: "",
-        company_id: "",
+    const [relievedDetails, setRelievedDetails] = useState({
+        employeeName: "",
+        company: "",
+        joinedDate: "",
+        relievedDate: "",
+        aadharNo: "",
         status: "",
     });
 
+// edit
+const openEditModal = async (row) => {
+  try {
+    setEditingRelievedId(row.id);
+    setIsEditModalOpen(true);
+    setIsAnimating(true);
 
-    const openEditModal = async (row) => {
+    const response = await axiosInstance.get(
+      `${API_URL}api/relieved/edit/${row.id}`
+    );
 
+    if (response.data?.status === true) {
+      const data = response.data.data;
 
-        try {
-            setEditingRoleId(row.id);
-            setIsEditModalOpen(true);
-            setIsAnimating(true);
+      setRelievedDetails({
+        employeeName: data.employee_name || "",
+        company: data.company_name || "",
+        joinedDate: data.joining_date || "",
+        relievedDate: data.relieving_date || "",
+        aadharNo: data.aadhar_number || "",
+        status: data.status ?? "",
+      });
+    }
+  } catch (err) {
+    console.error("Edit fetch error:", err);
+    toast.error("Unable to fetch relieved details");
+  }
+};
 
-            const response = await axiosInstance.get(
-                `${API_URL}api/role/edit/${row.id}`
-            );
-
-            console.log("openEditModal response", response.data);
-
-            if (response.data?.status === true) {
-                const data = response.data.data;
-
-                console.log(
-                    "Edit dept value:",
-                    roleDetails.department_id,
-                    typeof roleDetails.department_id
-                );
-
-                //    setRoleDetails({
-                //   role_name: row.role_name,
-                // department_id: row.department_id?.toString(),
-                // company_id: row.company_id, 
-                // status: row.status?.toString(),
-                // });
-                setRoleDetails({
-                    role_name: data.role_name,
-                    department_id: Number(data.department_id), // ✅ force number
-                    company_id: data.company_id,
-                    status: Number(data.status),
-                });
-            }
-            else {
-                toast.error("Failed to load role details");
-            }
-        } catch (err) {
-            console.error("Edit fetch error:", err);
-            toast.error("Unable to fetch role details");
-        }
-    };
-    //   setIsEditModalOpen(true);
-    //   setTimeout(() => setIsAnimating(true), 10);
-    // };
-
+    
 
 
     const closeEditModal = () => {
         setIsAnimating(false);
-        setEditingRoleId(null);
-        setRoleDetails({ role_name: "", status: "", department_id: "", pssCompany: "" });
+        setEditingRelievedId(null);
+        setRelievedDetails({ employeeName: "", status: "", company: "", joinedDate: "" , relievedDate: "" ,aadharNo: "" });
         setErrors({});
         setTimeout(() => setIsEditModalOpen(false), 250);
-    };
-
-
-
-    const validateCreateForm = () => {
-        let newErrors = {};
-
-        if (!department) {
-            newErrors.department = ["Department is required"];
-        }
-
-        if (!pssCompany) {
-            newErrors.pssCompany = ["PSS Company is required"];
-        }
-
-        if (!role_name || role_name.trim() === "") {
-            newErrors.role_name = ["Role name is required"];
-        }
-
-        if (status === "" || status === null) {
-            newErrors.status = ["Status is required"];
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
     };
 
     const validateEditForm = () => {
         let newErrors = {};
 
-        if (!roleDetails.department_id) {
+        if (!relievedDetails.department_id) {
             newErrors.department = ["Department is required"];
         }
 
-        if (!roleDetails.company_id) {
-            newErrors.pssCompany = ["PSS Company is required"];
-        }
-
-        if (!roleDetails.role_name || roleDetails.role_name.trim() === "") {
+        if (!relievedDetails.role_name || relievedDetails.role_name.trim() === "") {
             newErrors.role_name = ["Role name is required"];
         }
 
-        if (roleDetails.status === "" || roleDetails.status === null) {
+        if (relievedDetails.status === "" || relievedDetails.status === null) {
             newErrors.status = ["Status is required"];
         }
 
@@ -285,99 +204,37 @@ const Relieved_Detail = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+// update
+const handleSave = async () => {
+  try {
+    const response = await axiosInstance.post(
+      `${API_URL}api/relieved/update/${editingRelievedId}`,
+      {
+        employee_name: relievedDetails.employeeName,
+        company_name: relievedDetails.company,
+        joining_date: relievedDetails.joinedDate,
+        relieving_date: relievedDetails.relievedDate,
+        aadhar_number: relievedDetails.aadharNo,
+        status: relievedDetails.status,
+        updated_by: userid,
+      }
+    );
+
+    if (response.data.status) {
+      toast.success("Relieved updated successfully");
+      closeEditModal();
+      fetchRelieved();
+    } else {
+      toast.error("Failed to update relieved");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Error updating relieved");
+  }
+};
 
 
 
-    const [submitting, setSubmitting] = useState(false);
-
-    const handlesubmit = async (e) => {
-        e.preventDefault();
-
-        if (!validateCreateForm()) {
-            return;
-        }
-
-        if (submitting) return;
-        setSubmitting(true);
-
-        try {
-            const formdata = {
-                company_id: pssCompany,
-                role_name,
-                status,
-                department_id: department,
-                created_by: userid,
-            };
-
-            const response = await axiosInstance.post(
-                `${API_URL}api/role/create`,
-                formdata
-            );
-
-            if (response.data.status === true || response.data.success === true) {
-                toast.success("Role created successfully");
-                fetchRelieved();
-                setDepartment("");
-                closeAddModal();
-            } else {
-                toast.error("Failed to create role");
-            }
-        } catch (err) {
-            toast.error("Error creating role");
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-
-
-    const handleSave = async () => {
-        if (!validateEditForm()) {
-            return;
-        }
-
-        try {
-            const response = await axiosInstance.post(
-                `${API_URL}api/role/update/${editingRoleId}`,
-                {
-                    role_name: roleDetails.role_name,
-                    department_id: roleDetails.department_id,
-                    company_id: roleDetails.company_id,
-                    status: roleDetails.status,
-                    updated_by: userid,
-                }
-            );
-
-            if (response.data.status || response.data.success) {
-                toast.success("Role updated successfully");
-                closeEditModal();
-                fetchRelieved();
-            } else {
-                toast.error("Failed to update role");
-            }
-        } catch (err) {
-            toast.error("Error updating role");
-        }
-    };
-
-
-
-    // Validate Role Name dynamically
-    const MAX_ROLE_NAME_LENGTH = 255;
-    const validateRoleName = (value) => {
-        const newErrors = { ...errors };
-        if (!value || value.trim() === "") {
-            newErrors.role_name = ["Role name is required"];
-        } else if (value.length > MAX_ROLE_NAME_LENGTH) {
-            newErrors.role_name = [
-                `Role name cannot exceed ${MAX_ROLE_NAME_LENGTH} characters`
-            ];
-        } else {
-            delete newErrors.role_name;
-        }
-
-        setErrors(newErrors);
-    };
 
     // Validate Status dynamically
     const validateStatus = (value) => {
@@ -390,58 +247,43 @@ const Relieved_Detail = () => {
         setErrors(newErrors);
     };
 
-
-
-
-
-    const deleteRelieved = (roleId) => {
+// delete
+    const deleteRelieved = (relievedId) => {
         Swal.fire({
             title: "Are you sure?",
-            text: "Do you want to delete this role?",
+            text: "Do you want to delete this relieved?",
             icon: "warning",
             showCancelButton: true,
 
             cancelButtonText: "Cancel",
             confirmButtonText: "Yes, delete it!",
 
-            //    confirmButtonColor: "#DF3A3A", 
-            // cancelButtonColor: "#ffffff", 
-
-            // customClass: {
-            //   popup: "custom-swal-popup",
-            //   title: "custom-swal-title",
-            //   htmlContainer: "custom-swal-text",
-            //   confirmButton: "custom-swal-confirm",
-            //   cancelButton: "custom-swal-cancel",
-            //   icon: "custom-swal-icon"
-            // }
         }).then((result) => {
             if (result.isConfirmed) {
 
-                axiosInstance.delete(`${API_URL}api/role/delete`, {
+
+                axiosInstance.delete(`${API_URL}api/relieved/delete/${relievedId}`, {
                     data: {
-                        record_id: roleId
+                        record_id: relievedId
                     }
                 })
                     .then((response) => {
                         console.log("Delete response:", response.data);
                         if (response.data.status === true || response.data.success === true) {
-                            toast.success("Role has been deleted.");
+                            toast.success("Relieved has been deleted.");
                             fetchRelieved(); // Refresh the relieved list
 
                         } else {
-                            Swal.fire("Error!", response.data.message || "Failed to delete role.", "error");
+                            Swal.fire("Error!", response.data.message || "Failed to delete relieved.", "error");
                         }
                     })
                     .catch((error) => {
-                        console.error("Error deleting role:", error);
-                        Swal.fire("Error!", "Failed to delete role.", "error");
+                        console.error("Error deleting relieved:", error);
+                        Swal.fire("Error!", "Failed to delete relieved.", "error");
                     });
             }
         });
     };
-
-
 
 
     const columns = [
@@ -453,31 +295,32 @@ const Relieved_Detail = () => {
         },
         {
             header: "Employee Name",
-            //   field: "role_name",
-            // body: (row) => row.role_name,
+              field: "employee_name",
+            body: (row) => row.employee_name || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Company",
-            //   body: (row) => row.department?.department_name || "-",
+              field: "company_name",
+            body: (row) => row.company_name || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Joining Date",
-            //   field: "role_name",
-            // body: (row) => row.role_name,
+              field: "joining_date",
+            body: (row) => row.joining_date || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Relieved Date",
-            //   field: "role_name",
-            // body: (row) => row.role_name,
+              field: "relieving_date",
+            body: (row) => row.relieving_date || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Aadhar Number",
-            //   field: "role_name",
-            // body: (row) => row.role_name,
+              field: "aadhar_number",
+            body: (row) => row.aadhar_number || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
@@ -536,13 +379,6 @@ const Relieved_Detail = () => {
 
     ];
 
-    // console.log("columns", columns)
-
-    const departmentOptions = departments.map((dept) => ({
-        label: dept.name || dept.department_name,
-        value: dept.id || dept._id.toString(),
-    }));
-
 
     let navigate = useNavigate();
 
@@ -584,14 +420,6 @@ px-2 py-2 md:px-6 md:py-6">
                                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                                     {/* Entries per page */}
                                     <div className="flex items-center gap-2">
-                                        {/* <span className="font-medium text-sm text-[#6B7280]">Show</span> */}
-                                        {/* <Dropdown
-                      value={rows}
-                      options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
-                      onChange={(e) => setRows(e.value)}
-                      className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                    /> */}
-
                                         <Dropdown
                                             value={rows}
                                             options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
@@ -634,6 +462,8 @@ px-2 py-2 md:px-6 md:py-6">
                                         value={relieved}
                                         paginator
                                         rows={rows}
+                                        first={(page - 1) * rows}
+                                        onPage={onPageChange}
                                         totalRecords={totalRecords}
                                         rowsPerPageOptions={[10, 25, 50, 100]}
                                         globalFilter={globalFilter}
@@ -858,15 +688,18 @@ px-2 py-2 md:px-6 md:py-6">
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="text"
-                                                            value={roleDetails.role_name}
+                                                            value={relievedDetails.employeeName}
+  onChange={(e) =>
+    setRelievedDetails({ ...relievedDetails, employeeName: e.target.value })
+  }
                                                             maxLength={255}
-                                                            onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
-                                                                    role_name: e.target.value,
-                                                                });
-                                                                validateRoleName(e.target.value);
-                                                            }}
+                                                            // onChange={(e) => {
+                                                            //     setRelievedDetails({
+                                                            //         ...relievedDetails,
+                                                            //         role_name: e.target.value,
+                                                            //     });
+                                                            //     validateRoleName(e.target.value);
+                                                            // }}
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -883,15 +716,18 @@ px-2 py-2 md:px-6 md:py-6">
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="text"
-                                                            value={roleDetails.role_name}
+                                                           value={relievedDetails.company}
+  onChange={(e) =>
+    setRelievedDetails({ ...relievedDetails, company: e.target.value })
+  }
                                                             maxLength={255}
-                                                            onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
-                                                                    role_name: e.target.value,
-                                                                });
-                                                                validateRoleName(e.target.value);
-                                                            }}
+                                                            // onChange={(e) => {
+                                                            //     setRelievedDetails({
+                                                            //         ...relievedDetails,
+                                                            //         role_name: e.target.value,
+                                                            //     });
+                                                            //     validateRoleName(e.target.value);
+                                                            // }}
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -908,15 +744,18 @@ px-2 py-2 md:px-6 md:py-6">
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="date"
-                                                            value={roleDetails.role_name}
+                                                            value={relievedDetails.joinedDate}
+  onChange={(e) =>
+    setRelievedDetails({ ...relievedDetails, joinedDate: e.target.value })
+  }
                                                             maxLength={255}
-                                                            onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
-                                                                    role_name: e.target.value,
-                                                                });
-                                                                validateRoleName(e.target.value);
-                                                            }}
+                                                            // onChange={(e) => {
+                                                            //     setRelievedDetails({
+                                                            //         ...relievedDetails,
+                                                            //         role_name: e.target.value,
+                                                            //     });
+                                                            //     validateRoleName(e.target.value);
+                                                            // }}
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -933,15 +772,18 @@ px-2 py-2 md:px-6 md:py-6">
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="date"
-                                                            value={roleDetails.role_name}
+                                                            value={relievedDetails.relievedDate}
+  onChange={(e) =>
+    setRelievedDetails({ ...relievedDetails, relievedDate: e.target.value })
+  }
                                                             maxLength={255}
-                                                            onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
-                                                                    role_name: e.target.value,
-                                                                });
-                                                                validateRoleName(e.target.value);
-                                                            }}
+                                                            // onChange={(e) => {
+                                                            //     setRelievedDetails({
+                                                            //         ...relievedDetails,
+                                                            //         role_name: e.target.value,
+                                                            //     });
+                                                            //     validateRoleName(e.target.value);
+                                                            // }}
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -958,15 +800,18 @@ px-2 py-2 md:px-6 md:py-6">
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="number"
-                                                            value={roleDetails.role_name}
+                                                            value={relievedDetails.aadharNo}
+  onChange={(e) =>
+    setRelievedDetails({ ...relievedDetails, aadharNo: e.target.value })
+  }
                                                             maxLength={255}
-                                                            onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
-                                                                    role_name: e.target.value,
-                                                                });
-                                                                validateRoleName(e.target.value);
-                                                            }}
+                                                            // onChange={(e) => {
+                                                            //     setRelievedDetails({
+                                                            //         ...relievedDetails,
+                                                            //         role_name: e.target.value,
+                                                            //     });
+                                                            //     validateRoleName(e.target.value);
+                                                            // }}
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -985,10 +830,10 @@ px-2 py-2 md:px-6 md:py-6">
                                                         <select
                                                             name="status"
                                                             id="status"
-                                                            value={roleDetails.status}
+                                                            value={relievedDetails.status}
                                                             onChange={(e) => {
-                                                                setRoleDetails({
-                                                                    ...roleDetails,
+                                                                setRelievedDetails({
+                                                                    ...relievedDetails,
                                                                     status: e.target.value,
                                                                 });
                                                                 validateStatus(e.target.value);
@@ -1042,23 +887,23 @@ px-2 py-2 md:px-6 md:py-6">
 
                                         <div className="flex justify-between">
                                             <span className="font-medium">Employee Name</span>
-                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                            <span>{viewContact.employee_name || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Company</span>
-                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                            <span>{viewContact.company_name || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Joining Date</span>
-                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                            <span>{viewContact.joining_date || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Relieved Date</span>
-                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                            <span>{viewContact.relieving_date || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Aadhar Number</span>
-                                            {/* <span>{viewContact.role_name || "-"}</span> */}
+                                            <span>{viewContact.aadhar_number || "-"}</span>
                                         </div>
 
                                         <div className="flex justify-between items-center">
