@@ -25,7 +25,6 @@ import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import DateFilterDropdown from "../dashboard components/DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
-import { set } from "zod";
 
 
 const Contract_Report_Detail = () => {
@@ -66,6 +65,7 @@ const Contract_Report_Detail = () => {
     const [todayContractAttendanceMissing, setTodayContractAttendanceMissing] = useState([]);
 
     const [dateFilter, setDateFilter] = useState("Today");
+
 
     const staticInterviewCandidates = [
         { company_name: "ARYU", total_employees: 10 },
@@ -199,22 +199,28 @@ const Contract_Report_Detail = () => {
             field: "company_name",
             header: "Company",
             body: (rowData) => (
-                <div >
-                    <p >{rowData.company_name || "-"}</p>
-
-                </div>
-            ),
+      <span
+        className="text-green-600 cursor-pointer hover:underline"
+        onClick={() =>
+          navigate(
+            `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&joining_status=joined`
+          )
+        }
+      >
+        {rowData.company_name}
+      </span>
+    ),
         },
-        {
-            field: "reference_name",
-            header: "Reference Name",
-            body: (rowData) => (
-                <div >
-                    <p >{rowData.reference_name || "-"}</p>
+        // {
+        //     field: "reference_name",
+        //     header: "Reference Name",
+        //     body: (rowData) => (
+        //         <div >
+        //             <p >{rowData.reference_name || "-"}</p>
 
-                </div>
-            ),
-        },
+        //         </div>
+        //     ),
+        // },
         {
             field: "count",
             header: "Count",
@@ -264,12 +270,18 @@ const Contract_Report_Detail = () => {
         {
             field: "company_name",
             header: "Company",
-            body: (rowData) => (
-                <div className="flex justify-center items-center">
-                    <p className=" ">{rowData.company_name}</p>
-
-                </div>
-            ),
+           body: (rowData) => (
+      <span
+        className="text-green-600 cursor-pointer hover:underline"
+        onClick={() =>
+          navigate(
+            `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`
+          )
+        }
+      >
+        {rowData.company_name}
+      </span>
+    ),
 
         },
         {
@@ -395,9 +407,6 @@ const Contract_Report_Detail = () => {
     const [fromDate, setFromDate] = useState(today);
     const [toDate, setToDate] = useState(today);
 
-    const [fromResetDate, setFromResetDate] = useState("");
-    const [toResetDate, setToResetDate] = useState("");
-
     const [dashboardData, setDashboardData] = useState([]);
 
     console.log("dashboardData", dashboardData);
@@ -446,41 +455,36 @@ const Contract_Report_Detail = () => {
 
 
     // Handle reset
-    // const handleReset = async () => {
-    //     const today = new Date();
-    //     const formattedDate = today.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const handleReset = async () => {
+        const today = new Date();
+        const formattedDate = today.toISOString().split("T")[0]; // "YYYY-MM-DD"
 
-    //     setFromDate("");
-    //     setToDate("");
+        setFromDate(formattedDate);
+        setToDate(formattedDate);
 
-    //     try {
-    //         setLoading(true);
+        try {
+            setLoading(true);
 
-    //         const res = await axiosInstance.get(`${API_URL}api/contract-dashboard`, {
-    //             params: {
-    //                 start_date: formattedDate,
-    //                 end_date: formattedDate,
-    //             },
-    //         });
+            const res = await axiosInstance.get(`${API_URL}api/contract-dashboard`, {
+                params: {
+                    start_date: formattedDate,
+                    end_date: formattedDate,
+                },
+            });
 
-    //         console.log("API Response:", res.data);
+            console.log("API Response:", res.data);
 
-    //         if (res.data.success) {
-    //             setDashboardData(res.data.data || []);
-    //         } else {
-    //             console.error(res.data.message);
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    const handleReset = () => {
-setFromDate(fromResetDate);
-setToDate(toResetDate);
-    }
+            if (res.data.success) {
+                setDashboardData(res.data.data || []);
+            } else {
+                console.error(res.data.message);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
