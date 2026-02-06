@@ -329,16 +329,14 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       }
 
       const payload = {
-        lead_status: STATUS_MAP[statusForm.status],
-        notes: statusForm.notes,
-        followup_status: statusForm.followUp === "yes" ? 1 : 0,
-        created_by: userid,
-        scheduled_date: statusForm.epoDate || null,
-        followup_date:
-    statusForm.followUp === "yes"
-      ? statusForm.followUpDate
-      : null,
-      };
+      
+      lead_status: statusForm.status, 
+      notes: statusForm.notes,
+      followup_status: statusForm.followUp === "yes" ? 1 : 0,
+      created_by: userid,
+      scheduled_date: statusForm.epoDate || null,
+      followup_date: statusForm.followUp === "yes" ? statusForm.followUpDate : null,
+    };
 
       if (statusForm.followUp === "yes") {
         payload.followup_date = statusForm.followUpDate;
@@ -524,7 +522,7 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
         category_id: lead.lead_category_id // Use the correct field
       }));
 
-        //  FRONTEND FILTERING
+        //   FILTERING
         data = applyFrontendFilters(data, appliedFilters);
 
         setLeads(data);
@@ -728,16 +726,18 @@ useEffect(() => {
   ) || "";
 };
 
-const normalizeLeadStatus = (status) => {
-  if (!status) return "";
+const normalizeLeadStatus = (statusFromBackend) => {
+  if (!statusFromBackend) return "open"; // default
 
-  
-  if (STATUS_MAP[status]) return status;
+  // Check if it's already a key 
+  if (STATUS_MAP[statusFromBackend]) return statusFromBackend;
 
- 
-  if (REVERSE_STATUS_MAP[status]) return REVERSE_STATUS_MAP[status];
+  // 2. If it's a label then find the key
+  const foundKey = Object.keys(STATUS_MAP).find(
+    (key) => STATUS_MAP[key].toLowerCase() === statusFromBackend.toLowerCase()
+  );
 
-  return "";
+  return foundKey || "open"; 
 };
 
 

@@ -505,79 +505,105 @@ const [showLeadTable, setShowLeadTable] = useState(false);
   };
 
   //  list
-  const fetchLead = async (customFilters) => {
-    const appliedFilters = customFilters ?? filters;
+  // const fetchLead = async (customFilters) => {
+  //   const appliedFilters = customFilters ?? filters;
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const params = {};
+  //     const params = {};
 
-      if (appliedFilters.gender)
-        params.gender = appliedFilters.gender.toLowerCase();
+  //     if (appliedFilters.gender)
+  //       params.gender = appliedFilters.gender.toLowerCase();
 
-      if (appliedFilters.platform)
-        params.platform = appliedFilters.platform.toLowerCase();
+  //     if (appliedFilters.platform)
+  //       params.platform = appliedFilters.platform.toLowerCase();
 
-      if (appliedFilters.city)
-        params.city = appliedFilters.city.toLowerCase();
+  //     if (appliedFilters.city)
+  //       params.city = appliedFilters.city.toLowerCase();
 
-      if (appliedFilters.from_date)
-        params.from_date = appliedFilters.from_date;
+  //     if (appliedFilters.from_date)
+  //       params.from_date = appliedFilters.from_date;
 
-      if (appliedFilters.to_date)
-        params.to_date = appliedFilters.to_date;
+  //     if (appliedFilters.to_date)
+  //       params.to_date = appliedFilters.to_date;
 
-      if (appliedFilters.category)
-        params.lead_category_id = appliedFilters.category;
+  //     if (appliedFilters.category)
+  //       params.lead_category_id = appliedFilters.category;
 
-      if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
+  //     if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
-      const res = await axiosInstance.get(
-        // `${API_URL}api/lead-management`,
-        // { params }
-      );
+  //     const res = await axiosInstance.get(
+  //       // `${API_URL}api/lead-management`,
+  //       // { params }
+  //     );
 
-      console.log("API LIST : ", res.data.data);
+  //     console.log("API LIST : ", res.data.data);
 
-      if (res.data.success) {
-        let data = res.data.data || [];
+  //     if (res.data.success) {
+  //       let data = res.data.data || [];
 
-        // Normalize status values for consistent display
-        data = data.map(lead => ({
-          ...lead,
-          status: lead.status?.toString() || "", // Ensure status is string
-          lead_status: normalizeLeadStatus(lead.lead_status),
-          category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
-          category_id: lead.lead_category_id // Use the correct field
-        }));
+  //       // Normalize status values for consistent display
+  //       data = data.map(lead => ({
+  //         ...lead,
+  //         status: lead.status?.toString() || "", // Ensure status is string
+  //         lead_status: normalizeLeadStatus(lead.lead_status),
+  //         category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
+  //         category_id: lead.lead_category_id // Use the correct field
+  //       }));
 
-        //  FRONTEND FILTERING
-        data = applyFrontendFilters(data, appliedFilters);
+  //       //  FRONTEND FILTERING
+  //       data = applyFrontendFilters(data, appliedFilters);
 
-        setLeads(data);
-        setTotalRecords(data.length);
-        setGenderOptions(res.data.gender || []);
-        setPlatformOptions(res.data.platforms || {});
-        setCityOptions(res.data.cities || []);
-        // setCategoryOptions(res.data.categories || []);
-        // Set category options from response
-        // if (res.data.lead_category) {
-        //   const categoryOptions = res.data.lead_category.map(cat => ({
-        //     label: cat.name,
-        //     value: cat.id
-        //   }));
-        //   setCategoryOptions(categoryOptions);
-        // }
+  //       setLeads(data);
+  //       setTotalRecords(data.length);
+  //       setGenderOptions(res.data.gender || []);
+  //       setPlatformOptions(res.data.platforms || {});
+  //       setCityOptions(res.data.cities || []);
+  //       // setCategoryOptions(res.data.categories || []);
+  //       // Set category options from response
+  //       // if (res.data.lead_category) {
+  //       //   const categoryOptions = res.data.lead_category.map(cat => ({
+  //       //     label: cat.name,
+  //       //     value: cat.id
+  //       //   }));
+  //       //   setCategoryOptions(categoryOptions);
+  //       // }
 
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed To Fetch Leads");
-    } finally {
-      setLoading(false);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed To Fetch Leads");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const fetchLead = async (appliedFilters) => {
+  setLoading(true);
+  try {
+    // Simulated API Logic
+    let data = dummyLeads; 
+
+    // 1. Test your normalization logic
+    data = data.map(lead => ({
+      ...lead,
+      lead_status: normalizeLeadStatus(lead.lead_status),
+    }));
+
+    // 2. Test your Frontend Filtering
+    if (appliedFilters?.city) {
+        data = data.filter(item => item.city.toLowerCase() === appliedFilters.city.toLowerCase());
     }
-  };
+
+    setLeads(data);
+    setTotalRecords(data.length);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
@@ -821,51 +847,74 @@ const [showLeadTable, setShowLeadTable] = useState(false);
 
 
   // column
-  const columns = [
-
-    // {
-    //   field: "select",
-    //   header: () => (
-    //     <input
-    //       type="checkbox"
-    //       checked={allSelected}
-    //       onClick={(e) => e.stopPropagation()}
-    //       onChange={(e) => toggleSelectAll(e.target.checked)}
-    //     />
-    //   ),
-    //   body: (row) => (
-    //     <input
-    //       type="checkbox"
-    //       checked={selectedRows.includes(row.id)}
-    //       onClick={(e) => e.stopPropagation()}
-    //       onChange={() => toggleRowSelection(row.id)}
-    //     />
-    //   ),
-    //   style: { width: "50px", textAlign: "center" },
-    //   fixed: true
-    // },
+ // 1. Updated Columns Definition
+const columns = [
+  {
+    field: "lead_info",
+    header: "Lead Details",
+    body: (row) => (
+      <div className="flex items-center gap-4">
+        <span className="font-semibold text-gray-800">{Capitalise(row.full_name)}</span>
+        <span className="text-gray-500">-</span>
+        <span className="text-gray-600">{row.phone}</span>
+        {row.isAssigned && (
+          <span className="ml-2 px-2 py-0.5 text-[10px] bg-orange-100 text-orange-600 rounded-full border border-orange-200">
+            Already Allocated
+          </span>
+        )}
+      </div>
+    ),
+  },
+];
 
 
-    {
-      field: "sno",
-      header: "S.No",
-      body: (_, options) => options.rowIndex + 1,
-      fixed: true,
-    },
+{/* Select Leads Table */}
+<div className="mt-6 rounded-xl bg-white shadow p-4 transition-all w-full max-w-2xl">
+  <div className="flex justify-between items-center mb-4">
+    <h3 className="text-md font-bold text-gray-700">Assign Leads</h3>
+    <div className="flex gap-2">
+       <button 
+         onClick={() => setSelectedLeads(leads.filter(l => !l.isAssigned))}
+         className="text-xs text-blue-600 hover:underline"
+       >
+         Select All
+       </button>
+       <span className="text-gray-300">|</span>
+       <button 
+         onClick={() => setSelectedLeads([])}
+         className="text-xs text-red-500 hover:underline"
+       >
+         Clear All
+       </button>
+    </div>
+  </div>
+
+  <DataTable
+    value={leads}
+    selection={selectedLeads}
+    onSelectionChange={(e) => setSelectedLeads(e.value)}
+    dataKey="id"
+    responsiveLayout="scroll"
+    showHeaders={false} // Matches your sketch (minimalist style)
+    className="compact-assign-table"
+    // Logic to highlight already allocated leads in Orange
+    rowClassName={(row) => ({
+      'bg-orange-50 border-l-4 border-orange-400': row.isAssigned,
+      'hover:bg-gray-50': !row.isAssigned
+    })}
+  >
+    <Column
+      selectionMode="multiple"
+      headerStyle={{ width: "3rem" }}
+      // Disable checkbox if lead is already assigned
+      selectionDisabled={(row) => row.isAssigned}
+    />
     
-    {
-          field: "full_name",
-          header: "Full Name",
-          body: (row) => Capitalise(row.full_name),
-        },
-
-        {
-      field: "phone",
-      header: "Phone"
-    },
-
-  ];
-
+    {columns.map((col, i) => (
+      <Column key={i} {...col} />
+    ))}
+  </DataTable>
+</div>
 
 
   const statusDropdownOptions = [
@@ -876,6 +925,59 @@ const [showLeadTable, setShowLeadTable] = useState(false);
     { label: "Follow Up", value: "follow_up" },
     { label: "Not Picked", value: "not_picked" },
   ];
+
+  const dummyLeads = [
+  {
+    id: 1,
+    full_name: "John Doe",
+    phone: "9876543210",
+    lead_status: "open",
+    isAssigned: false, // Normal Row
+    city: "Chennai",
+    age: 24,
+    lead_category_id: 5
+  },
+  {
+    id: 2,
+    full_name: "Anitha Raman",
+    phone: "9123456789",
+    lead_status: "Interested / scheduled",
+    isAssigned: true, // Should show Orange
+    city: "Bangalore",
+    age: 30,
+    lead_category_id: 5
+  },
+  {
+    id: 3,
+    full_name: "Suresh Raina",
+    phone: "9988776655",
+    lead_status: "follow_up",
+    isAssigned: false, // Normal Row
+    city: "Chennai",
+    age: 28,
+    lead_category_id: 5
+  },
+  {
+    id: 4,
+    full_name: "Priya Lakshmi",
+    phone: "8877665544",
+    lead_status: "not_picked",
+    isAssigned: true, // Should show Orange
+    city: "Coimbatore",
+    age: 22,
+    lead_category_id: 5
+  },
+  {
+    id: 5,
+    full_name: "Vikram Seth",
+    phone: "7766554433",
+    lead_status: "joined",
+    isAssigned: false, // Normal Row
+    city: "Chennai",
+    age: 35,
+    lead_category_id: 5
+  }
+];
 
 
   return (
@@ -941,84 +1043,6 @@ const [showLeadTable, setShowLeadTable] = useState(false);
                   />
                 </div>
 
-                {/* Gender */}
-                {/* <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Gender</label>
-                  <select
-                    className="h-10 px-3 rounded-md border"
-                    value={filters.gender}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, gender: e.target.value }))
-                    }
-                  >
-                    <option value="">Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div> */}
-
-
-                {/* Platform */}
-                {/* <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Platform</label>
-                  <select
-                    className="h-10 px-3 rounded-md border"
-                    value={filters.platform}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, platform: e.target.value }))
-                    }
-                  >
-                    <option value="">Select</option>
-                    {Object.entries(platformOptions).map(([key, label]) => (
-                      <option key={key} value={key}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-
-
-                </div> */}
-
-                {/* age */}
-                {/* <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Age</label>
-                  <select
-                    className="h-10 px-3 rounded-md border"
-                    value={filters.age}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, age: e.target.value }))
-                    }
-                  >
-                    <option value="">Select Age</option>
-                    <option value="18-25">18 - 25</option>
-                    <option value="26-35">26 - 35</option>
-                    <option value="36-45">36 - 45</option>
-                    <option value="46+">46+</option>
-                  </select>
-
-
-                </div> */}
-
-                {/* city */}
-                {/* <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">City</label>
-
-                  <Dropdown
-                    value={filters.city}
-                    options={cityDropdownOptions}
-                    onChange={(e) =>
-                      setFilters(prev => ({ ...prev, city: e.value }))
-                    }
-                    placeholder="Select City"
-                    filter
-                    filterPlaceholder="Search city"
-                    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
-                    panelClassName="text-sm"
-                  />
-                </div> */}
-
-
                  {/* Start Date */}
                 <div className="flex items-center justify-between gap-1 w-[50%]">
                   <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
@@ -1069,7 +1093,7 @@ const [showLeadTable, setShowLeadTable] = useState(false);
 
 
 {/* {showLeadTable && ( */}
-  <div className="mt-6 rounded-xl bg-white shadow p-4 transition-all w-[70%]">
+  <div className="mt-6 rounded-xl bg-white shadow p-4 transition-all">
 
     <h3 className="text-md font-medium mb-3 text-gray-700">
       Select Leads to Assign
