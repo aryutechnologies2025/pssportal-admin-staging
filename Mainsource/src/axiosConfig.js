@@ -19,9 +19,10 @@
 
 
 import axios from "axios";
+import { API_URL } from "./Config";
 
 const axiosInstance = axios.create({
-  baseURL: "http://192.168.0.117:8000/",
+  baseURL: API_URL,
   withCredentials: false, // ❌ Don't use credentials with tokens
   headers: {
     "Content-Type": "application/json",

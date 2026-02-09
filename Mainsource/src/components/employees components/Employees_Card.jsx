@@ -374,6 +374,52 @@ const Employees_Card = () => {
     }
   };
 
+  const handleAssignLeadChange = async (id, assigned, checked) => {
+    console.log("id:", id, "assigned:", assigned, "checked:", checked);
+
+    try {
+      const payload =
+        assigned === "internal"
+          ? {
+              emp_lead_assign: checked ? 1 : 0,
+              // job_form_ext_referal: 0,
+              assigned:  "internal",
+            }
+          : {
+              // job_form_ext_referal: checked ? 1 : 0,
+              // job_form_referal: 0,
+                emp_lead_assign: checked ? 1 : 0,
+
+              assigned: "external" ,
+            };
+
+      const res = await axiosInstance.post(
+        `/api/employees/lead-assign-emp/${id}`,
+        payload,
+      );
+
+      if (res.status === 200) {
+        toast.success("Lead assignment updated successfully!");
+
+        setEmployeeData((prev) =>
+          prev.map((emp) =>
+            emp.id === id
+              ? {
+                  ...emp,
+                  emp_lead_assign: payload.emp_lead_assign,
+                  assigned: payload.assigned,
+                }
+              : emp,
+          ),
+        );
+      }
+
+      fetchEmployees();
+    } catch (error) {
+      console.error("Failed to update reference:", error);
+    }
+  };
+
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedCompanies, setSelectedCompanies] = useState([]);
@@ -542,6 +588,34 @@ const Employees_Card = () => {
           
               onChange={(e) =>
                 handleReferenceChange(row.id, "internal", e.target.checked)
+              }
+              className="w-4 h-4 cursor-pointer accent-green-600"
+            />
+          </div>
+        );
+      },
+      style: { textAlign: "center", width: "100px" },
+    },
+
+      {
+      field: "lead_allocation",
+      header: "Lead Allocation",
+      body: (row) => {
+       
+        return (
+          <div
+            className="flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            <input
+              type="checkbox"
+             checked={row.lead_allocation == "1"}
+
+              onClick={(e) => e.stopPropagation()}
+          
+              onChange={(e) =>
+                handleReferenceChange(row.id, "lead_allocation", e.target.checked)
               }
               className="w-4 h-4 cursor-pointer accent-green-600"
             />
