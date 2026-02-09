@@ -60,21 +60,17 @@ const LeadAssignedTo = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isViewAnimating, setIsViewAnimating] = useState(false);
   const [viewContact, setViewContact] = useState(null);
-  const [genderOptions, setGenderOptions] = useState([]);
-  const [platformOptions, setPlatformOptions] = useState({});
+  
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isViewStatusOpen, setIsViewStatusOpen] = useState(false);
   const [viewStatus, setViewStatus] = useState(null);
-  const [cityOptions, setCityOptions] = useState([]);
+  
+
 
   const today = new Date().toISOString().split("T")[0];
     const [filters, setFilters] = useState({
       from_date: today,
       to_date: today,
-      gender: "",
-      platform: "",
-      age: "",
-      city: "",
       category:null,
       lead_status:""
     });
@@ -97,12 +93,28 @@ const dummyEmployees = [
   filters.to_date &&
   filters.lead_status;
 
-
-
   // lead for allocation
   const [selectedLeads, setSelectedLeads] = useState([]);
 const [showLeadTable, setShowLeadTable] = useState(false);
  const [selectedRows, setSelectedRows] = useState([]);
+
+  const selectableLeads = leads.filter(l => !l.isAssigned);
+
+  const handleToggle = (id) => {
+    setSelectedLeads(prev =>
+      prev.includes(id)
+        ? prev.filter(x => x !== id)
+        : [...prev, id]
+    );
+  };
+
+  const selectAll = () => {
+    setSelectedLeads(selectableLeads.map(l => l.id));
+  };
+
+  const clearAll = () => {
+    setSelectedLeads([]);
+  };
   
  useEffect(() => {
   if (isFilterComplete) {
@@ -120,14 +132,7 @@ const [showLeadTable, setShowLeadTable] = useState(false);
   selectedEmployeeDetails
 ]);
 
-  const cityDropdownOptions = cityOptions.map(city => ({
-    label: city,
-    value: city
-  }));
-
   console.log("viewStatus", viewStatus);
-
-
 
   const [statusForm, setStatusForm] = useState({
     status: "",
@@ -137,31 +142,14 @@ const [showLeadTable, setShowLeadTable] = useState(false);
     epoDate: ""
   });
 
-
-
-
-  const validateImport = () => {
-    let newErrors = {};
-
-    if (!selectedFiles || selectedFiles.length === 0) {
-      newErrors.file = "Please select at least one file";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
- 
 
   // apply filter
   const handleApplyFilter = () => {
     fetchLead(filters);
   };
   // console.log("filter check", handleApplyFilter)
-
 
   const handleResetFilter = () => {
     const reset = {
@@ -1090,154 +1078,81 @@ const columns = [
                 </div>
               </div>
 
+              </div>
+
 
 
 {/* {showLeadTable && ( */}
-  <div className="mt-6 rounded-xl bg-white shadow p-4 transition-all">
-
-    <h3 className="text-md font-medium mb-3 text-gray-700">
-      Select Leads to Assign
-    </h3>
-
-    <DataTable
-      value={leads}
-      selection={selectedLeads}
-      onSelectionChange={(e) => setSelectedLeads(e.value)}
-      dataKey="id"
-      rowClassName={(row) =>
-        row.isAssigned ? "bg-red-50 text-red-500" : ""
-      }
-    >
-      <Column
-        selectionMode="multiple"
-        headerStyle={{ width: "50px" }}
-        selectionDisabled={(row) => row.isAssigned}
-      />
-
-      {columns.map((col, i) => (
-        <Column key={i} {...col} />
-      ))}
-    </DataTable>
-
-  </div>
-{/* )} */}
-              
-
-              
-                              {/* Buttons */}
-                <div className="flex gap-3 mt-5 md:mt-10 justify-end items-end ">
-                  <button
-                    // onClick={handleApplyFilter}
-                    className="h-10 w-20 rounded-lg bg-[#1ea600] text-white font-medium hover:bg-[#33cd10]"
-                  >
-                    Submit
-                  </button>
-
-                  {/* <button
-                    onClick={handleResetFilter}
-                    className="h-10 w-20 rounded-lg bg-gray-100 text-[#7C7C7C] font-medium hover:bg-gray-200"
-                  >
-                    Reset
-                  </button> */}
-                </div>
-            </div>
-
-            {/* <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
+   {/* Header */}
+               <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
 px-2 py-2 md:px-6 md:py-6">
-              <div className="datatable-container mt-4">
-                <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-3 mb-4">
-                
-                  <div className="flex items-center gap-5">
-                    <div>
-                      <Dropdown
-                        value={rows}
-                        options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                        onChange={(e) => setRows(e.value)}
-                        className="w-20 border"
-                      />
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-semibold text-gray-700">
+          Assign Leads
+        </h3>
+        <div className="flex gap-3 text-sm">
+          <button onClick={selectAll} className="text-green-600 hover:underline">
+            Select All
+          </button>
+          <button onClick={clearAll} className="text-red-500 hover:underline">
+            Clear All
+          </button>
+        </div>
+      </div>
 
-                      <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
+      {/* Lead Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+        {leads.map(lead => {
+          const checked = selectedLeads.includes(lead.id);
 
-                    </div>
-                    <div className="relative inline-block">
-                      <MultiSelect
-                        ref={multiSelectRef}
-                        value={visibleColumnFields}
-                        options={columns}
-                        optionLabel="header"
-                        optionValue="field"
-                        onChange={onColumnToggle}
-                        display="checkbox"
-                        className="absolute opacity-0 pointer-events-none"
-                        style={{ bottom: 0, left: 0, width: '100%' }}
-                        panelClassName="custom-column-panel"
-                        // Disable checkbox for fixed columns
-                        optionDisabled={(option) => option.fixed}
-                      />
+          return (
+            <div
+              key={lead.id}
+              className={`flex items-center gap-3 p-3 rounded-lg border 
+                ${lead.isAssigned
+                  ? "bg-orange-100 border-orange-400 text-orange-700"
+                  : "bg-gray-50 hover:bg-gray-100"}
+              `}
+            >
+              <input
+                type="checkbox"
+                disabled={lead.isAssigned}
+                checked={checked}
+                onChange={() => handleToggle(lead.id)}
+              />
 
-                      <p
-                        onClick={() => multiSelectRef.current.show()}
-                        className="flex items-center justify-between gap-2 
-                                 min-w-56 px-3 py-2 
-                                 border border-gray-300 rounded-md 
-                                 cursor-pointer text-[#7c7c7c]
-                                 hover:bg-gray-100 transition-all text-sm"
-                      >
-                        Customize
-                        <img src={customise} alt="columns" className="w-5 h-5" />
-                      </p>
-
-
-                    </div>
-                  </div>
-
-
-                </div>
-                <div className="table-scroll-container" id="datatable">
-                  <DataTable
-                    className="mt-8"
-                    value={leads}
-                    selection={selectedLeads}
-                    onSelectionChange={(e) => setSelectedLeads(e.value)}
-                    dataKey="id"
-                    // onRowClick={(e) => e.originalEvent.stopPropagation()}
-                    paginator
-                    rows={rows}
-                    totalRecords={totalRecords}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                    globalFilter={globalFilter}
-                    showGridlines
-                    resizableColumns
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                    paginatorClassName="custom-paginator"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                    loading={loading}
-                  >
-                    <Column selectionMode="multiple" headerStyle={{ width: '50px' }} />
-                    {dynamicColumns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                        style={col.style}
-                      />
-                    ))}
-                  </DataTable>
-
-                </div>
+              <div className="text-sm">
+                <p className="font-medium">{lead.full_name}</p>
+                <p className="text-gray-500">{lead.phone}</p>
               </div>
-            </div> */}
 
-           
+              {lead.isAssigned && (
+                <span className="ml-auto text-xs font-semibold">
+                  Allocated
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
-          </div>
-        </>
-      )
+      {/* Submit */}
+      <div className="flex justify-end mt-6">
+        <button
+          disabled={selectedLeads.length === 0}
+          className="px-6 py-2 rounded-lg bg-green-600 text-white disabled:bg-gray-300"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+    </div>
+    </>
+    )
       }
       <Footer />
-    </div >
+      </div>
   );
 };
 
