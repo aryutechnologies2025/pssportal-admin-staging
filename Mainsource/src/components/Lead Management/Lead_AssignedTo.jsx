@@ -812,25 +812,25 @@ const [showLeadTable, setShowLeadTable] = useState(false);
  
 
 
-  const allSelected =
-    leads.length > 0 && selectedRows.length === leads.length;
+  // const allSelected =
+  //   leads.length > 0 && selectedRows.length === leads.length;
 
-  const toggleSelectAll = () => {
-    if (selectedRows.length === leads.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(leads.map(row => row.id));
-    }
-  };
+  // const toggleSelectAll = () => {
+  //   if (selectedRows.length === leads.length) {
+  //     setSelectedRows([]);
+  //   } else {
+  //     setSelectedRows(leads.map(row => row.id));
+  //   }
+  // };
 
 
-  const toggleRowSelection = (id) => {
-    setSelectedRows(prev =>
-      prev.includes(id)
-        ? prev.filter(rowId => rowId !== id)
-        : [...prev, id]
-    );
-  };
+  // const toggleRowSelection = (id) => {
+  //   setSelectedRows(prev =>
+  //     prev.includes(id)
+  //       ? prev.filter(rowId => rowId !== id)
+  //       : [...prev, id]
+  //   );
+  // };
 
 
 
@@ -933,7 +933,9 @@ const columns = [
     isAssigned: true, // Should show Orange
     city: "Bangalore",
     age: 30,
-    lead_category_id: 5
+    lead_category_id: 5,
+    employee_name: "Anitha"
+
   },
   {
     id: 3,
@@ -953,7 +955,8 @@ const columns = [
     isAssigned: true, // Should show Orange
     city: "Coimbatore",
     age: 22,
-    lead_category_id: 5
+    lead_category_id: 5,
+    employee_name: "Priya"
   },
   {
     id: 5,
@@ -986,7 +989,7 @@ const columns = [
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">Assigned To</p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">Assigned To </p>
             </div>
 
             {/* Filter Section */}
@@ -1128,10 +1131,14 @@ px-2 py-2 md:px-6 md:py-6">
               </div>
 
               {lead.isAssigned && (
-                <span className="ml-auto text-xs font-semibold">
-                  Allocated
-                </span>
-              )}
+  <span className="ml-auto text-xs font-semibold text-orange-700">
+    Already Assigned to&nbsp;
+    <span className="font-bold">
+      {lead.employee_name || "Employee"}
+    </span>
+  </span>
+)}
+
             </div>
           );
         })}
