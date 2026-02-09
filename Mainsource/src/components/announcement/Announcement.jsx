@@ -59,6 +59,18 @@ const Announcements_Mainbar = () => {
     setRows(value);
     setPage(1); // Reset to first page when changing rows per page
   };
+  const [topAnnouncement, setTopAnnouncement] = useState(null);
+  const [showTopBanner, setShowTopBanner] = useState(true);
+  // useEffect(() => {
+  //   if (topAnnouncement) {
+  //     const timer = setTimeout(() => {
+  //       setShowTopBanner(false);
+  //     }, 1000000);
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [topAnnouncement]);
+
   const calendarRef = useRef(null);
   // view
   const [viewData, setViewData] = useState(null);
@@ -88,7 +100,7 @@ const Announcements_Mainbar = () => {
           (val) => val.replace(/<[^>]*>/g, "").trim().length > 0,
           "Message is required"
         ),
-      visible_roles: z.array(z.string()).min(1, "Select at least one role"),
+      // visible_roles: z.array(z.string()).min(1, "Select at least one role"),
 
       status: z.enum(["1", "0"]),
     })
@@ -102,7 +114,7 @@ const Announcements_Mainbar = () => {
     date: new Date(),
     expiry_date: new Date(),
     message: "",
-    visible_roles: [],
+    // visible_roles: [],
     status: "1",
   };
 
@@ -139,8 +151,14 @@ const Announcements_Mainbar = () => {
   const fetchAnnouncements = async () => {
     setLoading(true);
     const res = await axiosInstance.get(`${API_URL}api/announcement`);
-    setAnnouncements(res.data.data);
-    // setGlobalFilter(res.data.data.length);
+    const list = res.data.data;
+
+    setAnnouncements(list);
+
+    // Pick latest ACTIVE announcement
+    const activeAnnouncement = list.find((a) => a.status == 1);
+    setTopAnnouncement(activeAnnouncement || null);
+
     setLoading(false);
   };
 
@@ -162,7 +180,7 @@ const Announcements_Mainbar = () => {
       date: new Date(data?.announcement?.start_date),
       expiry_date: new Date(data?.announcement?.expiry_date),
       message: data?.announcement?.announcement_details,
-      visible_roles: data.visible_roles.map((r) => String(r.id)),
+      // visible_roles: data.visible_roles.map((r) => String(r.id)),
       status: String(data?.announcement?.status),
     });
 
@@ -214,14 +232,14 @@ const Announcements_Mainbar = () => {
         expiry_date: formatToYYYYMMDD(data.expiry_date),
         announcement_details: data.message,
         status: data.status,
-        visible_to: data.visible_roles,
+        // visible_to: data.visible_roles,
       };
 
-      if (data.visible_roles.includes("all")) {
-        payload.visible_to = roles
-          .filter((r) => r.value !== "all")
-          .map((r) => String(r.value));
-      }
+      // if (data.visible_roles.includes("all")) {
+      //   payload.visible_to = roles
+      //     .filter((r) => r.value !== "all")
+      //     .map((r) => String(r.value));
+      // }
 
       if (editingId) {
         await axiosInstance.post(
@@ -272,10 +290,10 @@ const Announcements_Mainbar = () => {
         />
       ),
     },
-    {
-      header: "Visible Roles",
-      body: (r) => r.visible_roles?.length || 0,
-    },
+    // {
+    //   header: "Visible Roles",
+    //   body: (r) => r.visible_roles?.length || 0,
+    // },
     {
       header: "Status",
       body: (r) => (
@@ -355,6 +373,8 @@ const Announcements_Mainbar = () => {
             </div>
 
 
+
+
             {/* HEADER */}
             {/* <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
             <p className="text-md md:text-xl font-semibold">Announcements</p>
@@ -402,7 +422,7 @@ const Announcements_Mainbar = () => {
                         }));
                       }}
                       placeholder="Search......"
-                      className="w-[50%] pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9]
+                      className="w-full md:w-[30%] pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9]
              focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
 
@@ -606,71 +626,7 @@ const Announcements_Mainbar = () => {
                     </div>
                   </div>
 
-                  {/* VISIBLE ROLES */}
-                  <div className="flex flex-col md:flex-row justify-between text-gray-700">
-                    <label>Visible Roles <span className="text-red-500">*</span></label>
-                    <div className="w-full md:w-[50%] ">
-                      <Controller
-                        name="visible_roles"
-                        control={control}
-                        render={({ field }) => {
-                          const allIds = getAllRoleIds();
-                          const isAllSelected =
-                            field.value.length === allIds.length &&
-                            allIds.every((id) => field.value.includes(id));
 
-                          return (
-                            <MultiSelect
-                              value={
-                                isAllSelected ? ["all", ...allIds] : field.value
-                              }
-                              options={roles}
-                              display="chip"
-                              placeholder="Select Roles"
-                              //   className="w-full"
-                              className={`
-            w-full text-sm rounded-md
-            border border-gray-300
-            focus:outline-none focus:ring-2 focus:ring-[#1ea600] focus:border-[#1ea600]
-            
-          `}
-                              onChange={(e) => {
-                                const selected = e.value;
-
-                                // 🔵 ALL clicked
-                                if (selected.includes("all")) {
-                                  field.onChange(allIds);
-                                  return;
-                                }
-
-                                // 🔵 ALL unclicked
-                                if (
-                                  isAllSelected &&
-                                  !selected.includes("all")
-                                ) {
-                                  field.onChange([]);
-                                  return;
-                                }
-
-                                // 🔵 Normal selection (no duplicates)
-                                field.onChange([
-                                  ...new Set(
-                                    selected.filter((v) => v !== "all")
-                                  ),
-                                ]);
-                              }}
-                            />
-                          );
-                        }}
-                      />
-
-                      {errors.visible_roles && (
-                        <p className="text-red-500 text-sm mt-2">
-                          {errors.visible_roles.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
 
                   {/* STATUS */}
                   <div className="flex flex-col md:flex-row justify-between ">
@@ -772,7 +728,7 @@ const Announcements_Mainbar = () => {
                       />
                     </div>
 
-                    <div className="col-span-2">
+                    {/* <div className="col-span-2">
                       <b>Visible Roles:</b>
                       {viewData?.visible_roles?.length > 0 ? (
                         <ul className="list-disc ml-5 mt-2 text-sm">
@@ -783,12 +739,15 @@ const Announcements_Mainbar = () => {
                       ) : (
                         <p className="text-gray-500 mt-1">No roles assigned</p>
                       )}
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
             </div>
           )}
+
+
+
           <Footer />
         </>
       )}

@@ -98,13 +98,13 @@ const Relieved_Detail = () => {
                 setRelieved(response.data.data || []);
                 setTotalRecords(response.data.data.length || 0);
 
-            const companies = response.data.companies || [];
-            setCompanyOptions(
-                companies.map(c => ({
-                    label: c.company_name,
-                    value: c.id
-                }))
-            );
+                const companies = response.data.companies || [];
+                setCompanyOptions(
+                    companies.map(c => ({
+                        label: c.company_name,
+                        value: c.id
+                    }))
+                );
 
 
             } else {
@@ -322,6 +322,12 @@ const Relieved_Detail = () => {
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
+            header: "Rejoined Date",
+            field: "rejoining_date",
+            body: (row) => row.rejoining_date || "-",
+            style: { textAlign: "center", fontWeight: "medium" },
+        },
+        {
             header: "Aadhar Number",
             field: "aadhar_number",
             body: (row) => row.aadhar_number || "-",
@@ -338,7 +344,7 @@ const Relieved_Detail = () => {
                             : "text-[#16A34A]  bg-green-100"
                         }`}
                 >
-                    {row.status === 0 || row.status === '0' ? "Inactive" : "Active"}
+                    {row.status === 0 || row.status === '0' ? "Relieved" : "Joined"}
                 </div>
             ),
             style: { textAlign: "center", fontWeight: "medium" },
@@ -355,7 +361,7 @@ const Relieved_Detail = () => {
                             setViewModalOpen(true);
                         }}
                         className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
-                        
+
                     >
                         <FaEye title="view" />
                     </button>
@@ -433,7 +439,7 @@ px-2 py-2 md:px-6 md:py-6">
 
                                     <div className="flex items-center gap-5">
                                         {/* Search box */}
-                                        <div className="relative w-64">
+                                        <div className="relative w-full md:w-64">
                                             <FiSearch
                                                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                                                 size={18}
@@ -710,63 +716,33 @@ px-2 py-2 md:px-6 md:py-6">
                                                         )}
                                                     </div>
                                                 </div>
-                                                
-
-
-                                                 <div className="mt-2 md:mt-8 flex justify-between items-center">
-                                                                                            <label className="block text-md font-medium mb-2">
-                                                                                                Company <span className="text-red-500">*</span>
-                                                                                            </label>
-                                                
-                                                                                            <div className="w-[50%]">
-                                                                                                <Dropdown
-                                                                                                    value={roleDetails.company_id}
-                                                                                                    options={companyOptions}
-                                                                                                    onChange={(e) =>
-                                                                                                        setRoleDetails({
-                                                                                                            ...roleDetails,
-                                                                                                            company_id: e.value,
-                                                                                                        })
-                                                                                                    }
-                                                                                                    placeholder="Select Company"
-                                                                                                    filter
-                                                                                                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
-                                                                                                />
-                                                
-                                                                                                {errors.company_id && (
-                                                                                                    <p className="text-red-500 text-sm mt-1">{errors.company_id}</p>
-                                                                                                )}
-                                                
-                                                                                            </div>
-                                                                                        </div>
 
 
 
-                                                <div className="mt-8 flex justify-between items-center">
-                                                    <label className="block text-md font-medium mb-2 mt-3">
+                                                <div className="mt-2 md:mt-8 flex justify-between items-center">
+                                                    <label className="block text-md font-medium mb-2">
                                                         Company <span className="text-red-500">*</span>
                                                     </label>
+
                                                     <div className="w-[50%]">
-                                                        <input
-                                                            type="text"
-                                                            value={relievedDetails.company}
+                                                        <Dropdown
+                                                            value={relievedDetails.company_id}
+                                                            options={companyOptions}
                                                             onChange={(e) =>
-                                                                setRelievedDetails({ ...relievedDetails, company: e.target.value })
+                                                                setRelievedDetails({
+                                                                    ...relievedDetails,
+                                                                    company_id: e.value,
+                                                                })
                                                             }
-                                                            maxLength={255}
-                                                            // onChange={(e) => {
-                                                            //     setRelievedDetails({
-                                                            //         ...relievedDetails,
-                                                            //         role_name: e.target.value,
-                                                            //     });
-                                                            //     validateRoleName(e.target.value);
-                                                            // }}
-                                                            className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                                                            placeholder="Select Company"
+                                                            filter
+                                                            className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                                                         />
 
-                                                        {errors?.role_name && (
-                                                            <p className="text-red-500 text-sm mb-4">{errors?.role_name}</p>
+                                                        {errors.company_id && (
+                                                            <p className="text-red-500 text-sm mt-1">{errors.company_id}</p>
                                                         )}
+
                                                     </div>
                                                 </div>
 
@@ -873,8 +849,8 @@ px-2 py-2 md:px-6 md:py-6">
                                                             }}
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         >
-                                                            <option value="1">Active</option>
-                                                            <option value="0">InActive</option>
+                                                            <option value="1">Joined</option>
+                                                            <option value="0">Relieved</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -902,7 +878,7 @@ px-2 py-2 md:px-6 md:py-6">
                         {/* view modal */}
                         {viewModalOpen && viewRelieved && (
                             <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-                                <div className="relative bg-white w-[95%] md:w-[500px] rounded-xl shadow-lg p-6">
+                                <div className="relative bg-white w-[95%] md:w-[500px] rounded-xl shadow-lg p-3 md:p-6">
 
                                     {/* Close Icon */}
                                     <button
@@ -916,7 +892,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         Relieved Details
                                     </h2>
 
-                                    <div className="space-y-4 text-sm text-gray-700">
+                                    <div className="space-y-2 md:space-y-4 text-sm text-gray-700">
 
                                         <div className="flex justify-between">
                                             <span className="font-medium">Employee Name</span>
@@ -935,6 +911,10 @@ px-2 py-2 md:px-6 md:py-6">
                                             <span>{viewRelieved.relieving_date || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
+                                            <span className="font-medium">Rejoined Date</span>
+                                            <span>{viewRelieved.rejoining_date || "-"}</span>
+                                        </div>
+                                        <div className="flex justify-between">
                                             <span className="font-medium">Aadhar Number</span>
                                             <span>{viewRelieved.aadhar_number || "-"}</span>
                                         </div>
@@ -949,8 +929,8 @@ px-2 py-2 md:px-6 md:py-6">
                                                     }`}
                                             >
                                                 {viewRelieved.status === "0" || viewRelieved.status === 0
-                                                    ? "Inactive"
-                                                    : "Active"}
+                                                    ? "Relieved"
+                                                    : "Joined"}
                                             </span>
                                         </div>
 

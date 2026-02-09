@@ -187,7 +187,7 @@ const Employee_contract_details = () => {
   const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
   const [selectedReference, setSelectedReference] = useState("");
-
+  const [statusType, setStatusType] = useState(0)
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
   // console.log("companyEmpType", companyEmpType);
@@ -323,6 +323,33 @@ const Employee_contract_details = () => {
     setTimeout(() => setIsAnimating(true), 10);
   };
 
+  const handleStatusChange = async (status) => {
+    if (!editData?.id) return; //  Skip in Add modal
+
+    try {
+      const payload = {
+        status: status,
+        joining_date:
+          status === 1 ? formatDateToYMD(watch("joinedDate")) : null,
+        relieving_date:
+          status === 0 ? formatDateToYMD(new Date()) : null,
+      };
+
+      console.log("Status change payload:", payload);
+
+      await axiosInstance.post(
+        `/api/relieved/status-change/${editData.id}`,
+        payload
+      );
+
+      toast.success("Status updated successfully");
+    } catch (err) {
+      console.error("Status change error:", err);
+      toast.error("Failed to update status");
+    }
+  };
+
+
   const closeAddModal = () => {
     setIsAnimating(false);
     const mappedData = {
@@ -368,6 +395,7 @@ const Employee_contract_details = () => {
     setPhoto(null);
     setSelectedCompany(null);
     setSelectedBoarding(null);
+    setStatusType(0);
     setSelectedEducation(null);
     setSelectedBranch(null);
     setDocuments([]);
@@ -753,6 +781,7 @@ const Employee_contract_details = () => {
       manual_value: row.employee_id || "",
       interviewDate: row.interview_date || "",
       status: String(row.status),
+      statusType: row.status_type ? 1 : 0,
       interviewStatus: row.interview_status
         ? row.interview_status.toLowerCase()
         : "",
@@ -1071,10 +1100,9 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -1192,7 +1220,7 @@ const Employee_contract_details = () => {
         esic: data.esciNumber,
         employee_id: data.manual_value,
         bank_name: data.bankName,
-
+        status_type: statusType,
         status: data.status,
         // status: 1,
         created_by: userId,
@@ -1201,7 +1229,7 @@ const Employee_contract_details = () => {
         rejoin_status: isRejoining,
         // rejoin_type: 1,
         // ...(rejoinType === 1 && { rejoin_type: 1 }),
-        ...(rejoinTouched ? { rejoin_type: 1} : {}),
+        ...(rejoinTouched ? { rejoin_type: 1 } : {}),
         // rejoin_type: isRejoining ? 1 : null,
       };
 
@@ -1643,9 +1671,8 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
-                    isAnimating ? "translate-x-0" : "translate-x-full"
-                  }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -2349,11 +2376,10 @@ const Employee_contract_details = () => {
                                   : "Employee ID"
                               }
                               className={`w-full px-2 py-2 border rounded-[10px]
-          ${
-            companyEmpType === "automatic"
-              ? "bg-gray-100 cursor-not-allowed"
-              : "bg-white"
-          }`}
+          ${companyEmpType === "automatic"
+                                  ? "bg-gray-100 cursor-not-allowed"
+                                  : "bg-white"
+                                }`}
                             />
                             {errors.manual_value && (
                               <p className="text-red-500 text-sm mt-1">
@@ -2512,12 +2538,49 @@ const Employee_contract_details = () => {
 
                         <div className="w-[50%] md:w-[60%] rounded-lg">
                           <select
-                            {...register("status")}
-                            className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                            // {...register("status", {
+                            //   onChange: async (e) => {
+                            //     const status = Number(e.target.value); // 1 or 0
+                            //     setValue("status", status);
+
+
+                            //     if (editData?.id) {
+                            //       await handleStatusChange(status);
+                            //     }
+                            //   },
+                            // })}
+                            // {...register("status", {
+                            //   onChange: (e) => {
+                            //     const value = e.target.value;
+
+                            //     setValue("status", value, { shouldDirty: true });
+
+                            //     if (value === "1" || value === "0") {
+                            //       setStatusType(1); 
+                            //     } else {
+                            //       setStatusType(0);
+                            //     }
+                            //   },
+                            // })}
+                            {...register("status", {
+                              onChange: (e) => {
+                                const value = e.target.value;
+
+                                setValue("status", value, { shouldDirty: true });
+
+                                // If user selected Joined or Relieved → mark status_type = 1
+                                if (value === "1" || value === "0") {
+                                  setStatusType(1);
+                                } else {
+                                  setStatusType(0);
+                                }
+                              },
+                            })}
+                            className="w-full px-2 py-2 border border-gray-300 rounded-[10px]"
                           >
-                            <option value="">Select a status</option>
-                            <option value="1">Active</option>
-                            <option value="0">InActive</option>
+                            <option disabled selected>Select a status</option>
+                            <option value="1">Joined</option>
+                            <option value="0">Relieved</option>
                             {/* <option value="2">Relieved</option> */}
                           </select>
                           {errors.status && (
@@ -2553,7 +2616,7 @@ const Employee_contract_details = () => {
                                 checked={isRejoining === 1}
                                 onChange={(e) => {
                                   const checked = e.target.checked;
-                                  setIsRejoining(checked ? 1 : 0); 
+                                  setIsRejoining(checked ? 1 : 0);
                                   setRejoinTouched(true);
                                 }}
                               />
@@ -2568,7 +2631,7 @@ const Employee_contract_details = () => {
                             </label>
                           </div>
                           {/*  */}
-                         {isRejoining === 1 && (
+                          {isRejoining === 1 && (
                             <div className="mt-3 flex justify-between items-start">
                               <label className="block text-md font-medium mt-2">
                                 Rejoining Notes
@@ -2806,9 +2869,9 @@ const Employee_contract_details = () => {
                         <button
                           type="submit"
                           className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                          // onClick={handleSubmit(onSubmit, (errors) =>
-                          //   console.log(errors),
-                          // )}
+                        // onClick={handleSubmit(onSubmit, (errors) =>
+                        //   console.log(errors),
+                        // )}
                         >
                           Submit
                         </button>
@@ -3142,8 +3205,8 @@ const Employee_contract_details = () => {
                         </h3>
 
                         {viewRow?.contacts &&
-                        Array.isArray(viewRow.contacts) &&
-                        viewRow.contacts.length > 0 ? (
+                          Array.isArray(viewRow.contacts) &&
+                          viewRow.contacts.length > 0 ? (
                           <table className="w-full border text-sm">
                             <thead className="bg-gray-100">
                               <tr>
@@ -3379,7 +3442,7 @@ const Employee_contract_details = () => {
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
                         {viewExistingCandidate.documents &&
-                        viewExistingCandidate.documents.length > 0 ? (
+                          viewExistingCandidate.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewExistingCandidate.documents.map(
                               (doc, index) => (
