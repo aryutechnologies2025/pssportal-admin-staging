@@ -1105,41 +1105,49 @@ px-2 py-2 md:px-6 md:py-6">
       </div>
 
       {/* Lead Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-fit">
         {leads.map(lead => {
           const checked = selectedLeads.includes(lead.id);
 
           return (
-            <div
-              key={lead.id}
-              className={`flex items-center gap-3 p-3 rounded-lg border 
-                ${lead.isAssigned
-                  ? "bg-orange-100 border-orange-400 text-orange-700"
-                  : "bg-gray-50 hover:bg-gray-100"}
-              `}
-            >
-              <input
-                type="checkbox"
-                disabled={lead.isAssigned}
-                checked={checked}
-                onChange={() => handleToggle(lead.id)}
-              />
+           <div
+  key={lead.id}
+  className={`p-3 rounded-lg border 
+    ${lead.isAssigned
+      ? "bg-orange-100 border-orange-400"
+      : "bg-gray-50 hover:bg-gray-100"}
+  `}
+>
+  <div className="flex items-start gap-3">
+    <input
+      type="checkbox"
+      disabled={lead.isAssigned}
+      checked={checked}
+      onChange={() => handleToggle(lead.id)}
+      className="mt-1"
+    />
 
-              <div className="text-sm">
-                <p className="font-medium">{lead.full_name}</p>
-                <p className="text-gray-500">{lead.phone}</p>
-              </div>
+    <div className="flex flex-col gap-1 text-sm w-full">
+      <p className="font-medium text-gray-900">
+        {lead.full_name}
+      </p>
 
-              {lead.isAssigned && (
-  <span className="ml-auto text-xs font-semibold text-orange-700">
-    Already Assigned to&nbsp;
-    <span className="font-bold">
-      {lead.employee_name || "Employee"}
-    </span>
-  </span>
-)}
+      <p className="text-gray-500">
+        {lead.phone}
+      </p>
 
-            </div>
+      {lead.isAssigned && (
+        <p className="text-xs font-semibold text-orange-700">
+          Already Assigned to{" "}
+          <span className="font-bold">
+            {lead.employee_name || "Employee"}
+          </span>
+        </p>
+      )}
+    </div>
+  </div>
+</div>
+
           );
         })}
       </div>
