@@ -33,30 +33,30 @@ const Relieved_Detail = () => {
     const [loading, setLoading] = useState(true);
     const [departments, setDepartments] = useState([]);
     const [department, setDepartment] = useState("");
-    const [pssCompany, setPssCompany] = useState(null); // selected value
+    const [companyOptions, setCompanyOptions] = useState([]);
     const [pssCompanyOptions, setPssCompanyOptions] = useState([]); // dropdown list
-      const [page, setPage] = useState(1);
-       const onPageChange = (e) => {
+    const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
         setPage(e.page + 1); // PrimeReact is 0-based
         setRows(e.rows);
-    
-      };
-    
-      const onRowsChange = (value) => {
+
+    };
+
+    const onRowsChange = (value) => {
         setRows(value);
         setPage(1); // Reset to first page when changing rows per page
-      };
+    };
     // Fetch relieved from the API
 
     useEffect(() => {
         fetchRelieved();
     }, []);
 
-   const [employeeName, setEmployeeName] = useState("");
-   const [company, setCompany] = useState("");
-   const [joinedDate, setJoinedDate] = useState("");
-   const [relievedDate, setRelievedDate] = useState("");
-   const [aadharNo, setAadharNo] = useState("");
+    const [employeeName, setEmployeeName] = useState("");
+    const [company, setCompany] = useState("");
+    const [joinedDate, setJoinedDate] = useState("");
+    const [relievedDate, setRelievedDate] = useState("");
+    const [aadharNo, setAadharNo] = useState("");
 
     const [status, setStatus] = useState("");
     const [errors, setErrors] = useState({});
@@ -78,12 +78,12 @@ const Relieved_Detail = () => {
     const [globalFilter, setGlobalFilter] = useState("");
     const [totalRecords, setTotalRecords] = useState(0);
     const [viewModalOpen, setViewModalOpen] = useState(false);
-    const [viewContact, setViewContact] = useState(null);
-    console.log("viewMessage", viewContact)
+    const [viewRelieved, setViewRelieved] = useState(null);
+    console.log("viewMessage", viewRelieved)
 
-//    if (!relievedDetails.employeeName) newErrors.employeeName = "Employee name is required";
-// if (!relievedDetails.company) newErrors.company = "Company is required";
-// if (!relievedDetails.joinedDate) newErrors.joinedDate = "Joining date is required";
+    //    if (!relievedDetails.employeeName) newErrors.employeeName = "Employee name is required";
+    // if (!relievedDetails.company) newErrors.company = "Company is required";
+    // if (!relievedDetails.joinedDate) newErrors.joinedDate = "Joining date is required";
 
 
     // list
@@ -97,6 +97,14 @@ const Relieved_Detail = () => {
                 // relieved
                 setRelieved(response.data.data || []);
                 setTotalRecords(response.data.data.length || 0);
+
+            const companies = response.data.companies || [];
+            setCompanyOptions(
+                companies.map(c => ({
+                    label: c.company_name,
+                    value: c.id
+                }))
+            );
 
 
             } else {
@@ -138,49 +146,47 @@ const Relieved_Detail = () => {
 
     const [relievedDetails, setRelievedDetails] = useState({
         employeeName: "",
-        company: "",
+        company_id: "",
         joinedDate: "",
         relievedDate: "",
         aadharNo: "",
         status: "",
     });
 
-// edit
-const openEditModal = async (row) => {
-  try {
-    setEditingRelievedId(row.id);
-    setIsEditModalOpen(true);
-    setIsAnimating(true);
+    // edit
+    const openEditModal = async (row) => {
+        try {
+            setEditingRelievedId(row.id);
+            setIsEditModalOpen(true);
+            setIsAnimating(true);
 
-    const response = await axiosInstance.get(
-      `${API_URL}api/relieved/edit/${row.id}`
-    );
+            const response = await axiosInstance.get(
+                `${API_URL}api/relieved/edit/${row.id}`
+            );
 
-    if (response.data?.status === true) {
-      const data = response.data.data;
+            if (response.data?.status === true) {
+                const data = response.data.data;
 
-      setRelievedDetails({
-        employeeName: data.employee_name || "",
-        company: data.company_name || "",
-        joinedDate: data.joining_date || "",
-        relievedDate: data.relieving_date || "",
-        aadharNo: data.aadhar_number || "",
-        status: data.status ?? "",
-      });
-    }
-  } catch (err) {
-    console.error("Edit fetch error:", err);
-    toast.error("Unable to fetch relieved details");
-  }
-};
-
-    
+                setRelievedDetails({
+                    employeeName: data.employee_name || "",
+                    company: data.company_name || "",
+                    joinedDate: data.joining_date || "",
+                    relievedDate: data.relieving_date || "",
+                    aadharNo: data.aadhar_number || "",
+                    status: data.status ?? "",
+                });
+            }
+        } catch (err) {
+            console.error("Edit fetch error:", err);
+            toast.error("Unable to fetch relieved details");
+        }
+    };
 
 
     const closeEditModal = () => {
         setIsAnimating(false);
         setEditingRelievedId(null);
-        setRelievedDetails({ employeeName: "", status: "", company: "", joinedDate: "" , relievedDate: "" ,aadharNo: "" });
+        setRelievedDetails({ employeeName: "", status: "", company: "", joinedDate: "", relievedDate: "", aadharNo: "" });
         setErrors({});
         setTimeout(() => setIsEditModalOpen(false), 250);
     };
@@ -204,36 +210,34 @@ const openEditModal = async (row) => {
         return Object.keys(newErrors).length === 0;
     };
 
-// update
-const handleSave = async () => {
-  try {
-    const response = await axiosInstance.post(
-      `${API_URL}api/relieved/update/${editingRelievedId}`,
-      {
-        employee_name: relievedDetails.employeeName,
-        company_name: relievedDetails.company,
-        joining_date: relievedDetails.joinedDate,
-        relieving_date: relievedDetails.relievedDate,
-        aadhar_number: relievedDetails.aadharNo,
-        status: relievedDetails.status,
-        updated_by: userid,
-      }
-    );
+    // update
+    const handleSave = async () => {
+        try {
+            const response = await axiosInstance.post(
+                `${API_URL}api/relieved/update/${editingRelievedId}`,
+                {
+                    employee_name: relievedDetails.employeeName,
+                    company_name: relievedDetails.company,
+                    joining_date: relievedDetails.joinedDate,
+                    relieving_date: relievedDetails.relievedDate,
+                    aadhar_number: relievedDetails.aadharNo,
+                    status: relievedDetails.status,
+                    updated_by: userid,
+                }
+            );
 
-    if (response.data.status) {
-      toast.success("Relieved updated successfully");
-      closeEditModal();
-      fetchRelieved();
-    } else {
-      toast.error("Failed to update relieved");
-    }
-  } catch (err) {
-    console.error(err);
-    toast.error("Error updating relieved");
-  }
-};
-
-
+            if (response.data.status) {
+                toast.success("Relieved updated successfully");
+                closeEditModal();
+                fetchRelieved();
+            } else {
+                toast.error("Failed to update relieved");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Error updating relieved");
+        }
+    };
 
 
     // Validate Status dynamically
@@ -247,7 +251,7 @@ const handleSave = async () => {
         setErrors(newErrors);
     };
 
-// delete
+    // delete
     const deleteRelieved = (relievedId) => {
         Swal.fire({
             title: "Are you sure?",
@@ -295,31 +299,31 @@ const handleSave = async () => {
         },
         {
             header: "Employee Name",
-              field: "employee_name",
+            field: "employee_name",
             body: (row) => row.employee_name || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Company",
-              field: "company_name",
+            field: "company_name",
             body: (row) => row.company_name || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Joining Date",
-              field: "joining_date",
+            field: "joining_date",
             body: (row) => row.joining_date || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Relieved Date",
-              field: "relieving_date",
+            field: "relieving_date",
             body: (row) => row.relieving_date || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
             header: "Aadhar Number",
-              field: "aadhar_number",
+            field: "aadhar_number",
             body: (row) => row.aadhar_number || "-",
             style: { textAlign: "center", fontWeight: "medium" },
         },
@@ -347,20 +351,18 @@ const handleSave = async () => {
                 <div className="flex justify-center gap-3">
                     <button
                         onClick={() => {
-                            // setViewContact(row);
+                            setViewRelieved(row);
                             setViewModalOpen(true);
-                            openViewModal(row)
                         }}
                         className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
+                        
                     >
-                        <FaEye />
+                        <FaEye title="view" />
                     </button>
 
                     <TfiPencilAlt
                         onClick={() => {
-
                             openEditModal(row);
-
                         }}
                         className="text-[#1ea600] cursor-pointer hover:scale-110 transition"
                         title="Edit"
@@ -423,7 +425,7 @@ px-2 py-2 md:px-6 md:py-6">
                                         <Dropdown
                                             value={rows}
                                             options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                                            onChange={(e) => setRows(e.value)}
+                                            onChange={(e) => onRowsChange(e.value)}
                                             className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                         />
                                         <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
@@ -680,18 +682,18 @@ px-2 py-2 md:px-6 md:py-6">
 
                                         <div className="mt-10">
                                             <div className="bg-white rounded-xl w-full">
-                                            
+
                                                 <div className="mt-8 flex justify-between items-center">
                                                     <label className="block text-md font-medium mb-2 mt-3">
-                                                       Employee Name <span className="text-red-500">*</span>
+                                                        Employee Name <span className="text-red-500">*</span>
                                                     </label>
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="text"
                                                             value={relievedDetails.employeeName}
-  onChange={(e) =>
-    setRelievedDetails({ ...relievedDetails, employeeName: e.target.value })
-  }
+                                                            onChange={(e) =>
+                                                                setRelievedDetails({ ...relievedDetails, employeeName: e.target.value })
+                                                            }
                                                             maxLength={255}
                                                             // onChange={(e) => {
                                                             //     setRelievedDetails({
@@ -708,6 +710,37 @@ px-2 py-2 md:px-6 md:py-6">
                                                         )}
                                                     </div>
                                                 </div>
+                                                
+
+
+                                                 <div className="mt-2 md:mt-8 flex justify-between items-center">
+                                                                                            <label className="block text-md font-medium mb-2">
+                                                                                                Company <span className="text-red-500">*</span>
+                                                                                            </label>
+                                                
+                                                                                            <div className="w-[50%]">
+                                                                                                <Dropdown
+                                                                                                    value={roleDetails.company_id}
+                                                                                                    options={companyOptions}
+                                                                                                    onChange={(e) =>
+                                                                                                        setRoleDetails({
+                                                                                                            ...roleDetails,
+                                                                                                            company_id: e.value,
+                                                                                                        })
+                                                                                                    }
+                                                                                                    placeholder="Select Company"
+                                                                                                    filter
+                                                                                                    className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
+                                                                                                />
+                                                
+                                                                                                {errors.company_id && (
+                                                                                                    <p className="text-red-500 text-sm mt-1">{errors.company_id}</p>
+                                                                                                )}
+                                                
+                                                                                            </div>
+                                                                                        </div>
+
+
 
                                                 <div className="mt-8 flex justify-between items-center">
                                                     <label className="block text-md font-medium mb-2 mt-3">
@@ -716,10 +749,10 @@ px-2 py-2 md:px-6 md:py-6">
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="text"
-                                                           value={relievedDetails.company}
-  onChange={(e) =>
-    setRelievedDetails({ ...relievedDetails, company: e.target.value })
-  }
+                                                            value={relievedDetails.company}
+                                                            onChange={(e) =>
+                                                                setRelievedDetails({ ...relievedDetails, company: e.target.value })
+                                                            }
                                                             maxLength={255}
                                                             // onChange={(e) => {
                                                             //     setRelievedDetails({
@@ -745,9 +778,9 @@ px-2 py-2 md:px-6 md:py-6">
                                                         <input
                                                             type="date"
                                                             value={relievedDetails.joinedDate}
-  onChange={(e) =>
-    setRelievedDetails({ ...relievedDetails, joinedDate: e.target.value })
-  }
+                                                            onChange={(e) =>
+                                                                setRelievedDetails({ ...relievedDetails, joinedDate: e.target.value })
+                                                            }
                                                             maxLength={255}
                                                             // onChange={(e) => {
                                                             //     setRelievedDetails({
@@ -773,9 +806,9 @@ px-2 py-2 md:px-6 md:py-6">
                                                         <input
                                                             type="date"
                                                             value={relievedDetails.relievedDate}
-  onChange={(e) =>
-    setRelievedDetails({ ...relievedDetails, relievedDate: e.target.value })
-  }
+                                                            onChange={(e) =>
+                                                                setRelievedDetails({ ...relievedDetails, relievedDate: e.target.value })
+                                                            }
                                                             maxLength={255}
                                                             // onChange={(e) => {
                                                             //     setRelievedDetails({
@@ -795,15 +828,15 @@ px-2 py-2 md:px-6 md:py-6">
 
                                                 <div className="mt-8 flex justify-between items-center">
                                                     <label className="block text-md font-medium mb-2 mt-3">
-                                                       Aadhar Number<span className="text-red-500">*</span>
+                                                        Aadhar Number<span className="text-red-500">*</span>
                                                     </label>
                                                     <div className="w-[50%]">
                                                         <input
                                                             type="number"
                                                             value={relievedDetails.aadharNo}
-  onChange={(e) =>
-    setRelievedDetails({ ...relievedDetails, aadharNo: e.target.value })
-  }
+                                                            onChange={(e) =>
+                                                                setRelievedDetails({ ...relievedDetails, aadharNo: e.target.value })
+                                                            }
                                                             maxLength={255}
                                                             // onChange={(e) => {
                                                             //     setRelievedDetails({
@@ -821,7 +854,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                     </div>
                                                 </div>
 
-                                               
+
                                                 <div className="mt-8 flex justify-between items-center">
                                                     <label className="block text-md font-medium mb-2 mt-3">
                                                         Status <span className="text-red-500">*</span>
@@ -867,7 +900,7 @@ px-2 py-2 md:px-6 md:py-6">
                         )}
 
                         {/* view modal */}
-                        {viewModalOpen && viewContact && (
+                        {viewModalOpen && viewRelieved && (
                             <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
                                 <div className="relative bg-white w-[95%] md:w-[500px] rounded-xl shadow-lg p-6">
 
@@ -887,35 +920,35 @@ px-2 py-2 md:px-6 md:py-6">
 
                                         <div className="flex justify-between">
                                             <span className="font-medium">Employee Name</span>
-                                            <span>{viewContact.employee_name || "-"}</span>
+                                            <span>{viewRelieved.employee_name || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Company</span>
-                                            <span>{viewContact.company_name || "-"}</span>
+                                            <span>{viewRelieved.company_name || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Joining Date</span>
-                                            <span>{viewContact.joining_date || "-"}</span>
+                                            <span>{viewRelieved.joining_date || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Relieved Date</span>
-                                            <span>{viewContact.relieving_date || "-"}</span>
+                                            <span>{viewRelieved.relieving_date || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Aadhar Number</span>
-                                            <span>{viewContact.aadhar_number || "-"}</span>
+                                            <span>{viewRelieved.aadhar_number || "-"}</span>
                                         </div>
 
                                         <div className="flex justify-between items-center">
                                             <span className="font-medium">Status</span>
                                             <span
                                                 className={`px-3 py-1 rounded-full text-xs font-semibold
-              ${viewContact.status === "0" || viewContact.status === 0
+              ${viewRelieved.status === "0" || viewRelieved.status === 0
                                                         ? "bg-red-100 text-red-600"
                                                         : "bg-green-100 text-green-600"
                                                     }`}
                                             >
-                                                {viewContact.status === "0" || viewContact.status === 0
+                                                {viewRelieved.status === "0" || viewRelieved.status === 0
                                                     ? "Inactive"
                                                     : "Active"}
                                             </span>
