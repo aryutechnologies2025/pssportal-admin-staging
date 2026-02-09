@@ -62,7 +62,7 @@ export function useTokenExpiry() {
         localStorage.removeItem("admin_token_expires");
         localStorage.removeItem("pssuser");
         sessionStorage.removeItem("admin_logged_in");
-        navigate("/login", { replace: true });
+        navigate("/", { replace: true });
       }
     };
 

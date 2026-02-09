@@ -27,6 +27,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import Loader from "../Loader";
 import Mobile_Sidebar from "../Mobile_Sidebar";
 import { FiSearch } from "react-icons/fi";
+import { Capitalise } from "../../hooks/useCapitalise";
 
 
 const Lead_Category_Details = () => {
@@ -355,6 +356,7 @@ const columns = [
   {
     header: "Name",
     field: "name",
+    body: (row) => <span>{Capitalise(row.name)}</span>,
   },
   {
     header: "Status",
@@ -638,6 +640,7 @@ const columns = [
               </div>
             )}
 
+ {/* Edit Modal */}
             {isEditModalOpen && (
               <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
                 {/* Overlay */}
@@ -656,7 +659,7 @@ const columns = [
                   </div>
 
                   <div className="p-5">
-                    <p className="text-2xl md:text-3xl font-medium">Category Edit</p>
+                    <p className="text-2xl md:text-3xl font-medium">Platform Edit</p>
                     <div className="mt-5 flex justify-between items-center">
                       <label className="block text-md font-medium mb-2">
                         Name <span className="text-red-500">*</span>

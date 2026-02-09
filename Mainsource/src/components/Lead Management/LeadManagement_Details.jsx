@@ -300,14 +300,15 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     let newErrors = {};
 
     if (!leadForm.is_organic) newErrors.is_organic = "Required";
-    if (!leadForm.full_name) newErrors.full_name = "Enter a Name";
+    if(!leadForm.lead_category_id) newErrors.lead_category_id = "Select Category";
+    if (!leadForm.full_name) newErrors.full_name = "Enter A Name";
     if (!leadForm.gender) newErrors.gender = "Select Gender";
-    if (!leadForm.phone) newErrors.phone = "Enter a Phone Number";
+    if (!leadForm.phone) newErrors.phone = "Enter A Phone Number";
     if (!leadForm.dob) newErrors.dob = "Enter Birth Date";
-    if (!leadForm.post_code) newErrors.post_code = "Enter a Postcode";
-    if (!leadForm.city) newErrors.city = "Enter a city";
-    if (!leadForm.state) newErrors.state = "Enter a State";
-    if (leadForm.status === "") newErrors.status = "select Status";
+    if (!leadForm.post_code) newErrors.post_code = "Enter A Postcode";
+    if (!leadForm.city) newErrors.city = "Enter A City";
+    if (!leadForm.state) newErrors.state = "Enter A State";
+    if (leadForm.status === "") newErrors.status = "Select Status";
     if (!leadForm.category || leadForm.category.length === 0) newErrors.category = "Select Category";
     //  if (!leadForm.lead_category_id) newErrors.category = "Select Category";
 
@@ -319,12 +320,12 @@ const [selectedCategory, setSelectedCategory] = useState(null);
   const handleStatusSubmit = async () => {
     try {
       if (!statusForm.status) {
-        toast.warning("Please select status");
+        toast.warning("Please Select Status");
         return;
       }
 
       if (statusForm.followUp === "yes" && !statusForm.followUpDate) {
-        toast.warning("Please select follow up date");
+        toast.warning("Please Select Follow Up Date");
         return;
       }
 
@@ -347,7 +348,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
         payload
       );
 setTimeout(() => {
-      toast.success("Lead status updated successfully");    
+      toast.success("Lead Status Updated Successfully");    
     }, 600);
 
       await fetchStatusList(viewStatus.id);
@@ -599,7 +600,7 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
   // import
   const handleFileSubmit = async () => {
     if (!selectedFiles || selectedFiles.length === 0) {
-      toast.warning("Please select a file");
+      toast.warning("Please Select A File");
       return;
     }
 
@@ -668,7 +669,7 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
       if (res.data?.success === true) {
         setTimeout(() => {
-          toast.success(res.data?.message || "Lead deleted successfully");
+          toast.success(res.data?.message || "Lead Deleted Successfully");
         }, 600);
         fetchLead(); // refresh table
       } else {
@@ -692,7 +693,7 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
       const options = res.data.data
         .filter(item => item.status === "1") // only active
         .map(item => ({
-          label: item.name,   // shown in dropdown
+          label: Capitalise(item.name),   // shown in dropdown
           value: item.id      // sent to filter
         }));
 
@@ -1173,9 +1174,9 @@ const statusDropdownOptions = [
         category: e.value
       }));
     }}
-                    placeholder="Select Category"
+                    placeholder="Select Platform"
                     filter
-                    filterPlaceholder="Search category"
+                    filterPlaceholder="Search platform"
                     
                     panelClassName="text-sm"
                   />
@@ -1371,6 +1372,7 @@ px-2 py-2 md:px-6 md:py-6">
 
 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
                     {/* Is Organic */}
+                    <div className="w-full flex flex-col">
                     <div className="w-full flex justify-between items-center">
                       <label className="text-md font-medium">
                         Is Organic <span className="text-red-500">*</span>
@@ -1403,7 +1405,15 @@ px-2 py-2 md:px-6 md:py-6">
                           No
                         </label>
                       </div>
-                    </div>
+                      </div>
+
+                        {errors.is_organic && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.is_organic}
+                          </p>
+                        )}
+                      </div>
+              
 
                                           {/* category */}
                 {/* <div className="mt-6 flex justify-between items-center">
@@ -1432,7 +1442,9 @@ px-2 py-2 md:px-6 md:py-6">
                 </div> */}
 
     <div className="w-full flex justify-between items-center">
-                  <label className="text-sm font-medium">Platform</label>
+                  <label className="text-sm font-medium">Platform
+                    <span className="text-red-500">*</span>
+                  </label>
                   <div className="w-[50%]">
                   <Dropdown
                     className="uniform-field w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
@@ -1446,15 +1458,15 @@ px-2 py-2 md:px-6 md:py-6">
       category: e.value
     }))
   }
-                    placeholder="Select Category"
+                    placeholder="Select Platform"
                     filter
-                    filterPlaceholder="Search category"
+                    filterPlaceholder="Search Platform"
                     
                     panelClassName="text-sm"
                   />
-                  {/* {errors.category && (
+                  {errors.category && (
       <p className="text-red-500 text-sm mt-1">{errors.category}</p>
-    )} */}
+    )}
                     </div>
                 </div>
 
@@ -1495,6 +1507,11 @@ px-2 py-2 md:px-6 md:py-6">
                           onChange={(e) => handleChange("dob", e.target.value)}
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.dob && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.dob}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1511,6 +1528,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter post code"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.post_code && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.post_code}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1527,6 +1549,9 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter city"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.city && (
+                          <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                        )}
                       </div>
                     </div>
 
@@ -1543,6 +1568,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter state"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.state && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.state}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1563,6 +1593,11 @@ px-2 py-2 md:px-6 md:py-6">
                           <option value="female">Female</option>
                           <option value="other">Other</option>
                         </select>
+                        {errors.gender && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.gender}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1584,6 +1619,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter phone number"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.phone && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.phone}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1606,6 +1646,11 @@ px-2 py-2 md:px-6 md:py-6">
                           <option value="1">Active</option>
                           <option value="0">Inactive</option>
                         </select>
+                        {errors.status && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.status}
+                          </p>
+                        )}
                       </div>
                     </div>
 </div>
@@ -1660,37 +1705,57 @@ px-2 py-2 md:px-6 md:py-6">
 
 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
                     {/* Is Organic */}
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Is Organic <span className="text-red-500">*</span>
-                      </label>
-                      <div className="w-[50%] flex gap-6">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="edit_is_organic"
-                            value="true"
-                            checked={editLeadForm?.is_organic === "true"}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
-                            }
-                          />
-                          Yes
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="edit_is_organic"
-                            value="false"
-                            checked={editLeadForm?.is_organic === "false"}
-                            onChange={(e) =>
-                              setEditLeadForm({ ...editLeadForm, is_organic: e.target.value })
-                            }
-                          />
-                          No
-                        </label>
-                      </div>
-                    </div>
+                    <div className="w-full flex flex-col">
+  <div className="flex justify-between items-center">
+    <label className="text-md font-medium">
+      Is Organic <span className="text-red-500">*</span>
+    </label>
+
+    <div className="w-[50%] flex gap-6">
+      <label className="flex items-center gap-2">
+        <input
+          type="radio"
+          name="edit_is_organic"
+          value="true"
+          checked={editLeadForm?.is_organic === "true"}
+          onChange={(e) =>
+            setEditLeadForm({
+              ...editLeadForm,
+              is_organic: e.target.value,
+            })
+          }
+        />
+        Yes
+      </label>
+
+      <label className="flex items-center gap-2">
+        <input
+          type="radio"
+          name="edit_is_organic"
+          value="false"
+          checked={editLeadForm?.is_organic === "false"}
+          onChange={(e) =>
+            setEditLeadForm({
+              ...editLeadForm,
+              is_organic: e.target.value,
+            })
+          }
+        />
+        No
+      </label>
+    </div>
+  </div>
+
+  {/* Error below */}
+  {errors.is_organic && (
+    <p className="text-red-500 text-sm mt-1">
+      {errors.is_organic}
+    </p>
+  )}
+</div>
+
+                    
+
 
                                           {/* category */}
                 {/* <div className="w-full flex justify-between items-center">
@@ -1731,9 +1796,9 @@ px-2 py-2 md:px-6 md:py-6">
       lead_category_id: e.value
     }))
   }
-                    placeholder="Select Category"
+                    placeholder="Select Platform"
                     filter
-                    filterPlaceholder="Search category"
+                    filterPlaceholder="Search Platform"
                     
                     panelClassName="text-sm"
                   />
@@ -2324,6 +2389,39 @@ px-2 py-2 md:px-6 md:py-6">
                       Lead
                     </p>
 
+                                          {/* category */}
+                <div className="mt-3 flex justify-between items-center">
+                  <label className="block text-md font-medium">Platform</label>
+                  <div className="w-[60%] md:w-[50%]">
+                  <Dropdown
+                    className="uniform-field w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    // value={selectedCategory}
+                    value={filters.category_id || ""}
+    options={categoryOptions}
+                    onChange={(e) => {
+      setSelectedCategory(e.value);
+      setFilters(prev => ({
+        ...prev,
+        category_id: e.value
+      }));
+    }}
+                    placeholder="Select Platform"
+                    filter
+                    filterPlaceholder="Search Platform"
+                    
+                    panelClassName="text-sm"
+                  />
+                   {errors.category && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.category}
+                          </p>
+                        )} 
+                  
+
+</div>
+                </div>
+
+
                     {/* File Upload */}
                     <div className="mt-3 flex justify-between items-center">
                       <label className="block text-md font-medium">
@@ -2362,33 +2460,6 @@ px-2 py-2 md:px-6 md:py-6">
                       </div>
                     )}
 
-                      {/* category */}
-                <div className="mt-3 flex justify-between items-center">
-                  <label className="block text-md font-medium">Category</label>
-                  <div className="w-[60%] md:w-[50%]">
-                  <Dropdown
-                    className="uniform-field w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    // value={selectedCategory}
-                    value={filters.category_id || ""}
-    options={categoryOptions}
-                    onChange={(e) => {
-      setSelectedCategory(e.value);
-      setFilters(prev => ({
-        ...prev,
-        category_id: e.value
-      }));
-    }}
-                    placeholder="Select Category"
-                    filter
-                    filterPlaceholder="Search category"
-                    
-                    panelClassName="text-sm"
-                  />
-                    
-                  
-
-</div>
-                </div>
 
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
                       <button

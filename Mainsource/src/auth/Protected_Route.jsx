@@ -78,7 +78,7 @@ const ProtectedRoute = () => {
   const isAdmin = String(user.role_id) === "1";
 
   if (!isAdmin) {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

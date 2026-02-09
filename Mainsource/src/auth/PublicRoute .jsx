@@ -6,7 +6,7 @@ const PublicRoute = () => {
 
   // Redirect ONLY if fully authenticated
   if (user && loggedIn === "true") {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

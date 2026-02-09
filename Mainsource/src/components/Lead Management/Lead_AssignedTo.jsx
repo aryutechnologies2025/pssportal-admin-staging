@@ -77,6 +77,8 @@ const LeadAssignedTo = () => {
   
       const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState([]);
+  const [employeeOptions, setEmployeeOptions] = useState([]);
+
   
 const dummyEmployees = [
   { label: "Ravi Kumar", value: 101 },
@@ -86,12 +88,17 @@ const dummyEmployees = [
   { label: "Mohammed Ali", value: 105 }
 ];
 
-  const isFilterComplete =
-  filters.category &&
-  selectedEmployeeDetails &&
-  filters.from_date &&
-  filters.to_date &&
-  filters.lead_status;
+const isFilterComplete = () => {
+  return (
+    filters.category?.length > 0 &&
+    filters.lead_status?.length > 0 &&
+    filters.from_date &&
+    filters.to_date
+  );
+};
+
+
+
 
   // lead for allocation
   const [selectedLeads, setSelectedLeads] = useState([]);
@@ -116,23 +123,10 @@ const [showLeadTable, setShowLeadTable] = useState(false);
     setSelectedLeads([]);
   };
   
- useEffect(() => {
-  if (isFilterComplete) {
-    fetchLead(filters);
-    setShowLeadTable(true);
-  } else {
-    setShowLeadTable(false);
-    setSelectedLeads([]);
-  }
-}, [
-  filters.category,
-  filters.from_date,
-  filters.to_date,
-  filters.lead_status,
-  selectedEmployeeDetails
-]);
+
 
   console.log("viewStatus", viewStatus);
+const [statusTouched, setStatusTouched] = useState(false);
 
   const [statusForm, setStatusForm] = useState({
     status: "",
@@ -147,7 +141,7 @@ const [showLeadTable, setShowLeadTable] = useState(false);
 
   // apply filter
   const handleApplyFilter = () => {
-    fetchLead(filters);
+    fetchAssignedLeads(filters);
   };
   // console.log("filter check", handleApplyFilter)
 
@@ -164,434 +158,105 @@ const [showLeadTable, setShowLeadTable] = useState(false);
     };
 
     setFilters(reset);
-    fetchLead(reset);
+    fetchAssignedLeads(reset);
   };
 
-  // open view
-  const openViewModal = (row) => {
-    console.log("OPen view : ", row)
-    setViewContact(row);
-    setIsViewModalOpen(true);
-    setTimeout(() => setIsViewAnimating(true), 50);
-  };
-  //  close view
-  const closeViewModal = () => {
-    setIsViewAnimating(false);
-    setTimeout(() => {
-      setIsViewModalOpen(false);
-      setViewContact(null);
-    }, 500);
-  };
-  // status list open
-  const openStatusView = async (row) => {
-    setStatusViewLead(row);
-    setIsStatusViewOpen(true);
-    await fetchStatusList(row.id);
-  };
-  // status list close 
-  const closeStatusView = () => {
-    setIsStatusViewOpen(false);
-    setStatusViewLead(null);
-  };
+useEffect(() => {
+  if (isFilterComplete()) {
+    setFilterError("");
+    setShowLeadTable(true);
 
-  const handleFileChange = (e) => {
-    setSelectedFiles(e.target.files);
-    setErrors((prev) => ({ ...prev, file: null }));
-  };
-
-  const [leadForm, setLeadForm] = useState({
-    is_organic: "",
-    full_name: "",
-    gender: "",
-    phone: "",
-    dob: "",
-    post_code: "",
-    city: "",
-    state: "",
-    status: "",
-    category: null,
-    // category:[]
-  });
-  // console.log("leadForm : ",leadForm);
-
-  // open add
-  const openAddModal = () => {
-    setIsAddModalOpen(true);
-    setTimeout(() => setIsAnimating(true), 10);
-  };
-  // close add
-  const closeAddModal = () => {
-    setIsAnimating(false);
-    setTimeout(() => {
-      setIsAddModalOpen(false);
-      setLeadForm({
-        is_organic: "",
-        full_name: "",
-        gender: "",
-        phone: "",
-        dob: "",
-        post_code: "",
-        city: "",
-        state: "",
-        status: "",
-        category: ""
-      });
-      setErrors({});
-    }, 300);
-  };
-  // open edit
-  const openEditModal = (lead) => {
-    console.log("Open Edit modal : ", lead)
-    setEditLeadForm({
-      id: lead.id,
-      is_organic: lead.is_organic ? "true" : "false",
-      full_name: lead.full_name,
-      gender: lead.gender,
-      phone: lead.phone,
-      dob: lead.date_of_birth,
-      post_code: lead.post_code,
-      city: lead.city,
-      state: lead.state,
-      // category: lead.category_id,
-      //  lead_category_id: lead.lead_category_id
-      //   ? [lead.lead_category_id]
-      //   : [],
-      lead_category_id: lead.lead_category_id ?? null,
-      status: lead.status?.toString()
+    fetchAssignedLeads({
+      category_id: filters.category.map(c => c.value),
+      lead_status: filters.lead_status.map(s => s.value),
+      start_date: filters.from_date,
+      end_date: filters.to_date,
     });
+  } else {
+    setShowLeadTable(false);
+    setLeads([]);
+    setLoading(false);
+  }
+}, [
+  filters.category,
+  filters.lead_status,
+  filters.from_date,
+  filters.to_date
+]);
 
-    setIsEditModalOpen(true);
-    setTimeout(() => setIsAnimating(true), 10);
-  };
-  // close edit 
-  const closeEditModal = () => {
-    setIsAnimating(false);
-    setErrors({});
-    setTimeout(() => {
-      setIsEditModalOpen(false);
-      setEditLeadForm(null);
-    }, 250);
-  };
+const applyFilters = () => {
+  fetchAssignedLeads({
+    category_id,
+    lead_status,
+    start_date,
+    end_date,
+  });
+};
 
-  // update
-  const handleUpdateLead = async () => {
-    try {
-      const payload = {
-        is_organic: editLeadForm.is_organic === "true" ? "true" : "false",
-        full_name: editLeadForm.full_name,
-        gender: editLeadForm.gender,
-        phone: editLeadForm.phone,
-        date_of_birth: editLeadForm.dob,
-        post_code: editLeadForm.post_code,
-        city: editLeadForm.city,
-        state: editLeadForm.state,
-        // category_id: editLeadForm.category,
-        lead_category_id: editLeadForm.lead_category_id,
-        // lead_category_id: editLeadForm.lead_category_id[0] || null,
-        status: editLeadForm.status,
-        updated_by: userid
-      };
+const clearFilters = () => {
+  fetchAssignedLeads({});
+};
 
-      const res = await axiosInstance.post(
-        `${API_URL}api/lead-management/update/${editLeadForm.id}`,
-        payload
-      );
+ const [filterError, setFilterError] = useState("");
+const [submitError, setSubmitError] = useState("");
 
-      if (res.data.success || res.data.status) {
-        setTimeout(() => {
-          toast.success(res.data?.message || "Lead updated successfully");
-        }, 600);
-        closeEditModal();
-        fetchLead();
-      }
-    } catch (error) {
-      toast.error("Failed to update lead");
-    }
-  };
-
-  const handleChange = (field, value) => {
-    setLeadForm(prev => ({ ...prev, [field]: value }));
-  };
-  //  validation lead form
-  const validateLeadForm = () => {
-    let newErrors = {};
-
-    if (!leadForm.is_organic) newErrors.is_organic = "Required";
-    if (!leadForm.full_name) newErrors.full_name = "Enter a Name";
-    if (!leadForm.gender) newErrors.gender = "Select Gender";
-    if (!leadForm.phone) newErrors.phone = "Enter a Phone Number";
-    if (!leadForm.dob) newErrors.dob = "Enter Birth Date";
-    if (!leadForm.post_code) newErrors.post_code = "Enter a Postcode";
-    if (!leadForm.city) newErrors.city = "Enter a city";
-    if (!leadForm.state) newErrors.state = "Enter a State";
-    if (leadForm.status === "") newErrors.status = "select Status";
-    if (!leadForm.category || leadForm.category.length === 0) newErrors.category = "Select Category";
-    //  if (!leadForm.lead_category_id) newErrors.category = "Select Category";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // update lead status
-  const handleStatusSubmit = async () => {
-    try {
-      if (!statusForm.status) {
-        toast.warning("Please select status");
-        return;
-      }
-
-      if (statusForm.followUp === "yes" && !statusForm.followUpDate) {
-        toast.warning("Please select follow up date");
-        return;
-      }
-
-      const payload = {
-        lead_status: STATUS_MAP[statusForm.status],
-        notes: statusForm.notes,
-        followup_status: statusForm.followUp === "yes" ? 1 : 0,
-        created_by: userid,
-        scheduled_date: statusForm.epoDate || null,
-        followup_date:
-          statusForm.followUp === "yes"
-            ? statusForm.followUpDate
-            : null,
-      };
-
-      if (statusForm.followUp === "yes") {
-        payload.followup_date = statusForm.followUpDate;
-      }
-
-      const response = await axiosInstance.post(
-        `${API_URL}api/lead-management/status-update/${viewStatus.id}`,
-        payload
-      );
-      setTimeout(() => {
-        toast.success("Lead status updated successfully");
-      }, 600);
-
-      await fetchStatusList(viewStatus.id);
-      fetchLead();
-
-      // reset form
-      setStatusForm({
-        status: "",
-        notes: "",
-        followUp: "no",
-        followUpDate: "",
-      });
-
-
-    } catch (error) {
-      console.error("Status update failed", error);
-      toast.error("Failed to update lead status");
-    }
-  };
-
-  // create
-  const handleAddLeadSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateLeadForm()) return;
-    if (submitting) return;
-
-    setSubmitting(true);
-
-    try {
-      const payload = {
-        is_organic: leadForm.is_organic === "true" ? "true" : "false",
-        full_name: leadForm.full_name,
-        gender: leadForm.gender,
-        phone: leadForm.phone,
-        date_of_birth: leadForm.dob,
-        post_code: leadForm.post_code,
-        city: leadForm.city,
-        state: leadForm.state,
-        // category_id: leadForm.category,
-        lead_category_id: leadForm.category,
-        status: leadForm.status,
-        created_by: userid
-      };
-
-      const res = await axiosInstance.post(
-        `${API_URL}api/lead-management/create`,
-        payload
-      );
-      console.log("Lead create res : ", res);
-
-      if (res.data.success || res.data.status) {
-        setTimeout(() => {
-          toast.success(res.data?.message || "Lead created successfully");
-        }, 600);
-        closeAddModal();
-        fetchLead({});
-      } else {
-        toast.error("Failed to create lead");
-      }
-    } catch (err) {
-      console.log("Error", err)
-      toast.error("Something went wrong");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Fetch lead from the API
-  useEffect(() => {
-    fetchLead();
-  }, []);
-
-  const applyFrontendFilters = (data, filters) => {
-    let result = [...data];
-
-    // CITY
-    if (filters.city) {
-      result = result.filter(item =>
-        item.city?.toLowerCase() === filters.city.toLowerCase()
-      );
-    }
-
-    // PLATFORM
-    if (filters.platform) {
-      result = result.filter(item =>
-        item.platform?.toLowerCase() === filters.platform.toLowerCase()
-      );
-    }
-
-    // AGE
-    if (filters.age) {
-      const [min, max] = filters.age.split("-");
-
-      result = result.filter(item => {
-        const age = Number(item.age);
-        if (filters.age === "46+") return age >= 46;
-        return age >= Number(min) && age <= Number(max);
-      });
-    }
-
-    // category
-    // if (filters.category) {
-    //   result = result.filter(item =>
-    //     item.category?.toLowerCase() === filters.category.toLowerCase()
-    //   );
-    // }
-    if (filters.category) {
-      result = result.filter(item => item.lead_category_id === filters.category);
-    }
-
-
-
-    console.log("result", result)
-    // lead status
-    if (filters.lead_status) {
-      console.log("filtering by status : ", filters.lead_status)
-      let a = result.map(item => console.log(item.lead_status))
-      result = result.filter(item => item.lead_status === filters.lead_status);
-    }
-
-    console.log("Filtered results count:", result.length);
-    return result;
-  };
-
-  //  list
-  // const fetchLead = async (customFilters) => {
-  //   const appliedFilters = customFilters ?? filters;
-
-  //   try {
-  //     setLoading(true);
-
-  //     const params = {};
-
-  //     if (appliedFilters.gender)
-  //       params.gender = appliedFilters.gender.toLowerCase();
-
-  //     if (appliedFilters.platform)
-  //       params.platform = appliedFilters.platform.toLowerCase();
-
-  //     if (appliedFilters.city)
-  //       params.city = appliedFilters.city.toLowerCase();
-
-  //     if (appliedFilters.from_date)
-  //       params.from_date = appliedFilters.from_date;
-
-  //     if (appliedFilters.to_date)
-  //       params.to_date = appliedFilters.to_date;
-
-  //     if (appliedFilters.category)
-  //       params.lead_category_id = appliedFilters.category;
-
-  //     if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
-
-  //     const res = await axiosInstance.get(
-  //       // `${API_URL}api/lead-management`,
-  //       // { params }
-  //     );
-
-  //     console.log("API LIST : ", res.data.data);
-
-  //     if (res.data.success) {
-  //       let data = res.data.data || [];
-
-  //       // Normalize status values for consistent display
-  //       data = data.map(lead => ({
-  //         ...lead,
-  //         status: lead.status?.toString() || "", // Ensure status is string
-  //         lead_status: normalizeLeadStatus(lead.lead_status),
-  //         category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
-  //         category_id: lead.lead_category_id // Use the correct field
-  //       }));
-
-  //       //  FRONTEND FILTERING
-  //       data = applyFrontendFilters(data, appliedFilters);
-
-  //       setLeads(data);
-  //       setTotalRecords(data.length);
-  //       setGenderOptions(res.data.gender || []);
-  //       setPlatformOptions(res.data.platforms || {});
-  //       setCityOptions(res.data.cities || []);
-  //       // setCategoryOptions(res.data.categories || []);
-  //       // Set category options from response
-  //       // if (res.data.lead_category) {
-  //       //   const categoryOptions = res.data.lead_category.map(cat => ({
-  //       //     label: cat.name,
-  //       //     value: cat.id
-  //       //   }));
-  //       //   setCategoryOptions(categoryOptions);
-  //       // }
-
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed To Fetch Leads");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  const fetchLead = async (appliedFilters) => {
+const fetchAssignedLeads = async (appliedFilters = {}) => {
   setLoading(true);
+
   try {
-    // Simulated API Logic
-    let data = dummyLeads; 
+    const params = {};
 
-    // 1. Test your normalization logic
-    data = data.map(lead => ({
-      ...lead,
-      lead_status: normalizeLeadStatus(lead.lead_status),
-    }));
-
-    // 2. Test your Frontend Filtering
-    if (appliedFilters?.city) {
-        data = data.filter(item => item.city.toLowerCase() === appliedFilters.city.toLowerCase());
+    if (appliedFilters.category_id?.length) {
+      params.category_id = appliedFilters.category_id;
     }
 
-    setLeads(data);
-    setTotalRecords(data.length);
+    if (appliedFilters.lead_status?.length) {
+      params.lead_status = appliedFilters.lead_status;
+    }
+
+    if (appliedFilters.start_date) {
+      params.start_date = appliedFilters.start_date;
+    }
+
+    if (appliedFilters.end_date) {
+      params.end_date = appliedFilters.end_date;
+    }
+
+    const res = await axiosInstance.get(
+      "/api/lead-management/lead-list",
+      { params }
+    );
+
+    if (res.status === 200) {
+      const leads = res.data.data || [];
+
+      // ✅ Employees for dropdown
+      const empOptions = (res.data.employees || []).map(emp => ({
+        label: emp.full_name,
+        value: emp.id
+      }));
+
+      setEmployeeOptions(empOptions);
+      setSelectedEmployeeDetails(null); // reset selection
+
+      const normalizedLeads = leads.map(lead => ({
+        ...lead,
+        lead_status: normalizeLeadStatus(lead.lead_status),
+      }));
+
+      setLeads(normalizedLeads);
+      setTotalRecords(res.data.count || normalizedLeads.length);
+    }
+
   } catch (err) {
-    console.error(err);
+    console.error("Failed to fetch leads:", err);
+    setEmployeeOptions([]);
+    setLeads([]);
   } finally {
     setLoading(false);
   }
 };
+
 
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
@@ -640,51 +305,6 @@ const [showLeadTable, setShowLeadTable] = useState(false);
   };
 
 
-  // import
-  const handleFileSubmit = async () => {
-    if (!selectedFiles || selectedFiles.length === 0) {
-      toast.warning("Please select a file");
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("file", selectedFiles[0]); // MUST be File object
-      formData.append("created_by", userid);
-
-      console.log("FILE OBJECT:", selectedFiles[0]); // should show name, size
-
-      if (selectedCategory) {
-        formData.append("lead_category_id", selectedCategory);
-      }
-
-      const res = await axiosInstance.post(
-        `${API_URL}api/lead-management/import`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      if (res.data?.success) {
-        toast.success(res.data?.message || "File imported successfully");
-
-        setTimeout(() => {
-          closeImportAddModal();
-          fetchLead();
-        }, 600);
-
-      } else {
-        toast.error(res.data?.message || "Import failed");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Import failed");
-    }
-  };
-
   // delete
   const deleteLead = async (leadId) => {
     const result = await Swal.fire({
@@ -714,7 +334,7 @@ const [showLeadTable, setShowLeadTable] = useState(false);
         setTimeout(() => {
           toast.success(res.data?.message || "Lead deleted successfully");
         }, 600);
-        fetchLead(); // refresh table
+        fetchAssignedLeads(); // refresh table
       } else {
         toast.error(res.data?.message || "Delete failed");
       }
@@ -736,7 +356,7 @@ const [showLeadTable, setShowLeadTable] = useState(false);
         const options = res.data.data
           .filter(item => item.status === "1") // only active
           .map(item => ({
-            label: item.name,   // shown in dropdown
+            label: Capitalise(item.name),  // shown in dropdown
             value: item.id      // sent to filter
           }));
 
@@ -1003,7 +623,7 @@ const columns = [
                   <Dropdown
                     value={selectedEmployeeDetails}
                     onChange={(e) => setSelectedEmployeeDetails(e.value)}
-                    options={selectedEmployee}
+                    options={employeeOptions}
                     optionLabel="label"
                     placeholder="Select Employee"
                     filter
@@ -1011,9 +631,9 @@ const columns = [
                   />
                 </div>
 
-                               {/* category */}
+                               {/* platform */}
                 <div className="flex items-center justify-between gap-1 w-[50%]">
-                  <label className="text-sm font-medium text-[#6B7280]">Category</label>
+                  <label className="text-sm font-medium text-[#6B7280]">Platform</label>
                   <MultiSelect
                     className="uniform-field h-10 px-3 w-full md:w-48 rounded-md border text-sm"
                     // value={selectedCategory}
@@ -1026,9 +646,9 @@ const columns = [
                         category: e.value
                       }));
                     }}
-                    placeholder="Select Category"
+                    placeholder="Select Platform"
                     filter
-                    filterPlaceholder="Search category"
+                    filterPlaceholder="Search Platform"
 
                     panelClassName="text-sm"
                   />
@@ -1067,7 +687,7 @@ const columns = [
                     Status
                   </label>
 
-                  <MultiSelect
+                  {/* <MultiSelect
                     value={filters.lead_status}
                     options={statusDropdownOptions}
                     onChange={(e) =>
@@ -1077,15 +697,33 @@ const columns = [
                     className="uniform-field h-10 w-full md:w-48 rounded-md border border-[#D9D9D9] text-sm"
                     panelClassName="text-sm"
                     filter
-                  />
+                  /> */}
+
+                 <MultiSelect
+  value={filters.lead_status}
+  options={statusDropdownOptions}
+  onChange={(e) => {
+    setStatusTouched(true);
+    setFilters(prev => ({ ...prev, lead_status: e.value }));
+  }}
+  placeholder="Select Status"
+                      className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+
+/>
+
                 </div>
               </div>
 
               </div>
+{statusTouched && !isFilterComplete() && (
+  <p className="text-red-500 text-sm mt-2">
+    Please select Platform, Start Date, End Date and Status
+  </p>
+)}
 
 
 
-{/* {showLeadTable && ( */}
+
    {/* Header */}
                <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
@@ -1105,6 +743,8 @@ px-2 py-2 md:px-6 md:py-6">
       </div>
 
       {/* Lead Grid */}
+      {showLeadTable && (
+  <div className="flex flex-col w-full mt-5 rounded-2xl bg-white shadow px-6 py-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-fit">
         {leads.map(lead => {
           const checked = selectedLeads.includes(lead.id);
@@ -1151,6 +791,8 @@ px-2 py-2 md:px-6 md:py-6">
           );
         })}
       </div>
+      </div>
+)}
 
       {/* Submit */}
       <div className="flex justify-end mt-6">
