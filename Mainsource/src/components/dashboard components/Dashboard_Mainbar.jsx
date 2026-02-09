@@ -58,11 +58,12 @@ const Dashboard_Mainbar = () => {
   const [emplopyeereliving, setEmplopyeereliving] = useState([]);
   const [interns, setinterns] = useState([]);
 
-  const [announcements, setAnnouncements] = useState([]);
 
   // console.log("announcements", announcements)
   // console.log("interns", interns);
-
+  const [showTopBanner, setShowTopBanner] = useState(true);
+const [announcements, setAnnouncements] = useState([]);
+const [topAnnouncement, setTopAnnouncement] = useState(null);
 
   const [continuousAbsentees, setContinuousAbsentees] = useState([]);
   const [employeesJoinedToday, setEmployeesJoinedToday] = useState([]);
@@ -81,6 +82,43 @@ const Dashboard_Mainbar = () => {
     // API call
     fetchDashboardData(from_date, to_date);
   };
+
+  useEffect(() => {
+  loadData();
+  fetchAnnouncements();   // 👈 ADD THIS
+  const date = new Date().toISOString().split("T")[0];
+  setSelectedDate(date);
+}, []);
+
+  // useEffect(() => {
+  //   if (topAnnouncement) {
+  //     const timer = setTimeout(() => {
+  //       setShowTopBanner(false);
+  //     }, 1000000);
+
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [topAnnouncement]);
+
+const fetchAnnouncements = async () => {
+  try {
+    const res = await axiosInstance.get(`${API_URL}api/announcements/latest`);
+
+    if (res.data?.success) {
+      const list = res.data.data || [];
+      setAnnouncements(list);
+
+      if (list.length > 0) {
+        setTopAnnouncement(list[0]); // show latest one
+        setShowTopBanner(true);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch announcements", error);
+  }
+};
+
+
   const loadData = () => {
 
     //  API call
@@ -171,6 +209,8 @@ const Dashboard_Mainbar = () => {
     const date = new Date().toISOString().split("T")[0];
     setSelectedDate(date);
   }, []);
+
+
 
   const financeRequestDummyData = [
     {
@@ -616,6 +656,58 @@ const Dashboard_Mainbar = () => {
             {/* <div className="bg-white rounded-2xl px-2 py-2 md:px-5 md:py-5 flex justify-between mt-1 "> */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
               <p className="hidden md:block font-semibold">Dashboard</p>
+
+              {topAnnouncement && showTopBanner && (
+                <div className="w-full mb-4">
+                  <div
+                    className="
+                      relative flex flex-col md:flex-row gap-3 md:gap-6 items-start md:items-center
+                      bg-gradient-to-r from-green-600 to-emerald-500
+                      text-white px-4 md:px-6 py-3 md:py-4
+                      rounded-xl shadow-lg
+                    "
+                  >
+                    {/* Left Icon */}
+                    <div className="hidden md:flex items-center justify-center w-10 h-10 bg-white/20 rounded-full">
+                      <FaEye className="text-white text-lg" />
+                    </div>
+
+                    {/* Message */}
+                    <div className="flex-1">
+                      <p className="text-sm md:text-base font-semibold">
+                        📢 Latest Announcement
+                      </p>
+
+                      <div
+                        className="text-xs md:text-sm mt-1 text-white/90 line-clamp-2"
+                        dangerouslySetInnerHTML={{
+                          __html: topAnnouncement?.announcement_details,
+                        }}
+                      />
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                      onClick={() => openViewModal(topAnnouncement)}
+                      className="
+                        text-xs md:text-sm font-medium
+                        bg-white/20 hover:bg-white/30
+                        px-3 py-1.5 rounded-md transition
+                      "
+                    >
+                      View
+                    </button>
+
+                    {/* Close */}
+                    <button
+                      onClick={() => setShowTopBanner(false)}
+                      className="absolute top-2 right-2 text-white/80 hover:text-white"
+                    >
+                      <IoIosCloseCircle size={22} />
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
 
