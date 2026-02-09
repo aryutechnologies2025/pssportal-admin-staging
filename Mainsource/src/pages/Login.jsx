@@ -13,6 +13,7 @@ import { API_URL } from "../Config";
 import axiosInstance from "../axiosConfig.js";
 import ReCAPTCHA from "react-google-recaptcha";
 import api from "../api.js"
+import Api from "../api.js";
 
 const Login = () => {
   let navigate = useNavigate();
@@ -101,7 +102,10 @@ const Login = () => {
       console.log("API_URL", API_URL);
       console.log("formData", formData);
 
-      const response = await axios.post(`${API_URL}api/login`, formData);
+      const response = await axiosInstance.post(`${API_URL}api/login`, formData);
+
+          // const response = await Api.post("api/login", formData);
+
 
       // const response = await axiosInstance.get(`${API_URL}api/student/list`);
       console.log("response.......", response);
@@ -114,6 +118,12 @@ const Login = () => {
         localStorage.setItem("pss_dateformat", JSON.stringify(data));
 
         localStorage.setItem("pssuser", JSON.stringify(data.user));
+
+        // 🔐 Store token and expiry
+        localStorage.setItem("admin_token", data.token);
+        const expiresAt = data.token_expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        localStorage.setItem("admin_token_expires", expiresAt);
+        sessionStorage.setItem("admin_logged_in", "true");
         // Cookies.set("token", data.token, { path: "/" });
         // localStorage.setItem("admin_token", data.token);
         // localStorage.setItem("loginTime", Date.now());
@@ -122,7 +132,7 @@ const Login = () => {
 
         // Optional refresh
         window.scrollTo({ top: 0, behavior: "instant" });
-        window.location.reload();
+        // window.location.reload();
       } else {
         console.log("error", response);
         setError({ general: "Login failed, token not found." });

@@ -1318,30 +1318,71 @@ const Privileges_Mainbar = () => {
     setPage(1);
   };
 
-  const privilegesOption = [
-    {
-      name: "Interview",
-      children: [
-        {
-          module: "candidate",
-          actions: ["add", "view", "edit", "delete", "filter"]
-        }
-      ]
-    },
-    {
-      name: "Contract",
-      children: [
-        {
-          module: "Employee",
-          actions: ["add", "view", "edit", "delete", "filter", "import"]
-        },
-        {
-          module: "Attendance",
-          actions: ["add", "view", "edit", "delete", "filter", "import"]
-        }
-      ]
-    },
-  ];
+    const [privilegesOption, setPrivilegesOption] = useState([]);
+    console.log("privilegesOption", privilegesOption)
+
+
+  // const privilegesOption = [
+  //   {
+  //     name: "Interview",
+  //     children: [
+  //       {
+  //         module: "candidate",
+  //         actions: ["add", "view", "edit", "delete", "filter"]
+  //       }
+  //     ]
+  //   },
+  //   {
+  //     name: "Contract",
+  //     children: [
+  //       {
+  //         module: "Employee",
+  //         actions: ["add", "view", "edit", "delete", "filter", "import"]
+  //       },
+  //       {
+  //         module: "Attendance",
+  //         actions: ["add", "view", "edit", "delete", "filter", "import"]
+  //       }
+  //     ]
+  //   },
+  // ];
+
+
+    const buildPrivilegesOption = (apiData = []) => {
+    const grouped = {};
+
+    apiData.forEach((item) => {
+      const label = item.label; // Interview / Contract
+
+      if (!grouped[label]) grouped[label] = [];
+
+      //  Default actions list (UI la always show)
+      const actions = ["add", "view", "edit", "delete", "filter", "import"];
+
+      //  API flags (checked state)
+      const checkedActions = {
+        add: item.is_create === 1,
+        view: item.is_view === 1,
+        edit: item.is_edit === 1,
+        delete: item.is_delete === 1,
+        filter: item.is_filter === 1,
+        import: item.is_import === 1,
+      };
+
+      grouped[label].push({
+        id: item.id,
+        module: item.module,
+        module_name: item.module_name,
+        actions,
+        checkedActions,
+      });
+    });
+
+    return Object.keys(grouped).map((label) => ({
+      name: label,
+      children: grouped[label],
+    }));
+  };
 
   useEffect(() => {
     if (userPrivileges) {
@@ -1363,6 +1404,8 @@ const Privileges_Mainbar = () => {
           }
         }
       );
+
+      // console.log("responsepermisiiom", response);
       setTableData(response?.data.data);
       setEmployeeOption(response?.data?.pssemployees.map((emp) => ({ 
         label: emp.full_name, 
@@ -1687,6 +1730,37 @@ const Privileges_Mainbar = () => {
   ];
 
   let navigate = useNavigate();
+
+
+  // api permission get
+
+
+   const fetchPermission= async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(
+        `${API_URL}api/role/module-list`,
+    
+      );
+
+          const apiData = response?.data?.data || [];
+
+    const formatted = buildPrivilegesOption(apiData);
+
+    setPrivilegesOption(formatted);
+
+      console.log("module", response);
+   
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPermission();
+  }, []);
 
   return (
     <div className="flex flex-col justify-between bg-gray-100 w-screen min-h-screen px-3 md:px-5 pt-2 md:pt-10">

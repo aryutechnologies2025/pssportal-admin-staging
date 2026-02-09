@@ -64,13 +64,18 @@ import MonthlyWorkReport_Main from "./components/Daily work report component/Mon
 import ProtectedRoute from "./auth/Protected_Route";
 import { useState } from "react";
 import PublicRoute from "./auth/PublicRoute ";
+import { useTokenExpiry } from "./hooks/useTokenExpiry";
 
-function App() {
+// Routes component that uses hooks (inside Router context)
+function AppRoutes() {
   const user = JSON.parse(localStorage.getItem("pssuser"));
   const isLoggedIn = !!user;
 
+  // Monitor token expiry (now inside Router context)
+  useTokenExpiry();
+
   return (
-    <BrowserRouter>
+    <>
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -165,6 +170,14 @@ function App() {
           {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
         </Route>
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
     </BrowserRouter>
   );
 }
