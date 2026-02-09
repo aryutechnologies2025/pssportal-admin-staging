@@ -260,7 +260,7 @@ const Lead_Sidebar = () => {
                   <MdLeaderboard className="w-5 " />
 
                   {!arrowClicked && (
-                    <p className="text-sm font-medium">Lead Engine</p>
+                    <p className="text-sm font-medium">Leads</p>
                   )}
                 </div>
               </div>

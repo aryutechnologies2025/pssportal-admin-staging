@@ -35,7 +35,7 @@ const Lead_Dashboard = () => {
     { id: 2, category: "instagram", count: 32, label: "Instagram" },
     { id: 3, category: "portal", count: 28, label: "Portal" }
   ];
-  
+      
   const dummyLeadDetails = [
     { id: 1, name: "John Doe", category: "facebook", status: "open", date: new Date().toISOString(), email: "john@example.com", phone: "1234567890" },
     { id: 2, name: "Jane Smith", category: "facebook", status: "joined", date: new Date().toISOString(), email: "jane@example.com", phone: "0987654321" },
@@ -161,7 +161,7 @@ const Lead_Dashboard = () => {
     },
     {
       field: "label",
-      header: "Category",
+      header: "Platform",
       body: (rowData) => (
         <button
           onClick={() => handleCategoryClick(rowData)}
@@ -263,7 +263,7 @@ const Lead_Dashboard = () => {
 
             </div>
             
-             <p className="text-xs md:text-sm mt-3  text-end text-[#1ea600]">Lead Dashboard</p>
+             {/* <p className="text-xs md:text-sm mt-3  text-end text-[#1ea600]">Lead Dashboard</p> */}
             {/* Header */}
             <div className="flex justify-between items-center">
               <p className="font-semibold ">Lead Dashboard</p>
@@ -312,11 +312,11 @@ const Lead_Dashboard = () => {
             {/* Dashboard Content */}
             <div className="dashboard-tables mt-6">
               
-              {/* Category Wise Count */}
+              {/* platform Wise Count */}
               <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-800">
-                    Category Wise Count
+                    Platform Wise Count
                   </h2>
                   
                 </div>
@@ -337,7 +337,7 @@ const Lead_Dashboard = () => {
                     />
                     <Column 
                       field="label" 
-                      header="Category" 
+                      header="Platform" 
                       body={(rowData) => (
                         <button
                           onClick={() => handleCategoryClick(rowData)}

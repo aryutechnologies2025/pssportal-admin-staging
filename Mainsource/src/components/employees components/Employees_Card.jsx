@@ -598,8 +598,8 @@ const Employees_Card = () => {
     },
 
       {
-      field: "lead_allocation",
-      header: "Lead Allocation",
+      field: "emp_lead_assign",
+      header: "Lead Assign",
       body: (row) => {
        
         return (
@@ -610,12 +610,12 @@ const Employees_Card = () => {
 
             <input
               type="checkbox"
-             checked={row.lead_allocation == "1"}
+             checked={row.emp_lead_assign == "1"}
 
               onClick={(e) => e.stopPropagation()}
           
               onChange={(e) =>
-                handleReferenceChange(row.id, "lead_allocation", e.target.checked)
+                handleAssignLeadChange(row.id, "emp_lead_assign", e.target.checked)
               }
               className="w-4 h-4 cursor-pointer accent-green-600"
             />
