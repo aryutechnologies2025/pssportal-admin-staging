@@ -30,6 +30,7 @@ import { BsBuildingUp } from "react-icons/bs";
 import { TbReport } from "react-icons/tb";
 import { AiOutlineMessage } from "react-icons/ai";
 import { VscReport } from "react-icons/vsc";
+import Api from "../api";
 
 const Sidebar = () => {
   const AdminData = JSON.parse(
@@ -82,35 +83,68 @@ const Sidebar = () => {
         return;
       }
 
-      await axiosInstance.post(`${API_URL}api/logout`, {
+      await Api.post(`api/logout`, {
         id: user.id,
       });
       console.log("Logout API success");
     } catch (error) {
       console.error("Logout API failed", error);
+    } finally {
+      // Always clear session regardless of API success/failure
+      localStorage.removeItem("pssuser");
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_token_expires");
+      localStorage.removeItem("pss_dateformat");
+      sessionStorage.removeItem("admin_logged_in");
     }
   };
+
+  // const onClickSidebarMenu = async (label) => {
+  //   if (label === "/") {
+  //     setButtonLoading(true);
+  //     // setTimeout(() => {
+  //     //   localStorage.removeItem("pssuser");
+  //     //   window.location.reload();
+  //     //   window.scrollTo({ top: 0, behavior: "instant" });
+  //     //   setButtonLoading(false);
+  //     // }, 300);
+  //     await logoutUser();
+  //     localStorage.removeItem("pssuser");
+  //     sessionStorage.clear();
+  //     setButtonLoading(false);
+
+  //     navigate("/");
+  //     window.scrollTo({ top: 0, behavior: "instant" });
+  //   } else {
+  //     navigate(`/${label.toLowerCase()}`);
+  //     window.scrollTo({ top: 0, behavior: "instant" });
+  //   }
+  // };
+
+
 
   const onClickSidebarMenu = async (label) => {
-    if (label === "/") {
+  // logout condition
+  if (label === "/" || label?.toLowerCase() === "logout") {
+    try {
       setButtonLoading(true);
-      // setTimeout(() => {
-      //   localStorage.removeItem("pssuser");
-      //   window.location.reload();
-      //   window.scrollTo({ top: 0, behavior: "instant" });
-      //   setButtonLoading(false);
-      // }, 300);
+      // API logout (clears session in finally block)
       await logoutUser();
-      localStorage.removeItem("pssuser");
+    } catch (err) {
+      console.log("Logout error", err);
+    } finally {
       setButtonLoading(false);
-
-      navigate("/");
-      window.scrollTo({ top: 0, behavior: "instant" });
-    } else {
-      navigate(`/${label.toLowerCase()}`);
+      navigate("/", { replace: true });
       window.scrollTo({ top: 0, behavior: "instant" });
     }
-  };
+
+    return;
+  }
+
+  // normal navigation
+  navigate(`/${label.toLowerCase()}`);
+  window.scrollTo({ top: 0, behavior: "instant" });
+};
 
   return (
     <div>

@@ -33,16 +33,47 @@
 
 
 
+// import { Navigate, Outlet, useLocation } from "react-router-dom";
+
+// const ProtectedRoute = () => {
+//   const location = useLocation();
+//   const user = JSON.parse(localStorage.getItem("pssuser"));
+
+  
+
+//   if (!user) {
+//     return <Navigate to="/" replace state={{ from: location }} />;
+//   }
+
+//   const isAdmin = String(user?.role_id) === "1";
+
+//   if (!isAdmin) {
+//     return <Navigate to="/unauthorized" replace />;
+//   }
+
+//   return <Outlet />;
+// };
+
+// export default ProtectedRoute;
+
+
+
+
+
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const ProtectedRoute = () => {
   const location = useLocation();
-  const user = JSON.parse(localStorage.getItem("pssuser"));
 
-  if (!user) {
+  const user = JSON.parse(localStorage.getItem("pssuser") || "null");
+  const loggedIn = sessionStorage.getItem("admin_logged_in"); // ✅
+
+  // If session missing OR user missing -> login
+  if (!user || loggedIn !== "true") {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
+  // Admin check
   const isAdmin = String(user?.role_id) === "1";
 
   if (!isAdmin) {

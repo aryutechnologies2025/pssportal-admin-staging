@@ -1,25 +1,38 @@
 import axios from "axios";
-import { API_URL } from "./Config";
 
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true, // REQUIRED for Laravel session
+const Api = axios.create({
+  baseURL: "http://192.168.0.117:8000/",
+  withCredentials: false, // ❌ Don't use credentials with tokens
   headers: {
-    Authorization: "Basic " + btoa("admin:12345") // static.auth
-  }
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 });
 
-// ✅ AUTO session expire handling
-api.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response && error.response.status === 401) {
-      sessionStorage.clear();
-      localStorage.clear();
-      window.location.href = "/login";
+// 🔐 Add token to every request
+Api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("admin_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// 🔄 Handle 401 - redirect to login if token expired
+Api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_token_expires");
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }
 );
 
-export default api;
+export default Api;
+

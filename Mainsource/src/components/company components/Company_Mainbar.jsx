@@ -33,6 +33,7 @@ import { FaEye } from "react-icons/fa6";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { Capitalise } from "../../hooks/useCapitalise.jsx";
 import TimeDropdown from "../../hooks/TimeInput .jsx";
+import Api from "../../api.js";
 
 const Company_Mainbar = () => {
   const navigate = useNavigate();
@@ -468,8 +469,15 @@ const Company_Mainbar = () => {
   // view
   const fetchCompanies = async () => {
     try {
-      const res = await axiosInstance.get(`${API_URL}api/company`);
-      console.log("Company List API Response:", res.data);
+      // const res = await Api.get("api/company");      // const res = await Api.get("api/company");
+      // console.log("Company List API Response:", res.data);
+
+      //   ${API_URL}api/company
+
+
+      const res = await axiosInstance.get(
+        `${API_URL}api/company`,
+      );
 
       const list =
         res.data?.data || res.data?.companies || res.data?.result || [];
@@ -788,10 +796,9 @@ const Company_Mainbar = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -2168,10 +2175,10 @@ const Company_Mainbar = () => {
                             />
                             {errors.companyShifts?.[index]
                               ?.company_shift_id && (
-                              <p className="text-red-500 text-sm">
-                                {errors.companyShifts[index].company_shift_id}
-                              </p>
-                            )}
+                                <p className="text-red-500 text-sm">
+                                  {errors.companyShifts[index].company_shift_id}
+                                </p>
+                              )}
                           </div>
                         </div>
                         {/* Full Name */}
