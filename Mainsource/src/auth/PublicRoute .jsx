@@ -1,9 +1,11 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 const PublicRoute = () => {
-  const user = JSON.parse(localStorage.getItem("pssuser"));
+  const user = localStorage.getItem("pssuser");
+  const loggedIn = sessionStorage.getItem("admin_logged_in");
 
-  if (user) {
+  // Redirect ONLY if fully authenticated
+  if (user && loggedIn === "true") {
     return <Navigate to="/dashboard" replace />;
   }
 

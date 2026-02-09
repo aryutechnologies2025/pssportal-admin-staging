@@ -59,22 +59,23 @@
 
 
 
-
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 const ProtectedRoute = () => {
   const location = useLocation();
 
-  const user = JSON.parse(localStorage.getItem("pssuser") || "null");
-  const loggedIn = sessionStorage.getItem("admin_logged_in"); // ✅
+  const userRaw = localStorage.getItem("pssuser");
+  const loggedIn = sessionStorage.getItem("admin_logged_in");
 
-  // If session missing OR user missing -> login
-  if (!user || loggedIn !== "true") {
+  //  Single exit condition
+  if (!userRaw || loggedIn !== "true") {
     return <Navigate to="/" replace state={{ from: location }} />;
   }
 
-  // Admin check
-  const isAdmin = String(user?.role_id) === "1";
+  const user = JSON.parse(userRaw);
+
+  //  Admin check
+  const isAdmin = String(user.role_id) === "1";
 
   if (!isAdmin) {
     return <Navigate to="/unauthorized" replace />;
@@ -84,3 +85,4 @@ const ProtectedRoute = () => {
 };
 
 export default ProtectedRoute;
+
