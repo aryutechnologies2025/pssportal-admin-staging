@@ -1743,6 +1743,8 @@ const Privileges_Mainbar = () => {
     
       );
 
+      console.log("FEtch Permission : ", response)
+
           const apiData = response?.data?.data || [];
 
     const formatted = buildPrivilegesOption(apiData);
