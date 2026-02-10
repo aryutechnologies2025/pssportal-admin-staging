@@ -69,13 +69,15 @@ const LeadAssignedTo = () => {
 
   const today = new Date().toISOString().split("T")[0];
     const [filters, setFilters] = useState({
-      from_date: today,
-      to_date: today,
-      category:null,
-      lead_status:""
-    });
+  from_date: today,
+  to_date: today,
+  category: [],
+  lead_status: []
+});
+
   
       const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
+      console.log("SelectedEmployeeDetaails : ",selectedEmployeeDetails);
   const [selectedEmployee, setSelectedEmployee] = useState([]);
   const [employeeOptions, setEmployeeOptions] = useState([]);
 
@@ -161,14 +163,14 @@ const [statusTouched, setStatusTouched] = useState(false);
     fetchAssignedLeads(reset);
   };
 
-useEffect(() => {
+  useEffect(() => {
   if (isFilterComplete()) {
     setFilterError("");
     setShowLeadTable(true);
 
     fetchAssignedLeads({
-      category_id: filters.category.map(c => c.value),
-      lead_status: filters.lead_status.map(s => s.value),
+      category_id: filters.category,      // objects
+      lead_status: filters.lead_status,    // objects
       start_date: filters.from_date,
       end_date: filters.to_date,
     });
@@ -183,6 +185,7 @@ useEffect(() => {
   filters.from_date,
   filters.to_date
 ]);
+
 
 const applyFilters = () => {
   fetchAssignedLeads({
@@ -201,18 +204,20 @@ const clearFilters = () => {
 const [submitError, setSubmitError] = useState("");
 
 const fetchAssignedLeads = async (appliedFilters = {}) => {
+  console.log("🚀 fetchAssignedLeads CALLED");
   setLoading(true);
 
   try {
     const params = {};
 
-    if (appliedFilters.category_id?.length) {
-      params.category_id = appliedFilters.category_id;
-    }
+if (Array.isArray(appliedFilters.category_id) && appliedFilters.category_id.length > 0) {
+  params.category_id = appliedFilters.category_id.join(",");
+}
 
-    if (appliedFilters.lead_status?.length) {
-      params.lead_status = appliedFilters.lead_status;
-    }
+if (Array.isArray(appliedFilters.lead_status) && appliedFilters.lead_status.length > 0) {
+  params.lead_status = appliedFilters.lead_status.join(",");
+}
+
 
     if (appliedFilters.start_date) {
       params.start_date = appliedFilters.start_date;
@@ -222,15 +227,21 @@ const fetchAssignedLeads = async (appliedFilters = {}) => {
       params.end_date = appliedFilters.end_date;
     }
 
+    console.log("Sending params:", params);
+    console.log("Raw filters:", appliedFilters);
+console.log("Category:", appliedFilters.category_id);
+console.log("Status:", appliedFilters.lead_status);
+
     const res = await axiosInstance.get(
       "/api/lead-management/lead-list",
       { params }
     );
+console.log("Lead Response : ",res);
 
     if (res.status === 200) {
       const leads = res.data.data || [];
 
-      // ✅ Employees for dropdown
+      //  Employees for dropdown
       const empOptions = (res.data.employees || []).map(emp => ({
         label: emp.full_name,
         value: emp.id
@@ -264,14 +275,6 @@ const fetchAssignedLeads = async (appliedFilters = {}) => {
   console.log("statusList", statusList);
 
 
-
-  // useEffect(() => {
-  //   if (viewStatus?.id) {
-  //     fetchStatusList(viewStatus.id);
-  //   }
-  // }, [viewStatus?.id]);
-
-  // status view (view Api)
   const fetchStatusList = async (id) => {
     try {
       setLoading(true);
@@ -293,16 +296,84 @@ const fetchAssignedLeads = async (appliedFilters = {}) => {
     }
   };
 
-  // Open import
-  const openImportAddModal = () => {
-    setIsImportAddModalOpen(true);
-    setTimeout(() => setIsAnimating(true), 10);
-  };
-  // close import
-  const closeImportAddModal = () => {
-    setIsAnimating(false);
-    setTimeout(() => setIsImportAddModalOpen(false), 250);
-  };
+const handleSubmit = async () => {
+
+  console.log("Selected employee:", selectedEmployeeDetails);
+console.log("Type:", typeof selectedEmployeeDetails);
+
+  if (!selectedEmployeeDetails) {
+    toast.error("Please select an employee");
+    return;
+  }
+
+  if (selectedLeads.length === 0) {
+    toast.error("Please select at least one lead");
+    return;
+  }
+
+ // filters already contain primitives
+  const categoryIds = Array.isArray(filters.category)
+    ? filters.category.filter(Boolean)
+    : [];
+
+  const leadStatuses = Array.isArray(filters.lead_status)
+    ? filters.lead_status.filter(Boolean)
+    : [];
+
+
+const payload = {
+  employee_id: selectedEmployeeDetails,
+  start_date: filters.from_date,
+  end_date: filters.to_date,
+  created_by: userid,
+  lead_ids: selectedLeads,
+};
+
+if (categoryIds.length > 0) {
+  payload.category_ids = categoryIds;
+}
+
+if (leadStatuses.length > 0) {
+  payload.lead_statuses = leadStatuses;
+}
+
+  console.log("🚀 ASSIGN PAYLOAD:", payload);
+
+  try {
+    setSubmitting(true);
+
+    const res = await axiosInstance.post(
+      "/api/lead-management/assign",
+      payload
+    );
+
+    if (res.data?.success) {
+      toast.success(res.data.message || "Leads Assigned Successfully");
+
+      // reset selection
+      setSelectedLeads([]);
+      setSelectedEmployeeDetails(null);
+
+      // refresh list
+      fetchAssignedLeads({
+        category_id: filters.category,
+        lead_status: filters.lead_status,
+        start_date: filters.from_date,
+        end_date: filters.to_date
+      });
+    } else {
+      toast.error(res.data?.message || "Assignment Failed");
+    }
+
+  } catch (error) {
+    console.error("Assign error:", error);
+    toast.error(
+      error?.response?.data?.message || "Failed To Assign Leads"
+    );
+  } finally {
+    setSubmitting(false);
+  }
+};
 
 
   // delete
@@ -797,10 +868,11 @@ px-2 py-2 md:px-6 md:py-6">
       {/* Submit */}
       <div className="flex justify-end mt-6">
         <button
-          disabled={selectedLeads.length === 0}
+           onClick={handleSubmit}
+  disabled={selectedLeads.length === 0 || submitting}
           className="px-6 py-2 rounded-lg bg-green-600 text-white disabled:bg-gray-300"
         >
-          Submit
+          {submitting ? "Assigning..." : "Submit"}
         </button>
       </div>
     </div>
