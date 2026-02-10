@@ -2967,7 +2967,7 @@ const Employee_contract_details = () => {
                       <table className="w-full min-w-[700px] border border-green-600 rounded-lg">
                         <thead className="bg-green-100 text-green-800 text-sm sticky top-0 z-10">
                           <tr>
-                            <th className="px-3 py-2 text-center w-[60px]">
+                            <th className="px-3 py-2 text-left w-[60px]">
                               S.No
                             </th>
                             <th className="px-4 py-2 text-left">Company</th>
@@ -2988,23 +2988,23 @@ const Employee_contract_details = () => {
                                 key={index}
                                 className="border-b hover:bg-green-50 transition"
                               >
-                                <td className="px-3 py-2 text-center font-medium">
+                                <td className="px-3 py-2 text-left font-medium">
                                   {index + 1}
                                 </td>
 
-                                <td className="px-4 py-2 font-medium text-gray-800">
+                                <td className="px-4 py-2 text-left font-medium text-gray-800">
                                   {item.company?.company_name || "-"}
                                 </td>
 
-                                <td className="px-4 py-2 text-gray-700">
+                                <td className="px-4 py-2 text-left text-gray-700">
                                   {item.employee_id || "-"}
                                 </td>
 
-                                <td className="px-4 py-2 text-gray-700">
+                                <td className="px-4 py-2 text-left text-gray-700">
                                   {item.joining_date || "-"}
                                 </td>
 
-                                <td className="px-4 py-2 text-gray-700 whitespace-pre-wrap">
+                                <td className="px-4 py-2 text-left text-gray-700 whitespace-pre-wrap">
                                   {item.rejoining_note || "—"}
                                 </td>
                               </tr>
