@@ -38,11 +38,9 @@ import { ca, fi } from "zod/v4/locales";
 
 const LeadAssignedTo = () => {
   let navigate = useNavigate();
-  const multiSelectRef = useRef(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isImportAddModalOpen, setIsImportAddModalOpen] = useState(false);
+ const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -50,19 +48,13 @@ const LeadAssignedTo = () => {
   const [leads, setLeads] = useState([]);
   // console.log("leads :", leads)
   const [totalRecords, setTotalRecords] = useState(0);
-  const [editLeadForm, setEditLeadForm] = useState(null);
+ 
   // console.log("edit value", editLeadForm);
   const storedDetatis = localStorage.getItem("pssuser");
   const parsedDetails = JSON.parse(storedDetatis);
   const userid = parsedDetails ? parsedDetails.id : null;
   const [rows, setRows] = useState(10);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isViewAnimating, setIsViewAnimating] = useState(false);
-  const [viewContact, setViewContact] = useState(null);
-  
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [isViewStatusOpen, setIsViewStatusOpen] = useState(false);
+
   const [viewStatus, setViewStatus] = useState(null);
   
 
@@ -78,9 +70,24 @@ const LeadAssignedTo = () => {
   
       const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
       console.log("SelectedEmployeeDetaails : ",selectedEmployeeDetails);
-  const [selectedEmployee, setSelectedEmployee] = useState([]);
+  const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
+  console.log("SelectedEmployeeName : ",selectedEmployeeName);
   const [employeeOptions, setEmployeeOptions] = useState([]);
 
+    const openAddModal = () => {
+    setIsAddModalOpen(true);
+    setTimeout(() => setIsAnimating(true), 10);
+  };
+  // close add
+  const closeAddModal = () => {
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsAddModalOpen(false);
+
+ 
+      setErrors({});
+    }, 300);
+  };
   
 const dummyEmployees = [
   { label: "Ravi Kumar", value: 101 },
@@ -109,13 +116,14 @@ const [showLeadTable, setShowLeadTable] = useState(false);
 
   const selectableLeads = leads.filter(l => !l.isAssigned);
 
-  const handleToggle = (id) => {
-    setSelectedLeads(prev =>
-      prev.includes(id)
-        ? prev.filter(x => x !== id)
-        : [...prev, id]
-    );
-  };
+const handleToggle = (leadId) => {
+  setSelectedLeads(prev =>
+    prev.includes(leadId)
+      ? prev.filter(id => id !== leadId)
+      : [...prev, leadId]
+  );
+};
+
 
   const selectAll = () => {
     setSelectedLeads(selectableLeads.map(l => l.id));
@@ -204,7 +212,7 @@ const clearFilters = () => {
 const [submitError, setSubmitError] = useState("");
 
 const fetchAssignedLeads = async (appliedFilters = {}) => {
-  console.log("🚀 fetchAssignedLeads CALLED");
+  console.log(" fetchAssignedLeads CALLED");
   setLoading(true);
 
   try {
@@ -227,6 +235,10 @@ if (Array.isArray(appliedFilters.lead_status) && appliedFilters.lead_status.leng
       params.end_date = appliedFilters.end_date;
     }
 
+    if (appliedFilters.employee_id) {
+  params.employee_id = appliedFilters.employee_id;
+}
+
     console.log("Sending params:", params);
     console.log("Raw filters:", appliedFilters);
 console.log("Category:", appliedFilters.category_id);
@@ -248,14 +260,30 @@ console.log("Lead Response : ",res);
       }));
 
       setEmployeeOptions(empOptions);
-      setSelectedEmployeeDetails(null); // reset selection
+      // setSelectedEmployeeDetails(null); // reset selection
 
       const normalizedLeads = leads.map(lead => ({
-        ...lead,
-        lead_status: normalizeLeadStatus(lead.lead_status),
-      }));
+  ...lead,
 
-      setLeads(normalizedLeads);
+  // flags from backend
+  isAssignedToSelected: lead.already_added_same_employee === true,
+  isAssignedToOther: lead.already_assigned_another_employee === true,
+
+  // ONLY other employee should be orange
+  showOrange: lead.already_assigned_another_employee === true,
+
+  // disable checkbox if assigned anywhere
+  disableCheckbox:
+    lead.already_added_same_employee ||
+    lead.already_assigned_another_employee,
+
+  assignedEmployeeName: lead.assigned_employee_name || null
+}));
+
+
+
+
+setLeads(normalizedLeads);
       setTotalRecords(res.data.count || normalizedLeads.length);
     }
 
@@ -268,38 +296,41 @@ console.log("Lead Response : ",res);
   }
 };
 
+const handleEmployeeChange = (e) => {
+  const empId = e.value;
+
+  setSelectedEmployeeDetails(empId);
+
+  fetchAssignedLeads({
+    category_id: filters.category,
+    lead_status: filters.lead_status,
+    start_date: filters.from_date,
+    end_date: filters.to_date,
+    employee_id: empId,
+  });
+};
+
+
+
+useEffect(() => {
+  if (!selectedEmployeeDetails) return;
+
+  const preSelected = leads
+    .filter(l => l.isAssignedToSelected)
+    .map(l => l.id);
+
+  setSelectedLeads(preSelected);
+}, [leads, selectedEmployeeDetails]);
+
+
 
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
 
   console.log("statusList", statusList);
-
-
-  const fetchStatusList = async (id) => {
-    try {
-      setLoading(true);
-
-      const res = await axiosInstance.post(
-        `${API_URL}api/lead-management/status-list/${id}`
-      );
-
-      console.log("fetch Status List", res.data);
-
-
-      setStatusList(res.data.leadstatus.notes);
-
-    } catch (error) {
-      toast.error("Failed to fetch status list");
-    } finally {
-      setLoading(false);
-
-    }
-  };
-
+  
 const handleSubmit = async () => {
-
   console.log("Selected employee:", selectedEmployeeDetails);
-console.log("Type:", typeof selectedEmployeeDetails);
 
   if (!selectedEmployeeDetails) {
     toast.error("Please select an employee");
@@ -311,7 +342,17 @@ console.log("Type:", typeof selectedEmployeeDetails);
     return;
   }
 
- // filters already contain primitives
+  // filter out leads that are already assigned to the selected employee
+  const newLeads = selectedLeads.filter(
+    id => !leads.find(l => l.id === id)?.isAssignedToSelected
+  );
+
+  if (newLeads.length === 0) {
+    toast.error("Please select at least one NEW lead");
+    return;
+  }
+
+  // filters already contain primitives
   const categoryIds = Array.isArray(filters.category)
     ? filters.category.filter(Boolean)
     : [];
@@ -320,24 +361,24 @@ console.log("Type:", typeof selectedEmployeeDetails);
     ? filters.lead_status.filter(Boolean)
     : [];
 
+  //  USE newLeads HERE
+  const payload = {
+    employee_id: selectedEmployeeDetails,
+    start_date: filters.from_date,
+    end_date: filters.to_date,
+    created_by: userid,
+    lead_ids: newLeads, //  IMPORTANT
+  };
 
-const payload = {
-  employee_id: selectedEmployeeDetails,
-  start_date: filters.from_date,
-  end_date: filters.to_date,
-  created_by: userid,
-  lead_ids: selectedLeads,
-};
+  if (categoryIds.length > 0) {
+    payload.category_ids = categoryIds;
+  }
 
-if (categoryIds.length > 0) {
-  payload.category_ids = categoryIds;
-}
+  if (leadStatuses.length > 0) {
+    payload.lead_statuses = leadStatuses;
+  }
 
-if (leadStatuses.length > 0) {
-  payload.lead_statuses = leadStatuses;
-}
-
-  console.log("🚀 ASSIGN PAYLOAD:", payload);
+  console.log(" ASSIGN PAYLOAD:", payload);
 
   try {
     setSubmitting(true);
@@ -350,9 +391,8 @@ if (leadStatuses.length > 0) {
     if (res.data?.success) {
       toast.success(res.data.message || "Leads Assigned Successfully");
 
-      // reset selection
+      // reset ONLY selection (not employee)
       setSelectedLeads([]);
-      setSelectedEmployeeDetails(null);
 
       // refresh list
       fetchAssignedLeads({
@@ -375,47 +415,6 @@ if (leadStatuses.length > 0) {
   }
 };
 
-
-  // delete
-  const deleteLead = async (leadId) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to delete this lead?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "No, cancel"
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      const res = await axiosInstance.delete(
-        `${API_URL}api/lead-management/delete/${leadId}`,
-        {
-          data: {
-            lead_id: leadId
-          }
-        }
-      );
-
-      console.log("Delete response:", res.data);
-
-      if (res.data?.success === true) {
-        setTimeout(() => {
-          toast.success(res.data?.message || "Lead deleted successfully");
-        }, 600);
-        fetchAssignedLeads(); // refresh table
-      } else {
-        toast.error(res.data?.message || "Delete failed");
-      }
-    } catch (error) {
-      console.error("Delete error:", error?.response || error);
-      toast.error(
-        error?.response?.data?.message || "Delete failed"
-      );
-    }
-  };
 
   const fetchCategories = async () => {
     try {
@@ -455,101 +454,98 @@ if (leadStatuses.length > 0) {
     Object.entries(STATUS_MAP).map(([k, v]) => [v, k])
   );
 
-  const getStatusValue = (label) => {
-    return Object.keys(STATUS_MAP).find(
-      key => STATUS_MAP[key] === label
-    ) || "";
-  };
 
-  const normalizeLeadStatus = (status) => {
-    if (!status) return "";
+const [globalFilter, setGlobalFilter] = useState("");
 
-
-    if (STATUS_MAP[status]) return status;
-
-
-    if (REVERSE_STATUS_MAP[status]) return REVERSE_STATUS_MAP[status];
-
-    return "";
-  };
-
-
-  const handleStatusChange = (row, newStatusKey) => {
-
-    //  Update UI immediately
-    setLeads(prev =>
-      prev.map(lead =>
-        lead.id === row.id
-          ? { ...lead, lead_status: newStatusKey }
-          : lead
-      )
-    );
-
-    //  Open modal
-    setViewStatus({ ...row, lead_status: newStatusKey });
-    setIsViewStatusOpen(true);
-
-    //  Prepare form
-    setStatusForm({
-      status: newStatusKey,
-      notes: "",
-      followUp: "no",
-      followUpDate: "",
-      epoDate: ""
-    });
-  };
-
-
+const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+  
+    const onRowsChange = (value) => {
+      setRows(value);
+      setPage(1); // Reset to first page when changing rows per page
+    };
  
 
-
-  // const allSelected =
-  //   leads.length > 0 && selectedRows.length === leads.length;
-
-  // const toggleSelectAll = () => {
-  //   if (selectedRows.length === leads.length) {
-  //     setSelectedRows([]);
-  //   } else {
-  //     setSelectedRows(leads.map(row => row.id));
-  //   }
-  // };
-
-
-  // const toggleRowSelection = (id) => {
-  //   setSelectedRows(prev =>
-  //     prev.includes(id)
-  //       ? prev.filter(rowId => rowId !== id)
-  //       : [...prev, id]
-  //   );
-  // };
-
-
-
-  // column
- // 1. Updated Columns Definition
-const columns = [
+ const columns = [
   {
-    field: "lead_info",
-    header: "Lead Details",
-    body: (row) => (
-      <div className="flex items-center gap-4">
-        <span className="font-semibold text-gray-800">{Capitalise(row.full_name)}</span>
-        <span className="text-gray-500">-</span>
-        <span className="text-gray-600">{row.phone}</span>
-        {row.isAssigned && (
-          <span className="ml-2 px-2 py-0.5 text-[10px] bg-orange-100 text-orange-600 rounded-full border border-orange-200">
-            Already Allocated
-          </span>
-        )}
-      </div>
-    ),
-  },
+       field: "sno",
+       header: "S.No",
+       body: (_, options) => options.rowIndex + 1,
+       fixed: true,
+     },
+     {
+       field: "full_name",
+       header: "Full Name",
+       body: (row) => Capitalise(row.full_name),
+     },
+     {
+        field: "employee_name",
+        header: "Employee Name",
+        body: (row) => Capitalise(row.employee_name),
+     },
+      {
+           field :"category_name",
+           header: "Platform ",
+           body: (row) => Capitalise(row?.category?.name) || row.category_name || "-"
+         },
+        
+         {
+           field: "created_time",
+           header: "Date",
+           body: (row) => formatToDDMMYYYY(row.created_time),
+         },
+         {
+            field: "lead_status",
+            header: "Status",
+            body: (row) => Capitalise(row.lead_status)
+         },
+          {
+               field: "Action",
+               header: "Action",
+               body: (row) => (
+                 <div className="flex justify-center gap-3">
+                   <button
+                     onClick={() => openViewModal(row)}
+                     className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
+                   >
+                     <FaEye />
+                   </button>
+         
+                   <TfiPencilAlt
+                    //  onClick={() => openEditModal(row)}
+                     className="text-[#1ea600] cursor-pointer hover:scale-110 transition"
+                     title="Edit"
+                   />
+         
+         
+                   {/* <RiDeleteBin6Line
+                     onClick={() => deleteLead(row.id)}
+                     className="text-red-500 cursor-pointer hover:scale-110 transition"
+                     title="Delete"
+                   /> */}
+                 </div>
+               ),
+               style: { textAlign: "center", fontWeight: "medium" },
+               fixed: true
+             },
 ];
 
+const statusDropdownOptions = [
+    { label: "Open", value: "open" },
+    { label: "Joined", value: "joined" },
+    { label: "Interested / Scheduled", value: "interested" },
+    { label: "Not Interested", value: "not_interested" },
+    { label: "Follow Up", value: "follow_up" },
+    { label: "Not Picked", value: "not_picked" },
+  ];
 
 {/* Select Leads Table */}
 <div className="mt-6 rounded-xl bg-white shadow p-4 transition-all w-full max-w-2xl">
-  <div className="flex justify-between items-center mb-4">
+  {/* <div className="flex justify-between items-center mb-4">
     <h3 className="text-md font-bold text-gray-700">Assign Leads</h3>
     <div className="flex gap-2">
        <button 
@@ -566,100 +562,42 @@ const columns = [
          Clear All
        </button>
     </div>
-  </div>
+  </div> */}
 
-  <DataTable
-    value={leads}
-    selection={selectedLeads}
-    onSelectionChange={(e) => setSelectedLeads(e.value)}
-    dataKey="id"
-    responsiveLayout="scroll"
-    showHeaders={false} // Matches your sketch (minimalist style)
-    className="compact-assign-table"
-    // Logic to highlight already allocated leads in Orange
-    rowClassName={(row) => ({
-      'bg-orange-50 border-l-4 border-orange-400': row.isAssigned,
-      'hover:bg-gray-50': !row.isAssigned
-    })}
-  >
-    <Column
-      selectionMode="multiple"
-      headerStyle={{ width: "3rem" }}
-      // Disable checkbox if lead is already assigned
-      selectionDisabled={(row) => row.isAssigned}
-    />
-    
-    {columns.map((col, i) => (
-      <Column key={i} {...col} />
-    ))}
-  </DataTable>
+  {/* <div className="table-scroll-container" id="datatable">
+                    <DataTable
+                      className="mt-8"
+                      value={leads}
+                      onPage={onPageChange}
+                      first={(page - 1) * rows}
+                      onRowClick={(e) => e.originalEvent.stopPropagation()}
+                      paginator
+                      rows={rows}
+                      totalRecords={totalRecords}
+                      rowsPerPageOptions={[10, 25, 50, 100]}
+                      globalFilter={globalFilter}
+                      showGridlines
+                      resizableColumns
+                      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                      paginatorClassName="custom-paginator"
+                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                      loading={loading}
+                    >
+                     
+                      {columns.map((col, index) => (
+                        <Column
+                          key={index}
+                          field={col.field}
+                          header={col.header}
+                          body={col.body}
+                          style={col.style}
+                        />
+                      ))}
+                    </DataTable>
+  
+                  </div> */}
 </div>
 
-
-  const statusDropdownOptions = [
-    { label: "Open", value: "open" },
-    { label: "Joined", value: "joined" },
-    { label: "Interested / Scheduled", value: "interested" },
-    { label: "Not Interested", value: "not_interested" },
-    { label: "Follow Up", value: "follow_up" },
-    { label: "Not Picked", value: "not_picked" },
-  ];
-
-  const dummyLeads = [
-  {
-    id: 1,
-    full_name: "John Doe",
-    phone: "9876543210",
-    lead_status: "open",
-    isAssigned: false, // Normal Row
-    city: "Chennai",
-    age: 24,
-    lead_category_id: 5
-  },
-  {
-    id: 2,
-    full_name: "Anitha Raman",
-    phone: "9123456789",
-    lead_status: "Interested / scheduled",
-    isAssigned: true, // Should show Orange
-    city: "Bangalore",
-    age: 30,
-    lead_category_id: 5,
-    employee_name: "Anitha"
-
-  },
-  {
-    id: 3,
-    full_name: "Suresh Raina",
-    phone: "9988776655",
-    lead_status: "follow_up",
-    isAssigned: false, // Normal Row
-    city: "Chennai",
-    age: 28,
-    lead_category_id: 5
-  },
-  {
-    id: 4,
-    full_name: "Priya Lakshmi",
-    phone: "8877665544",
-    lead_status: "not_picked",
-    isAssigned: true, // Should show Orange
-    city: "Coimbatore",
-    age: 22,
-    lead_category_id: 5,
-    employee_name: "Priya"
-  },
-  {
-    id: 5,
-    full_name: "Vikram Seth",
-    phone: "7766554433",
-    lead_status: "joined",
-    isAssigned: false, // Normal Row
-    city: "Chennai",
-    age: 35,
-    lead_category_id: 5
-  }
-];
 
 
   return (
@@ -683,7 +621,124 @@ const columns = [
               <p className="text-sm  md:text-md  text-[#1ea600]">Assigned To </p>
             </div>
 
+            <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
+            shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
+            px-2 py-2 md:px-6 md:py-6">
+                          <div className="datatable-container mt-4">
+                            <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-3 mb-4">
+                              {/* Entries per page */}
+                              <div className="flex items-center gap-5">
+                                <div>
+                                  <Dropdown
+                                    value={rows}
+                                    options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
+                                    onChange={(e) => onRowsChange(e.value)}
+                                    className="w-20 border"
+                                  />
+            
+                                  <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
+            
+                                </div>
+                              
+                              </div>
+            
+                              <div className="flex justify-between items-center gap-5">
+                                {/* Search box */}
+                                <div className="relative w-64">
+                                  <FiSearch
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                                    size={18}
+                                  />
+            
+                                  <InputText
+                                    value={globalFilter}
+                                    onChange={(e) => setGlobalFilter(e.target.value)}
+            
+                                    placeholder="Search......"
+                                    className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
+                           focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+            
+                                  />
+                                </div>
+                                <div className="flex justify-between items-center gap-5">
+                                
+            
+                                  <button
+                                    onClick={openAddModal}
+                                    className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                                  >
+                                    Add Lead
+                                  </button>
+            
+                                  {/* <button
+                                    onClick={() => navigate("/lead-assignedto")}
+                                    className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                                  >
+                                    Assigned To
+                                  </button> */}
+            
+                                </div>
+            
+                                
+            
+                              </div>
+                            </div>
+                            <div className="table-scroll-container" id="datatable">
+                              <DataTable
+                                className="mt-8"
+                                value={leads}
+                                onPage={onPageChange}
+                                first={(page - 1) * rows}
+                                onRowClick={(e) => e.originalEvent.stopPropagation()}
+                                paginator
+                                rows={rows}
+                                totalRecords={totalRecords}
+                                rowsPerPageOptions={[10, 25, 50, 100]}
+                                globalFilter={globalFilter}
+                                showGridlines
+                                resizableColumns
+                                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                                paginatorClassName="custom-paginator"
+                                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                                loading={loading}
+                              >
+                                {/* <Column selectionMode="multiple" headerStyle={{ width: '50px' }} /> */}
+                                {columns.map((col, index) => (
+                                  <Column
+                                    key={index}
+                                    field={col.field}
+                                    header={col.header}
+                                    body={col.body}
+                                    style={col.style}
+                                  />
+                                ))}
+                              </DataTable>
+            
+                            </div>
+                          </div>
+                        </div>
+
             {/* Filter Section */}
+            {isAddModalOpen && (
+                          <div className="fixed inset-0 bg-black/10 backdrop-blur-sm z-50">
+                            <div className="absolute inset-0" onClick={closeAddModal}></div>
+            
+                            <div
+                              className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[80vw]
+                  bg-white shadow-lg transform transition-transform duration-500 ease-in-out
+                  ${isAnimating ? "translate-x-0" : "translate-x-full"}`}
+                            >
+                              {/* Close Arrow */}
+                              <div
+                                className="w-6 h-6 rounded-full mt-2 ms-2 border-2 bg-white border-gray-300
+                    flex items-center justify-center cursor-pointer"
+                                onClick={closeAddModal}
+                              >
+                                <IoIosArrowForward className="w-3 h-3" />
+                              </div>
+                              <div className="px-5 lg:px-14 py-4 md:py-10 text-[#4A4A4A] font-medium">
+                    <p className="text-xl md:text-2xl">Add Lead </p>
+
             <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4 space-x-5">
 
               <div className="grid grid-cols-1 gap-5">
@@ -693,11 +748,12 @@ const columns = [
                   <label className="text-sm font-medium text-[#6B7280]">Employee</label>
                   <Dropdown
                     value={selectedEmployeeDetails}
-                    onChange={(e) => setSelectedEmployeeDetails(e.value)}
-                    options={employeeOptions}
-                    optionLabel="label"
-                    placeholder="Select Employee"
-                    filter
+  onChange={handleEmployeeChange}
+  options={employeeOptions}
+  optionLabel="label"
+  optionValue="value"
+  placeholder="Select Employee"
+  filter
                     className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
@@ -788,7 +844,7 @@ const columns = [
               </div>
 {statusTouched && !isFilterComplete() && (
   <p className="text-red-500 text-sm mt-2">
-    Please select Platform, Start Date, End Date and Status
+    Please Select Platform, Start Date, End Date and Status
   </p>
 )}
 
@@ -818,49 +874,56 @@ px-2 py-2 md:px-6 md:py-6">
   <div className="flex flex-col w-full mt-5 rounded-2xl bg-white shadow px-6 py-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-fit">
         {leads.map(lead => {
-          const checked = selectedLeads.includes(lead.id);
+  const checked =
+    selectedLeads.includes(lead.id) || lead.isAssignedToSelected;
 
-          return (
-           <div
+  return (
+    <div
   key={lead.id}
-  className={`p-3 rounded-lg border 
-    ${lead.isAssigned
-      ? "bg-orange-100 border-orange-400"
-      : "bg-gray-50 hover:bg-gray-100"}
-  `}
+  className={`p-3 rounded-lg border
+    ${
+      lead.showOrange
+        ? "bg-orange-100 border-orange-400"
+        : "bg-gray-50 hover:bg-gray-100"
+    }`}
 >
-  <div className="flex items-start gap-3">
-    <input
-      type="checkbox"
-      disabled={lead.isAssigned}
-      checked={checked}
-      onChange={() => handleToggle(lead.id)}
-      className="mt-1"
-    />
 
-    <div className="flex flex-col gap-1 text-sm w-full">
-      <p className="font-medium text-gray-900">
-        {lead.full_name}
-      </p>
 
-      <p className="text-gray-500">
-        {lead.phone}
-      </p>
+      <div className="flex items-start gap-3">
+        <input
+  type="checkbox"
+  checked={
+    checked
+  }
+  disabled={lead.disableCheckbox}
+  onChange={() => handleToggle(lead.id)}
+  className="mt-1"
+/>
 
-      {lead.isAssigned && (
-        <p className="text-xs font-semibold text-orange-700">
-          Already Assigned to{" "}
-          <span className="font-bold">
-            {lead.employee_name || "Employee"}
-          </span>
-        </p>
-      )}
+
+        <div className="flex flex-col gap-1 text-sm w-full">
+          <p className="font-medium">{lead.full_name}</p>
+          <p className="text-gray-500">{lead.phone}</p>
+
+          {/* {lead.isAssignedToSelected && (
+  <p className="text-xs font-semibold text-orange-700">
+    Already assigned to {selectedEmployeeName}
+  </p>
+)} */}
+
+{lead.isAssignedToOther && (
+  <p className="text-xs font-semibold text-orange-700">
+    Assigned to {lead.assignedEmployeeName || "another employee"}
+  </p>
+)}
+
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  );
+})}
 
-          );
-        })}
+
       </div>
       </div>
 )}
@@ -875,13 +938,16 @@ px-2 py-2 md:px-6 md:py-6">
           {submitting ? "Assigning..." : "Submit"}
         </button>
       </div>
-    </div>
-    </div>
-    </>
-    )
-      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
       <Footer />
-      </div>
+    </div>
   );
 };
 

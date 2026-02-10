@@ -258,6 +258,12 @@ const [selectedCategory, setSelectedCategory] = useState(null);
 
   // update
   const handleUpdateLead = async () => {
+
+    if (!validateEditForm(editLeadForm)) {
+     toast.error("Please fill all required fields");
+     return; // Stop if invalid
+  }
+
     try {
       const payload = {
         is_organic: editLeadForm.is_organic === "true" ? "true" : "false",
@@ -316,6 +322,23 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateEditForm = (formData) => {
+  let newErrors = {};
+
+  if (!editLeadForm.is_organic) newErrors.is_organic = "Required";
+  if (!editLeadForm.full_name) newErrors.full_name = "Enter A Name";
+  if (!editLeadForm.gender) newErrors.gender = "Select Gender";
+  if (!editLeadForm.phone) newErrors.phone = "Enter A Phone Number";
+  if (!editLeadForm.dob) newErrors.dob = "Enter Birth Date";
+  if (!editLeadForm.post_code) newErrors.post_code = "Enter A Postcode";
+  if (!editLeadForm.city) newErrors.city = "Enter A City";
+  if (!editLeadForm.state) newErrors.state = "Enter A State";
+  if (!editLeadForm.status || editLeadForm.status === "") newErrors.status = "Select Status";
+  if (!editLeadForm.lead_category_id) newErrors.category = "Select Category";
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
   // update lead status
   const handleStatusSubmit = async () => {
     try {
@@ -590,11 +613,25 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
     setIsImportAddModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
   };
-  // close import
-  const closeImportAddModal = () => {
-    setIsAnimating(false);
-    setTimeout(() => setIsImportAddModalOpen(false), 250);
-  };
+
+
+  const resetFilters = () => {
+  setFilters({
+    from_date: today,
+    to_date: today,
+    category: [],
+    lead_status: [],
+  });
+};
+
+const closeImportAddModal = () => {
+  setIsAnimating(false);
+  setTimeout(() => setIsImportAddModalOpen(false), 250);
+  setSelectedFiles([]);
+  resetFilters();
+};
+
+
 
 
   // import
@@ -1371,48 +1408,49 @@ px-2 py-2 md:px-6 md:py-6">
                     <p className="text-xl md:text-2xl">Add Lead </p>
 
 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                    {/* Is Organic */}
-                    <div className="w-full flex flex-col">
-                    <div className="w-full flex justify-between items-center">
-                      <label className="text-md font-medium">
-                        Is Organic <span className="text-red-500">*</span>
-                      </label>
+                    
+                   {/* Is Organic */}
+<div className="w-full flex justify-between items-start">
+  <label className="text-md font-medium ">
+    Is Organic <span className="text-red-500">*</span>
+  </label>
 
-                      <div className="w-[50%] flex gap-6">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="is_organic"
-                            value="true"
-                            checked={leadForm.is_organic === "true"}
-                            onChange={(e) =>
-                              handleChange("is_organic", e.target.value)
-                            }
-                          />
-                          Yes
-                        </label>
+  {/* Container for Radio Group + Error message */}
+  <div className="w-[50%] flex flex-col">
+    <div className="flex gap-6">
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          name="is_organic"
+          value="true"
+          checked={leadForm.is_organic === "true"}
+          onChange={(e) => handleChange("is_organic", e.target.value)}
+          className="accent-green-600"
+        />
+        Yes
+      </label>
 
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="is_organic"
-                            value="false"
-                            checked={leadForm.is_organic === "false"}
-                            onChange={(e) =>
-                              handleChange("is_organic", e.target.value)
-                            }
-                          />
-                          No
-                        </label>
-                      </div>
-                      </div>
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input
+          type="radio"
+          name="is_organic"
+          value="false"
+          checked={leadForm.is_organic === "false"}
+          onChange={(e) => handleChange("is_organic", e.target.value)}
+          className="accent-green-600"
+        />
+        No
+      </label>
+    </div>
 
-                        {errors.is_organic && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.is_organic}
-                          </p>
-                        )}
-                      </div>
+    {/* Error message now sits directly under the Yes/No options */}
+    {errors.is_organic && (
+      <p className="text-red-500 text-xs mt-1 font-medium">
+        {errors.is_organic}
+      </p>
+    )}
+  </div>
+</div>
               
 
                                           {/* category */}
@@ -1746,7 +1784,7 @@ px-2 py-2 md:px-6 md:py-6">
     </div>
   </div>
 
-  {/* Error below */}
+  {/* Error  */}
   {errors.is_organic && (
     <p className="text-red-500 text-sm mt-1">
       {errors.is_organic}
@@ -1802,10 +1840,10 @@ px-2 py-2 md:px-6 md:py-6">
                     
                     panelClassName="text-sm"
                   />
+                  {errors.category && (
+      <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+    )}
                     </div>
-                  
-
-
                 </div>
 
                     {/* Full Name */}
@@ -1823,6 +1861,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter full name"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg focus:ring-2 focus:ring-[#1ea600]"
                         />
+                        {errors.full_name && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.full_name}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1840,6 +1883,11 @@ px-2 py-2 md:px-6 md:py-6">
                           }
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.dob && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.dob}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1850,7 +1898,7 @@ px-2 py-2 md:px-6 md:py-6">
                       </label>
                       <div className="w-[50%]">
                         <input
-                          type="number"
+                          type="text"
                           value={editLeadForm?.post_code || ""}
                           onChange={(e) =>
                             setEditLeadForm({ ...editLeadForm, post_code: e.target.value })
@@ -1858,6 +1906,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter post code"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.post_code && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.post_code}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1876,6 +1929,9 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter city"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.city && (
+                          <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                        )}
                       </div>
                     </div>
 
@@ -1894,6 +1950,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter state"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.state && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.state}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1916,6 +1977,11 @@ px-2 py-2 md:px-6 md:py-6">
                           <option value="female">Female</option>
                           <option value="other">Other</option>
                         </select>
+                        {errors.gender && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.gender}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1937,6 +2003,11 @@ px-2 py-2 md:px-6 md:py-6">
                           placeholder="Enter Phone Number"
                           className="w-full px-3 py-2 border border-[#D9D9D9] rounded-lg"
                         />
+                        {errors.phone && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.phone}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1960,6 +2031,9 @@ px-2 py-2 md:px-6 md:py-6">
                           <option value="0">Inactive</option>
                         </select>
                       </div>
+                        {errors.status && (
+                          <p className="text-red-500 text-sm mt-1"> {errors.status}</p>
+                        )}
                     </div>
                     </div>
 
