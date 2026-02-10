@@ -776,7 +776,7 @@ const Sidebar = () => {
                       >
                         Education
                       </button>
-                      {/* <button
+                      <button
                         onClick={() => {
                           navigate("/relieved-contract");
                           setCurrentOpen("contract");
@@ -789,7 +789,7 @@ const Sidebar = () => {
             }`}
                       >
                         Relieved 
-                      </button> */}
+                      </button>
                     </div>
                   </div>
                 )}
