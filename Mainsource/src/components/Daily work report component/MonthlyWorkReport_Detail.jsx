@@ -122,42 +122,38 @@ function MonthlyWorkReport_Detail() {
     const headers = ["Date", "Day", "Employee ID", "Employee Name", "Login Time", "Logout Time", "Total Hours", "Message"];
 
     const rows = tasklist.flatMap((day) => {
-  const employeeId =
-    day.employee_id ||
-    day.employee?.id ||
-    day.emp_id ||
-    "-";
+      const employeeId =
+        day.employee_id ||
+        "-";
 
-  const employeeName =
-    day.employee_name ||
-    day.employee?.name ||
-    day.emp_name ||
-    "-";
+      const employeeName =
+        day.employee_name ||
+        "-";
 
-  if (!day.messages || day.messages.length === 0) {
-    return [[
-      day.date,
-      day.day,
-      employeeId,
-      employeeName,
-      day.login_time || "-",
-      day.logout_time || "-",
-      day.total_hours || "-",
-      "No messages"
-    ]];
-  }
+      if (!day.message || day.message.length === 0) {
+        return [[
+          day.date,
+          day.day,
+          day.employee_id,
+          day.employee_name,
+          day.login_time || "-",
+          day.logout_time || "-",
+          day.total_hours || "-",
+          "No messages"
+        ]];
+      }
 
-  return day.messages.map((msg) => [
-    day.date,
-    day.day,
-    employeeId,
-    employeeName,
-    day.login_time || "-",
-    day.logout_time || "-",
-    day.total_hours || "-",
-    msg.replace(/<[^>]+>/g, "")
-  ]);
-});
+      return day.message.map((msg) => [
+        day.date,
+        day.day,
+        day.employee_id,
+        day.employee_name,
+        day.login_time || "-",
+        day.logout_time || "-",
+        day.total_hours || "-",
+        msg.replace(/<[^>]+>/g, "")
+      ]);
+    });
 
 
     const csvContent = [
@@ -237,7 +233,7 @@ function MonthlyWorkReport_Detail() {
                   value={selectedEmployee}
                   onChange={(e) => setSelectedEmployee(e.value)}
                   options={Array.isArray(employeeData) ? employeeData : []}
-                  optionLabel="name"    // <--- use "name" instead of "full_name"
+                  optionLabel="full_name"    // <--- use "name" instead of "full_name"
                   optionValue="id"
                   placeholder="Select Employee"
                   filter
@@ -302,8 +298,8 @@ function MonthlyWorkReport_Detail() {
                     let hasAnyMessage = false;
                     for (let i = 0; i < filteredTaskList.length; i++) {
                       if (
-                        Array.isArray(filteredTaskList[i].messages) &&
-                        filteredTaskList[i].messages.length > 0
+                        Array.isArray(filteredTaskList[i].message) &&
+                        filteredTaskList[i].message.length > 0
                       ) {
                         hasAnyMessage = true;
                         break;
@@ -325,13 +321,20 @@ function MonthlyWorkReport_Detail() {
 
                       const messageItems = [];
 
-                      if (day.messages && day.messages.length > 0) {
-                        for (let j = 0; j < day.messages.length; j++) {
+                      if (day.message && day.message.length > 0) {
+                        for (let j = 0; j < day.message.length; j++) {
                           messageItems.push(
-                            <li
+                            <p
                               key={j}
-                              dangerouslySetInnerHTML={{ __html: day.messages[j] }}
+                              className="whitespace-normal break-words"
+                              style={{
+                                writingMode: "horizontal-tb",
+                                wordBreak: "break-word",
+                                overflowWrap: "break-word",
+                              }}
+                              dangerouslySetInnerHTML={{ __html: day.message[j] }}
                             />
+
                           );
                         }
                       }
@@ -365,17 +368,27 @@ function MonthlyWorkReport_Detail() {
                             </div>
                           </td>
 
-                          <td className="px-6 py-4">
-                            {messageItems.length > 0 ? (
-                              <ul className="list-disc list-inside space-y-1 text-gray-700 text-xs">
+                          <td className="px-6 py-4 align-top" style={{ writingMode: "horizontal-tb" }}>
+
+
+                            {Array.isArray(day.message) && day.message.length > 0 ? (
+                              <div
+                                className="text-gray-700 text-xs whitespace-normal break-words leading-relaxed max-w-full"
+                                style={{
+                                  wordBreak: "break-word",
+                                  overflowWrap: "break-word",
+                                  writingMode: "horizontal-tb",
+                                }}
+                              >
                                 {messageItems}
-                              </ul>
+                              </div>
                             ) : (
-                              <span className="italic text-gray-400">
-                                No messages
-                              </span>
+                              <span className="italic text-gray-400">No message</span>
                             )}
+
                           </td>
+
+
                         </tr>
                       );
                     }
