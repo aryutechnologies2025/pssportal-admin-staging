@@ -44,12 +44,12 @@ const DailyWorkReport_Details = () => {
 
   const [monthlyReportList, setMonthlyReportList] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState([]);
-  console.log("selectedEmployee : ", selectedEmployee);
+  // console.log("selectedEmployee : ", selectedEmployee);
   const [selectedEmployeeName, setSelectedEmployeeName] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tasklist, setTasklist] = useState([]);
   const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
-  console.log("selectedEmployeeDetails : ", selectedEmployeeDetails);
+  // console.log("selectedEmployeeDetails : ", selectedEmployeeDetails);
   const [selectedTask, setSelectedTask] = useState(false);
   const [data, setData] = useState([]);
   const storedDetatis = localStorage.getItem("pssuser");
@@ -67,7 +67,7 @@ const DailyWorkReport_Details = () => {
   const [attendanceData, setAttendanceData] = useState({});
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
-  console.log(" selectedDate", selectedDate);
+  // console.log(" selectedDate", selectedDate);
 
   const [allWorkReports, setAllWorkReports] = useState([]);
 
@@ -100,17 +100,15 @@ const DailyWorkReport_Details = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [page, setPage] = useState(1);
-    const onPageChange = (e) => {
-      setPage(e.page + 1); // PrimeReact is 0-based
-      setRows(e.rows);
-  
-    };
-  
-    const onRowsChange = (value) => {
-      setRows(value);
-      setPage(1); // Reset to first page when changing rows per page
-    };
-  
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
 
   // Fetch attendance report
   // const fetchDailyAttendanceReport = async () => {
@@ -167,10 +165,7 @@ const DailyWorkReport_Details = () => {
       const res = await axiosInstance.get(
         `${API_URL}api/attendance-report/attendance`,
         {
-          params: { date: selectedDate
-            , employee_id: selectedEmployeeDetails
-           },
-         
+          params: { date: selectedDate, employee_id: selectedEmployeeDetails },
         },
       );
 
@@ -255,20 +250,20 @@ const DailyWorkReport_Details = () => {
     //   header: "EMPLOYEE NAME",
     //   body: (row) => Capitalise(row.employee_name) || row.employee_name || "-",
     // },
-    
+
     {
       header: "Name",
       body: (row) => {
         const name = row.employee_name || "-";
         const id = row.employee_id || "-";
-        console.log("check id",id)
-        return(
-        <div>
-        <div>{name}</div>
-        <div>{id}</div>
-        </div>
+        console.log("check id", id);
+        return (
+          <div>
+            <div>{name}</div>
+            <div>{id}</div>
+          </div>
         );
-    },
+      },
     },
 
     {
@@ -385,16 +380,14 @@ const DailyWorkReport_Details = () => {
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">
-                Attendance
-              </p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">Attendance</p>
             </div>
 
             {/* Filter Section */}
             <div className="w-full mt-2 md:mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
               <div className="flex flex-col md:flex-row items-center justify-between ">
                 <div className="flex flex-wrap items-end gap-4">
-                  <span className="mb-3 text-xl md:text-3xl font-semibold  ">
+                  <span className=" text-xl md:text-3xl font-semibold  ">
                     Attendance
                   </span>
                   {/* <DatePicker
@@ -414,6 +407,34 @@ const DailyWorkReport_Details = () => {
                     className="w-40 md:w-48  border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600] p-2"
                     onChange={(e) => setSelectedDate(e.target.value)}
                   />
+
+                  {/* .attendance  */}
+                  {/* Cards */}
+                  <div className=" flex gap-5">
+                    <div className="flex gap-3 items-center">
+                      <p className="text-xl font-semibold text-gray-500  uppercase">
+                        Present
+                      </p>
+
+                      <p className="text-2xl font-semibold text-green-500">
+                        {attendanceCount?.present || 0}
+                      </p>
+                    </div>
+
+                    <div
+                      onClick={() => setAbsentlistIsOpen(true)}
+                      className="flex gap-3 items-center"
+                    >
+                      <p className="text-xl font-semibold text-gray-500  uppercase">
+                        absent
+                      </p>
+
+                      <p className="text-2xl font-semibold text-green-500">
+                        {attendanceCount?.absent || 0}
+                      </p>
+                    </div>
+                  </div>
+
                   {/* <button
                     onClick={onClickMonthlyDetails}
                     className="md:hidden px-4 py-2 rounded-lg text-white bg-[#1ea600] hover:bg-[#23880c]"
@@ -429,20 +450,19 @@ const DailyWorkReport_Details = () => {
                     Monthly Details
                   </button>
                 </div>
-                 </div>
-                <div className="md:hidden flex justify-end mt-3 ">
-                  <button
-                    onClick={onClickMonthlyDetails}
-                    className="px-4 py-2 rounded-lg text-white bg-[#1ea600] hover:bg-[#23880c]"
-                  >
-                    Monthly Details
-                  </button>
-                </div>
-             
+              </div>
+              <div className="md:hidden flex justify-end mt-3 ">
+                <button
+                  onClick={onClickMonthlyDetails}
+                  className="px-4 py-2 rounded-lg text-white bg-[#1ea600] hover:bg-[#23880c]"
+                >
+                  Monthly Details
+                </button>
+              </div>
             </div>
 
             {/* Cards */}
-            <div className="hidden md:flex flex-col sm:flex-row mt-5 flex-grow gap-3">
+            {/* <div className="hidden md:flex flex-col sm:flex-row mt-5 flex-grow gap-3">
               <div className="flex flex-grow gap-2 w-full sm:w-1/4  transition-all duration-100 flex-col justify-between bg-white px-5 py-5 rounded-xl">
                 <div className="flex items-center justify-between gap-3 text-4xl">
                   <img src={WFH} alt="" className="h-12 w-12" />
@@ -483,10 +503,10 @@ const DailyWorkReport_Details = () => {
                   {attendanceCount?.absent || 0}
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* MOBILE — Combined Absent + WFH Card */}
-            <div className="flex md:hidden flex-row justify-between items-center gap-2 bg-white px-5 py-5 rounded-xl mt-2 md:mt-5">
+            {/* <div className="flex md:hidden flex-row justify-between items-center gap-2 bg-white px-5 py-5 rounded-xl mt-2 md:mt-5">
               <div className="flex flex-1 gap-2 justify-center cursor-pointer">
                 <p className="text-xl font-bold text-green-500">
                   {attendanceCount?.present}
@@ -507,7 +527,7 @@ const DailyWorkReport_Details = () => {
                   Absent
                 </p>
               </div>
-            </div>
+            </div> */}
             <div
               className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
 shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
