@@ -588,6 +588,9 @@ const Employee_contract_details = () => {
 
   const [editempid, setEditempid] = useState("");
   // console.log("editempid", editempid);
+  const [importskip, setImportskip] = useState([]);
+  const [showSkipModal, setShowSkipModal] = useState(false);
+    console.log("importskip", importskip);
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
@@ -669,6 +672,16 @@ const Employee_contract_details = () => {
         if (response.data.total !== undefined) {
           toast.success(`Imported: ${response.data.total} records`);
         }
+      }
+
+
+       const skipped = response.data?.skipped_details || [];
+
+      setImportskip(skipped);
+
+      //  only if skipped data exists
+      if (skipped.length > 0) {
+        setShowSkipModal(true);
       }
 
       // Reset fields
@@ -3491,6 +3504,85 @@ const Employee_contract_details = () => {
                 </div>
               </div>
             )}
+
+            {/*  Skipped Employees Popup (Tailwind) */}
+{showSkipModal && importskip.length > 0 && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    {/* Backdrop */}
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setShowSkipModal(false)}
+    />
+
+    {/* Modal Box */}
+    <div className="relative w-[95%] max-w-4xl rounded-2xl bg-white shadow-2xl border border-green-200 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 bg-green-600">
+        <h2 className="text-white font-bold text-lg">
+          ⚠️ Skipped Employees ({importskip.length})
+        </h2>
+
+        <button
+          onClick={() => setShowSkipModal(false)}
+          className="text-white text-2xl font-bold hover:opacity-80"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-6">
+        <p className="text-gray-600 mb-4">
+          These employees were skipped because they already exist / duplicate.
+        </p>
+
+        <div className="overflow-auto rounded-xl border border-green-100">
+          <table className="w-full text-sm">
+            <thead className="bg-green-50">
+              <tr className="text-left text-gray-700">
+                <th className="px-4 py-3 w-[80px] font-semibold">S.No</th>
+                <th className="px-4 py-3 font-semibold">Employee Name</th>
+                <th className="px-4 py-3 w-[240px] font-semibold">
+                  Aadhar Number
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {importskip?.map((item, index) => (
+                <tr
+                  key={index}
+                  className="border-t hover:bg-green-50/40 transition"
+                >
+                  <td className="px-4 py-3 font-bold">{index + 1}</td>
+
+                  <td className="px-4 py-3 font-semibold uppercase text-gray-800">
+                    {item?.existing_employee?.employee_name || "-"}
+                  </td>
+
+                  <td className="px-4 py-3 font-semibold text-green-700">
+                    {item?.existing_employee?.aadhar_number || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
+        <button
+          onClick={() => setShowSkipModal(false)}
+          className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
           </div>
         </>
       )}
