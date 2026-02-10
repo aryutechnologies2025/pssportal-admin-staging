@@ -10,7 +10,7 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import { Dropdown } from "primereact/dropdown";
-import { useNavigate,useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FiDownload, FiSearch } from "react-icons/fi";
@@ -34,10 +34,7 @@ import Footer from "../Footer";
 import { Capitalise } from "../../hooks/useCapitalise";
 import CameraPhoto from "../../Utils/cameraPhoto";
 
-
-
 const ContractCandidates_Mainbar = () => {
-
   const [searchParams] = useSearchParams();
 
   const companyId = searchParams.get("company_id");
@@ -45,29 +42,25 @@ const ContractCandidates_Mainbar = () => {
   const endDate = searchParams.get("endDate");
   const joiningStatus = searchParams.get("joining_status");
 
+  useEffect(() => {
+    const resolvedCompanyId = companyId ?? selectedCompanyfilter;
+    const resolvedStartDate = startDate ?? filterStartDate;
+    const resolvedEndDate = endDate ?? filterEndDate;
+    const resolvedJoiningStatus = joiningStatus ?? filterCandidateStatus;
 
-useEffect(() => {
-  const resolvedCompanyId = companyId ?? selectedCompanyfilter;
-  const resolvedStartDate = startDate ?? filterStartDate;
-  const resolvedEndDate = endDate ?? filterEndDate;
-    const resolvedJoiningStatus =
-    joiningStatus ?? filterCandidateStatus;
-  
+    // sync UI
+    if (companyId) setSelectedCompanyfilter(companyId);
+    if (startDate) setFilterStartDate(startDate);
+    if (endDate) setFilterEndDate(endDate);
+    if (joiningStatus) setFilterCandidateStatus(joiningStatus);
 
-  // sync UI
-  if (companyId) setSelectedCompanyfilter(companyId);
-  if (startDate) setFilterStartDate(startDate);
-  if (endDate) setFilterEndDate(endDate);
-  if (joiningStatus)
-    setFilterCandidateStatus(joiningStatus);
-
-  fetchContractCandidates({
-    companyId: resolvedCompanyId,
-    startDate: resolvedStartDate,
-    endDate: resolvedEndDate,
-    joiningStatus: resolvedJoiningStatus,
-  });
-}, [companyId, startDate, endDate, joiningStatus]);
+    fetchContractCandidates({
+      companyId: resolvedCompanyId,
+      startDate: resolvedStartDate,
+      endDate: resolvedEndDate,
+      joiningStatus: resolvedJoiningStatus,
+    });
+  }, [companyId, startDate, endDate, joiningStatus]);
 
   // console.log("Psspermission", Psspermission);
 
@@ -88,7 +81,6 @@ useEffect(() => {
   const [joinedType, setJoinedType] = useState(0);
 
   console.log("joinedType", joinedType);
-
 
   const userId = JSON.parse(user).id;
   // console.log("userId", userId);
@@ -280,19 +272,17 @@ useEffect(() => {
   // console.log("selectedEducation.......:....",selectedEducation)
   const [educationOptions, setEducationOptions] = useState([]);
   const [filterEducation, setFilterEducation] = useState("");
-const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
+  const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
   const [page, setPage] = useState(1);
-    const onPageChange = (e) => {
-      setPage(e.page + 1); // PrimeReact is 0-based
-      setRows(e.rows);
-  
-    };
-  
-    const onRowsChange = (value) => {
-      setRows(value);
-      setPage(1); // Reset to first page when changing rows per page
-    };
+  const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+  };
 
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
 
   // Table states
   // const [page, setPage] = useState(1);
@@ -345,13 +335,11 @@ const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
     }
   }, [candidateStatus, setValue]);
 
-
- 
-useEffect(() => {
-  if (candidateStatus !== "joined") {
-    setJoinedType(0); // Reset to 0 when not joined
-  }
-}, [candidateStatus]);
+  useEffect(() => {
+    if (candidateStatus !== "joined") {
+      setJoinedType(0); // Reset to 0 when not joined
+    }
+  }, [candidateStatus]);
   const [ModalOpen, setIsModalOpen] = useState(false);
 
   const handleApplyFilter = () => {
@@ -369,25 +357,24 @@ useEffect(() => {
 
   // Reset filters
   // Reset filters
-const handleResetFilter = () => {
-  const today = new Date().toISOString().split("T")[0];
+  const handleResetFilter = () => {
+    const today = new Date().toISOString().split("T")[0];
 
-  setFilterStartDate(today);
-  setFilterEndDate(today);
-  setSelectedReference("");
-  setFilterEducation("");
-  setFilterInterviewStatus("");
-  setFilterCandidateStatus("");
-  setSelectedCompanyfilter("");
+    setFilterStartDate(today);
+    setFilterEndDate(today);
+    setSelectedReference("");
+    setFilterEducation("");
+    setFilterInterviewStatus("");
+    setFilterCandidateStatus("");
+    setSelectedCompanyfilter("");
 
-  //rest use for both navigation and auto fetch on filter change from dashboard
-  fetchContractCandidates({
-    companyId: "",
-    startDate: today,
-    endDate: today,
-  });
-};
-
+    //rest use for both navigation and auto fetch on filter change from dashboard
+    fetchContractCandidates({
+      companyId: "",
+      startDate: today,
+      endDate: today,
+    });
+  };
 
   const fetchId = async (payload) => {
     // console.log("payload", payload);
@@ -508,30 +495,27 @@ const handleResetFilter = () => {
     setIsAnimating(false);
     setTimeout(() => setIsImportAddModalOpen(false), 250);
   };
-const [existingCandidate, setExistingCandidate] = useState(null);
-console.log("existingCandidate", existingCandidate)
+  const [existingCandidate, setExistingCandidate] = useState(null);
+  console.log("existingCandidate", existingCandidate);
   const [viewExistingCandidate, setViewExistingCandidate] = useState(null);
-  const [isExistingCandidateViewModalOpen, setIsExistingCandidateViewModalOpen] = useState(false);
+  const [
+    isExistingCandidateViewModalOpen,
+    setIsExistingCandidateViewModalOpen,
+  ] = useState(false);
   const handleViewExisting = async (id) => {
     try {
-
-      const response = await axiosInstance.get(
-        `/api/contract-emp/edit/${id}`
-      );
+      const response = await axiosInstance.get(`/api/contract-emp/edit/${id}`);
 
       if (response.data?.success) {
         setViewExistingCandidate(response.data.data);
         setIsExistingCandidateViewModalOpen(true);
       }
-
-
-
     } catch (err) {
       toast.error("Unable To Load Candidate Details");
     }
   };
 
-    const handleCloseViewExistingCandidate = () => {
+  const handleCloseViewExistingCandidate = () => {
     setIsExistingCandidateViewModalOpen(false);
 
     reset();
@@ -539,7 +523,6 @@ console.log("existingCandidate", existingCandidate)
     setIsExistingCandidateViewModalOpen(false);
     setViewExistingCandidate(null);
   };
-
 
   const handleView = async (row) => {
     try {
@@ -586,24 +569,24 @@ console.log("existingCandidate", existingCandidate)
   //   }
   // }, [ModalOpen]);
 
-    // const fetchCompanyList = async () => {
-    //   try {
-    //     const response = await axiosInstance.get("/api/company");
-    //     console.log("response check", response);
+  // const fetchCompanyList = async () => {
+  //   try {
+  //     const response = await axiosInstance.get("/api/company");
+  //     console.log("response check", response);
 
-    //     if (response.data.success) {
-    //       const companies = response.data.data.map((company) => ({
-    //         label: company.company_name,
-    //         value: company.id,
-    //       }));
-    //       // console.log("companies",companies)
+  //     if (response.data.success) {
+  //       const companies = response.data.data.map((company) => ({
+  //         label: company.company_name,
+  //         value: company.id,
+  //       }));
+  //       // console.log("companies",companies)
 
-    //       setCompanyOptions(companies);
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching companies:", error);
-    //   }
-    // };
+  //       setCompanyOptions(companies);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching companies:", error);
+  //   }
+  // };
 
   //image and document state and handling
   const [photo, setPhoto] = useState(null);
@@ -700,6 +683,11 @@ console.log("existingCandidate", existingCandidate)
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [importskip, setImportskip] = useState([]);
+  const [showSkipModal, setShowSkipModal] = useState(false);
+
+  // console.log("importskip", importskip);
+
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
@@ -772,9 +760,10 @@ console.log("existingCandidate", existingCandidate)
         },
       );
 
-      // console.log("response:", response.data);
+      console.log("response:", response.data);
       if (response.data.success) {
         toast.success(response.data.message || "Excel imported successfully!");
+        
 
         if (response.data.total !== undefined) {
           toast.success(`Imported: ${response.data.total} records`);
@@ -786,6 +775,17 @@ console.log("existingCandidate", existingCandidate)
       setSelectedDate(new Date().toISOString().split("T")[0]);
       setSelectedCompany(null);
 
+      const skipped = response.data?.skipped_details || [];
+
+      setImportskip(skipped);
+
+      //  only if skipped data exists
+      if (skipped.length > 0) {
+        setShowSkipModal(true);
+      }
+
+       closeImportAddModal();
+          resetImportForm();
       fetchContractCandidates();
     } catch (err) {
       console.error("Import error:", err);
@@ -832,11 +832,12 @@ console.log("existingCandidate", existingCandidate)
       interviewStatus: row.interview_status
         ? row.interview_status.toLowerCase()
         : "",
-     candidateStatus: row.joining_status === "joined"
-      ? "joined"
-      : row.joining_status === "not_joined"
-        ? "not_joined"
-        : "",
+      candidateStatus:
+        row.joining_status === "joined"
+          ? "joined"
+          : row.joining_status === "not_joined"
+            ? "not_joined"
+            : "",
       selectedJoiningDate: row.joining_date || "",
       joinedDate: row.joined_date || "",
       reference: row.reference || "",
@@ -919,8 +920,7 @@ console.log("existingCandidate", existingCandidate)
           education: normalizedData.education,
           reference: normalizedData.reference || "",
           otherReference: normalizedData.otherReference || "",
-                  candidateStatus: normalizedData.candidateStatus || "",
-
+          candidateStatus: normalizedData.candidateStatus || "",
         });
 
         // reset({
@@ -936,43 +936,38 @@ console.log("existingCandidate", existingCandidate)
     }
   };
 
-    const fetchContractCandidates = async (params = {}) => {
-  const finalCompanyId =
-    params.companyId ?? selectedCompanyfilter ?? "";
+  const fetchContractCandidates = async (params = {}) => {
+    const finalCompanyId = params.companyId ?? selectedCompanyfilter ?? "";
 
-  const finalStartDate =
-    params.startDate ?? filterStartDate;
+    const finalStartDate = params.startDate ?? filterStartDate;
 
-  const finalEndDate =
-    params.endDate ?? filterEndDate;
+    const finalEndDate = params.endDate ?? filterEndDate;
 
-   const finalJoiningStatus =
-    params.joiningStatus ?? filterCandidateStatus ?? "";
+    const finalJoiningStatus =
+      params.joiningStatus ?? filterCandidateStatus ?? "";
 
-  console.log("FINAL FETCH:", {
-    finalCompanyId,
-    finalStartDate,
-    finalEndDate,
-    finalJoiningStatus
-  });
+    console.log("FINAL FETCH:", {
+      finalCompanyId,
+      finalStartDate,
+      finalEndDate,
+      finalJoiningStatus,
+    });
     setLoading(true);
-    try  {
-      
+    try {
       const payload = {
-      startDate: finalStartDate,
-      endDate: finalEndDate,
-      reference: selectedReference,
-      education: filterEducation,
-      interview_status: filterInterviewStatus,
-       joining_status: finalJoiningStatus || "",
-      company_id: finalCompanyId
-    };
+        startDate: finalStartDate,
+        endDate: finalEndDate,
+        reference: selectedReference,
+        education: filterEducation,
+        interview_status: filterInterviewStatus,
+        joining_status: finalJoiningStatus || "",
+        company_id: finalCompanyId,
+      };
 
-    // REMOVE undefined keys
-  Object.keys(payload).forEach(
-    (key) => payload[key] === undefined && delete payload[key]
-  ); 
-
+      // REMOVE undefined keys
+      Object.keys(payload).forEach(
+        (key) => payload[key] === undefined && delete payload[key],
+      );
 
       const queryParams = new URLSearchParams(payload).toString();
 
@@ -1039,7 +1034,8 @@ console.log("existingCandidate", existingCandidate)
     try {
       await axiosInstance.delete(`${API_URL}api/contract-emp/delete/${id}`);
       setTimeout(() => {
-      toast.success("Contract Candidates deleted successfully")},500);
+        toast.success("Contract Candidates deleted successfully");
+      }, 500);
       fetchContractCandidates();
     } catch (error) {
       toast.error("Failed to delete Contract Candidates");
@@ -1056,10 +1052,12 @@ console.log("existingCandidate", existingCandidate)
     window.document.body.removeChild(link);
   };
 
-const getCompanyName = (companyId) => {
-  const company = companyOptions.find(com => com.value === String(companyId));
-  return company ? company.label : "-";
-};
+  const getCompanyName = (companyId) => {
+    const company = companyOptions.find(
+      (com) => com.value === String(companyId),
+    );
+    return company ? company.label : "-";
+  };
 
   const getEducationName = (educationId) => {
     const edu = educationOptions.find((e) => e.value === educationId);
@@ -1092,7 +1090,7 @@ const getCompanyName = (companyId) => {
       body: (row) => getEducationName(row.education_id),
     },
 
-     {
+    {
       header: "Company",
       body: (row) => getCompanyName(row.company_id),
     },
@@ -1229,30 +1227,26 @@ const getCompanyName = (companyId) => {
       header: "Action",
       body: (row) => (
         <div className="flex gap-4 justify-center items-center">
-         
-            <button
-              onClick={() => handleView(row)}
-              className="p-2 bg-blue-50 text-[#005AEF] rounded-[10px]  hover:bg-[#DFEBFF]"
-            >
-              <FaEye />
-            </button>
-       
-          
-            <button
-              className="p-2 bg-blue-50 text-[#005AEF] rounded-[10px]  hover:bg-[#DFEBFF]"
-              onClick={() => openEditModal(row)}
-            >
-              <TfiPencilAlt />
-            </button>
-         
-          
-            <button
-              className="p-2 bg-[#FFD1D1] text-[#DC2626] hover:bg-[#FFE2E2] rounded-[10px] "
-              onClick={() => handleDelete(row.id)}
-            >
-              <MdOutlineDeleteOutline />
-            </button>
-       
+          <button
+            onClick={() => handleView(row)}
+            className="p-2 bg-blue-50 text-[#005AEF] rounded-[10px]  hover:bg-[#DFEBFF]"
+          >
+            <FaEye />
+          </button>
+
+          <button
+            className="p-2 bg-blue-50 text-[#005AEF] rounded-[10px]  hover:bg-[#DFEBFF]"
+            onClick={() => openEditModal(row)}
+          >
+            <TfiPencilAlt />
+          </button>
+
+          <button
+            className="p-2 bg-[#FFD1D1] text-[#DC2626] hover:bg-[#FFE2E2] rounded-[10px] "
+            onClick={() => handleDelete(row.id)}
+          >
+            <MdOutlineDeleteOutline />
+          </button>
         </div>
       ),
       style: { textAlign: "center", width: "120px" },
@@ -1512,7 +1506,7 @@ const getCompanyName = (companyId) => {
             ? formatDateToYMD(data.joinedDate)
             : null,
 
-      joined_type: data.candidateStatus === "joined" ? joinedType : 0, 
+        joined_type: data.candidateStatus === "joined" ? joinedType : 0,
 
         joining_date:
           data.interviewStatus === "selected"
@@ -1553,8 +1547,7 @@ const getCompanyName = (companyId) => {
         });
       }
 
-
-console.log("createCandidate",createCandidate)
+      console.log("createCandidate", createCandidate);
 
       /* ---------------- API CALL ---------------- */
       const url = editData
@@ -1575,10 +1568,13 @@ console.log("createCandidate",createCandidate)
 
       /*  SUCCESS */
       setTimeout(() => {
-      toast.success(editData ? "Updated Successfully" : "Created Successfully")},300);
+        toast.success(
+          editData ? "Updated Successfully" : "Created Successfully",
+        );
+      }, 300);
       closeAddModal();
       fetchContractCandidates();
-    }catch (error) {
+    } catch (error) {
       console.log("errors:", error);
       const res = error?.response?.data;
 
@@ -1586,17 +1582,23 @@ console.log("createCandidate",createCandidate)
         // for Aadhaar already exists case
         setExistingCandidate({
           id: res.existing_id,
-          message: res.message
+          message: res.message,
         });
       } else {
         setExistingCandidate(null);
         setTimeout(
           () => toast.error(res?.message || "Server Error. Please Try Again."),
-          300
+          300,
         );
       }
-        setTimeout(() => toast.error(error?.response.data.message || "Server Error. Please Try Again."),300);
-      } finally {
+      setTimeout(
+        () =>
+          toast.error(
+            error?.response.data.message || "Server Error. Please Try Again.",
+          ),
+        300,
+      );
+    } finally {
       setLoading(false);
     }
   };
@@ -1700,98 +1702,97 @@ console.log("createCandidate",createCandidate)
 
             {/* Filter Section */}
 
-          
-              <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end w-full">
-                    {/* Start Date */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-[#6B7280]">
-                        Start Date
-                      </label>
-                      <input
-                        type="date"
-                        value={filterStartDate || ""}
-                        onChange={(e) => setFilterStartDate(e.target.value)}
-                        className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                    </div>
+            <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end w-full">
+                  {/* Start Date */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={filterStartDate || ""}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                      className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                  </div>
 
-                    {/* End Date */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-[#6B7280]">
-                        End Date
-                      </label>
-                      <input
-                        type="date"
-                        value={filterEndDate || ""}
-                        onChange={(e) => setFilterEndDate(e.target.value)}
-                        className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                    </div>
+                  {/* End Date */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={filterEndDate || ""}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                      className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                  </div>
 
-                    {/* Reference */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-[#6B7280]">
-                        Reference
-                      </label>
+                  {/* Reference */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Reference
+                    </label>
 
-                      <Dropdown
-                        value={selectedReference}
-                        onChange={(e) => setSelectedReference(e.value)}
-                        className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
-                        options={referenceOptions}
-                        placeholder="Select Reference"
-                        filter
-                      />
-                    </div>
+                    <Dropdown
+                      value={selectedReference}
+                      onChange={(e) => setSelectedReference(e.value)}
+                      className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
+                      options={referenceOptions}
+                      placeholder="Select Reference"
+                      filter
+                    />
+                  </div>
 
-                    {/* Interview Status */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-[#6B7280]">
-                        Interview Status
-                      </label>
-                      <Dropdown
-                        value={filterInterviewStatus}
-                        options={interviewStatusOptions}
-                        onChange={(e) => setFilterInterviewStatus(e.value)}
-                        placeholder="Select Status "
-                        filter
-                        className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
-                      />
-                    </div>
+                  {/* Interview Status */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Interview Status
+                    </label>
+                    <Dropdown
+                      value={filterInterviewStatus}
+                      options={interviewStatusOptions}
+                      onChange={(e) => setFilterInterviewStatus(e.value)}
+                      placeholder="Select Status "
+                      filter
+                      className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
+                    />
+                  </div>
 
-                    {/* Candidate Status */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-[#6B7280]">
-                        Candidate Status
-                      </label>
-                      <Dropdown
-                        value={filterCandidateStatus}
-                        options={candidateStatusOptions}
-                        filter
-                        onChange={(e) => setFilterCandidateStatus(e.value)}
-                        placeholder="Select Status "
-                        className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md placeholder:text-gray-400"
-                      />
-                    </div>
+                  {/* Candidate Status */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Candidate Status
+                    </label>
+                    <Dropdown
+                      value={filterCandidateStatus}
+                      options={candidateStatusOptions}
+                      filter
+                      onChange={(e) => setFilterCandidateStatus(e.value)}
+                      placeholder="Select Status "
+                      className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md placeholder:text-gray-400"
+                    />
+                  </div>
 
-                    {/* education */}
-                    <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-[#6B7280]">
-                        Education
-                      </label>
-                      <Dropdown
-                        value={filterEducation}
-                        options={educationOptions}
-                        onChange={(e) => setFilterEducation(e.value)}
-                        placeholder="Select Education"
-                        filter
-                        className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
-                      />
-                    </div>
+                  {/* education */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Education
+                    </label>
+                    <Dropdown
+                      value={filterEducation}
+                      options={educationOptions}
+                      onChange={(e) => setFilterEducation(e.value)}
+                      placeholder="Select Education"
+                      filter
+                      className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
+                    />
+                  </div>
 
-                     {/* company */}
+                  {/* company */}
 
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
@@ -1811,26 +1812,24 @@ console.log("createCandidate",createCandidate)
                     </div>
                   </div>
 
-
-                    {/* Buttons */}
-                    <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
-                      <button
-                        onClick={fetchContractCandidates}
-                        className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
-                      >
-                        Apply
-                      </button>
-                      <button
-                        onClick={handleResetFilter}
-                        className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
-                      >
-                        Reset
-                      </button>
-                    </div>
+                  {/* Buttons */}
+                  <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
+                    <button
+                      onClick={fetchContractCandidates}
+                      className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
+                    >
+                      Apply
+                    </button>
+                    <button
+                      onClick={handleResetFilter}
+                      className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
+                    >
+                      Reset
+                    </button>
                   </div>
                 </div>
               </div>
-          
+            </div>
 
             {/* Table Section */}
             <div className="flex flex-col  w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
@@ -1869,16 +1868,15 @@ console.log("createCandidate",createCandidate)
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
                     </div>
-                  
-                      <div className="hidden md:flex items-center">
-                        <button
-                          onClick={openImportAddModal}
-                          className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
-                        >
-                          Import
-                        </button>
-                      </div>
-                   
+
+                    <div className="hidden md:flex items-center">
+                      <button
+                        onClick={openImportAddModal}
+                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                      >
+                        Import
+                      </button>
+                    </div>
 
                     {/* sample csv format download */}
                     <div className="hidden md:flex items-center">
@@ -1898,14 +1896,13 @@ console.log("createCandidate",createCandidate)
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
-                  
-                      <button
-                        onClick={openAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
-                      >
-                        + Add Candidate
-                      </button>
-                 
+
+                    <button
+                      onClick={openAddModal}
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                    >
+                      + Add Candidate
+                    </button>
                   </div>
                 </div>
 
@@ -2456,16 +2453,18 @@ console.log("createCandidate",createCandidate)
                       </div>
 
                       {existingCandidate && (
-                      <p className="text-sm text-red-600 mt-1">
-                        {existingCandidate.message}{" "}
-                        <span
-                          className="underline text-green-600 cursor-pointer"
-                          onClick={() => handleViewExisting(existingCandidate.id)}
-                        >
-                          Learn more
-                        </span>
-                      </p>
-                    )}
+                        <p className="text-sm text-red-600 mt-1">
+                          {existingCandidate.message}{" "}
+                          <span
+                            className="underline text-green-600 cursor-pointer"
+                            onClick={() =>
+                              handleViewExisting(existingCandidate.id)
+                            }
+                          >
+                            Learn more
+                          </span>
+                        </p>
+                      )}
 
                       {/* pan no */}
                       <div className="mt-5 flex justify-between items-center">
@@ -2678,17 +2677,19 @@ console.log("createCandidate",createCandidate)
                                 /> */}
                             <input
                               type="date"
-              {...register("joinedDate", {
-          onChange: (e) => {
-            setValue("joinedDate", e.target.value, { shouldDirty: true });
-            // Check if joined date is being set (not null/empty)
-            if (e.target.value) {
-              setJoinedType(1); // Set to 1 when date is selected
-            } else {
-              setJoinedType(0); // Set to 0 when date is cleared
-            }
-          },
-        })}
+                              {...register("joinedDate", {
+                                onChange: (e) => {
+                                  setValue("joinedDate", e.target.value, {
+                                    shouldDirty: true,
+                                  });
+                                  // Check if joined date is being set (not null/empty)
+                                  if (e.target.value) {
+                                    setJoinedType(1); // Set to 1 when date is selected
+                                  } else {
+                                    setJoinedType(0); // Set to 0 when date is cleared
+                                  }
+                                },
+                              })}
                               name="joinedDate"
                               className="w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                             />
@@ -3106,8 +3107,7 @@ console.log("createCandidate",createCandidate)
               </div>
             )}
 
-
-          {isExistingCandidateViewModalOpen && viewExistingCandidate && (
+            {isExistingCandidateViewModalOpen && viewExistingCandidate && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
                 <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
                   {/* Close Button */}
@@ -3121,7 +3121,6 @@ console.log("createCandidate",createCandidate)
                   {/* Title and profile picture */}
                   {/* Header */}
                   <div className="flex items-center justify-between mb-6 border-b pb-4">
-
                     {/* Title */}
                     <h2 className="text-xl font-semibold text-[#1ea600]">
                       View Existing Candidate Details
@@ -3129,11 +3128,12 @@ console.log("createCandidate",createCandidate)
 
                     {/* Profile Picture */}
                     <div className="flex items-center gap-6">
-
                       {viewExistingCandidate.profile_picture ? (
                         <img
                           src={
-                            viewExistingCandidate.profile_picture.startsWith("http")
+                            viewExistingCandidate.profile_picture.startsWith(
+                              "http",
+                            )
                               ? viewExistingCandidate.profile_picture
                               : `${API_URL}${viewExistingCandidate.profile_picture}`
                           }
@@ -3175,7 +3175,6 @@ console.log("createCandidate",createCandidate)
                           <IoIosCloseCircle size={26} />
                         </button>
                       </div>
-
                     </div>
                   </div>
 
@@ -3183,10 +3182,11 @@ console.log("createCandidate",createCandidate)
                   <div className="pr-2 overflow-y-auto ">
                     {/* Candidate Info */}
                     <div className="grid grid-cols-2 gap-4 text-sm">
-
                       <p>
                         <b>Company:</b>{" "}
-                        {companyOptions.find(c => c.value === viewExistingCandidate.company_id)?.label || "-"}
+                        {companyOptions.find(
+                          (c) => c.value === viewExistingCandidate.company_id,
+                        )?.label || "-"}
                       </p>
 
                       <p>
@@ -3197,24 +3197,30 @@ console.log("createCandidate",createCandidate)
                       </p>
 
                       <p>
-                        <b>Aadhar Number:</b> {viewExistingCandidate.aadhar_number}
+                        <b>Aadhar Number:</b>{" "}
+                        {viewExistingCandidate.aadhar_number}
                       </p>
 
                       <p>
-                        <b>Pan Number:</b> {viewExistingCandidate.pan_number || "-"}
+                        <b>Pan Number:</b>{" "}
+                        {viewExistingCandidate.pan_number || "-"}
                       </p>
                       <p>
                         <b>Gender:</b> {viewExistingCandidate.gender || "-"}
                       </p>
                       <p>
-                        <b>Marital Status:</b> {viewExistingCandidate.marital_status || "-"}
+                        <b>Marital Status:</b>{" "}
+                        {viewExistingCandidate.marital_status || "-"}
                       </p>
                       <p>
                         <b>Education:</b>{" "}
                         {viewExistingCandidate.education?.eduction_name || "-"}
                       </p>
                       <p>
-                        <b>Interview Date:</b> {formatToDDMMYYYY(viewExistingCandidate.interview_date) || "-"}
+                        <b>Interview Date:</b>{" "}
+                        {formatToDDMMYYYY(
+                          viewExistingCandidate.interview_date,
+                        ) || "-"}
                       </p>
                       <p>
                         <b>Interview Status:</b>{" "}
@@ -3224,10 +3230,13 @@ console.log("createCandidate",createCandidate)
                       </p>
 
                       <p>
-                        <b>Candidate Status:</b> {viewExistingCandidate.joining_status || "-"}
+                        <b>Candidate Status:</b>{" "}
+                        {viewExistingCandidate.joining_status || "-"}
                       </p>
                       <p>
-                        <b>Joining Date:</b> {formatToDDMMYYYY(viewExistingCandidate.joining_date) || "-"}
+                        <b>Joining Date:</b>{" "}
+                        {formatToDDMMYYYY(viewExistingCandidate.joining_date) ||
+                          "-"}
                       </p>
                       <p>
                         <b>Joined Date:</b>{" "}
@@ -3236,14 +3245,15 @@ console.log("createCandidate",createCandidate)
                           : "-"}
                       </p>
                       <p>
-                        <b>Reference:</b> {viewExistingCandidate.reference || "-"}
+                        <b>Reference:</b>{" "}
+                        {viewExistingCandidate.reference || "-"}
                       </p>
                       {viewExistingCandidate?.other_reference !== null && (
                         <p>
-                          <b>Other Reference:</b> {viewExistingCandidate.other_reference || "-"}
+                          <b>Other Reference:</b>{" "}
+                          {viewExistingCandidate.other_reference || "-"}
                         </p>
                       )}
-
 
                       <p className="col-span-2">
                         <b>Notes:</b>{" "}
@@ -3254,22 +3264,33 @@ console.log("createCandidate",createCandidate)
                       <div className="col-span-2 pt-4">
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
-                        {viewExistingCandidate.documents && viewExistingCandidate.documents.length > 0 ? (
+                        {viewExistingCandidate.documents &&
+                        viewExistingCandidate.documents.length > 0 ? (
                           <div className="space-y-2">
-                            {viewExistingCandidate.documents.map((doc, index) => (
-                              <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border">
-                                <span className="text-gray-600 truncate flex-1">
-                                  {doc.original_name || `Document ${index + 1}`}
-                                </span>
+                            {viewExistingCandidate.documents.map(
+                              (doc, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center gap-4 bg-gray-50 p-3 rounded-lg border"
+                                >
+                                  <span className="text-gray-600 truncate flex-1">
+                                    {doc.original_name ||
+                                      `Document ${index + 1}`}
+                                  </span>
 
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => window.open(`${API_URL}/${doc.document_path}`, "_blank")}
-                                    className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
-                                  >
-                                    View/Print
-                                  </button>
-                                  {/* <button
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() =>
+                                        window.open(
+                                          `${API_URL}/${doc.document_path}`,
+                                          "_blank",
+                                        )
+                                      }
+                                      className="bg-green-50 text-green-600 px-3 py-1 rounded hover:bg-blue-100"
+                                    >
+                                      View/Print
+                                    </button>
+                                    {/* <button
     onClick={() =>
       window.open(`${API_URL}/${doc.document_path}?download=true`, "_blank")
     }
@@ -3277,12 +3298,15 @@ console.log("createCandidate",createCandidate)
   >
     Download
   </button> */}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ),
+                            )}
                           </div>
                         ) : (
-                          <p className="text-gray-500 italic">No documents uploaded.</p>
+                          <p className="text-gray-500 italic">
+                            No documents uploaded.
+                          </p>
                         )}
                       </div>
                     </div>
@@ -3290,6 +3314,87 @@ console.log("createCandidate",createCandidate)
                 </div>
               </div>
             )}
+
+         
+
+{/*  Skipped Employees Popup (Tailwind) */}
+{showSkipModal && importskip.length > 0 && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    {/* Backdrop */}
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setShowSkipModal(false)}
+    />
+
+    {/* Modal Box */}
+    <div className="relative w-[95%] max-w-4xl rounded-2xl bg-white shadow-2xl border border-green-200 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 bg-green-600">
+        <h2 className="text-white font-bold text-lg">
+          ⚠️ Skipped Employees ({importskip.length})
+        </h2>
+
+        <button
+          onClick={() => setShowSkipModal(false)}
+          className="text-white text-2xl font-bold hover:opacity-80"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-6">
+        <p className="text-gray-600 mb-4">
+          These employees were skipped because they already exist / duplicate.
+        </p>
+
+        <div className="overflow-auto rounded-xl border border-green-100">
+          <table className="w-full text-sm">
+            <thead className="bg-green-50">
+              <tr className="text-left text-gray-700">
+                <th className="px-4 py-3 w-[80px] font-semibold">S.No</th>
+                <th className="px-4 py-3 font-semibold">Employee Name</th>
+                <th className="px-4 py-3 w-[240px] font-semibold">
+                  Aadhar Number
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {importskip.map((item, index) => (
+                <tr
+                  key={index}
+                  className="border-t hover:bg-green-50/40 transition"
+                >
+                  <td className="px-4 py-3 font-bold">{index + 1}</td>
+
+                  <td className="px-4 py-3 font-semibold uppercase text-gray-800">
+                    {item?.employee_name || "-"}
+                  </td>
+
+                  <td className="px-4 py-3 font-semibold text-green-700">
+                    {item?.aadhar_number || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
+        <button
+          onClick={() => setShowSkipModal(false)}
+          className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
           </div>
         </>
@@ -3300,4 +3405,3 @@ console.log("createCandidate",createCandidate)
 };
 
 export default ContractCandidates_Mainbar;
-
