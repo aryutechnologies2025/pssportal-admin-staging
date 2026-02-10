@@ -33,6 +33,8 @@ import Mobile_Sidebar from "../Mobile_Sidebar";
 import Footer from "../Footer";
 import { Capitalise } from "../../hooks/useCapitalise";
 import CameraPhoto from "../../Utils/cameraPhoto";
+import {  FiX } from "react-icons/fi";
+
 
 const ContractCandidates_Mainbar = () => {
   const [searchParams] = useSearchParams();
@@ -1867,6 +1869,15 @@ const ContractCandidates_Mainbar = () => {
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
+                        {globalFilter && (
+      <button
+        type="button"
+        onClick={() => setGlobalFilter("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+      >
+        <FiX size={18} />
+      </button>
+    )}
                     </div>
 
                     <div className="hidden md:flex items-center">
