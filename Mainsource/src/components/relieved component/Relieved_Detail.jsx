@@ -322,12 +322,6 @@ const Relieved_Detail = () => {
             style: { textAlign: "center", fontWeight: "medium" },
         },
         {
-            header: "Rejoined Date",
-            field: "rejoining_date",
-            body: (row) => row.rejoining_date || "-",
-            style: { textAlign: "center", fontWeight: "medium" },
-        },
-        {
             header: "Aadhar Number",
             field: "aadhar_number",
             body: (row) => row.aadhar_number || "-",
@@ -701,13 +695,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                                 setRelievedDetails({ ...relievedDetails, employeeName: e.target.value })
                                                             }
                                                             maxLength={255}
-                                                            // onChange={(e) => {
-                                                            //     setRelievedDetails({
-                                                            //         ...relievedDetails,
-                                                            //         role_name: e.target.value,
-                                                            //     });
-                                                            //     validateRoleName(e.target.value);
-                                                            // }}
+                                                            
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -758,13 +746,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                                 setRelievedDetails({ ...relievedDetails, joinedDate: e.target.value })
                                                             }
                                                             maxLength={255}
-                                                            // onChange={(e) => {
-                                                            //     setRelievedDetails({
-                                                            //         ...relievedDetails,
-                                                            //         role_name: e.target.value,
-                                                            //     });
-                                                            //     validateRoleName(e.target.value);
-                                                            // }}
+                                                            
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -786,13 +768,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                                 setRelievedDetails({ ...relievedDetails, relievedDate: e.target.value })
                                                             }
                                                             maxLength={255}
-                                                            // onChange={(e) => {
-                                                            //     setRelievedDetails({
-                                                            //         ...relievedDetails,
-                                                            //         role_name: e.target.value,
-                                                            //     });
-                                                            //     validateRoleName(e.target.value);
-                                                            // }}
+                                                           
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -814,13 +790,7 @@ px-2 py-2 md:px-6 md:py-6">
                                                                 setRelievedDetails({ ...relievedDetails, aadharNo: e.target.value })
                                                             }
                                                             maxLength={255}
-                                                            // onChange={(e) => {
-                                                            //     setRelievedDetails({
-                                                            //         ...relievedDetails,
-                                                            //         role_name: e.target.value,
-                                                            //     });
-                                                            //     validateRoleName(e.target.value);
-                                                            // }}
+                                                            
                                                             className="w-full px-3 py-2 border border-[#D9D9D9] text-[#4A4A4A] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                                                         />
 
@@ -909,10 +879,6 @@ px-2 py-2 md:px-6 md:py-6">
                                         <div className="flex justify-between">
                                             <span className="font-medium">Relieved Date</span>
                                             <span>{viewRelieved.relieving_date || "-"}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="font-medium">Rejoined Date</span>
-                                            <span>{viewRelieved.rejoining_date || "-"}</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="font-medium">Aadhar Number</span>

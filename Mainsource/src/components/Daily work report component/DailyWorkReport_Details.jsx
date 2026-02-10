@@ -431,12 +431,12 @@ const DailyWorkReport_Details = () => {
                             </div>
 
                             <div className="flex items-end gap-3 mt-6 md:mt-0">
-                                {/* <button
+                                <button
                                     onClick={() => navigate('/monthly-workreport')}
                                     className="h-10 w-20 rounded-lg text-sm bg-[#1ea600] hover:bg-[#23880c] text-white "
                                 >
                                     Monthly Report
-                                </button> */}
+                                </button>
                             </div>
 
 
