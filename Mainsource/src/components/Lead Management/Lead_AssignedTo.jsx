@@ -221,7 +221,7 @@ const fetchAssignedLeadsForEmp = async () => {
 
   try {
     const res = await axiosInstance.get(
-      "api/lead-management/assign-list"
+      `${API_URL}api/lead-management/assign-list`
     );
 
     console.log("Lead Response:", res);
@@ -357,7 +357,7 @@ const handleSubmit = async () => {
     setSubmitting(true);
 
     const res = await axiosInstance.post(
-      "/api/lead-management/assign",
+      `${API_URL}api/lead-management/assign`,
       payload
     );
 

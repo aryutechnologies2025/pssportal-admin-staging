@@ -92,7 +92,7 @@ const fetchEditAssignedDetails = async () => {
     setLoading(true);
 
     const res = await axiosInstance.get(
-      `/api/lead-management/assign-edit/${id}`
+      `${API_URL}api/lead-management/assign-edit/${id}`
     );
 
     console.log("fetchedit assigned details response : ",res)
@@ -124,19 +124,7 @@ const fetchEditAssignedDetails = async () => {
 
       const assignedIds = (data.entries || []).map(entry => entry.lead.id);
 
-      //  setFilters(prev => ({
-      //   ...prev,
 
-      //   category: data.category_ids || [],
-      //   lead_status: data.lead_statuses || [],
-      //   from_date: data.start_date
-      //     ? data.start_date.split("T")[0]
-      //     : prev.from_date,
-
-      //   to_date: data.end_date
-      //     ? data.end_date.split("T")[0]
-      //     : prev.to_date
-      // }));
 
       fetchAssignedLeads({
         employee_id: empOption.value,
@@ -146,24 +134,7 @@ const fetchEditAssignedDetails = async () => {
         end_date: newFilters.to_date,
         assignedLeadIds: assignedIds // Pass this so they stay checked!
       });
-      // map leads
-      // const mappedLeads = (data.entries || []).map(entry => ({
-      //   id: entry.lead.id,
-      //   full_name: entry.lead.full_name,
-      //   phone: entry.lead.phone,
-
-      //   // UI flags
-      //   isAssignedToSelected: true,
-      //   isAssignedToOther: false,
-      //   disableCheckbox: false,
-      //   showOrange: false,
-      //   assignedEmployeeName: data.employee?.full_name || ""
-      // }));
-
-      // setLeads(mappedLeads);
-
-      // mark as selected
-      // setSelectedLeads(mappedLeads.map(l => l.id));
+     
     }
   } catch (err) {
     toast.error("Failed to load assigned leads");
@@ -188,69 +159,8 @@ useEffect(() => {
 }, [filters.lead_status]);
 
 
-// const fetchAssignedLeads = async (filters) => {
-//   setLoading(true);
-
-//   try {
-//     const params = {
-//       employee_id: filters.employee_id,
-//       category_id: filters.category_id?.join(","),
-//       lead_status: filters.lead_status?.join(","),
-//       start_date: filters.start_date,
-//       end_date: filters.end_date
-//     };
-
-//     const res = await axiosInstance.get(
-//       "/api/lead-management/lead-list",
-//       { params }
-//     );
-
-//     console.log("fetchAssignedLeads response:", res);
-//     if (res.status === 200) {
-//       setLeads(res.data.data); // Your 100 or 150 leads
-//       setCount(res.data.count); // This is the missing piece!
-//       const assignedLeadIds = filters.assignedLeadIds || [];
-
-//       // 🔹 dropdown employees
-//       const empOptions = (res.data.employees || []).map(emp => ({
-//         label: emp.full_name,
-//         value: emp.id
-//       }));
-//       setEmployeeOptions(empOptions);
-
-//       // 🔹 normalize leads
-//       const normalizedLeads = leads.map(lead => {
-//         const isSameEmployee = assignedLeadIds.includes(lead.id);
-//         const isOtherEmployee = lead.already_assigned_another_employee === true;
-
-//         return {
-//           ...lead,
-
-//           isAssignedToSelected: isSameEmployee,
-//           isAssignedToOther: isOtherEmployee,
-
-//           showOrange: isOtherEmployee,
-//           disableCheckbox: isOtherEmployee,
-
-//           assignedEmployeeName: lead.assigned_employee_name || ""
-//         };
-//       });
-
-//       setLeads(normalizedLeads);
-
-//       // 🔹 auto-check assigned leads
-//       setSelectedLeads(assignedLeadIds);
-//     }
-//   } catch (err) {
-//     console.error("Lead list error", err);
-//     setLeads([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
 const fetchAssignedLeads = async (appliedFilters = {}) => {
-  console.log("🚀 fetchAssignedLeads CALLED");
+//   console.log(" fetchAssignedLeads CALLED");
   setLoading(true);
 
   try {
@@ -278,7 +188,7 @@ if (Array.isArray(appliedFilters.lead_status) && appliedFilters.lead_status.leng
 }
 
     const res = await axiosInstance.get(
-      "/api/lead-management/lead-list",
+      `${API_URL}api/lead-management/lead-list`,
       { params }
     );
 console.log("Lead Response : ",res);
@@ -356,7 +266,7 @@ const handleUpdate = async () => {
     };
 
     const res = await axiosInstance.put(
-      `/api/lead-management/assign-update/${id}`, 
+      `${API_URL}api/lead-management/assign-update/${id}`, 
       payload
     );
 
@@ -422,7 +332,7 @@ const handleToggle = (leadId) => {
 
   setSelectedLeads(prev =>
     prev.includes(leadId)
-      ? prev.filter(id => id !== leadId) // ✅ UNCHECK works
+      ? prev.filter(id => id !== leadId) 
       : [...prev, leadId]
   );
 };
@@ -548,6 +458,11 @@ useEffect(() => {
                 Dashboard
               </p>
               <p>{">"}</p>
+                 <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/lead-assignedto")}>
+                Assigned To
+              </p>
+              <p>{">"}</p>
+              
               <p className="text-sm md:text-md text-[#1ea600]">View Assigned Lead</p>
             </div>
 
