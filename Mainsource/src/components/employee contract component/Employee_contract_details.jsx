@@ -31,6 +31,7 @@ import CameraPhoto from "../../Utils/cameraPhoto";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { FiDownload } from "react-icons/fi";
 import { TbLogs } from "react-icons/tb";
+import { FiX } from "react-icons/fi";
 
 const Employee_contract_details = () => {
   //navigation
@@ -187,7 +188,7 @@ const Employee_contract_details = () => {
   const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
   const [selectedReference, setSelectedReference] = useState("");
-  const [statusType, setStatusType] = useState(0)
+  const [statusType, setStatusType] = useState(0);
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
   // console.log("companyEmpType", companyEmpType);
@@ -331,15 +332,14 @@ const Employee_contract_details = () => {
         status: status,
         joining_date:
           status === 1 ? formatDateToYMD(watch("joinedDate")) : null,
-        relieving_date:
-          status === 0 ? formatDateToYMD(new Date()) : null,
+        relieving_date: status === 0 ? formatDateToYMD(new Date()) : null,
       };
 
       console.log("Status change payload:", payload);
 
       await axiosInstance.post(
         `/api/relieved/status-change/${editData.id}`,
-        payload
+        payload,
       );
 
       toast.success("Status updated successfully");
@@ -348,7 +348,6 @@ const Employee_contract_details = () => {
       toast.error("Failed to update status");
     }
   };
-
 
   const closeAddModal = () => {
     setIsAnimating(false);
@@ -590,7 +589,7 @@ const Employee_contract_details = () => {
   // console.log("editempid", editempid);
   const [importskip, setImportskip] = useState([]);
   const [showSkipModal, setShowSkipModal] = useState(false);
-    console.log("importskip", importskip);
+  // console.log("importskip", importskip);
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
@@ -674,8 +673,7 @@ const Employee_contract_details = () => {
         }
       }
 
-
-       const skipped = response.data?.skipped_details || [];
+      const skipped = response.data?.skipped_details || [];
 
       setImportskip(skipped);
 
@@ -1113,9 +1111,10 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${row.status === 0 || row.status === "0"
-              ? "text-[#DC2626] bg-[#fff0f0] "
-              : "text-[#16A34A] bg-[#e8fff0] "
+            ${
+              row.status === 0 || row.status === "0"
+                ? "text-[#DC2626] bg-[#fff0f0] "
+                : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
@@ -1572,6 +1571,15 @@ const Employee_contract_details = () => {
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
+                      {globalFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setGlobalFilter("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                        >
+                          <FiX size={18} />
+                        </button>
+                      )}
                     </div>
                     <div className="hidden md:flex items-center">
                       <button
@@ -1684,8 +1692,9 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
-                    }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
+                    isAnimating ? "translate-x-0" : "translate-x-full"
+                  }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -2389,10 +2398,11 @@ const Employee_contract_details = () => {
                                   : "Employee ID"
                               }
                               className={`w-full px-2 py-2 border rounded-[10px]
-          ${companyEmpType === "automatic"
-                                  ? "bg-gray-100 cursor-not-allowed"
-                                  : "bg-white"
-                                }`}
+          ${
+            companyEmpType === "automatic"
+              ? "bg-gray-100 cursor-not-allowed"
+              : "bg-white"
+          }`}
                             />
                             {errors.manual_value && (
                               <p className="text-red-500 text-sm mt-1">
@@ -2556,7 +2566,6 @@ const Employee_contract_details = () => {
                             //     const status = Number(e.target.value); // 1 or 0
                             //     setValue("status", status);
 
-
                             //     if (editData?.id) {
                             //       await handleStatusChange(status);
                             //     }
@@ -2569,7 +2578,7 @@ const Employee_contract_details = () => {
                             //     setValue("status", value, { shouldDirty: true });
 
                             //     if (value === "1" || value === "0") {
-                            //       setStatusType(1); 
+                            //       setStatusType(1);
                             //     } else {
                             //       setStatusType(0);
                             //     }
@@ -2579,7 +2588,9 @@ const Employee_contract_details = () => {
                               onChange: (e) => {
                                 const value = e.target.value;
 
-                                setValue("status", value, { shouldDirty: true });
+                                setValue("status", value, {
+                                  shouldDirty: true,
+                                });
 
                                 // If user selected Joined or Relieved → mark status_type = 1
                                 if (value === "1" || value === "0") {
@@ -2591,7 +2602,9 @@ const Employee_contract_details = () => {
                             })}
                             className="w-full px-2 py-2 border border-gray-300 rounded-[10px]"
                           >
-                            <option disabled selected>Select a status</option>
+                            <option disabled selected>
+                              Select a status
+                            </option>
                             <option value="1">Joined</option>
                             <option value="0">Relieved</option>
                             {/* <option value="2">Relieved</option> */}
@@ -2882,9 +2895,9 @@ const Employee_contract_details = () => {
                         <button
                           type="submit"
                           className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                        // onClick={handleSubmit(onSubmit, (errors) =>
-                        //   console.log(errors),
-                        // )}
+                          // onClick={handleSubmit(onSubmit, (errors) =>
+                          //   console.log(errors),
+                          // )}
                         >
                           Submit
                         </button>
@@ -3218,8 +3231,8 @@ const Employee_contract_details = () => {
                         </h3>
 
                         {viewRow?.contacts &&
-                          Array.isArray(viewRow.contacts) &&
-                          viewRow.contacts.length > 0 ? (
+                        Array.isArray(viewRow.contacts) &&
+                        viewRow.contacts.length > 0 ? (
                           <table className="w-full border text-sm">
                             <thead className="bg-gray-100">
                               <tr>
@@ -3455,7 +3468,7 @@ const Employee_contract_details = () => {
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
                         {viewExistingCandidate.documents &&
-                          viewExistingCandidate.documents.length > 0 ? (
+                        viewExistingCandidate.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewExistingCandidate.documents.map(
                               (doc, index) => (
@@ -3506,83 +3519,89 @@ const Employee_contract_details = () => {
             )}
 
             {/*  Skipped Employees Popup (Tailwind) */}
-{showSkipModal && importskip.length > 0 && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-    {/* Backdrop */}
-    <div
-      className="absolute inset-0 bg-black/50"
-      onClick={() => setShowSkipModal(false)}
-    />
+            {showSkipModal && importskip.length > 0 && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+                {/* Backdrop */}
+                <div
+                  className="absolute inset-0 bg-black/50"
+                  onClick={() => setShowSkipModal(false)}
+                />
 
-    {/* Modal Box */}
-    <div className="relative w-[95%] max-w-4xl rounded-2xl bg-white shadow-2xl border border-green-200 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-green-600">
-        <h2 className="text-white font-bold text-lg">
-          ⚠️ Skipped Employees ({importskip.length})
-        </h2>
+                {/* Modal Box */}
+                <div className="relative w-[95%] max-w-4xl rounded-2xl bg-white shadow-2xl border border-green-200 overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-6 py-4 bg-green-600">
+                    <h2 className="text-white font-bold text-lg">
+                      ⚠️ Skipped Employees ({importskip.length})
+                    </h2>
 
-        <button
-          onClick={() => setShowSkipModal(false)}
-          className="text-white text-2xl font-bold hover:opacity-80"
-        >
-          ×
-        </button>
-      </div>
+                    <button
+                      onClick={() => setShowSkipModal(false)}
+                      className="text-white text-2xl font-bold hover:opacity-80"
+                    >
+                      ×
+                    </button>
+                  </div>
 
-      {/* Body */}
-      <div className="p-6">
-        <p className="text-gray-600 mb-4">
-          These employees were skipped because they already exist / duplicate.
-        </p>
+                  {/* Body */}
+                  <div className="p-6">
+                    <p className="text-gray-600 mb-4">
+                      These employees were skipped because they already exist /
+                      duplicate.
+                    </p>
 
-        <div className="overflow-auto rounded-xl border border-green-100">
-          <table className="w-full text-sm">
-            <thead className="bg-green-50">
-              <tr className="text-left text-gray-700">
-                <th className="px-4 py-3 w-[80px] font-semibold">S.No</th>
-                <th className="px-4 py-3 font-semibold">Employee Name</th>
-                <th className="px-4 py-3 w-[240px] font-semibold">
-                  Aadhar Number
-                </th>
-              </tr>
-            </thead>
+                    <div className="overflow-auto rounded-xl border border-green-100">
+                      <table className="w-full text-sm">
+                        <thead className="bg-green-50">
+                          <tr className="text-left text-gray-700">
+                            <th className="px-4 py-3 w-[80px] font-semibold">
+                              S.No
+                            </th>
+                            <th className="px-4 py-3 font-semibold">
+                              Employee Name
+                            </th>
+                            <th className="px-4 py-3 w-[240px] font-semibold">
+                              Aadhar Number
+                            </th>
+                          </tr>
+                        </thead>
 
-            <tbody>
-              {importskip?.map((item, index) => (
-                <tr
-                  key={index}
-                  className="border-t hover:bg-green-50/40 transition"
-                >
-                  <td className="px-4 py-3 font-bold">{index + 1}</td>
+                        <tbody>
+                          {importskip?.map((item, index) => (
+                            <tr
+                              key={index}
+                              className="border-t hover:bg-green-50/40 transition"
+                            >
+                              <td className="px-4 py-3 font-bold">
+                                {index + 1}
+                              </td>
 
-                  <td className="px-4 py-3 font-semibold uppercase text-gray-800">
-                    {item?.existing_employee?.employee_name || "-"}
-                  </td>
+                              <td className="px-4 py-3 font-semibold uppercase text-gray-800">
+                                {item?.existing_employee?.employee_name || "-"}
+                              </td>
 
-                  <td className="px-4 py-3 font-semibold text-green-700">
-                    {item?.existing_employee?.aadhar_number || "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                              <td className="px-4 py-3 font-semibold text-green-700">
+                                {item?.existing_employee?.aadhar_number || "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
-      {/* Footer */}
-      <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
-        <button
-          onClick={() => setShowSkipModal(false)}
-          className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+                  {/* Footer */}
+                  <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
+                    <button
+                      onClick={() => setShowSkipModal(false)}
+                      className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      OK
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
