@@ -376,7 +376,7 @@ const Branch_Mainbar = () => {
     .map(col => col.field);
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen ">
+    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen  overflow-x-auto">
       {loading ? (
         <Loader />
       ) : (
