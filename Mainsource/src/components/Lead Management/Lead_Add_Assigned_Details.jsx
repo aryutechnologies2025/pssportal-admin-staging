@@ -197,7 +197,7 @@ const clearFilters = () => {
 const [submitError, setSubmitError] = useState("");
 
 const fetchAssignedLeads = async (appliedFilters = {}) => {
-  console.log("🚀 fetchAssignedLeads CALLED");
+  // console.log("🚀 fetchAssignedLeads CALLED");
   setLoading(true);
 
   try {
@@ -350,7 +350,7 @@ const handleSubmit = async () => {
     return;
   }
 
-  // 🚨 FILTER OUT ALREADY-ASSIGNED-TO-SELECTED EMPLOYEE
+  //  FILTER OUT ALREADY-ASSIGNED-TO-SELECTED EMPLOYEE
   const newLeads = selectedLeads.filter(
     id => !leads.find(l => l.id === id)?.isAssignedToSelected
   );
@@ -369,13 +369,13 @@ const handleSubmit = async () => {
     ? filters.lead_status.filter(Boolean)
     : [];
 
-  // ✅ USE newLeads HERE
+  //  USE newLeads HERE
   const payload = {
     employee_id: selectedEmployeeDetails,
     start_date: filters.from_date,
     end_date: filters.to_date,
     created_by: userid,
-    lead_ids: newLeads, // ⭐ IMPORTANT
+    lead_ids: newLeads, //  IMPORTANT
   };
 
   if (categoryIds.length > 0) {
@@ -386,7 +386,7 @@ const handleSubmit = async () => {
     payload.lead_statuses = leadStatuses;
   }
 
-  console.log("🚀 ASSIGN PAYLOAD:", payload);
+  console.log(" ASSIGN PAYLOAD:", payload);
 
   try {
     setSubmitting(true);
@@ -396,12 +396,13 @@ const handleSubmit = async () => {
       payload
     );
 
+    console.log("Lead create ",res)
     if (res.data?.success) {
       toast.success(res.data.message || "Leads Assigned Successfully");
 
       // reset ONLY selection (not employee)
       setSelectedLeads([]);
-
+navigate("/lead-assignedto");
       // refresh list
       fetchAssignedLeads({
         category_id: filters.category,
@@ -763,7 +764,11 @@ const columns = [
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">Assigned To </p>
+                 <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/lead-assignedto")}>
+                Assigned To
+              </p>
+              <p>{">"}</p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">Add Lead</p>
             </div>
 
             {/* Filter Section */}
@@ -921,10 +926,10 @@ px-2 py-2 md:px-6 md:py-6">
         <input
   type="checkbox"
   checked={
-    selectedLeads.includes(lead.id) ||
-    lead.isAssignedToSelected
-  }
-  disabled={lead.disableCheckbox}
+  lead.isAssignedToSelected ||
+  selectedLeads.includes(lead.id)
+}
+  disabled={lead.isAssignedToSelected || lead.isAssignedToOther}
   onChange={() => handleToggle(lead.id)}
   className="mt-1"
 />

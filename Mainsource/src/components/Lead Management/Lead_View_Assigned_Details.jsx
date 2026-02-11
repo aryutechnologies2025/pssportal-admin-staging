@@ -548,7 +548,7 @@ useEffect(() => {
                 Dashboard
               </p>
               <p>{">"}</p>
-              <p className="text-sm md:text-md text-[#1ea600]">Edit Assigned Lead</p>
+              <p className="text-sm md:text-md text-[#1ea600]">View Assigned Lead</p>
             </div>
 
             {/* Filter Section - ORIGINAL DESIGN */}
@@ -563,6 +563,7 @@ useEffect(() => {
                     options={employeeOptions}
                     optionLabel="label"
                     optionValue="value"
+                    disabled={true}
                     placeholder="Select Employee"
                     filter
                     className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
@@ -576,6 +577,7 @@ useEffect(() => {
                     className="uniform-field h-10 px-3 w-full md:w-48 rounded-md border text-sm"
                     value={filters.category}
                     options={categoryOptions}
+                    disabled={true}
                     onChange={(e) => {
                       setFilters(prev => ({ ...prev, category: e.value }));
                     }}
@@ -593,6 +595,7 @@ useEffect(() => {
                     type="date"
                     className="border w-full md:w-48 h-10 px-3 rounded-md"
                     value={filters.from_date}
+                    disabled={true}
                     onChange={(e) =>
                       setFilters(prev => ({ ...prev, from_date: e.target.value }))
                     }
@@ -620,6 +623,7 @@ useEffect(() => {
                   <MultiSelect
                     value={filters.lead_status}
                     options={statusDropdownOptions}
+                    disabled={true}
                     onChange={(e) => {
                       setStatusTouched(true);
                       setFilters(prev => ({ ...prev, lead_status: e.value  || [] }));
@@ -675,14 +679,14 @@ useEffect(() => {
                 <h3 className="font-semibold text-gray-700">
                   Assign Leads
                 </h3>
-                <div className="flex gap-3 text-sm">
+                {/* <div className="flex gap-3 text-sm">
                   <button onClick={selectAll} className="text-green-600 hover:underline">
                     Select All
                   </button>
                   <button onClick={clearAll} className="text-red-500 hover:underline">
                     Clear All
                   </button>
-                </div>
+                </div> */}
               </div>
 
               {/* DataTable View */}
@@ -775,7 +779,7 @@ useEffect(() => {
                 type="checkbox"
                 className="mt-1"
                 checked={selectedLeads.includes(lead.id)}
-                disabled={isOtherEmployee}
+                disabled={true}
                 onChange={() => handleToggle(lead.id)}
               />
 
@@ -804,7 +808,7 @@ useEffect(() => {
     {/* Use totalCount (the state) here */}
     Selected: <span className="text-green-600 font-bold">{selectedLeads.length}</span> / {totalRecords}
   </div>
-                <button
+                {/* <button
                  onClick={handleUpdate} // Attach the function here
   disabled={selectedLeads.length === 0 || submitting}
                   className={`px-6 py-2 rounded-lg ${
@@ -814,7 +818,7 @@ useEffect(() => {
                   } text-white font-medium`}
                 >
                   {submitting ? "Updating..." : "Update"}
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

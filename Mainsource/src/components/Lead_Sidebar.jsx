@@ -57,6 +57,8 @@ const Lead_Sidebar = () => {
   let navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+  currentPath.startsWith("/lead-assignedto")
+
 
 
 
@@ -267,25 +269,25 @@ const Lead_Sidebar = () => {
 
 {/* assign lead */}
 
-  <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
-                <div
-                  onClick={() => onClickSidebarMenu("lead-assignedto")}
-                  className={`flex items-center w-full flex-grow
-    ${arrowClicked ? "justify-center" : "justify-normal"}
-    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/lead-assignedto"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
-                >
-                  <MdOutlineAssignmentTurnedIn className="w-5 " />
+<div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+  <div
+    onClick={() => onClickSidebarMenu("lead-assignedto")}
+    className={`flex items-center w-full flex-grow
+      ${arrowClicked ? "justify-center" : "justify-normal"}
+      px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+      ${
+        currentPath.startsWith("/lead-assignedto")
+          ? "bg-[#4BB452] text-white"
+          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+      }`}
+  >
+    <MdOutlineAssignmentTurnedIn className="w-5" />
+    {!arrowClicked && (
+      <p className="text-sm font-medium">Assigned Leads</p>
+    )}
+  </div>
+</div>
 
-                  {!arrowClicked && (
-                    <p className="text-sm font-medium">Assigned Leads</p>
-                  )}
-                </div>
-              </div>
 
 
             </div>
