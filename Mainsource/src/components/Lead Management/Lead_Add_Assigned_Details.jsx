@@ -34,6 +34,7 @@ import { Capitalise } from "../../hooks/useCapitalise";
 import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import { IoClose } from "react-icons/io5";
 import { ca, fi } from "zod/v4/locales";
+import { set } from "zod";
 
 
 const Lead_Add_Assigned_Details = () => {
@@ -230,7 +231,7 @@ console.log("Category:", appliedFilters.category_id);
 console.log("Status:", appliedFilters.lead_status);
 
     const res = await axiosInstance.get(
-      "/api/lead-management/lead-list",
+      `${API_URL}api/lead-management/lead-list`,
       { params }
     );
 console.log("Lead Response : ",res);
@@ -392,13 +393,15 @@ const handleSubmit = async () => {
     setSubmitting(true);
 
     const res = await axiosInstance.post(
-      "/api/lead-management/assign",
+      `${API_URL}api/lead-management/assign`,
       payload
     );
 
     console.log("Lead create ",res)
     if (res.data?.success) {
-      toast.success(res.data.message || "Leads Assigned Successfully");
+      setTimeout(() => {
+        toast.success(res.data.message || "Leads Assigned Successfully");
+      }, 300);
 
       // reset ONLY selection (not employee)
       setSelectedLeads([]);
@@ -758,7 +761,7 @@ const columns = [
             </div>
 
             <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
-              <ToastContainer position="top-right" autoClose={3000} />
+              {/* <ToastContainer position="top-right" autoClose={3000} /> */}
 
               <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/lead-dashboard")}>
                 Dashboard
@@ -963,7 +966,11 @@ px-2 py-2 md:px-6 md:py-6">
 )}
 
       {/* Submit */}
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-between items-center mt-6">
+        <div className="text-sm font-medium text-gray-600">
+   
+    Selected: <span className="text-green-600 font-bold">{selectedLeads.length}</span> / {totalRecords}
+  </div>
         <button
            onClick={handleSubmit}
   disabled={selectedLeads.length === 0 || submitting}
