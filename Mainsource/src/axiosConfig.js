@@ -23,14 +23,14 @@ import { API_URL } from "./Config";
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  withCredentials: false, // ❌ Don't use credentials with tokens
+  withCredentials: false,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// 🔐 Add token to every request
+//  Add token to every request
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("admin_token");
