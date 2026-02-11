@@ -67,6 +67,7 @@ import PublicRoute from "./auth/PublicRoute ";
 import { useTokenExpiry } from "./hooks/useTokenExpiry";
 import Lead_Edit_Assigned_Main from "./pages/Lead_Edit_Assigned_Main";
 import Lead_Add_Assigned_Main from "./pages/Lead_Add_Assigned_Main";
+import Lead_View_Assigned_Main from "./pages/Lead_View_Assigned_Main";
 
 // Routes component that uses hooks (inside Router context)
 function AppRoutes() {
@@ -161,6 +162,7 @@ function AppRoutes() {
           <Route path="lead-assignedto" element={<Lead_AssignedTo_Main />} />
           <Route path="lead-assignedto-add" element={<Lead_Add_Assigned_Main/>} />
           <Route path="lead-assignedto-edit/:id" element={<Lead_Edit_Assigned_Main/>} />
+          <Route path="lead-assignedto-view/:id" element={<Lead_View_Assigned_Main/>} />
           <Route path="lead-category" element={<Lead_Category_Main />} />
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
           <Route path="announcement" element={<Announcement_Mainbar_page />} />

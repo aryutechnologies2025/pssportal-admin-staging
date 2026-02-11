@@ -34,6 +34,7 @@ import { Capitalise } from "../../hooks/useCapitalise";
 import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import { IoClose } from "react-icons/io5";
 import { ca, fi } from "zod/v4/locales";
+import { record } from "zod";
 
 
 const LeadAssignedTo = () => {
@@ -151,7 +152,7 @@ const [statusTouched, setStatusTouched] = useState(false);
 
   // apply filter
   const handleApplyFilter = () => {
-    fetchAssignedLeads(filters);
+    fetchAssignedLeadsForEmp(filters);
   };
   // console.log("filter check", handleApplyFilter)
 
@@ -168,7 +169,7 @@ const [statusTouched, setStatusTouched] = useState(false);
     };
 
     setFilters(reset);
-    fetchAssignedLeads(reset);
+    fetchAssignedLeadsForEmp(reset);
   };
 
   useEffect(() => {
@@ -176,7 +177,7 @@ const [statusTouched, setStatusTouched] = useState(false);
     setFilterError("");
     setShowLeadTable(true);
 
-    fetchAssignedLeads({
+    fetchAssignedLeadsForEmp({
       category_id: filters.category,      // objects
       lead_status: filters.lead_status,    // objects
       start_date: filters.from_date,
@@ -196,7 +197,7 @@ const [statusTouched, setStatusTouched] = useState(false);
 
 
 const applyFilters = () => {
-  fetchAssignedLeads({
+  fetchAssignedLeadsForEmp({
     category_id,
     lead_status,
     start_date,
@@ -205,88 +206,59 @@ const applyFilters = () => {
 };
 
 const clearFilters = () => {
-  fetchAssignedLeads({});
+  fetchAssignedLeadsForEmp({});
 };
 
  const [filterError, setFilterError] = useState("");
 const [submitError, setSubmitError] = useState("");
 
-const fetchAssignedLeads = async (appliedFilters = {}) => {
-  console.log(" fetchAssignedLeads CALLED");
+useEffect(() => {
+  fetchAssignedLeadsForEmp();
+}, []);
+const fetchAssignedLeadsForEmp = async () => {
+  console.log("fetchAssignedLeadsForEmp CALLED");
   setLoading(true);
 
   try {
-    const params = {};
-
-if (Array.isArray(appliedFilters.category_id) && appliedFilters.category_id.length > 0) {
-  params.category_id = appliedFilters.category_id.join(",");
-}
-
-if (Array.isArray(appliedFilters.lead_status) && appliedFilters.lead_status.length > 0) {
-  params.lead_status = appliedFilters.lead_status.join(",");
-}
-
-
-    if (appliedFilters.start_date) {
-      params.start_date = appliedFilters.start_date;
-    }
-
-    if (appliedFilters.end_date) {
-      params.end_date = appliedFilters.end_date;
-    }
-
-    if (appliedFilters.employee_id) {
-  params.employee_id = appliedFilters.employee_id;
-}
-
-    console.log("Sending params:", params);
-    console.log("Raw filters:", appliedFilters);
-console.log("Category:", appliedFilters.category_id);
-console.log("Status:", appliedFilters.lead_status);
-
     const res = await axiosInstance.get(
-      "/api/lead-management/lead-list",
-      { params }
+      "api/lead-management/assign-list"
     );
-console.log("Lead Response : ",res);
+
+    console.log("Lead Response:", res);
 
     if (res.status === 200) {
       const leads = res.data.data || [];
 
-      //  Employees for dropdown
+      /* Employees for dropdown */
       const empOptions = (res.data.employees || []).map(emp => ({
         label: emp.full_name,
         value: emp.id
       }));
-
       setEmployeeOptions(empOptions);
-      // setSelectedEmployeeDetails(null); // reset selection
 
-      const normalizedLeads = leads.map(lead => ({
-  ...lead,
+      /* Normalize backend → UI */
+      const normalizedLeads = leads.map(lead => {
+        const assignedSameEmp = lead.already_added_same_employee === true;
+        const assignedOtherEmp = lead.already_assigned_another_employee === true;
 
-  // flags from backend
-  isAssignedToSelected: lead.already_added_same_employee === true,
-  isAssignedToOther: lead.already_assigned_another_employee === true,
+        return {
+          ...lead,
 
-  // ONLY other employee should be orange
-  showOrange: lead.already_assigned_another_employee === true,
+          // backend flags
+          isAssignedToSelected: assignedSameEmp,
+          isAssignedToOther: assignedOtherEmp,
 
-  // disable checkbox if assigned anywhere
-  disableCheckbox:
-    lead.already_added_same_employee ||
-    lead.already_assigned_another_employee,
+          // UI behavior
+          showOrange: assignedOtherEmp,
+          disableCheckbox: assignedSameEmp || assignedOtherEmp,
 
-  assignedEmployeeName: lead.assigned_employee_name || null
-}));
+          assignedEmployeeName: lead.assigned_employee_name || null
+        };
+      });
 
-
-
-
-setLeads(normalizedLeads);
+      setLeads(normalizedLeads);
       setTotalRecords(res.data.count || normalizedLeads.length);
     }
-
   } catch (err) {
     console.error("Failed to fetch leads:", err);
     setEmployeeOptions([]);
@@ -296,12 +268,13 @@ setLeads(normalizedLeads);
   }
 };
 
+
 const handleEmployeeChange = (e) => {
   const empId = e.value;
 
   setSelectedEmployeeDetails(empId);
 
-  fetchAssignedLeads({
+  fetchAssignedLeadsForEmp({
     category_id: filters.category,
     lead_status: filters.lead_status,
     start_date: filters.from_date,
@@ -395,11 +368,12 @@ const handleSubmit = async () => {
       setSelectedLeads([]);
 
       // refresh list
-      fetchAssignedLeads({
+      fetchAssignedLeadsForEmp({
         category_id: filters.category,
         lead_status: filters.lead_status,
         start_date: filters.from_date,
-        end_date: filters.to_date
+        end_date: filters.to_date,
+        employee_id: selectedEmployeeDetails,
       });
     } else {
       toast.error(res.data?.message || "Assignment Failed");
@@ -469,24 +443,38 @@ const [page, setPage] = useState(1);
       setPage(1); // Reset to first page when changing rows per page
     };
  
-const dummyLeads = [
-  {
-    id: 1,
-    full_name: "John Doe",
-    employee_name: "John Doe",
-    category_name: "Facebook",
-    lead_status: "open",
-    created_time: "2023-01-01",
-  },
-  {
-    id: 2,
-    full_name: "Jane Smith",
-    employee_name: "Jane Smith",
-    category_name: "Instagram",
-    lead_status: "joined",
-    created_time: "2023-01-02",
-  },
-];
+  
+  // delete
+const deleteLead = async (recordId) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to delete this lead assignment?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "No, cancel"
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await axiosInstance.delete(
+      `${API_URL}api/lead-management/assign-delete`,
+      {
+        data: { record_id: recordId }
+      }
+    );
+setTimeout(() => {
+  toast.success("Deleted successfully");
+}, 600);
+      
+      fetchAssignedLeadsForEmp();
+   
+  } catch (error) {
+    toast.error(error?.response?.data?.message || "Delete failed");
+  }
+};
+
 
  const columns = [
   {
@@ -495,46 +483,51 @@ const dummyLeads = [
        body: (_, options) => options.rowIndex + 1,
        fixed: true,
      },
-     {
-       field: "full_name",
-       header: "Full Name",
-       body: (row) => Capitalise(row.full_name),
-     },
+    //  {
+    //    field: "full_name",
+    //    header: "Full Name",
+    //    body: (row) => Capitalise(row.full_name),
+    //  },
      {
         field: "employee_name",
         header: "Employee Name",
-        body: (row) => Capitalise(row.employee_name),
+        body: (row) => Capitalise(row?.employee?.full_name || "-"),
      },
       {
-           field :"category_name",
-           header: "Platform ",
-           body: (row) => Capitalise(row?.category?.name) || row.category_name || "-"
-         },
+        field: "employee_id",
+        header: "Employee ID",
+        body: (row) => row?.employee?.gen_employee_id || "-",
+     },
+     {
+      field:"count",
+      header:"Counts",
+      body: (row) => row.entries_count || 0
+     },
         
-         {
-           field: "created_time",
-           header: "Date",
-           body: (row) => formatToDDMMYYYY(row.created_time),
-         },
-         {
-            field: "lead_status",
-            header: "Status",
-            body: (row) => Capitalise(row.lead_status)
-         },
+        //  {
+        //    field: "created_time",
+        //    header: "Date",
+        //    body: (row) => formatToDDMMYYYY(row.created_time),
+        //  },
+        //  {
+        //     field: "lead_status",
+        //     header: "Status",
+        //     body: (row) => Capitalise(row.lead_status)
+        //  },
           {
                field: "Action",
                header: "Action",
                body: (row) => (
                  <div className="flex justify-center gap-3">
-                   {/* <button
-                     onClick={() => openViewModal(row)}
+                   <button
+                     onClick={() => navigate(`/lead-assignedto-view/${row.id}`)}
                      className="p-1 bg-blue-50 text-[#005AEF] rounded-[10px] hover:bg-[#DFEBFF]"
                    >
                      <FaEye />
-                   </button> */}
+                   </button>
          
                    <TfiPencilAlt
-                    //  onClick={() => openEditModal(row)}
+                     
                     onClick={() => navigate(`/lead-assignedto-edit/${row.id}`)}
                      className="text-[#1ea600] cursor-pointer hover:scale-110 transition"
                      title="Edit"
@@ -706,8 +699,8 @@ const statusDropdownOptions = [
                             <div className="table-scroll-container" id="datatable">
                               <DataTable
                                 className="mt-8"
-                                // value={leads}
-                                value={dummyLeads}
+                                value={leads}
+                                // value={dummyLeads}
                                 onPage={onPageChange}
                                 first={(page - 1) * rows}
                                 onRowClick={(e) => e.originalEvent.stopPropagation()}
