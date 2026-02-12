@@ -187,6 +187,8 @@ const Employee_contract_details = () => {
 
   const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
+  const [filterEducation, setFilterEducation] = useState("");
+  
   const [selectedReference, setSelectedReference] = useState("");
   const [statusType, setStatusType] = useState(0);
   const [companyEmpType, setCompanyEmpType] = useState([]);
@@ -230,6 +232,7 @@ const Employee_contract_details = () => {
     setFilterEndDate(today);
     setFilterStatus("");
     setFilterGender("");
+    setFilterEducation("");
     setSelectedCompanyfilter("");
 
     fetchContractCandidates();
@@ -277,7 +280,7 @@ const Employee_contract_details = () => {
   const [boardingOptions, setBoardingOptions] = useState([]);
   // console.log("boarding option", boardingOptions);
   const [educationOptions, setEducationOptions] = useState([]);
-  // console.log("education option", educationOptions);
+  console.log("education option", educationOptions);
 
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
@@ -938,6 +941,15 @@ const Employee_contract_details = () => {
       }));
 
       setCompanyOptions(companies);
+
+              if (data.educations) {
+                const educations = data.educations.map((edu) => ({
+                  label: edu.eduction_name,
+                  value: edu.id,
+                  // value: String(edu.id)
+                }));
+                setEducationOptions(educations);
+              }
     } catch (error) {
       console.error("Error fetching contract candidates:", error);
     } finally {
@@ -1057,7 +1069,11 @@ const Employee_contract_details = () => {
   // const handleDownload = () => {
   //   window.print(); // user selects "Save as PDF"
   // };
-
+  const getEducationName = (educationId) => {
+    const edu = educationOptions.find((e) => e.value === educationId);
+    return edu ? edu.label : "-";
+  };
+  
   const columns = [
     {
       header: "S.No",
@@ -1092,6 +1108,11 @@ const Employee_contract_details = () => {
       header: "Aadhar Number",
       field: "aadhar_number",
       body: (row) => row.aadhar_number || "-",
+    },
+
+    {
+      header: "Education",
+      body: (row) => getEducationName(row.education_id),
     },
 
     // {
@@ -1496,6 +1517,21 @@ const Employee_contract_details = () => {
                       <option value="Female">Female</option>
                       {/* <option value="other">Other</option> */}
                     </select>
+                  </div>
+
+                     {/* education */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium text-[#6B7280]">
+                      Education
+                    </label>
+                    <Dropdown
+                      value={filterEducation}
+                      options={educationDropdown}
+                      onChange={(e) => setFilterEducation(e.value)}
+                      placeholder="Select Education"
+                      filter
+                      className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
+                    />
                   </div>
 
                   <div className="flex flex-col gap-1">

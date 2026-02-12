@@ -75,6 +75,7 @@ const [totalRecords, setTotalRecords] = useState(0);
   
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [statusTouched, setStatusTouched] = useState(false);
+const [assignRowId, setAssignRowId] = useState(null);
 
   const isFilterComplete = () => {
     return (
@@ -99,7 +100,7 @@ const fetchEditAssignedDetails = async () => {
 
     if (res.data?.success) {
       const data = res.data.data;
-
+setAssignRowId(data.id);
        const empOption = {
     label: data.employee.full_name,
     value: data.employee.id
@@ -264,6 +265,12 @@ useEffect(() => {
 }, [employeeOptions]);
 
 const handleUpdate = async () => {
+
+   if (!assignRowId) {
+    toast.error("Assignment ID missing");
+    return;
+  }
+
   if (selectedLeads.length === 0) {
     toast.error("Please select at least one lead");
     return;
@@ -276,14 +283,25 @@ const handleUpdate = async () => {
     const payload = {
       employee_id: selectedEmployeeDetails,
       lead_ids: selectedLeads, // Array of IDs [301, 303, 304...]
-      category_ids: filters.category,
-      lead_statuses: filters.lead_status,
+      // category_ids: filters.category,
+      // lead_statuses: filters.lead_status,
+      category_ids: Array.isArray(filters.category)
+    ? filters.category
+    : filters.category
+    ? [filters.category]
+    : [],
+
+  lead_statuses: Array.isArray(filters.lead_status)
+    ? filters.lead_status
+    : filters.lead_status
+    ? [filters.lead_status]
+    : [],
       start_date: filters.from_date,
       end_date: filters.to_date
     };
 
     const res = await axiosInstance.put(
-      `${API_URL}api/lead-management/assign-update/${selectedEmployeeDetails}`, 
+      `${API_URL}api/lead-management/assign-update/${assignRowId}`, 
       payload
     );
 
@@ -291,7 +309,8 @@ const handleUpdate = async () => {
       setTimeout(() => {
       toast.success("Assignment updated successfully!");
       
-    }, 1000);
+    }, 300);
+    navigate("/lead-assignedto");
       fetchAssignedLeads({ employee_id: selectedEmployeeDetails });
     } else {
       toast.error(res.data?.message || "Failed to update assignment");
