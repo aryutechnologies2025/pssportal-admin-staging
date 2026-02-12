@@ -486,7 +486,7 @@ setTimeout(() => {
 
 
 
-  console.log("result",result)
+  // console.log("result",result)
   // lead status
   if (filters.lead_status) {
     console.log("filtering by status : ",filters.lead_status)
@@ -494,7 +494,7 @@ setTimeout(() => {
     result = result.filter(item => item.lead_status === filters.lead_status);
   }
 
-  console.log("Filtered results count:", result.length);
+  // console.log("Filtered results count:", result.length);
     return result;
   };
 
@@ -551,9 +551,9 @@ if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
         setLeads(data);
         setTotalRecords(data.length);
-        setGenderOptions(res.data.gender || []);
-        setPlatformOptions(res.data.platforms || {});
-        setCityOptions(res.data.cities || []);
+          setGenderOptions(res.data.gender || []);
+          setPlatformOptions(res.data.platforms || {});
+          setCityOptions(res.data.cities || []);
         // setCategoryOptions(res.data.categories || []);
               // Set category options from response
       // if (res.data.lead_category) {

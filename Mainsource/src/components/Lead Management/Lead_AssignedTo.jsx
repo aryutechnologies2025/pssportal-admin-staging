@@ -64,8 +64,7 @@ const LeadAssignedTo = () => {
     const [filters, setFilters] = useState({
   from_date: today,
   to_date: today,
-  category: [],
-  lead_status: []
+employee:null,
 });
 
   
@@ -154,7 +153,7 @@ const [statusTouched, setStatusTouched] = useState(false);
   const handleApplyFilter = () => {
     fetchAssignedLeadsForEmp(filters);
   };
-  // console.log("filter check", handleApplyFilter)
+
 
   const handleResetFilter = () => {
     const reset = {
@@ -211,6 +210,59 @@ const clearFilters = () => {
 
  const [filterError, setFilterError] = useState("");
 const [submitError, setSubmitError] = useState("");
+
+  const applyFrontendFilters = (data, filters) => {
+    let result = [...data];
+
+    // CITY
+    if (filters.city) {
+      result = result.filter(item =>
+        item.city?.toLowerCase() === filters.city.toLowerCase()
+      );
+    }
+
+    // PLATFORM
+    if (filters.platform) {
+      result = result.filter(item =>
+        item.platform?.toLowerCase() === filters.platform.toLowerCase()
+      );
+    }
+
+    // AGE
+    if (filters.age) {
+      const [min, max] = filters.age.split("-");
+
+      result = result.filter(item => {
+        const age = Number(item.age);
+        if (filters.age === "46+") return age >= 46;
+        return age >= Number(min) && age <= Number(max);
+      });
+    }
+
+    // category
+    // if (filters.category) {
+    //   result = result.filter(item =>
+    //     item.category?.toLowerCase() === filters.category.toLowerCase()
+    //   );
+    // }
+    if (filters.category) {
+    result = result.filter(item => item.lead_category_id === filters.category);
+  }
+
+
+
+  // console.log("result",result)
+  // lead status
+  if (filters.lead_status) {
+    console.log("filtering by status : ",filters.lead_status)
+    let a=result.map(item=> console.log(item.lead_status))
+    result = result.filter(item => item.lead_status === filters.lead_status);
+  }
+
+  // console.log("Filtered results count:", result.length);
+    return result;
+  };
+
 
 useEffect(() => {
   fetchAssignedLeadsForEmp();
@@ -633,6 +685,72 @@ const statusDropdownOptions = [
               <p className="text-sm  md:text-md  text-[#1ea600]">Assigned To </p>
             </div>
 
+            {/* filter section */}
+
+ <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end w-full">
+                                {/* Start Date */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
+                  <input
+                    type="date"
+                    className="border h-10 px-3 rounded-md"
+                    value={filters.from_date}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, from_date: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* End Date */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">End Date</label>
+                  <input
+                    type="date"
+                    className="border h-10 px-3 rounded-md"
+                    value={filters.to_date}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, to_date: e.target.value }))
+                    }
+                  />
+                </div>
+
+{/* employee */}
+<div className="flex flex-col gap-1"> 
+  <label className="text-sm font-medium text-[#6B7280]">
+     Employee </label> 
+     <Dropdown value={selectedEmployeeDetails} 
+     options={employeeOptions} 
+     onChange={handleEmployeeChange} 
+     placeholder="Select Employee" 
+     filter 
+     className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md" 
+     />
+
+          
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="col-span-1 md:col-span-2 lg:col-span-5 flex justify-end gap-4">
+                    <button
+                      onClick={handleApplyFilter}
+                      className="h-10 rounded-lg px-2 md:px-2 py-2  bg-[#1ea600] text-white font-medium w-20 hover:bg-[#33cd10] transition "
+                    >
+                      Apply
+                    </button>
+                    <button
+                      onClick={handleResetFilter}
+                      className="h-10 rounded-lg bg-gray-100 px-2 md:px-2 py-2  text-[#7C7C7C] font-medium w-20 hover:bg-gray-200 transition "
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+{/* table section */}
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
             shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
             px-2 py-2 md:px-6 md:py-6">

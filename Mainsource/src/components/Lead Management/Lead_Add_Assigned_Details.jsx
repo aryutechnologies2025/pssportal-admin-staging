@@ -74,14 +74,7 @@ const Lead_Add_Assigned_Details = () => {
   console.log("SelectedEmployeeName : ",selectedEmployeeName);
   const [employeeOptions, setEmployeeOptions] = useState([]);
 
-  
-const dummyEmployees = [
-  { label: "Ravi Kumar", value: 101 },
-  { label: "Anita Sharma", value: 102 },
-  { label: "Suresh Patel", value: 103 },
-  { label: "Neha Singh", value: 104 },
-  { label: "Mohammed Ali", value: 105 }
-];
+
 
 const isFilterComplete = () => {
   return (
