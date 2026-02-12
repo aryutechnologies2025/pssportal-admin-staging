@@ -357,7 +357,7 @@ const ContractCandidates_Mainbar = () => {
     //  applyFilters()
   };
 
-  // Reset filters
+
   // Reset filters
   const handleResetFilter = () => {
     const today = new Date().toISOString().split("T")[0];

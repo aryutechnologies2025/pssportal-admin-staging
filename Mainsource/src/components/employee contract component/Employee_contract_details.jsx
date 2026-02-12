@@ -271,6 +271,7 @@ const Employee_contract_details = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedBoarding, setSelectedBoarding] = useState(null);
   const [selectedEducation, setSelectedEducation] = useState(null);
+  console.log("selectedEducation", selectedEducation);
 
   // console.log("selectedCompany", selectedCompany);
   // console.log("selectedBoarding", selectedBoarding);
@@ -914,6 +915,7 @@ const Employee_contract_details = () => {
         status: filterStatus,
         gender: filterGender,
         company_id: selectedCompanyfilter,
+        employee_id: selectedEducation,
       };
       // console.log("Sending payload as params:", payload);
 
@@ -942,14 +944,15 @@ const Employee_contract_details = () => {
 
       setCompanyOptions(companies);
 
-              if (data.educations) {
-                const educations = data.educations.map((edu) => ({
-                  label: edu.eduction_name,
-                  value: edu.id,
-                  // value: String(edu.id)
-                }));
-                setEducationOptions(educations);
-              }
+             const educations = response.data.data.educations || [];
+
+setEducationOptions(
+  educations.map((edu) => ({
+    label: edu.eduction_name,
+    value: edu.id, // number is fine
+  }))
+);
+
     } catch (error) {
       console.error("Error fetching contract candidates:", error);
     } finally {
@@ -1069,11 +1072,18 @@ const Employee_contract_details = () => {
   // const handleDownload = () => {
   //   window.print(); // user selects "Save as PDF"
   // };
-  const getEducationName = (educationId) => {
-    const edu = educationOptions.find((e) => e.value === educationId);
-    return edu ? edu.label : "-";
-  };
-  
+const getEducationName = (educationId) => {
+  if (!educationId || !educationOptions.length) return "-";
+
+  const edu = educationOptions.find(
+    e => Number(e.value) === Number(educationId)
+  );
+
+  return edu?.label || "-";
+};
+
+
+
   const columns = [
     {
       header: "S.No",
@@ -1520,7 +1530,7 @@ const Employee_contract_details = () => {
                   </div>
 
                      {/* education */}
-                  <div className="flex flex-col gap-1">
+                  {/* <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
                       Education
                     </label>
@@ -1532,7 +1542,7 @@ const Employee_contract_details = () => {
                       filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
                     />
-                  </div>
+                  </div> */}
 
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">

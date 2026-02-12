@@ -151,25 +151,73 @@ const [statusTouched, setStatusTouched] = useState(false);
 
   // apply filter
   const handleApplyFilter = () => {
-    fetchAssignedLeadsForEmp(filters);
+    fetchAssignedLeadsForEmp();
   };
 
 
-  const handleResetFilter = () => {
-    const reset = {
-      gender: "",
-      platform: "",
-      age: "",
-      city: "",
+const handleResetFilter = async () => {
+  console.log("fetchAssignedLeadsForEmp CALLED");
+  setLoading(true);
+
+  try {
+
+         setFilters({
       from_date: "",
-      to_date: "",
-      category: null,
-      lead_status: ""
-    };
+      to_date: ""
+    });
 
-    setFilters(reset);
-    fetchAssignedLeadsForEmp(reset);
-  };
+    setSelectedEmployeeDetails(null);
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/lead-management/assign-list`,
+      { params : {} }
+    );
+
+    console.log("Lead Response:", res);
+
+    if (res.status === 200) {
+      const leads = res.data.data || [];
+
+      /* Employees for dropdown */
+      const empOptions = (res.data.employees || []).map(emp => ({
+        label: emp.full_name,
+        value: emp.id
+      }));
+      setEmployeeOptions(empOptions);
+
+      /* Normalize backend → UI */
+      const normalizedLeads = leads.map(lead => {
+        const assignedSameEmp = lead.already_added_same_employee === true;
+        const assignedOtherEmp = lead.already_assigned_another_employee === true;
+
+        return {
+          ...lead,
+
+          // backend flags
+          isAssignedToSelected: assignedSameEmp,
+          isAssignedToOther: assignedOtherEmp,
+
+          // UI behavior
+          showOrange: assignedOtherEmp,
+          disableCheckbox: assignedSameEmp || assignedOtherEmp,
+
+          assignedEmployeeName: lead.assigned_employee_name || null
+        };
+      });
+
+      setLeads(normalizedLeads);
+      setTotalRecords(res.data.count || normalizedLeads.length);
+    }
+  } catch (err) {
+    console.error("Failed to fetch leads:", err);
+    setEmployeeOptions([]);
+    setLeads([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   useEffect(() => {
   if (isFilterComplete()) {
@@ -263,6 +311,24 @@ const [submitError, setSubmitError] = useState("");
     return result;
   };
 
+  const applyFilter = () => {
+  const params = {};
+
+  if (filters.from_date) {
+    params.start_date = filters.from_date;
+  }
+
+  if (filters.to_date) {
+    params.end_date = filters.to_date;
+  }
+
+  if (selectedEmployeeDetails) {
+    params.employee_id = selectedEmployeeDetails; // NUMBER
+  }
+
+  return params;
+};
+
 
 useEffect(() => {
   fetchAssignedLeadsForEmp();
@@ -272,8 +338,12 @@ const fetchAssignedLeadsForEmp = async () => {
   setLoading(true);
 
   try {
+
+     const params = applyFilter();
+
     const res = await axiosInstance.get(
-      `${API_URL}api/lead-management/assign-list`
+      `${API_URL}api/lead-management/assign-list`,
+      { params }
     );
 
     console.log("Lead Response:", res);
@@ -722,7 +792,7 @@ const statusDropdownOptions = [
      Employee </label> 
      <Dropdown value={selectedEmployeeDetails} 
      options={employeeOptions} 
-     onChange={handleEmployeeChange} 
+     onChange={(e) => setSelectedEmployeeDetails(e.value)}
      placeholder="Select Employee" 
      filter 
      className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md" 
