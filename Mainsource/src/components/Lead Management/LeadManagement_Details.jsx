@@ -306,7 +306,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     let newErrors = {};
 
     if (!leadForm.is_organic) newErrors.is_organic = "Required";
-    if(!leadForm.lead_category_id) newErrors.lead_category_id = "Select Category";
+    // if(!leadForm.lead_category_id) newErrors.lead_category_id = "Select Category";
     if (!leadForm.full_name) newErrors.full_name = "Enter A Name";
     if (!leadForm.gender) newErrors.gender = "Select Gender";
     if (!leadForm.phone) newErrors.phone = "Enter A Phone Number";
@@ -315,7 +315,7 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     if (!leadForm.city) newErrors.city = "Enter A City";
     if (!leadForm.state) newErrors.state = "Enter A State";
     if (leadForm.status === "") newErrors.status = "Select Status";
-    if (!leadForm.category || leadForm.category.length === 0) newErrors.category = "Select Category";
+    if (!leadForm.category || leadForm.category.length === 0) newErrors.category = "Select Platform";
     //  if (!leadForm.lead_category_id) newErrors.category = "Select Category";
 
     setErrors(newErrors);
