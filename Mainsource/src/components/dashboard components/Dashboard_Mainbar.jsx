@@ -29,10 +29,13 @@ import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import DateFilterDropdown from "./DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
+import { useDateUtils } from "../../Utils/useDateUtils";
 
 
 const Dashboard_Mainbar = () => {
-  let navigate = useNavigate();
+
+ const formatDateTime = useDateUtils();  
+ const navigate = useNavigate();
 
   const [value, onChange] = useState(new Date());
   const [currentTime1, setCurrentTime1] = useState(new Date());
@@ -638,6 +641,152 @@ const fetchAnnouncements = async () => {
       setLoading(false);
     }
   };
+// work report columns
+const [showPopup, setShowPopup] = useState(false);
+const [popupTitle, setPopupTitle] = useState("");
+const [employeeList, setEmployeeList] = useState([]);
+
+// console.log("employeeList", employeeList);
+
+const openEmployeePopup = (title, list) => {
+
+
+  setPopupTitle(title);
+  setEmployeeList(list || []);
+  setShowPopup(true);
+};
+
+
+const workReportColumns = [
+  {
+    field: "sno",
+    header: "S.No",
+    body: (_, { rowIndex }) => rowIndex + 1,
+  },
+  {
+    field: "date",
+    header: "Date",
+      body: (rowData) => formatDateTime(rowData.date),
+
+  },
+  {
+    field: "marked",
+    header: "Marked",
+    body: (rowData) => (
+      <button
+        onClick={() =>
+          openEmployeePopup("Marked Employees", rowData.updated_employees)
+        }
+        className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+      >
+        {rowData.updated_count}
+      </button>
+    ),
+  },
+  {
+    field: "notMarked",
+    header: "Not Marked",
+    body: (rowData) => (
+      <button
+        onClick={() =>
+          openEmployeePopup(
+            "Not Marked Employees",
+            rowData.not_updated_employees
+          )
+        }
+        className="px-4 py-1.5 rounded-full border border-green-600 text-green-700 text-sm font-semibold hover:bg-green-50 transition"
+      >
+        {rowData.not_updated_count}
+      </button>
+    ),
+  },
+];
+
+
+
+
+  // interview candidate reference count columns
+
+const [showPopupref, setShowPopupref] = useState(false);
+const [popupTitleRef, setPopupTitleRef] = useState("");
+const [employeeListRef, setEmployeeListRef] = useState([]);
+
+const openEmployeePopupref = (title, list) => {
+  setPopupTitleRef(title);
+  setEmployeeListRef(list || []);
+  setShowPopupref(true);
+};
+
+
+
+    const interviewCandidateReferenceCountColumns = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
+
+    },
+    {
+      field: "company_name",
+      header: "Company Name",
+      // body: (row) => formatToDDMMYYYY(row.date),
+
+    },
+{
+    field: "total",
+    header: "Total",
+    body: (rowData) => (
+      <button
+         onClick={() =>
+        openEmployeePopupref(
+          `${rowData.company_name} - References`,
+          rowData.references
+        )
+      }
+        className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+      >
+        {rowData.total}
+      </button>
+    ),
+  },
+  ];
+
+  // selected cnatiatete
+
+
+   const selectedCandidateCountColumns = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
+
+    },
+    {
+      field: "company_name",
+      header: "Company Name",
+      // body: (row) => formatToDDMMYYYY(row.date),
+
+    },
+{
+    field: "total",
+    header: "Total",
+    body: (rowData) => (
+      <button
+      onClick={() =>
+        window.open(
+          `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&interview_status=Selected`,
+          "_blank"
+        )
+      }
+        className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+      >
+        {rowData.total_selected
+}
+      </button>
+    ),
+  },
+  ];
+
 
 
   return (
@@ -756,93 +905,7 @@ const fetchAnnouncements = async () => {
             <div className="grid grid-cols-1 lg:grid-cols-2  gap-4 md:gap-6 mt-4  dashboard-tables">
 
 
-              {/* Continuous Absentees */}
-              {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover ">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-[#4A4A4A]">
-                      Continuous Absentees
-                    </h2>
-                   
-                  </div>
-                  
-                 <DataTable
-                  value={continuousAbsentees}
-              
-                  showGridlines
-                  responsiveLayout="scroll"
-                  className="dashboard-table"
-                  emptyMessage="No absentees found."
-                >
-                  {absenteesColumns.map((col, index) => (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={col.body}
-                      
-                    />
-                  ))}
-                </DataTable>
-              </div> */}
-
-
-              {/* Today Contract Attendance Missing */}
-              {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Today's Missing Attendance
-                    </h2>
-                   
-                  </div>
-                  
-             <DataTable
-                  value={todayContractAttendanceMissing}
-                  
-                  showGridlines
-                  responsiveLayout="scroll"
-                  className="dashboard-table"
-                  emptyMessage="No missing attendance."
-                >
-                  {missingAttendanceColumns.map((col, index) => (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={col.body}
-                      
-                    />
-                  ))}
-                </DataTable>
-                </div> */}
-
-              {/* Employees Joined Today */}
-              {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Employees Joined Today
-                    </h2>
-                  
-                  </div>
-                  
-              <DataTable
-                  value={employeesJoinedToday}
-                 
-                  showGridlines
-                  responsiveLayout="scroll"
-                  className="dashboard-table"
-                  emptyMessage="No new joinings today."
-                >
-                  {joinedTodayColumns.map((col, index) => (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={col.body}
-                   
-                    />
-                  ))}
-                </DataTable>
-                </div> */}
+            
 
 
               {/* Contract Employees */}
@@ -909,84 +972,282 @@ const fetchAnnouncements = async () => {
                     ))}
                   </DataTable>
                 </div>
-              </div>
+              </div>  
 
-              {/* finance request */}
+              {/* work repoert */}
 
-              {/* Contract Employees */}
-              {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-gray-800">
-                      Finance Request
-                    </h2>
-                     <button
-                      onClick={() => navigate("/finance-details")}
-                      className="text-sm text-green-600 font-medium hover:underline"
-                    >
-                      View All
-                    </button>
-                
-                  </div>
-                    <div className="h-[300px] overflow-auto">
-                 <DataTable
-                  // value={dashboardData?.finance_request}
-                  value={financeRequestDummyData}
-                  
-                  showGridlines
-                  responsiveLayout="scroll"
-                  className="dashboard-table"
-                  emptyMessage="No Finance Requests."
-                >
-                  {financeRequestColumns.map((col, index) => (
-                    <Column
-                      key={index}
-                      field={col.field}
-                      header={col.header}
-                      body={col.body}
-                      
-                     
-                    />
-                  ))}
-                </DataTable>
+               <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                   Work Report
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
                 </div>
-                </div> */}
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.workreports}
 
-              {/* Notifications */}
-              {/* <div className="bg-white  rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-  <div className="flex justify-between items-center mb-4">
-    <h2 className="text-lg font-semibold text-gray-800">
-      Notifications
-    </h2>
-    <span className="text-sm text-gray-500">
-      All({notifications.length})
-    </span>
-  </div>
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {workReportColumns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
 
-  <div className="max-h-[250px] overflow-y-auto divide-y pr-2 hide-scrollbar">
-    {notifications.map((item,index) => (
-      <div
-        key={index}
-        className="flex items-center justify-between py-3"
-      >
-        <div className="flex  items-center gap-3">
-          <span className="min-w-[28px] h-[28px] rounded-lg bg-gray-200 text-gray-600 text-xs flex items-center justify-center">
-            {index + 1}
-          </span>
 
-          <p className="text-sm text-gray-700">
-            {item.message}
-          </p>
-        </div>
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>  
 
-        <span className="text-xs text-gray-500 whitespace-nowrap">
-          {item.time}
-        </span>
-      </div>
-    ))}
-  </div>
-</div> */}
+
+
+{/* interview candiate status */}
+
+ <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Interview Candidate Reference count
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
+                </div>
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.interview_candidate_reference}
+
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {interviewCandidateReferenceCountColumns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+
+
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>  
+
+
+              {/* selected candidates */}
+              
+              {/* interview candiate status */}
+
+ <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Selected interview Candidates
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
+                </div>
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.selected_company_wise}
+
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {selectedCandidateCountColumns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+
+
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>  
+              
+
+
 
             </div>
+
+
+            {/* work repoet popup */}
+
+{showPopup && (
+  <div
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+    onClick={() => setShowPopup(false)} 
+  >
+    <div
+      className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+      onClick={(e) => e.stopPropagation()} 
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
+        <h2 className="text-white text-base sm:text-lg font-bold">
+          {popupTitle}
+        </h2>
+
+        <button
+          onClick={() => setShowPopup(false)}
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+        {employeeList.length > 0 ? (
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-green-50 text-green-900">
+                  <th className="px-4 py-3 text-center w-[70px]">S.No</th>
+                  <th className="px-4 py-3 text-center">Employee Name</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {employeeList.map((emp, index) => (
+                  <tr
+                    key={index}
+                    className="border-t hover:bg-gray-50 transition"
+                  >
+                    <td className="px-4 py-3 text-center">{index + 1}</td>
+
+                    <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
+                      {emp.employee_name}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-gray-500 font-medium">No Employees Found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
+        <button
+          onClick={() => setShowPopup(false)}
+          className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* interview refernec */}
+{showPopupref && (
+  <div
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+    onClick={() => setShowPopupref(false)}
+  >
+    <div
+      className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
+        <h2 className="text-white text-base sm:text-lg font-bold">
+          {popupTitleRef}
+        </h2>
+
+        <button
+          onClick={() => setShowPopupref(false)}
+          className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+        {employeeListRef.length > 0 ? (
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-green-50 text-green-900">
+                  <th className="px-4 py-3 text-center w-[70px]">S.No</th>
+                  <th className="px-4 py-3 text-center">Name</th>
+                  <th className="px-4 py-3 text-center w-[170px]">
+                    Gen Employee ID
+                  </th>
+                  <th className="px-4 py-3 text-center w-[120px]">Type</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {employeeListRef.map((emp, index) => (
+                  <tr
+                    key={index}
+                    className="border-t hover:bg-gray-50 transition"
+                  >
+                    <td className="px-4 py-3 text-center">{index + 1}</td>
+
+                    <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
+                      {emp.fullname || emp.reference || "-"}
+                    </td>
+
+                    <td className="px-4 py-3 text-center text-gray-700">
+                      {emp.gen_employee_id || "-"}
+                    </td>
+
+                    <td className="px-4 py-3 text-center">
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                        {emp.type}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-gray-500 font-medium">No References Found</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
+        <button
+          onClick={() => setShowPopupref(false)}
+          className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
 
           </div>
           <Footer />

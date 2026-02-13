@@ -952,8 +952,8 @@ setEducationOptions(
     try {
       setLoading(true);
       const payload = {
-        startDate: filterStartDate,
-        endDate: filterEndDate,
+        from_date: filterStartDate,
+        to_date: filterEndDate,
         status: filterStatus,
         gender: filterGender,
         company_id: selectedCompanyfilter,
