@@ -25,17 +25,19 @@ import { Column } from "primereact/column";
 import Loader from "../Loader";
 
 import Clock from "./Clock";
-import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
+import {
+  formatDateTimeDDMMYYYY,
+  formatToDDMMYYYY,
+  formatToYYYYMMDD,
+} from "../../Utils/dateformat";
 import DateFilterDropdown from "./DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
 import { useDateUtils } from "../../Utils/useDateUtils";
 
-
 const Dashboard_Mainbar = () => {
-
- const formatDateTime = useDateUtils();  
- const navigate = useNavigate();
+  const formatDateTime = useDateUtils();
+  const navigate = useNavigate();
 
   const [value, onChange] = useState(new Date());
   const [currentTime1, setCurrentTime1] = useState(new Date());
@@ -46,7 +48,6 @@ const Dashboard_Mainbar = () => {
   const [wfhlistIsOpen, setWfhlistIsOpen] = useState(false);
   const [presentlistIsOpen, setpresentlistIsOpen] = useState(false);
   const [absentlistData, setAbsentlistData] = useState("");
-
 
   const [wfhlistData, setWfhlistData] = useState("");
   const [presentlistData, setpresentlistData] = useState("");
@@ -61,19 +62,19 @@ const Dashboard_Mainbar = () => {
   const [emplopyeereliving, setEmplopyeereliving] = useState([]);
   const [interns, setinterns] = useState([]);
 
-
   // console.log("announcements", announcements)
   // console.log("interns", interns);
   const [showTopBanner, setShowTopBanner] = useState(true);
-const [announcements, setAnnouncements] = useState([]);
-const [topAnnouncement, setTopAnnouncement] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [topAnnouncement, setTopAnnouncement] = useState(null);
 
   const [continuousAbsentees, setContinuousAbsentees] = useState([]);
   const [employeesJoinedToday, setEmployeesJoinedToday] = useState([]);
   const [jobFormSubmissions, setJobFormSubmissions] = useState([]);
   const [contractEmployees, setContractEmployees] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const [todayContractAttendanceMissing, setTodayContractAttendanceMissing] = useState([]);
+  const [todayContractAttendanceMissing, setTodayContractAttendanceMissing] =
+    useState([]);
 
   const [dateFilter, setDateFilter] = useState("Today");
 
@@ -87,11 +88,11 @@ const [topAnnouncement, setTopAnnouncement] = useState(null);
   };
 
   useEffect(() => {
-  loadData();
-  fetchAnnouncements();   // 👈 ADD THIS
-  const date = new Date().toISOString().split("T")[0];
-  setSelectedDate(date);
-}, []);
+    loadData();
+    fetchAnnouncements(); // 👈 ADD THIS
+    const date = new Date().toISOString().split("T")[0];
+    setSelectedDate(date);
+  }, []);
 
   // useEffect(() => {
   //   if (topAnnouncement) {
@@ -103,99 +104,109 @@ const [topAnnouncement, setTopAnnouncement] = useState(null);
   //   }
   // }, [topAnnouncement]);
 
-const fetchAnnouncements = async () => {
-  try {
-    const res = await axiosInstance.get(`${API_URL}api/announcements/latest`);
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await axiosInstance.get(`${API_URL}api/announcements/latest`);
 
-    if (res.data?.success) {
-      const list = res.data.data || [];
-      setAnnouncements(list);
+      if (res.data?.success) {
+        const list = res.data.data || [];
+        setAnnouncements(list);
 
-      if (list.length > 0) {
-        setTopAnnouncement(list[0]); // show latest one
-        setShowTopBanner(true);
+        if (list.length > 0) {
+          setTopAnnouncement(list[0]); // show latest one
+          setShowTopBanner(true);
+        }
       }
+    } catch (error) {
+      console.error("Failed to fetch announcements", error);
     }
-  } catch (error) {
-    console.error("Failed to fetch announcements", error);
-  }
-};
-
+  };
 
   const loadData = () => {
-
     //  API call
 
     // Continuous Absentees
     const mockAbsentees = [
-      { company: "Company1", name: "Raj Patel", consecutiveDays: 1, lastPresentDate: "25-12-2025" },
-      { company: "Company2", name: "Emma Lee", consecutiveDays: 3, lastPresentDate: "27-12-2025" }
+      {
+        company: "Company1",
+        name: "Raj Patel",
+        consecutiveDays: 1,
+        lastPresentDate: "25-12-2025",
+      },
+      {
+        company: "Company2",
+        name: "Emma Lee",
+        consecutiveDays: 3,
+        lastPresentDate: "27-12-2025",
+      },
     ];
 
     // Employees Joined Today
     const mockJoinedToday = [
-      { company: "Company1", name: "David Kumar", joiningDate: "31-12-2025", designation: "Developer" },
-      { company: "Company2", name: "Sara Khan", joiningDate: "31-12-2025", designation: "Recruiter" }
+      {
+        company: "Company1",
+        name: "David Kumar",
+        joiningDate: "31-12-2025",
+        designation: "Developer",
+      },
+      {
+        company: "Company2",
+        name: "Sara Khan",
+        joiningDate: "31-12-2025",
+        designation: "Recruiter",
+      },
     ];
 
     // Job Form Submissions
     const mockJobForms = [
       { date: "31-12-2025", count: 10 },
       { date: "31-12-2025", count: 15 },
-      { date: "31-12-2025", count: 30 }
+      { date: "31-12-2025", count: 30 },
     ];
 
     // Contract Employees
     const mockContractEmployees = [
       { company: "Company1", count: 10 },
       { company: "Company2", count: 15 },
-      { company: "Company3", count: 30 }
+      { company: "Company3", count: 30 },
     ];
 
     // Notifications
     const mockNotifications = [
       {
-
         message: "Rejoining Sara Khan to AAAAA on 01-12-2025",
         time: "10:45 AM",
       },
       {
-
         message: "Employee Transferring from BBBBB to AAAAA",
         time: "10:45 AM",
       },
       {
-
         message: "Rejoining Sarah Khan to AAAAA on 01-12-2025",
         time: "10:45 AM",
       },
       {
-
         message: "Rejoining Sarah Khan to AAAAA on 01-12-2025",
         time: "10:45 AM",
       },
       {
-
         message: "Rejoining Sarah Khan to AAAAA on 01-12-2025",
         time: "10:45 AM",
       },
       {
-
         message: "Rejoining Sarah Khan to AAAAA on 01-12-2025",
         time: "10:45 AM",
       },
       {
-
         message: "Rejoining Sarah Khan to AAAAA on 01-12-2025",
         time: "10:45 AM",
       },
     ];
 
-
     // Today Contract Attendance Missing
     const mockMissingAttendance = [
       { company: "Company1", name: "Raj Patel", status: "Added" },
-      { company: "Company2", name: "Emma Lee", status: "No Added" }
+      { company: "Company2", name: "Emma Lee", status: "No Added" },
     ];
 
     setContinuousAbsentees(mockAbsentees);
@@ -207,13 +218,10 @@ const fetchAnnouncements = async () => {
   };
 
   useEffect(() => {
-
     loadData();
     const date = new Date().toISOString().split("T")[0];
     setSelectedDate(date);
   }, []);
-
-
 
   const financeRequestDummyData = [
     {
@@ -241,7 +249,6 @@ const fetchAnnouncements = async () => {
       status: "Waiting",
     },
   ];
-
 
   const financeRequestColumns = [
     {
@@ -289,25 +296,20 @@ const fetchAnnouncements = async () => {
     },
   ];
 
-
   // 1. Continuous Absentees Columns
   const absenteesColumns = [
     {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
-
     },
     {
       field: "name",
       header: "Name",
-
-
     },
     {
       field: "company",
       header: "Company",
-
     },
     {
       field: "consecutiveDays",
@@ -317,14 +319,11 @@ const fetchAnnouncements = async () => {
           {rowData.consecutiveDays}
         </span>
       ),
-
-
     },
     {
       field: "lastPresentDate",
       header: "Last Present",
-
-    }
+    },
   ];
 
   // 2. Employees Joined Today Columns
@@ -333,33 +332,24 @@ const fetchAnnouncements = async () => {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
-
     },
     {
       field: "name",
       header: "Name",
-
     },
     {
       field: "company",
       header: "Company",
-
     },
     {
       field: "designation",
       header: "Designation",
-
     },
     {
       field: "joiningDate",
       header: "Date",
-      body: (rowData) => (
-        <span >
-          {rowData.joiningDate}
-        </span>
-      ),
-
-    }
+      body: (rowData) => <span>{rowData.joiningDate}</span>,
+    },
   ];
 
   // 3. Today's Missing Attendance Columns
@@ -368,17 +358,14 @@ const fetchAnnouncements = async () => {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
-
     },
     {
       field: "name",
       header: "Name",
-
     },
     {
       field: "company",
       header: "Company",
-
     },
     {
       field: "status",
@@ -386,16 +373,15 @@ const fetchAnnouncements = async () => {
       body: (rowData) => (
         <span
         // className={`px-3 py-1 rounded-full text-xs font-medium ${
-        //   rowData.status === 'Added' 
-        //     ? 'bg-green-100 text-green-700' 
+        //   rowData.status === 'Added'
+        //     ? 'bg-green-100 text-green-700'
         //     : 'bg-red-100 text-red-700'
         // }`}
         >
           {rowData.status}
         </span>
       ),
-
-    }
+    },
   ];
 
   // 4. Job Form Submissions Columns
@@ -404,26 +390,30 @@ const fetchAnnouncements = async () => {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
-
     },
     {
       field: "date",
       header: "Date",
       // body: (row) => formatToDDMMYYYY(row.date),
-
     },
 
     {
       field: "count",
       header: "Count",
-      body: (rowData) => (
-        <div >
-          <p >{rowData.count}</p>
-
-        </div>
+      // body: (rowData) => (
+      //   <div>
+      //     <p>{rowData.count}</p>
+      //   </div>
+      // ),
+         body: (rowData) => (
+        <button
+        
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.count}
+        </button>
       ),
-
-    }
+    },
   ];
 
   // 5. Contract Employees Columns (for card view, keep as is or convert to table)
@@ -432,7 +422,6 @@ const fetchAnnouncements = async () => {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
-
     },
     {
       field: "company_name",
@@ -440,22 +429,27 @@ const fetchAnnouncements = async () => {
       body: (rowData) => (
         <div className="flex justify-center items-center">
           <p className=" ">{rowData.company_name}</p>
-
         </div>
       ),
-
     },
     {
       field: "total_employees",
       header: "Employees",
-      body: (rowData) => (
-        <div className="">
-          <p className="">{rowData.total_employees}</p>
+      // body: (rowData) => (
+      //   <div className="">
+      //     <p className="">{rowData.total_employees}</p>
+      //   </div>
+      // ),
 
-        </div>
+         body: (rowData) => (
+        <button
+        
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.total_employees}
+        </button>
       ),
-
-    }
+    },
   ];
 
   // 6. Notifications Columns
@@ -465,7 +459,7 @@ const fetchAnnouncements = async () => {
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
       style: { width: "80px", textAlign: "center" },
-      bodyStyle: { textAlign: "center" }
+      bodyStyle: { textAlign: "center" },
     },
     {
       field: "message",
@@ -481,15 +475,16 @@ const fetchAnnouncements = async () => {
             </div>
 
             <span className="text-xs text-gray-500 ml-2 whitespace-nowrap">
-              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {new Date().toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           </div>
         </div>
-      )
-    }
+      ),
+    },
   ];
-
-
 
   const commonColumns = [
     {
@@ -582,16 +577,12 @@ const fetchAnnouncements = async () => {
     try {
       setLoading(true); // start loader
 
-      const res = await axiosInstance.get(
-        `${API_URL}api/dashboard`,
-        {
-          params: {
-            start_date: fromDate,
-            end_date: toDate
-          }
+      const res = await axiosInstance.get(`${API_URL}api/dashboard`, {
+        params: {
+          start_date: fromDate,
+          end_date: toDate,
         },
-
-      );
+      });
 
       console.log("API Response:", res.data);
 
@@ -608,7 +599,6 @@ const fetchAnnouncements = async () => {
       setLoading(false); // stop loader
     }
   };
-
 
   // Handle reset
   const handleReset = async () => {
@@ -641,153 +631,329 @@ const fetchAnnouncements = async () => {
       setLoading(false);
     }
   };
-// work report columns
-const [showPopup, setShowPopup] = useState(false);
-const [popupTitle, setPopupTitle] = useState("");
-const [employeeList, setEmployeeList] = useState([]);
+  // work report columns
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupTitle, setPopupTitle] = useState("");
+  const [employeeList, setEmployeeList] = useState([]);
 
-// console.log("employeeList", employeeList);
+  // console.log("employeeList", employeeList);
 
-const openEmployeePopup = (title, list) => {
+  const openEmployeePopup = (title, list) => {
+    setPopupTitle(title);
+    setEmployeeList(list || []);
+    setShowPopup(true);
+  };
 
-
-  setPopupTitle(title);
-  setEmployeeList(list || []);
-  setShowPopup(true);
-};
-
-
-const workReportColumns = [
-  {
-    field: "sno",
-    header: "S.No",
-    body: (_, { rowIndex }) => rowIndex + 1,
-  },
-  {
-    field: "date",
-    header: "Date",
-      body: (rowData) => formatDateTime(rowData.date),
-
-  },
-  {
-    field: "marked",
-    header: "Marked",
-    body: (rowData) => (
-      <button
-        onClick={() =>
-          openEmployeePopup("Marked Employees", rowData.updated_employees)
-        }
-        className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
-      >
-        {rowData.updated_count}
-      </button>
-    ),
-  },
-  {
-    field: "notMarked",
-    header: "Not Marked",
-    body: (rowData) => (
-      <button
-        onClick={() =>
-          openEmployeePopup(
-            "Not Marked Employees",
-            rowData.not_updated_employees
-          )
-        }
-        className="px-4 py-1.5 rounded-full border border-green-600 text-green-700 text-sm font-semibold hover:bg-green-50 transition"
-      >
-        {rowData.not_updated_count}
-      </button>
-    ),
-  },
-];
-
-
-
-
-  // interview candidate reference count columns
-
-const [showPopupref, setShowPopupref] = useState(false);
-const [popupTitleRef, setPopupTitleRef] = useState("");
-const [employeeListRef, setEmployeeListRef] = useState([]);
-
-const openEmployeePopupref = (title, list) => {
-  setPopupTitleRef(title);
-  setEmployeeListRef(list || []);
-  setShowPopupref(true);
-};
-
-
-
-    const interviewCandidateReferenceCountColumns = [
+  const workReportColumns = [
     {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
+    },
+    {
+      field: "date",
+      header: "Date",
+      body: (rowData) => formatDateTime(rowData.date),
+    },
+    {
+      field: "marked",
+      header: "Marked",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openEmployeePopup("Marked Employees", rowData.updated_employees)
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.updated_count}
+        </button>
+      ),
+    },
+    {
+      field: "notMarked",
+      header: "Not Marked",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openEmployeePopup(
+              "Not Marked Employees",
+              rowData.not_updated_employees,
+            )
+          }
+          className="px-4 py-1.5 rounded-full border border-green-600 text-green-700 text-sm font-semibold hover:bg-green-50 transition"
+        >
+          {rowData.not_updated_count}
+        </button>
+      ),
+    },
+  ];
 
+  // interview candidate reference count columns
+
+  const [showPopupref, setShowPopupref] = useState(false);
+  const [popupTitleRef, setPopupTitleRef] = useState("");
+  const [employeeListRef, setEmployeeListRef] = useState([]);
+
+  const openEmployeePopupref = (title, list) => {
+    setPopupTitleRef(title);
+    setEmployeeListRef(list || []);
+    setShowPopupref(true);
+  };
+
+  const interviewCandidateReferenceCountColumns = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
     },
     {
       field: "company_name",
       header: "Company Name",
       // body: (row) => formatToDDMMYYYY(row.date),
-
     },
-{
-    field: "total",
-    header: "Total",
-    body: (rowData) => (
-      <button
-         onClick={() =>
-        openEmployeePopupref(
-          `${rowData.company_name} - References`,
-          rowData.references
-        )
-      }
-        className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
-      >
-        {rowData.total}
-      </button>
-    ),
-  },
+    {
+      field: "total",
+      header: "Total",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openEmployeePopupref(
+              `${rowData.company_name} - References`,
+              rowData.references,
+            )
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.total}
+        </button>
+      ),
+    },
   ];
 
   // selected cnatiatete
 
-
-   const selectedCandidateCountColumns = [
+  const selectedCandidateCountColumns = [
     {
       field: "sno",
       header: "S.No",
       body: (_, { rowIndex }) => rowIndex + 1,
-
     },
     {
       field: "company_name",
       header: "Company Name",
       // body: (row) => formatToDDMMYYYY(row.date),
-
     },
-{
-    field: "total",
-    header: "Total",
-    body: (rowData) => (
-      <button
-      onClick={() =>
-        window.open(
-          `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&interview_status=Selected`,
-          "_blank"
-        )
-      }
-        className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
-      >
-        {rowData.total_selected
-}
-      </button>
-    ),
-  },
+    {
+      field: "total",
+      header: "Total",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            window.open(
+              `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&interview_status=Selected`,
+              "_blank",
+            )
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.total_selected}
+        </button>
+      ),
+    },
   ];
 
+  // relving cnatiatete
 
+  const relivingCandidateCountColumns = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
+    },
+    {
+      field: "company_name",
+      header: "Company Name",
+      // body: (row) => formatToDDMMYYYY(row.date),
+    },
+    {
+      field: "total_count",
+      header: "Total",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            window.open(
+              `/employeecontract?company_id=${rowData.company_id}&status=0&startDate=${fromDate}&endDate=${toDate}`,
+              "_blank",
+            )
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.total_count}
+        </button>
+      ),
+    },
+  ];
+
+  // future joining cnatiatete
+
+  const [openFutureEmpPopup, setOpenFutureEmpPopup] = useState(false);
+  const [futureEmpPopupData, setFutureEmpPopupData] = useState([]);
+  console.log("futureEmpPopupData", futureEmpPopupData);
+  const [futureEmpPopupTitle, setFutureEmpPopupTitle] = useState("");
+  const openFutureEmployeePopup = (title, list) => {
+    setFutureEmpPopupTitle(title);
+    setFutureEmpPopupData(list || []);
+    setOpenFutureEmpPopup(true);
+  };
+  const closeFutureEmployeePopup = () => {
+    setOpenFutureEmpPopup(false);
+    setFutureEmpPopupTitle("");
+    setFutureEmpPopupData([]);
+  };
+
+  const futureJoiningCandidateCountColumns = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
+    },
+    {
+      field: "company_name",
+      header: "Company Name",
+      // body: (row) => formatToDDMMYYYY(row.date),
+    },
+    {
+      field: "total_count",
+      header: "Total",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openFutureEmployeePopup(
+              `${rowData.company_name || "Company"} - Future Employees`,
+              rowData.candidates,
+            )
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.total_count}
+        </button>
+      ),
+    },
+  ];
+
+  // 3 days abent list
+  const [openAbsentPopup, setOpenAbsentPopup] = useState(false);
+  const [absentPopupTitle, setAbsentPopupTitle] = useState("");
+  const [absentPopupData, setAbsentPopupData] = useState([]);
+
+  const openAbsentEmployeePopup = (title, list) => {
+    setAbsentPopupTitle(title);
+    setAbsentPopupData(list || []);
+    setOpenAbsentPopup(true);
+  };
+
+  const closeAbsentEmployeePopup = () => {
+    setOpenAbsentPopup(false);
+    setAbsentPopupTitle("");
+    setAbsentPopupData([]);
+  };
+  const absentlistemployee = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
+    },
+    {
+      field: "date",
+      header: "Date",
+      body: (rowData) => formatDateTime(rowData.date),
+    },
+    {
+      field: "absent_count",
+      header: "Absent Total",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openAbsentEmployeePopup(
+              `${formatDateTime(rowData.date)} - Absent Employees`,
+              rowData.absent_list,
+            )
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.absent_count}
+        </button>
+      ),
+    },
+  ];
+
+  // comapny attendace
+  const [showCompanyAttendancePopup, setShowCompanyAttendancePopup] =
+    useState(false);
+  const [companyAttendancePopupTitle, setCompanyAttendancePopupTitle] =
+    useState("");
+  const [companyAttendancePopupList, setCompanyAttendancePopupList] = useState(
+    [],
+  );
+
+  const openCompanyAttendancePopup = (title, list) => {
+    setCompanyAttendancePopupTitle(title);
+    setCompanyAttendancePopupList(list || []);
+    setShowCompanyAttendancePopup(true);
+  };
+
+  const closeCompanyAttendancePopup = () => {
+    setShowCompanyAttendancePopup(false);
+    setCompanyAttendancePopupTitle("");
+    setCompanyAttendancePopupList([]);
+  };
+
+  const companyattendancelist = [
+    {
+      field: "sno",
+      header: "S.No",
+      body: (_, { rowIndex }) => rowIndex + 1,
+    },
+    {
+      field: "date",
+      header: "Date",
+      body: (rowData) => formatDateTime(rowData.date),
+    },
+    {
+      field: "marked",
+      header: "Marked",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openCompanyAttendancePopup(
+              `${formatDateTime(rowData.date)} - Marked Companies`,
+              rowData.marked_list,
+            )
+          }
+          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+        >
+          {rowData.marked}
+        </button>
+      ),
+    },
+    {
+      field: "not_marked",
+      header: "Not Marked",
+      body: (rowData) => (
+        <button
+          onClick={() =>
+            openCompanyAttendancePopup(
+              `${formatDateTime(rowData.date)} - Not Marked Companies`,
+              rowData.not_marked_list,
+            )
+          }
+          className="px-4 py-1.5 rounded-full border border-green-600 text-green-700 text-sm font-semibold hover:bg-green-50 transition"
+        >
+          {rowData.not_marked}
+        </button>
+      ),
+    },
+  ];
 
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5 ">
@@ -798,9 +964,10 @@ const openEmployeePopupref = (title, list) => {
           <div>
             <div className=" ">
               <Mobile_Sidebar />
-
             </div>
-            <p className="text-xs md:text-sm mt-3  text-end text-[#1ea600]">Dashboard</p>
+            <p className="text-xs md:text-sm mt-3  text-end text-[#1ea600]">
+              Dashboard
+            </p>
 
             {/* <div className="bg-white rounded-2xl px-2 py-2 md:px-5 md:py-5 flex justify-between mt-1 "> */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
@@ -859,10 +1026,11 @@ const openEmployeePopupref = (title, list) => {
               )}
 
               <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
-
                 {/* From Date */}
                 <div className="w-full sm:w-auto">
-                  <label className="block text-sm font-medium mb-1">From Date</label>
+                  <label className="block text-sm font-medium mb-1">
+                    From Date
+                  </label>
                   <input
                     type="date"
                     className="border p-2 rounded-lg w-full sm:w-[180px]"
@@ -873,7 +1041,9 @@ const openEmployeePopupref = (title, list) => {
 
                 {/* To Date */}
                 <div className="w-full sm:w-auto">
-                  <label className="block text-sm font-medium mb-1">To Date</label>
+                  <label className="block text-sm font-medium mb-1">
+                    To Date
+                  </label>
                   <input
                     type="date"
                     className="border p-2 rounded-lg w-full sm:w-[180px]"
@@ -900,26 +1070,18 @@ const openEmployeePopupref = (title, list) => {
               </div>
             </div>
 
-
             {/* dashboard  */}
             <div className="grid grid-cols-1 lg:grid-cols-2  gap-4 md:gap-6 mt-4  dashboard-tables">
-
-
-            
-
-
               {/* Contract Employees */}
               <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-800">
                     Contract Employees
                   </h2>
-
                 </div>
                 <div className="h-[300px] overflow-auto">
                   <DataTable
                     value={dashboardData?.contract_emps}
-
                     showGridlines
                     responsiveLayout="scroll"
                     className="dashboard-table"
@@ -931,15 +1093,11 @@ const openEmployeePopupref = (title, list) => {
                         field={col.field}
                         header={col.header}
                         body={col.body}
-
-
                       />
                     ))}
                   </DataTable>
                 </div>
               </div>
-
-
 
               {/* Job Form Submissions */}
               <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
@@ -954,7 +1112,6 @@ const openEmployeePopupref = (title, list) => {
                 <div className="h-[300px] overflow-auto">
                   <DataTable
                     value={dashboardData?.jobformsubmission}
-
                     showGridlines
                     responsiveLayout="scroll"
                     className="dashboard-table"
@@ -966,20 +1123,18 @@ const openEmployeePopupref = (title, list) => {
                         field={col.field}
                         header={col.header}
                         body={col.body}
-
-
                       />
                     ))}
                   </DataTable>
                 </div>
-              </div>  
+              </div>
 
               {/* work repoert */}
 
-               <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-800">
-                   Work Report
+                    Work Report
                   </h2>
                   {/* <span className="text-sm text-green-600 font-medium">
                       Recent activity
@@ -988,7 +1143,6 @@ const openEmployeePopupref = (title, list) => {
                 <div className="h-[300px] overflow-auto">
                   <DataTable
                     value={dashboardData?.workreports}
-
                     showGridlines
                     responsiveLayout="scroll"
                     className="dashboard-table"
@@ -1000,19 +1154,15 @@ const openEmployeePopupref = (title, list) => {
                         field={col.field}
                         header={col.header}
                         body={col.body}
-
-
                       />
                     ))}
                   </DataTable>
                 </div>
-              </div>  
+              </div>
 
+              {/* interview candiate status */}
 
-
-{/* interview candiate status */}
-
- <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-800">
                     Interview Candidate Reference count
@@ -1024,32 +1174,30 @@ const openEmployeePopupref = (title, list) => {
                 <div className="h-[300px] overflow-auto">
                   <DataTable
                     value={dashboardData?.interview_candidate_reference}
-
                     showGridlines
                     responsiveLayout="scroll"
                     className="dashboard-table"
                     emptyMessage="No submissions found."
                   >
-                    {interviewCandidateReferenceCountColumns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-
-
-                      />
-                    ))}
+                    {interviewCandidateReferenceCountColumns.map(
+                      (col, index) => (
+                        <Column
+                          key={index}
+                          field={col.field}
+                          header={col.header}
+                          body={col.body}
+                        />
+                      ),
+                    )}
                   </DataTable>
                 </div>
-              </div>  
-
+              </div>
 
               {/* selected candidates */}
-              
+
               {/* interview candiate status */}
 
- <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-800">
                     Selected interview Candidates
@@ -1061,7 +1209,6 @@ const openEmployeePopupref = (title, list) => {
                 <div className="h-[300px] overflow-auto">
                   <DataTable
                     value={dashboardData?.selected_company_wise}
-
                     showGridlines
                     responsiveLayout="scroll"
                     className="dashboard-table"
@@ -1073,182 +1220,574 @@ const openEmployeePopupref = (title, list) => {
                         field={col.field}
                         header={col.header}
                         body={col.body}
-
-
                       />
                     ))}
                   </DataTable>
                 </div>
-              </div>  
-              
+              </div>
 
+              {/* releving wise date */}
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Releving wise Details
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
+                </div>
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.company_wise_reliving}
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {relivingCandidateCountColumns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>
 
+              {/* future employee */}
 
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Future Employee Details
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
+                </div>
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.selected_joining_future}
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {futureJoiningCandidateCountColumns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>
+
+              {/* absent list */}
+
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    3 Days absent Employees deatils
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
+                </div>
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.absent_list}
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {absentlistemployee.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>
+
+              {/* company attendance */}
+
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Company Attendance
+                  </h2>
+                  {/* <span className="text-sm text-green-600 font-medium">
+                      Recent activity
+                    </span> */}
+                </div>
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dashboardData?.attendance_summary}
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="dashboard-table"
+                    emptyMessage="No submissions found."
+                  >
+                    {companyattendancelist.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+                      />
+                    ))}
+                  </DataTable>
+                </div>
+              </div>
             </div>
-
 
             {/* work repoet popup */}
 
-{showPopup && (
-  <div
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
-    onClick={() => setShowPopup(false)} 
-  >
-    <div
-      className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
-      onClick={(e) => e.stopPropagation()} 
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
-        <h2 className="text-white text-base sm:text-lg font-bold">
-          {popupTitle}
-        </h2>
+            {showPopup && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={() => setShowPopup(false)}
+              >
+                <div
+                  className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {popupTitle}
+                    </h2>
 
-        <button
-          onClick={() => setShowPopup(false)}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-        >
-          ✕
-        </button>
-      </div>
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
-      {/* Body */}
-      <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
-        {employeeList.length > 0 ? (
-          <div className="overflow-x-auto rounded-xl border border-gray-200">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-green-50 text-green-900">
-                  <th className="px-4 py-3 text-center w-[70px]">S.No</th>
-                  <th className="px-4 py-3 text-center">Employee Name</th>
-                </tr>
-              </thead>
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {employeeList.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Name
+                              </th>
+                            </tr>
+                          </thead>
 
-              <tbody>
-                {employeeList.map((emp, index) => (
-                  <tr
-                    key={index}
-                    className="border-t hover:bg-gray-50 transition"
-                  >
-                    <td className="px-4 py-3 text-center">{index + 1}</td>
+                          <tbody>
+                            {employeeList.map((emp, index) => (
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
 
-                    <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
-                      {emp.employee_name}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-10">
-            <p className="text-gray-500 font-medium">No Employees Found</p>
-          </div>
-        )}
-      </div>
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
+                                  {emp.employee_name}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No Employees Found
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-      {/* Footer */}
-      <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
-        <button
-          onClick={() => setShowPopup(false)}
-          className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
+                    <button
+                      onClick={() => setShowPopup(false)}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
-{/* interview refernec */}
-{showPopupref && (
-  <div
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
-    onClick={() => setShowPopupref(false)}
-  >
-    <div
-      className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
-        <h2 className="text-white text-base sm:text-lg font-bold">
-          {popupTitleRef}
-        </h2>
+            {/* interview refernec */}
+            {showPopupref && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={() => setShowPopupref(false)}
+              >
+                <div
+                  className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {popupTitleRef}
+                    </h2>
 
-        <button
-          onClick={() => setShowPopupref(false)}
-          className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-        >
-          ✕
-        </button>
-      </div>
+                    <button
+                      onClick={() => setShowPopupref(false)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
-      {/* Body */}
-      <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
-        {employeeListRef.length > 0 ? (
-          <div className="overflow-x-auto rounded-xl border border-gray-200">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-green-50 text-green-900">
-                  <th className="px-4 py-3 text-center w-[70px]">S.No</th>
-                  <th className="px-4 py-3 text-center">Name</th>
-                  <th className="px-4 py-3 text-center w-[170px]">
-                    Gen Employee ID
-                  </th>
-                  <th className="px-4 py-3 text-center w-[120px]">Type</th>
-                </tr>
-              </thead>
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {employeeListRef.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">Name</th>
+                              <th className="px-4 py-3 text-center w-[170px]">
+                                Gen Employee ID
+                              </th>
+                              <th className="px-4 py-3 text-center w-[120px]">
+                                Type
+                              </th>
+                            </tr>
+                          </thead>
 
-              <tbody>
-                {employeeListRef.map((emp, index) => (
-                  <tr
-                    key={index}
-                    className="border-t hover:bg-gray-50 transition"
-                  >
-                    <td className="px-4 py-3 text-center">{index + 1}</td>
+                          <tbody>
+                            {employeeListRef.map((emp, index) => (
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
 
-                    <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
-                      {emp.fullname || emp.reference || "-"}
-                    </td>
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
+                                  {emp.fullname || emp.reference || "-"}
+                                </td>
 
-                    <td className="px-4 py-3 text-center text-gray-700">
-                      {emp.gen_employee_id || "-"}
-                    </td>
+                                <td className="px-4 py-3 text-center text-gray-700">
+                                  {emp.gen_employee_id || "-"}
+                                </td>
 
-                    <td className="px-4 py-3 text-center">
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
-                        {emp.type}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="text-center py-10">
-            <p className="text-gray-500 font-medium">No References Found</p>
-          </div>
-        )}
-      </div>
+                                <td className="px-4 py-3 text-center">
+                                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
+                                    {emp.type}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No References Found
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-      {/* Footer */}
-      <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
-        <button
-          onClick={() => setShowPopupref(false)}
-          className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
+                    <button
+                      onClick={() => setShowPopupref(false)}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
+            {/* future employees */}
 
+            {openFutureEmpPopup && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={closeFutureEmployeePopup} // ✅ outside click close
+              >
+                <div
+                  className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()} // ✅ inside click stop
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-6 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {futureEmpPopupTitle}
+                    </h2>
 
+                    <button
+                      onClick={closeFutureEmployeePopup}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {futureEmpPopupData?.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Name
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Joining Date
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {futureEmpPopupData.map((emp, index) => (
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
+
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">
+                                  {emp?.name || "-"}
+                                </td>
+
+                                <td className="px-4 py-3 text-gray-700 text-center">
+                                  {formatDateTime(emp?.joining_date || "-")}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No Employees Found
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-6 py-3 sm:py-4">
+                    <button
+                      onClick={closeFutureEmployeePopup}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* absent popup */}
+
+            {openAbsentPopup && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={closeAbsentEmployeePopup}
+              >
+                <div
+                  className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-6 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {absentPopupTitle}
+                    </h2>
+
+                    <button
+                      onClick={closeAbsentEmployeePopup}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {absentPopupData?.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Code
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Name
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Company Name
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {absentPopupData.map((emp, index) => (
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
+
+                                <td className="px-4 py-3 text-center font-semibold text-gray-800">
+                                  {emp?.employee_code || "-"}
+                                </td>
+
+                                <td className="px-4 py-3 text-center text-gray-800">
+                                  {emp?.employee_name || "-"}
+                                </td>
+
+                                <td className="px-4 py-3 text-center text-gray-700">
+                                  {emp?.company_name || "N/A"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No Absent Employees
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-6 py-3 sm:py-4">
+                    <button
+                      onClick={closeAbsentEmployeePopup}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* comapny attendoace */}
+
+            {showCompanyAttendancePopup && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={closeCompanyAttendancePopup}
+              >
+                <div
+                  className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-6 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {companyAttendancePopupTitle}
+                    </h2>
+
+                    <button
+                      onClick={closeCompanyAttendancePopup}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {companyAttendancePopupList?.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Company Name
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {companyAttendancePopupList.map((item, index) => (
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
+
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">
+                                  {item?.company_name || "N/A"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No Data Found
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-6 py-3 sm:py-4">
+                    <button
+                      onClick={closeCompanyAttendancePopup}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <Footer />
         </>
