@@ -540,7 +540,7 @@ const Roles_Mainbar = () => {
   let navigate = useNavigate();
 
   return (
-    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen ">
+    <div className="flex  flex-col justify-between bg-gray-50  px-3 md:px-5 pt-2 md:pt-10 w-screen min-h-screen overflow-auto">
       {loading ? (
         <Loader />
       ) : (
