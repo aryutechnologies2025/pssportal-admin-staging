@@ -43,24 +43,29 @@ const ContractCandidates_Mainbar = () => {
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
   const joiningStatus = searchParams.get("joining_status");
-
+const interviewStatusParam = searchParams.get("interview_status");
   useEffect(() => {
     const resolvedCompanyId = companyId ?? selectedCompanyfilter;
     const resolvedStartDate = startDate ?? filterStartDate;
     const resolvedEndDate = endDate ?? filterEndDate;
     const resolvedJoiningStatus = joiningStatus ?? filterCandidateStatus;
+  // let resolvedInterviewStatus = joiningStatus ?? filterInterviewStatus;
+    const resolvedInterviewStatus = interviewStatusParam ?? filterInterviewStatus;
+
 
     // sync UI
     if (companyId) setSelectedCompanyfilter(companyId);
     if (startDate) setFilterStartDate(startDate);
     if (endDate) setFilterEndDate(endDate);
     if (joiningStatus) setFilterCandidateStatus(joiningStatus);
+  if (interviewStatusParam) setFilterInterviewStatus(interviewStatusParam);
 
     fetchContractCandidates({
       companyId: resolvedCompanyId,
       startDate: resolvedStartDate,
       endDate: resolvedEndDate,
       joiningStatus: resolvedJoiningStatus,
+      interviewStatus: resolvedInterviewStatus,
     });
   }, [companyId, startDate, endDate, joiningStatus]);
 
