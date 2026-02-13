@@ -225,17 +225,59 @@ const Employee_contract_details = () => {
   const [ModalOpen, setIsModalOpen] = useState(false);
 
   // Reset filters
-  const handleResetFilter = () => {
-    // Reset all filters
-    const today = new Date().toISOString().split("T")[0];
-    setFilterStartDate(today);
-    setFilterEndDate(today);
+  const handleResetFilter = async () => {
+    setLoading(true);
+
+    try {
+      
+      setFilterStartDate(null);
+    setFilterEndDate(null);
     setFilterStatus("");
     setFilterGender("");
-    setFilterEducation("");
-    setSelectedCompanyfilter("");
+    setSelectedCompanyfilter(null);
+    setSelectedEducation(null);
 
-    fetchContractCandidates();
+      // const queryParams = new URLSearchParams(payload).toString();
+       const response = await axiosInstance.get(
+      "api/contract-employee"
+    );
+
+      if (response.data.success) {
+              setColumnData(response.data.data.employees || []);
+
+        setBoardingPoints(response.data.data.boardingpoints || []);
+        setEducations(response.data.data.educations || []);
+      }
+      const employees = response?.data?.data?.employees || [];
+
+      console.log("response emp check", response);
+
+      setColumnData(response?.data?.data?.employees || []);
+      setEmployeesList(response?.data?.data?.pssemployees || []);
+
+      const companies = response.data.data?.companies.map((company) => ({
+        // console.log("company", company),
+        label: company.company_name,
+        value: company.id,
+        company_emp_id: company.company_emp_id,
+      }));
+
+      setCompanyOptions(companies);
+
+             const educations = response.data.data.educations || [];
+
+setEducationOptions(
+  educations.map((edu) => ({
+    label: edu.eduction_name,
+    value: edu.id, // number is fine
+  }))
+);
+
+    } catch (error) {
+      console.error("Error fetching contract candidates:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // const onPageChange = (e) => {
@@ -915,7 +957,7 @@ const Employee_contract_details = () => {
         status: filterStatus,
         gender: filterGender,
         company_id: selectedCompanyfilter,
-        employee_id: selectedEducation,
+        education_id: selectedEducation,
       };
       // console.log("Sending payload as params:", payload);
 
@@ -1530,19 +1572,21 @@ const getEducationName = (educationId) => {
                   </div>
 
                      {/* education */}
-                  {/* <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
                       Education
                     </label>
                     <Dropdown
-                      value={filterEducation}
-                      options={educationDropdown}
-                      onChange={(e) => setFilterEducation(e.value)}
-                      placeholder="Select Education"
-                      filter
+  value={selectedEducation}          // number (e.g. 8)
+  options={educationOptions}
+  optionLabel="label"
+  optionValue="value"                
+  onChange={(e) => setSelectedEducation(e.value)}
+  placeholder="Select Education"
+  filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
                     />
-                  </div> */}
+                  </div>
 
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">

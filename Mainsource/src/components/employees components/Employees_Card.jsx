@@ -597,33 +597,7 @@ const Employees_Card = () => {
       style: { textAlign: "center", width: "100px" },
     },
 
-      {
-      field: "emp_lead_assign",
-      header: "Lead Assign",
-      body: (row) => {
-       
-        return (
-          <div
-            className="flex justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-
-            <input
-              type="checkbox"
-             checked={row.emp_lead_assign == "1"}
-
-              onClick={(e) => e.stopPropagation()}
-          
-              onChange={(e) =>
-                handleAssignLeadChange(row.id, "emp_lead_assign", e.target.checked)
-              }
-              className="w-4 h-4 cursor-pointer accent-green-600"
-            />
-          </div>
-        );
-      },
-      style: { textAlign: "center", width: "100px" },
-    },
+     
 
     // jof from refenece
 
@@ -655,6 +629,35 @@ const Employees_Card = () => {
       },
       style: { textAlign: "center", width: "100px" },
     },
+
+     {
+      field: "emp_lead_assign",
+      header: "Lead Assign",
+      body: (row) => {
+       
+        return (
+          <div
+            className="flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            <input
+              type="checkbox"
+             checked={row.emp_lead_assign == "1"}
+
+              onClick={(e) => e.stopPropagation()}
+          
+              onChange={(e) =>
+                handleAssignLeadChange(row.id, "emp_lead_assign", e.target.checked)
+              }
+              className="w-4 h-4 cursor-pointer accent-green-600"
+            />
+          </div>
+        );
+      },
+      style: { textAlign: "center", width: "100px" },
+    },
+    
     {
       header: "Company Allocation",
       body: (row) => (

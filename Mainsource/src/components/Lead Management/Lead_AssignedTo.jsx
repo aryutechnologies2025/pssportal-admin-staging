@@ -156,7 +156,7 @@ const [statusTouched, setStatusTouched] = useState(false);
 
 
 const handleResetFilter = async () => {
-  console.log("fetchAssignedLeadsForEmp CALLED");
+ 
   setLoading(true);
 
   try {
