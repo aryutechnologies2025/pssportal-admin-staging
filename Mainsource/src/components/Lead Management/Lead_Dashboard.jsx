@@ -8,6 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Footer from "../Footer";
 import Mobile_Sidebar from "../Mobile_Sidebar";
 import Loader from "../Loader";
+import axiosInstance from "../../axiosConfig";
+import { API_URL } from "../../Config";
 
 const Lead_Dashboard = () => {
   let navigate = useNavigate();
@@ -20,21 +22,15 @@ const Lead_Dashboard = () => {
   
   // Dashboard data
   const [categoryData, setCategoryData] = useState([]);
-  const [statusData, setStatusData] = useState([]);
   const [leadDetails, setLeadDetails] = useState([]);
   
   // Modal states
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+
   const [selectedStatus, setSelectedStatus] = useState(null);
   
   // Dummy data for demonstration
-  const dummyCategoryData = [
-    { id: 1, category: "facebook", count: 45, label: "FB" },
-    { id: 2, category: "instagram", count: 32, label: "Instagram" },
-    { id: 3, category: "portal", count: 28, label: "Portal" }
-  ];
+
       
   const dummyLeadDetails = [
     { id: 1, name: "John Doe", category: "facebook", status: "open", date: new Date().toISOString(), email: "john@example.com", phone: "1234567890" },
@@ -76,14 +72,14 @@ const Lead_Dashboard = () => {
   };
   
   // Handle category click
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
+  // const handleCategoryClick = (category) => {
+  //   setSelectedCategory(category);
     
-    // Generate status data for selected category
-    generateStatusData(category.category);
+  //   // Generate status data for selected category
+  //   generateStatusData(category.category);
     
-    setIsCategoryModalOpen(true);
-  };
+  //   setIsCategoryModalOpen(true);
+  // };
   
   // Generate status data for category
   const generateStatusData = (category) => {
@@ -160,14 +156,14 @@ const Lead_Dashboard = () => {
       style: { width: "80px" }
     },
     {
-      field: "label",
-      header: "Platform",
+      field: "category",
+      header: "Category",
       body: (rowData) => (
         <button
           onClick={() => handleCategoryClick(rowData)}
           className="text-green-600 hover:text-green-800 font-medium hover:underline"
         >
-          {rowData.label}
+          {rowData.category}
         </button>
       )
     },
@@ -249,6 +245,102 @@ const Lead_Dashboard = () => {
       lead.status === selectedStatus.status
     );
   };
+
+
+  // 
+
+  const [dasboradData, setDashboardData] = useState([]);
+  console.log("dasboradData", dasboradData);
+
+  // const fetchleaddashboard = async () => {
+  //   try {
+  //     const res = await axiosInstance.get(`${API_URL}api/lead-management/dashboard`);
+
+  //  setDashboardData(res.data);
+  //     // console.log("Lead Dashboard Data:", res.data);
+  //   } catch (error) {
+  //     console.error("Failed to fetch lead dashboard data", error);
+  //   }
+  // };
+
+  const fetchleaddashboard = async (params = {}) => {
+  try {
+    const payload = {
+      from_date: params.from_date ?? fromDate,
+      to_date: params.to_date ?? toDate,
+    };
+
+    const queryParams = new URLSearchParams(payload).toString();
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/lead-management/dashboard?${queryParams}`
+    );
+
+    setDashboardData(res.data);
+
+  } catch (error) {
+    console.error("Failed to fetch lead dashboard data", error);
+  }
+};
+
+
+  useEffect(() => {
+    fetchleaddashboard();
+  }, []);
+
+const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+const [selectedCategory, setSelectedCategory] = useState(null);
+const [statusData, setStatusData] = useState([]);
+
+
+const handleCategoryClick = (rowData) => {
+  // setSelectedCategory(rowData);
+
+  fetchstatusdashboard({
+    from_date: fromDate,
+    to_date: toDate,
+    lead_category_id: rowData.category_id,
+  });
+};
+
+
+
+const fetchstatusdashboard = async (params = {}) => {
+  try {
+    const queryParams = new URLSearchParams(params).toString();
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/lead-management/status-wise?${queryParams}`
+    );
+
+    console.log("Lead assign Data:", res.data);
+
+    const apiData = res?.data?.data || [];
+
+    // ✅ convert response for table
+    const converted = apiData.map((item) => ({
+      status: item.status,
+      label: item.status.replaceAll("_", " ").toUpperCase(),
+      count: item.count,
+    }));
+
+    setStatusData(converted);
+
+    // ✅ open popup
+    setIsCategoryModalOpen(true);
+
+  } catch (error) {
+    console.error("Failed to fetch lead dashboard data", error);
+  }
+};
+
+
+
+  // useEffect(() => {
+  //   fetchstatusdashboard();
+  // }, []);
+
+
   
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5">
@@ -294,7 +386,13 @@ const Lead_Dashboard = () => {
                 
                 <div className="flex gap-2 mt-5">
                   <button
-                    onClick={handleSubmit}
+                    // onClick={handleSubmit}
+                     onClick={() =>
+    fetchleaddashboard({
+      from_date: fromDate,
+      to_date: toDate,
+    })
+  }
                     className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 py-2 rounded-lg transition"
                   >
                     Submit
@@ -323,7 +421,7 @@ const Lead_Dashboard = () => {
                 
                 <div className="h-[300px] overflow-auto">
                   <DataTable
-                    value={categoryData}
+                    value={dasboradData?.category_data}
                     showGridlines
                     responsiveLayout="scroll"
                     className="data-table"
@@ -335,28 +433,94 @@ const Lead_Dashboard = () => {
                       body={(_, options) => options.rowIndex + 1}
                       style={{ width: '80px' }}
                     />
-                    <Column 
-                      field="label" 
-                      header="Platform" 
-                      body={(rowData) => (
-                        <button
-                          onClick={() => handleCategoryClick(rowData)}
-                          className="text-green-600 hover:text-green-800 font-medium hover:underline"
-                        >
-                          {rowData.label}
-                        </button>
-                      )}
-                    />
+                 <Column
+  field="category"
+  header="Category"
+  body={(rowData) => (
+    <button
+      onClick={() => handleCategoryClick(rowData)}
+      className="text-green-600 hover:text-green-800 font-medium hover:underline"
+    >
+      {rowData.category}
+    </button>
+  )}
+/>
+
                     <Column field="count" header="Count" />
                   </DataTable>
                 </div>
                 
                 {/* Summary */}
-                <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                {/* <div className="mt-4 p-3 bg-green-50 rounded-lg">
                   <p className="text-sm text-green-800">
                     Total Leads: {categoryData.reduce((sum, item) => sum + item.count, 0)}
                   </p>
+                </div> */}
+              </div>
+              
+            </div>
+
+            {/* asshin data */}
+
+                  <div className="dashboard-tables mt-6">
+              
+              {/* platform Wise Count */}
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-gray-800">
+                    Assgin Lead
+                  </h2>
+                  
                 </div>
+                
+                <div className="h-[300px] overflow-auto">
+                  <DataTable
+                    value={dasboradData?.assign_leads}
+                    showGridlines
+                    responsiveLayout="scroll"
+                    className="data-table"
+                    emptyMessage="No Category found."
+                  >
+                    <Column 
+                      field="sno" 
+                      header="S.No" 
+                      body={(_, options) => options.rowIndex + 1}
+                      style={{ width: '80px' }}
+                    />
+                      <Column 
+                      field="employee_id" 
+                      header="Employee Id" 
+                      body={(rowData) => (
+                        <button
+                          onClick={() => handleCategoryClick(rowData)}
+                          className="text-green-600 hover:text-green-800 font-medium hover:underline"
+                        >
+                          {rowData.employee_id}
+                        </button>
+                      )}
+                    />
+                    <Column 
+                      field="employee_name" 
+                      header="Employee Name" 
+                      body={(rowData) => (
+                        <button
+                          onClick={() => handleCategoryClick(rowData)}
+                          className="text-green-600 hover:text-green-800 font-medium hover:underline"
+                        >
+                          {rowData.employee_name}
+                        </button>
+                      )}
+                    />
+                    <Column field="assign_count" header="Count" />
+                  </DataTable>
+                </div>
+                
+                {/* Summary */}
+                {/* <div className="mt-4 p-3 bg-green-50 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    Total Leads: {categoryData.reduce((sum, item) => sum + item.count, 0)}
+                  </p>
+                </div> */}
               </div>
               
             </div>
