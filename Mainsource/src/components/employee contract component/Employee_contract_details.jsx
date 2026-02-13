@@ -9,7 +9,7 @@ import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import { Dropdown } from "primereact/dropdown";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { FiSearch } from "react-icons/fi";
@@ -34,6 +34,26 @@ import { TbLogs } from "react-icons/tb";
 import { FiX } from "react-icons/fi";
 
 const Employee_contract_details = () => {
+
+
+const [searchParams] = useSearchParams();
+
+const companyId = searchParams.get("company_id");
+const startDate = searchParams.get("startDate");
+const endDate = searchParams.get("endDate");
+const statusParam = searchParams.get("status"); 
+
+useEffect(() => {
+  if (companyId) setSelectedCompanyfilter(Number(companyId));
+  if (startDate) setFilterStartDate(startDate);
+  if (endDate) setFilterEndDate(endDate);
+
+  // 🔥 IMPORTANT: status=0 support
+  if (statusParam !== null) setFilterStatus(statusParam);
+}, [companyId, startDate, endDate, statusParam]);
+
+
+
   //navigation
   const navigate = useNavigate();
   const [editData, setEditData] = useState(null);
@@ -313,7 +333,7 @@ setEducationOptions(
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedBoarding, setSelectedBoarding] = useState(null);
   const [selectedEducation, setSelectedEducation] = useState(null);
-  console.log("selectedEducation", selectedEducation);
+  // console.log("selectedEducation", selectedEducation);
 
   // console.log("selectedCompany", selectedCompany);
   // console.log("selectedBoarding", selectedBoarding);
@@ -323,7 +343,7 @@ setEducationOptions(
   const [boardingOptions, setBoardingOptions] = useState([]);
   // console.log("boarding option", boardingOptions);
   const [educationOptions, setEducationOptions] = useState([]);
-  console.log("education option", educationOptions);
+  // console.log("education option", educationOptions);
 
   const fileInputRef = useRef(null);
   const fileInputRefEdit = useRef(null);
@@ -956,8 +976,8 @@ setEducationOptions(
         to_date: filterEndDate,
         status: filterStatus,
         gender: filterGender,
-        company_id: selectedCompanyfilter,
-        education_id: selectedEducation,
+        company_id: selectedCompanyfilter || "",
+        education_id: selectedEducation || "",
       };
       // console.log("Sending payload as params:", payload);
 
@@ -1190,7 +1210,8 @@ const getEducationName = (educationId) => {
                 : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
-          {row.status === 0 || row.status === "0" ? "Inactive" : "Active"}
+          {/* {row.status === 0 || row.status === "0" ? "Inactive" : "Active"} */}
+          {row.status === 0 || row.status === "0" ? "Relieved" : "Joined"}
         </div>
       ),
       style: { textAlign: "center" },
@@ -1548,8 +1569,8 @@ const getEducationName = (educationId) => {
                       className="px-2 py-2 rounded-md border border-[#D9D9D9] text-sm text-[#7C7C7C] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     >
                       <option value="">Select Status</option>
-                      <option value="1">Active</option>
-                      <option value="0">Inactive</option>
+                      <option value="1">Joined</option>
+                      <option value="0">Relieved</option>
                       {/* <option value="terminated">Terminated</option> */}
                     </select>
                   </div>
