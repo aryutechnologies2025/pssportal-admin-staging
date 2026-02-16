@@ -34,25 +34,21 @@ import { TbLogs } from "react-icons/tb";
 import { FiX } from "react-icons/fi";
 
 const Employee_contract_details = () => {
+  const [searchParams] = useSearchParams();
 
+  const companyId = searchParams.get("company_id");
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
+  const statusParam = searchParams.get("status");
 
-const [searchParams] = useSearchParams();
+  useEffect(() => {
+    if (companyId) setSelectedCompanyfilter(Number(companyId));
+    if (startDate) setFilterStartDate(startDate);
+    if (endDate) setFilterEndDate(endDate);
 
-const companyId = searchParams.get("company_id");
-const startDate = searchParams.get("startDate");
-const endDate = searchParams.get("endDate");
-const statusParam = searchParams.get("status"); 
-
-useEffect(() => {
-  if (companyId) setSelectedCompanyfilter(Number(companyId));
-  if (startDate) setFilterStartDate(startDate);
-  if (endDate) setFilterEndDate(endDate);
-
-  // 🔥 IMPORTANT: status=0 support
-  if (statusParam !== null) setFilterStatus(statusParam);
-}, [companyId, startDate, endDate, statusParam]);
-
-
+    // 🔥 IMPORTANT: status=0 support
+    if (statusParam !== null) setFilterStatus(statusParam);
+  }, [companyId, startDate, endDate, statusParam]);
 
   //navigation
   const navigate = useNavigate();
@@ -208,7 +204,7 @@ useEffect(() => {
   const [filterInterviewStatus, setFilterInterviewStatus] = useState("");
   const [filterCandidateStatus, setFilterCandidateStatus] = useState("");
   const [filterEducation, setFilterEducation] = useState("");
-  
+
   const [selectedReference, setSelectedReference] = useState("");
   const [statusType, setStatusType] = useState(0);
   const [companyEmpType, setCompanyEmpType] = useState([]);
@@ -249,21 +245,18 @@ useEffect(() => {
     setLoading(true);
 
     try {
-      
       setFilterStartDate(null);
-    setFilterEndDate(null);
-    setFilterStatus("");
-    setFilterGender("");
-    setSelectedCompanyfilter(null);
-    setSelectedEducation(null);
+      setFilterEndDate(null);
+      setFilterStatus("");
+      setFilterGender("");
+      setSelectedCompanyfilter(null);
+      setSelectedEducation(null);
 
       // const queryParams = new URLSearchParams(payload).toString();
-       const response = await axiosInstance.get(
-      "api/contract-employee"
-    );
+      const response = await axiosInstance.get("api/contract-employee");
 
       if (response.data.success) {
-              setColumnData(response.data.data.employees || []);
+        setColumnData(response.data.data.employees || []);
 
         setBoardingPoints(response.data.data.boardingpoints || []);
         setEducations(response.data.data.educations || []);
@@ -284,15 +277,14 @@ useEffect(() => {
 
       setCompanyOptions(companies);
 
-             const educations = response.data.data.educations || [];
+      const educations = response.data.data.educations || [];
 
-setEducationOptions(
-  educations.map((edu) => ({
-    label: edu.eduction_name,
-    value: edu.id, // number is fine
-  }))
-);
-
+      setEducationOptions(
+        educations.map((edu) => ({
+          label: edu.eduction_name,
+          value: edu.id, // number is fine
+        })),
+      );
     } catch (error) {
       console.error("Error fetching contract candidates:", error);
     } finally {
@@ -1006,15 +998,14 @@ setEducationOptions(
 
       setCompanyOptions(companies);
 
-             const educations = response.data.data.educations || [];
+      const educations = response.data.data.educations || [];
 
-setEducationOptions(
-  educations.map((edu) => ({
-    label: edu.eduction_name,
-    value: edu.id, // number is fine
-  }))
-);
-
+      setEducationOptions(
+        educations.map((edu) => ({
+          label: edu.eduction_name,
+          value: edu.id, // number is fine
+        })),
+      );
     } catch (error) {
       console.error("Error fetching contract candidates:", error);
     } finally {
@@ -1134,17 +1125,73 @@ setEducationOptions(
   // const handleDownload = () => {
   //   window.print(); // user selects "Save as PDF"
   // };
-const getEducationName = (educationId) => {
-  if (!educationId || !educationOptions.length) return "-";
+  const getEducationName = (educationId) => {
+    if (!educationId || !educationOptions.length) return "-";
 
-  const edu = educationOptions.find(
-    e => Number(e.value) === Number(educationId)
-  );
+    const edu = educationOptions.find(
+      (e) => Number(e.value) === Number(educationId),
+    );
 
-  return edu?.label || "-";
+    return edu?.label || "-";
+  };
+
+  // export 
+  const exportEmployeeCSV = () => {
+  if (typeof window === "undefined") return;
+
+  if (!columnData || columnData.length === 0) {
+    alert("No data to export");
+    return;
+  }
+
+  const escapeCSV = (value) => {
+    if (value === null || value === undefined) return '""';
+    const str = String(value).replace(/"/g, '""');
+    return `"${str}"`;
+  };
+
+  // ✅ Table la show aagura values same
+  const exportData = columnData.map((row, index) => ({
+    "S.No": index + 1,
+    Name: Capitalise(row?.name || "-"),
+    "Employee ID": row?.employee_id || "-",
+    Phone: row?.phone_number || "-",
+    DOB: formatToDDMMYYYY(row?.date_of_birth) || "-",
+    "Aadhar Number": row?.aadhar_number || "-",
+    Education: getEducationName(row?.education_id) || "-",
+    Gender: row?.gender || "-",
+    Status:
+      row?.status === 0 || row?.status === "0" ? "Relieved" : "Joined",
+  }));
+
+  const headers = Object.keys(exportData[0]);
+
+  const csvContent = [
+    headers.map(escapeCSV).join(","),
+    ...exportData.map((row) => headers.map((h) => escapeCSV(row[h])).join(",")),
+  ].join("\n");
+
+  // ✅ Excel UTF-8 Support
+  const BOM = "\uFEFF";
+  const blob = new Blob([BOM + csvContent], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = window.URL.createObjectURL(blob);
+
+  const today = new Date().toISOString().split("T")[0];
+  const fileName = `employee_list_${today}.csv`;
+
+  const link = window.document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+
+  window.document.body.appendChild(link);
+  link.click();
+  window.document.body.removeChild(link);
+
+  window.URL.revokeObjectURL(url);
 };
-
-
 
   const columns = [
     {
@@ -1592,19 +1639,19 @@ const getEducationName = (educationId) => {
                     </select>
                   </div>
 
-                     {/* education */}
+                  {/* education */}
                   <div className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-[#6B7280]">
                       Education
                     </label>
                     <Dropdown
-  value={selectedEducation}          // number (e.g. 8)
-  options={educationOptions}
-  optionLabel="label"
-  optionValue="value"                
-  onChange={(e) => setSelectedEducation(e.value)}
-  placeholder="Select Education"
-  filter
+                      value={selectedEducation} // number (e.g. 8)
+                      options={educationOptions}
+                      optionLabel="label"
+                      optionValue="value"
+                      onChange={(e) => setSelectedEducation(e.value)}
+                      placeholder="Select Education"
+                      filter
                       className="w-full border border-gray-300 text-sm text-[#7C7C7C] rounded-md"
                     />
                   </div>
@@ -1718,6 +1765,12 @@ const getEducationName = (educationId) => {
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
+                        <button
+                      onClick={exportEmployeeCSV}
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                    >
+                      export
+                    </button>
                     <button
                       onClick={openAddModal}
                       className="hidden md:block px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
