@@ -368,6 +368,8 @@ const ContractCandidates_Mainbar = () => {
 
     setFilterStartDate(today);
     setFilterEndDate(today);
+    // setFilterStartDate(null);
+    //   setFilterEndDate(null);
     setSelectedReference("");
     setFilterEducation("");
     setFilterInterviewStatus("");
