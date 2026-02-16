@@ -223,7 +223,7 @@ const Sidebar = () => {
               }`}
             >
               {/* dashboard */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("Dashboard")}
                   className={`flex items-center h-10 w-full flex-grow ${
@@ -237,7 +237,7 @@ const Sidebar = () => {
                   <CiBoxList className="w-5" />
                   {!arrowClicked && <p className="text-sm">Dashboard</p>}
                 </div>
-              </div>
+              </div> */}
 
               {/* report */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -825,7 +825,7 @@ const Sidebar = () => {
               </div>
 
               {/* lead management */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-dashboard")}
                   className={`flex items-center w-full flex-grow
@@ -843,9 +843,9 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div>
+              </div> */}
 
-                            {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                            <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-engine")}
                   className={`flex items-center w-full flex-grow
@@ -863,7 +863,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div> */}
+              </div>
 
               {/* Contact */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>

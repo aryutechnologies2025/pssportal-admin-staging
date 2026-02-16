@@ -33,8 +33,7 @@ import Mobile_Sidebar from "../Mobile_Sidebar";
 import Footer from "../Footer";
 import { Capitalise } from "../../hooks/useCapitalise";
 import CameraPhoto from "../../Utils/cameraPhoto";
-import {  FiX } from "react-icons/fi";
-
+import { FiX } from "react-icons/fi";
 
 const ContractCandidates_Mainbar = () => {
   const [searchParams] = useSearchParams();
@@ -43,22 +42,22 @@ const ContractCandidates_Mainbar = () => {
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
   const joiningStatus = searchParams.get("joining_status");
-const interviewStatusParam = searchParams.get("interview_status");
+  const interviewStatusParam = searchParams.get("interview_status");
   useEffect(() => {
     const resolvedCompanyId = companyId ?? selectedCompanyfilter;
     const resolvedStartDate = startDate ?? filterStartDate;
     const resolvedEndDate = endDate ?? filterEndDate;
     const resolvedJoiningStatus = joiningStatus ?? filterCandidateStatus;
-  // let resolvedInterviewStatus = joiningStatus ?? filterInterviewStatus;
-    const resolvedInterviewStatus = interviewStatusParam ?? filterInterviewStatus;
-
+    // let resolvedInterviewStatus = joiningStatus ?? filterInterviewStatus;
+    const resolvedInterviewStatus =
+      interviewStatusParam ?? filterInterviewStatus;
 
     // sync UI
     if (companyId) setSelectedCompanyfilter(companyId);
     if (startDate) setFilterStartDate(startDate);
     if (endDate) setFilterEndDate(endDate);
     if (joiningStatus) setFilterCandidateStatus(joiningStatus);
-  if (interviewStatusParam) setFilterInterviewStatus(interviewStatusParam);
+    if (interviewStatusParam) setFilterInterviewStatus(interviewStatusParam);
 
     fetchContractCandidates({
       companyId: resolvedCompanyId,
@@ -456,6 +455,9 @@ const interviewStatusParam = searchParams.get("interview_status");
 
   const closeAddModal = () => {
     setIsAnimating(false);
+    setSelectedReferenceForm(null);
+    setValue("reference", "");
+    setValue("otherReference", "");
     const mappedData = {
       id: "",
       name: "",
@@ -481,6 +483,7 @@ const interviewStatusParam = searchParams.get("interview_status");
     };
     setSelectedCompany(null);
     setSelectedEducation(null);
+    setSelectedReference(null);
     setPhoto(null);
     setDocuments([]);
     setEditData(null);
@@ -770,7 +773,6 @@ const interviewStatusParam = searchParams.get("interview_status");
       console.log("response:", response.data);
       if (response.data.success) {
         toast.success(response.data.message || "Excel imported successfully!");
-        
 
         if (response.data.total !== undefined) {
           toast.success(`Imported: ${response.data.total} records`);
@@ -791,8 +793,8 @@ const interviewStatusParam = searchParams.get("interview_status");
         setShowSkipModal(true);
       }
 
-       closeImportAddModal();
-          resetImportForm();
+      closeImportAddModal();
+      resetImportForm();
       fetchContractCandidates();
     } catch (err) {
       console.error("Import error:", err);
@@ -962,8 +964,8 @@ const interviewStatusParam = searchParams.get("interview_status");
     setLoading(true);
     try {
       const payload = {
-        startDate: finalStartDate,
-        endDate: finalEndDate,
+        from_date: finalStartDate,
+        to_date: finalEndDate,
         reference: selectedReference,
         education: filterEducation,
         interview_status: filterInterviewStatus,
@@ -1069,6 +1071,70 @@ const interviewStatusParam = searchParams.get("interview_status");
   const getEducationName = (educationId) => {
     const edu = educationOptions.find((e) => e.value === educationId);
     return edu ? edu.label : "-";
+  };
+
+  // export csvv
+
+  const exportTableCSV = () => {
+    if (typeof window === "undefined") return;
+
+    if (!columnData || columnData.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    const escapeCSV = (value) => {
+      if (value === null || value === undefined) return '""';
+      const str = String(value).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const exportData = columnData.map((row, index) => ({
+      "S.No": index + 1,
+      Name: Capitalise(row?.name) || row?.name || "-",
+      Phone: row?.phone_number || "-",
+      Education: getEducationName(row?.education_id) || "-",
+      Company: getCompanyName(row?.company_id) || "-",
+      "Interview Status": row?.interview_status || "-",
+      "Candidate Status": row?.joining_status
+        ? String(row.joining_status).replaceAll("_", " ")
+        : "-",
+      Reference:
+        String(row?.reference || "-").toLowerCase() === "other"
+          ? `Other - ${
+              row?.other_reference ? Capitalise(row.other_reference) : "-"
+            }`
+          : Capitalise(row?.reference || "-") || row?.reference || "-",
+    }));
+
+    const headers = Object.keys(exportData[0]);
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...exportData.map((row) =>
+        headers.map((h) => escapeCSV(row[h])).join(","),
+      ),
+    ].join("\n");
+
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const today = new Date().toISOString().split("T")[0];
+    const fileName = `candidate_list_${today}.csv`;
+
+    const link = window.document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+
+    window.document.body.appendChild(link);
+    link.click();
+    window.document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
   };
 
   const columns = [
@@ -1874,15 +1940,15 @@ const interviewStatusParam = searchParams.get("interview_status");
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                       />
-                        {globalFilter && (
-      <button
-        type="button"
-        onClick={() => setGlobalFilter("")}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-      >
-        <FiX size={18} />
-      </button>
-    )}
+                      {globalFilter && (
+                        <button
+                          type="button"
+                          onClick={() => setGlobalFilter("")}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                        >
+                          <FiX size={18} />
+                        </button>
+                      )}
                     </div>
 
                     <div className="hidden md:flex items-center">
@@ -1912,7 +1978,12 @@ const interviewStatusParam = searchParams.get("interview_status");
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
-
+                    <button
+                      onClick={exportTableCSV}
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                    >
+                      export
+                    </button>
                     <button
                       onClick={openAddModal}
                       className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
@@ -3331,87 +3402,90 @@ const interviewStatusParam = searchParams.get("interview_status");
               </div>
             )}
 
-         
+            {/*  Skipped Employees Popup (Tailwind) */}
+            {showSkipModal && importskip.length > 0 && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+                {/* Backdrop */}
+                <div
+                  className="absolute inset-0 bg-black/50"
+                  onClick={() => setShowSkipModal(false)}
+                />
 
-{/*  Skipped Employees Popup (Tailwind) */}
-{showSkipModal && importskip.length > 0 && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-    {/* Backdrop */}
-    <div
-      className="absolute inset-0 bg-black/50"
-      onClick={() => setShowSkipModal(false)}
-    />
+                {/* Modal Box */}
+                <div className="relative w-[95%] max-w-4xl rounded-2xl bg-white shadow-2xl border border-green-200 overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-6 py-4 bg-green-600">
+                    <h2 className="text-white font-bold text-lg">
+                      ⚠️ Skipped Employees ({importskip.length})
+                    </h2>
 
-    {/* Modal Box */}
-    <div className="relative w-[95%] max-w-4xl rounded-2xl bg-white shadow-2xl border border-green-200 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-green-600">
-        <h2 className="text-white font-bold text-lg">
-          ⚠️ Skipped Employees ({importskip.length})
-        </h2>
+                    <button
+                      onClick={() => setShowSkipModal(false)}
+                      className="text-white text-2xl font-bold hover:opacity-80"
+                    >
+                      ×
+                    </button>
+                  </div>
 
-        <button
-          onClick={() => setShowSkipModal(false)}
-          className="text-white text-2xl font-bold hover:opacity-80"
-        >
-          ×
-        </button>
-      </div>
+                  {/* Body */}
+                  <div className="p-6">
+                    <p className="text-gray-600 mb-4">
+                      These employees were skipped because they already exist /
+                      duplicate.
+                    </p>
 
-      {/* Body */}
-      <div className="p-6">
-        <p className="text-gray-600 mb-4">
-          These employees were skipped because they already exist / duplicate.
-        </p>
+                    <div className="overflow-auto rounded-xl border border-green-100">
+                      <table className="w-full text-sm">
+                        <thead className="bg-green-50">
+                          <tr className="text-left text-gray-700">
+                            <th className="px-4 py-3 w-[80px] font-semibold">
+                              S.No
+                            </th>
+                            <th className="px-4 py-3 font-semibold">
+                              Employee Name
+                            </th>
+                            <th className="px-4 py-3 w-[240px] font-semibold">
+                              Aadhar Number
+                            </th>
+                          </tr>
+                        </thead>
 
-        <div className="overflow-auto rounded-xl border border-green-100">
-          <table className="w-full text-sm">
-            <thead className="bg-green-50">
-              <tr className="text-left text-gray-700">
-                <th className="px-4 py-3 w-[80px] font-semibold">S.No</th>
-                <th className="px-4 py-3 font-semibold">Employee Name</th>
-                <th className="px-4 py-3 w-[240px] font-semibold">
-                  Aadhar Number
-                </th>
-              </tr>
-            </thead>
+                        <tbody>
+                          {importskip.map((item, index) => (
+                            <tr
+                              key={index}
+                              className="border-t hover:bg-green-50/40 transition"
+                            >
+                              <td className="px-4 py-3 font-bold">
+                                {index + 1}
+                              </td>
 
-            <tbody>
-              {importskip.map((item, index) => (
-                <tr
-                  key={index}
-                  className="border-t hover:bg-green-50/40 transition"
-                >
-                  <td className="px-4 py-3 font-bold">{index + 1}</td>
+                              <td className="px-4 py-3 font-semibold uppercase text-gray-800">
+                                {item?.employee_name || "-"}
+                              </td>
 
-                  <td className="px-4 py-3 font-semibold uppercase text-gray-800">
-                    {item?.employee_name || "-"}
-                  </td>
+                              <td className="px-4 py-3 font-semibold text-green-700">
+                                {item?.aadhar_number || "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
 
-                  <td className="px-4 py-3 font-semibold text-green-700">
-                    {item?.aadhar_number || "-"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
-        <button
-          onClick={() => setShowSkipModal(false)}
-          className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+                  {/* Footer */}
+                  <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t">
+                    <button
+                      onClick={() => setShowSkipModal(false)}
+                      className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      OK
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
