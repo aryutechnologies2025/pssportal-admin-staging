@@ -37,6 +37,8 @@ const Employee_contract_details = () => {
   const [searchParams] = useSearchParams();
 
   const companyId = searchParams.get("company_id");
+
+  console.log("companyId", companyId);  
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
   const statusParam = searchParams.get("status");
@@ -46,7 +48,7 @@ const Employee_contract_details = () => {
     if (startDate) setFilterStartDate(startDate);
     if (endDate) setFilterEndDate(endDate);
 
-    // 🔥 IMPORTANT: status=0 support
+    //  IMPORTANT: status=0 support
     if (statusParam !== null) setFilterStatus(statusParam);
   }, [companyId, startDate, endDate, statusParam]);
 
@@ -949,17 +951,53 @@ const Employee_contract_details = () => {
   //     reset(editData);
   //   }
   // }, [editData, reset]);
-  const [filterStartDate, setFilterStartDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
+  // const [filterStartDate, setFilterStartDate] = useState(() => {
+  //   return new Date().toISOString().split("T")[0];
+  // });
+  // const [filterEndDate, setFilterEndDate] = useState(() => {
+  //   return new Date().toISOString().split("T")[0];
+  // });
+
+  // const [filterStatus, setFilterStatus] = useState("");
+    const [filterStartDate, setFilterStartDate] = useState(() => {
+    return startDate || getTodayDate();
   });
+  
   const [filterEndDate, setFilterEndDate] = useState(() => {
-    return new Date().toISOString().split("T")[0];
+    return endDate || getTodayDate();
   });
 
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState(() => {
+    return statusParam || "";
+  });
+
   const [filterGender, setFilterGender] = useState("");
 
-  const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
+    const [selectedCompanyfilter, setSelectedCompanyfilter] = useState(() => {
+    return companyId ? Number(companyId) : "";
+  });
+
+  // const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
+ useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (selectedCompanyfilter) params.set("company_id", selectedCompanyfilter);
+    if (filterStartDate) params.set("startDate", filterStartDate);
+    if (filterEndDate) params.set("endDate", filterEndDate);
+    if (filterStatus) params.set("status", filterStatus);
+    if (filterGender) params.set("gender", filterGender);
+    if (selectedEducation) params.set("education_id", selectedEducation);
+    
+    navigate(`?${params.toString()}`, { replace: true });
+  }, [
+    selectedCompanyfilter,
+    filterStartDate,
+    filterEndDate,
+    filterStatus,
+    filterGender,
+    selectedEducation,
+    navigate
+  ]);
 
   // contract api
   const fetchContractCandidates = async () => {
