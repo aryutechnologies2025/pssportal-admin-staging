@@ -245,8 +245,10 @@ const Employee_contract_details = () => {
     setLoading(true);
 
     try {
-      setFilterStartDate(null);
-      setFilterEndDate(null);
+      const today = new Date();
+      const formattedToday = today.toISOString().split("T")[0];
+      setFilterStartDate(formattedToday);
+      setFilterEndDate(formattedToday);
       setFilterStatus("");
       setFilterGender("");
       setSelectedCompanyfilter(null);
@@ -1135,63 +1137,64 @@ const Employee_contract_details = () => {
     return edu?.label || "-";
   };
 
-  // export 
+  // export
   const exportEmployeeCSV = () => {
-  if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
 
-  if (!columnData || columnData.length === 0) {
-    alert("No data to export");
-    return;
-  }
+    if (!columnData || columnData.length === 0) {
+      alert("No data to export");
+      return;
+    }
 
-  const escapeCSV = (value) => {
-    if (value === null || value === undefined) return '""';
-    const str = String(value).replace(/"/g, '""');
-    return `"${str}"`;
+    const escapeCSV = (value) => {
+      if (value === null || value === undefined) return '""';
+      const str = String(value).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    // ✅ Table la show aagura values same
+    const exportData = columnData.map((row, index) => ({
+      "S.No": index + 1,
+      Name: Capitalise(row?.name || "-"),
+      "Employee ID": row?.employee_id || "-",
+      Phone: row?.phone_number || "-",
+      DOB: formatToDDMMYYYY(row?.date_of_birth) || "-",
+      "Aadhar Number": row?.aadhar_number || "-",
+      Education: getEducationName(row?.education_id) || "-",
+      Gender: row?.gender || "-",
+      Status: row?.status === 0 || row?.status === "0" ? "Relieved" : "Joined",
+    }));
+
+    const headers = Object.keys(exportData[0]);
+
+    const csvContent = [
+      headers.map(escapeCSV).join(","),
+      ...exportData.map((row) =>
+        headers.map((h) => escapeCSV(row[h])).join(","),
+      ),
+    ].join("\n");
+
+    // ✅ Excel UTF-8 Support
+    const BOM = "\uFEFF";
+    const blob = new Blob([BOM + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const today = new Date().toISOString().split("T")[0];
+    const fileName = `employee_list_${today}.csv`;
+
+    const link = window.document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+
+    window.document.body.appendChild(link);
+    link.click();
+    window.document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
   };
-
-  // ✅ Table la show aagura values same
-  const exportData = columnData.map((row, index) => ({
-    "S.No": index + 1,
-    Name: Capitalise(row?.name || "-"),
-    "Employee ID": row?.employee_id || "-",
-    Phone: row?.phone_number || "-",
-    DOB: formatToDDMMYYYY(row?.date_of_birth) || "-",
-    "Aadhar Number": row?.aadhar_number || "-",
-    Education: getEducationName(row?.education_id) || "-",
-    Gender: row?.gender || "-",
-    Status:
-      row?.status === 0 || row?.status === "0" ? "Relieved" : "Joined",
-  }));
-
-  const headers = Object.keys(exportData[0]);
-
-  const csvContent = [
-    headers.map(escapeCSV).join(","),
-    ...exportData.map((row) => headers.map((h) => escapeCSV(row[h])).join(",")),
-  ].join("\n");
-
-  // ✅ Excel UTF-8 Support
-  const BOM = "\uFEFF";
-  const blob = new Blob([BOM + csvContent], {
-    type: "text/csv;charset=utf-8;",
-  });
-
-  const url = window.URL.createObjectURL(blob);
-
-  const today = new Date().toISOString().split("T")[0];
-  const fileName = `employee_list_${today}.csv`;
-
-  const link = window.document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-
-  window.document.body.appendChild(link);
-  link.click();
-  window.document.body.removeChild(link);
-
-  window.URL.revokeObjectURL(url);
-};
 
   const columns = [
     {
@@ -1765,7 +1768,7 @@ const Employee_contract_details = () => {
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
-                        <button
+                    <button
                       onClick={exportEmployeeCSV}
                       className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
                     >
