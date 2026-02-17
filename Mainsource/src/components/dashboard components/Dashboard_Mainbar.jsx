@@ -1027,9 +1027,9 @@ const Dashboard_Mainbar = () => {
 
               <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
                 {/* From Date */}
-                <div className="w-full sm:w-auto">
+                {/* <div className="w-full sm:w-auto">
                   <label className="block text-sm font-medium mb-1">
-                    From Date
+                   Select Date
                   </label>
                   <input
                     type="date"
@@ -1037,10 +1037,22 @@ const Dashboard_Mainbar = () => {
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
                   />
-                </div>
+                </div> */}
+
+                <div className="w-full sm:w-auto">
+  <label className="block text-sm font-medium mb-1">Select Date</label>
+
+  <input
+    type="date"
+    className="border p-2 rounded-lg w-full sm:w-[180px]"
+    value={selectedDate}
+    onChange={handleSubmit}
+  />
+</div>
+
 
                 {/* To Date */}
-                <div className="w-full sm:w-auto">
+                {/* <div className="w-full sm:w-auto">
                   <label className="block text-sm font-medium mb-1">
                     To Date
                   </label>
@@ -1050,7 +1062,7 @@ const Dashboard_Mainbar = () => {
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                   />
-                </div>
+                </div> */}
 
                 {/* Buttons */}
                 <div className="flex gap-2 w-full sm:w-auto">
