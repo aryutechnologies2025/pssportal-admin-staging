@@ -235,7 +235,7 @@ const Sidebar = () => {
                   }`}
                 >
                   <CiBoxList className="w-5" />
-                  {!arrowClicked && <p className="text-sm">Dashboard</p>}
+                  {!arrowClicked && <p className="text-sm">PSS Dashboard</p>}
                 </div>
               </div>
 
@@ -297,6 +297,22 @@ const Sidebar = () => {
                   </div>
                 )}
               </div> */}
+
+                <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("contract-report")}
+                  className={`flex items-center h-10 w-full flex-grow ${
+                    arrowClicked ? "justify-center  " : "justify-normal"
+                  } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${
+                    currentPath === "/contract-report"
+                      ? "bg-[#4BB452] text-white"
+                      : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                  }`}
+                >
+                  <CiBoxList className="w-5" />
+                  {!arrowClicked && <p className="text-sm ">Contract Dashboard</p>}
+                </div>
+              </div>
 
               {/* PSS Employee Dropdown */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>

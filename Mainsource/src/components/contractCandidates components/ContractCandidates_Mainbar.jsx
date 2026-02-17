@@ -43,6 +43,8 @@ const ContractCandidates_Mainbar = () => {
   const endDate = searchParams.get("endDate");
   const joiningStatus = searchParams.get("joining_status");
   const interviewStatusParam = searchParams.get("interview_status");
+  const referenceParam = searchParams.get("refer_id");
+  // console.log("referenceParam", referenceParam);
   useEffect(() => {
     const resolvedCompanyId = companyId ?? selectedCompanyfilter;
     const resolvedStartDate = startDate ?? filterStartDate;
@@ -51,6 +53,7 @@ const ContractCandidates_Mainbar = () => {
     // let resolvedInterviewStatus = joiningStatus ?? filterInterviewStatus;
     const resolvedInterviewStatus =
       interviewStatusParam ?? filterInterviewStatus;
+    const resolvedReference = referenceParam ?? selectedReference;
 
     // sync UI
     if (companyId) setSelectedCompanyfilter(companyId);
@@ -58,6 +61,7 @@ const ContractCandidates_Mainbar = () => {
     if (endDate) setFilterEndDate(endDate);
     if (joiningStatus) setFilterCandidateStatus(joiningStatus);
     if (interviewStatusParam) setFilterInterviewStatus(interviewStatusParam);
+    if (referenceParam) setSelectedReference(referenceParam);
 
     fetchContractCandidates({
       companyId: resolvedCompanyId,
@@ -65,8 +69,16 @@ const ContractCandidates_Mainbar = () => {
       endDate: resolvedEndDate,
       joiningStatus: resolvedJoiningStatus,
       interviewStatus: resolvedInterviewStatus,
+      reference: resolvedReference,
     });
-  }, [companyId, startDate, endDate, joiningStatus]);
+  }, [
+    companyId,
+    startDate,
+    endDate,
+    joiningStatus,
+    interviewStatusParam,
+    referenceParam,
+  ]);
 
   // console.log("Psspermission", Psspermission);
 
@@ -78,6 +90,7 @@ const ContractCandidates_Mainbar = () => {
   // console.log("columnData", columnData);
   const [error, setError] = useState(null);
   const [employeesList, setEmployeesList] = useState([]);
+  // console.log("employeesList", employeesList);
   const [backendValidationError, setBackendValidationError] = useState(null);
   const [employeeIds, setEmployeeIds] = useState([]);
 
@@ -122,7 +135,8 @@ const ContractCandidates_Mainbar = () => {
       interviewDate: z.string().min(1, "Interview date is required"),
       interviewStatus: z.string().min(1, "Interview status is required"),
       candidateStatus: z.string().min(1, "Candidate status is required"),
-      reference: z.string().min(1, "Reference is required"),
+      // reference: z.string().min(1, "Reference is required"),
+      reference: z.union([z.number(), z.literal("other")]),
       education: z
         .number({
           required_error: "Education is required",
@@ -138,7 +152,7 @@ const ContractCandidates_Mainbar = () => {
       selectedJoiningDate: z.string().optional(),
       notJoinedReason: z.string().optional(),
       joinedDate: z.string().optional(),
-      reference: z.string().optional(),
+      // reference: z.string().optional(),
       otherReference: z.string().optional(),
       notes_details: z.object({
         notes: z.string().optional(),
@@ -956,19 +970,22 @@ const ContractCandidates_Mainbar = () => {
 
     const finalJoiningStatus =
       params.joiningStatus ?? filterCandidateStatus ?? "";
+    const finalInterviewStatus =
+      params.interviewStatus ?? filterInterviewStatus ?? "";
+    const finalReference = params.reference ?? selectedReference ?? "";
 
-    console.log("FINAL FETCH:", {
-      finalCompanyId,
-      finalStartDate,
-      finalEndDate,
-      finalJoiningStatus,
-    });
+    // console.log("FINAL FETCH:", {
+    //   finalCompanyId,
+    //   finalStartDate,
+    //   finalEndDate,
+    //   finalJoiningStatus,
+    // });
     setLoading(true);
     try {
       const payload = {
         from_date: finalStartDate,
         to_date: finalEndDate,
-        reference: selectedReference,
+        reference: finalReference,
         education: filterEducation,
         interview_status: filterInterviewStatus,
         joining_status: finalJoiningStatus || "",
@@ -1578,7 +1595,9 @@ const ContractCandidates_Mainbar = () => {
         interview_date: formatDateToYMD(data.interviewDate),
         interview_status: data.interviewStatus,
         notes_details: notesArray,
-        reference: data.reference,
+        // reference:Number(data.reference),
+        reference:
+          data.reference === "other" ? "other" : Number(data.reference),
         joining_status: data.candidateStatus,
         joined_date:
           data.candidateStatus === "joined"
@@ -1751,10 +1770,13 @@ const ContractCandidates_Mainbar = () => {
   const referenceOptions = [
     ...employeesList.map((emp) => ({
       label: emp.full_name,
-      value: emp.full_name,
+      value: emp.id,
+      // value: String(emp.id),
     })),
     { label: "Other", value: "other" },
   ];
+
+  // console.log("referenceOptions", referenceOptions);
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -1819,6 +1841,8 @@ const ContractCandidates_Mainbar = () => {
                     <Dropdown
                       value={selectedReference}
                       onChange={(e) => setSelectedReference(e.value)}
+                      optionLabel="label"
+                      optionValue="value"
                       className="w-full border border-gray-300 text-sm  text-[#7C7C7C] rounded-md"
                       options={referenceOptions}
                       placeholder="Select Reference"
@@ -2879,6 +2903,11 @@ const ContractCandidates_Mainbar = () => {
                               setValue("reference", e.value, {
                                 shouldValidate: true,
                               });
+                              if (e.value !== "other") {
+                                setValue("otherReference", "", {
+                                  shouldValidate: true,
+                                });
+                              }
                             }}
                             className="uniform-field w-full px-2 py-2 border border-gray-300 placeholder:text-[#4A4A4A] placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                             options={referenceOptions}

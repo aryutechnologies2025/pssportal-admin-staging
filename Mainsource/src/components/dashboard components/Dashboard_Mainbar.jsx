@@ -34,6 +34,7 @@ import DateFilterDropdown from "./DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
 import { useDateUtils } from "../../Utils/useDateUtils";
+import { Capitalise } from "../../hooks/useCapitalise";
 
 const Dashboard_Mainbar = () => {
   const formatDateTime = useDateUtils();
@@ -405,10 +406,14 @@ const Dashboard_Mainbar = () => {
       //     <p>{rowData.count}</p>
       //   </div>
       // ),
-         body: (rowData) => (
+      body: (rowData) => (
         <button
-        
           className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+          onClick={() =>
+            navigate(
+              `/job-form?from_date=${rowData.date}&to_date=${rowData.date}`,
+            )
+          }
         >
           {rowData.count}
         </button>
@@ -441,11 +446,8 @@ const Dashboard_Mainbar = () => {
       //   </div>
       // ),
 
-         body: (rowData) => (
-        <button
-        
-          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
-        >
+      body: (rowData) => (
+        <button className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition">
           {rowData.total_employees}
         </button>
       ),
@@ -554,12 +556,12 @@ const Dashboard_Mainbar = () => {
     });
   };
 
-  useEffect(() => {
-    handleSubmit();
-  }, []);
+  // useEffect(() => {
+  //   handleSubmit();
+  // }, []);
 
   const today = new Date().toISOString().split("T")[0];
-
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
   const [fromDate, setFromDate] = useState(today);
   const [toDate, setToDate] = useState(today);
 
@@ -567,36 +569,77 @@ const Dashboard_Mainbar = () => {
 
   console.log("dashboardData", dashboardData);
   // Handle submit
-  const handleSubmit = async () => {
-    // Ensure both dates are selected
-    if (!fromDate || !toDate) {
-      alert("Please select both From and To dates");
-      return;
-    }
+  // const handleSubmit = async () => {
+  //   // Ensure both dates are selected
+  //   if (!fromDate || !toDate) {
+  //     alert("Please select both From and To dates");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true); // start loader
+
+  //     const res = await axiosInstance.get(`${API_URL}api/dashboard`, {
+  //       params: {
+  //         start_date: fromDate,
+  //         end_date: toDate,
+  //       },
+  //     });
+
+  //     console.log("API Response:", res.data);
+
+  //     if (res.data.success) {
+  //       setDashboardData(res.data || []);
+  //     } else {
+  //       console.error(res.data.message);
+  //       // toast.error(res.data.message || "Failed to fetch status list");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     // toast.error("Failed to fetch status list");
+  //   } finally {
+  //     setLoading(false); // stop loader
+  //   }
+  // };
+
+  const handleDateChangedash = (e) => {
+    const date = e.target.value;
+
+    setFromDate(date);
+    setToDate(date);
+
+    fetchDashboard(date); // ✅ onchange API call
+  };
+
+  useEffect(() => {
+    const today = getTodayDate();
+    setFromDate(today);
+    setToDate(today);
+    fetchDashboard(today); // ✅ first time API call
+  }, []);
+
+  const fetchDashboard = async (date) => {
+    if (!date) return;
 
     try {
-      setLoading(true); // start loader
+      setLoading(true);
 
       const res = await axiosInstance.get(`${API_URL}api/dashboard`, {
         params: {
-          start_date: fromDate,
-          end_date: toDate,
+          start_date: date,
+          end_date: date,
         },
       });
-
-      console.log("API Response:", res.data);
 
       if (res.data.success) {
         setDashboardData(res.data || []);
       } else {
         console.error(res.data.message);
-        // toast.error(res.data.message || "Failed to fetch status list");
       }
     } catch (error) {
       console.error(error);
-      // toast.error("Failed to fetch status list");
     } finally {
-      setLoading(false); // stop loader
+      setLoading(false);
     }
   };
 
@@ -707,8 +750,8 @@ const Dashboard_Mainbar = () => {
       body: (_, { rowIndex }) => rowIndex + 1,
     },
     {
-      field: "company_name",
-      header: "Company Name",
+      field: "name",
+      header: "Empolyee Name",
       // body: (row) => formatToDDMMYYYY(row.date),
     },
     {
@@ -717,14 +760,13 @@ const Dashboard_Mainbar = () => {
       body: (rowData) => (
         <button
           onClick={() =>
-            openEmployeePopupref(
-              `${rowData.company_name} - References`,
-              rowData.references,
+            navigate(
+              `/contractcandidates?refer_id=${rowData.emp_id}&startDate=${fromDate}&endDate=${toDate}`,
             )
           }
           className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
         >
-          {rowData.total}
+          {rowData.count}
         </button>
       ),
     },
@@ -869,22 +911,32 @@ const Dashboard_Mainbar = () => {
       body: (rowData) => formatDateTime(rowData.date),
     },
     {
-      field: "absent_count",
-      header: "Absent Total",
-      body: (rowData) => (
-        <button
-          onClick={() =>
-            openAbsentEmployeePopup(
-              `${formatDateTime(rowData.date)} - Absent Employees`,
-              rowData.absent_list,
-            )
-          }
-          className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
-        >
-          {rowData.absent_count}
-        </button>
-      ),
+      field: "company_name",
+      header: "Company Name",
+      body: (rowData) => Capitalise(rowData.company_name),
     },
+    {
+      field: "employee_name",
+      header: "Employee Name",
+      body: (rowData) => Capitalise(rowData.employee_name),
+    },
+    // {
+    //   field: "absent_count",
+    //   header: "Absent Total",
+    //   body: (rowData) => (
+    //     <button
+    //       onClick={() =>
+    //         openAbsentEmployeePopup(
+    //           `${formatDateTime(rowData.date)} - Absent Employees`,
+    //           rowData.absent_list,
+    //         )
+    //       }
+    //       className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition"
+    //     >
+    //       {rowData.absent_count}
+    //     </button>
+    //   ),
+    // },
   ];
 
   // comapny attendace
@@ -955,6 +1007,10 @@ const Dashboard_Mainbar = () => {
     },
   ];
 
+  // dasboard all counbt
+
+  const workReport = dashboardData?.workreports?.[0] || {};
+
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5 ">
       {loading ? (
@@ -966,12 +1022,12 @@ const Dashboard_Mainbar = () => {
               <Mobile_Sidebar />
             </div>
             <p className="text-xs md:text-sm mt-3  text-end text-[#1ea600]">
-              Dashboard
+              PSS Dashboard
             </p>
 
             {/* <div className="bg-white rounded-2xl px-2 py-2 md:px-5 md:py-5 flex justify-between mt-1 "> */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <p className="hidden md:block font-semibold">Dashboard</p>
+              <p className="hidden md:block font-semibold">PSS Dashboard</p>
 
               {topAnnouncement && showTopBanner && (
                 <div className="w-full mb-4">
@@ -1025,9 +1081,8 @@ const Dashboard_Mainbar = () => {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
-                {/* From Date */}
-                {/* <div className="w-full sm:w-auto">
+              {/* <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
+                <div className="w-full sm:w-auto">
                   <label className="block text-sm font-medium mb-1">
                    Select Date
                   </label>
@@ -1037,22 +1092,11 @@ const Dashboard_Mainbar = () => {
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
                   />
-                </div> */}
+                </div>
+
+               
 
                 <div className="w-full sm:w-auto">
-  <label className="block text-sm font-medium mb-1">Select Date</label>
-
-  <input
-    type="date"
-    className="border p-2 rounded-lg w-full sm:w-[180px]"
-    value={selectedDate}
-    onChange={handleSubmit}
-  />
-</div>
-
-
-                {/* To Date */}
-                {/* <div className="w-full sm:w-auto">
                   <label className="block text-sm font-medium mb-1">
                     To Date
                   </label>
@@ -1062,9 +1106,8 @@ const Dashboard_Mainbar = () => {
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                   />
-                </div> */}
+                </div>
 
-                {/* Buttons */}
                 <div className="flex gap-2 w-full sm:w-auto">
                   <button
                     onClick={handleSubmit}
@@ -1079,38 +1122,101 @@ const Dashboard_Mainbar = () => {
                     Reset
                   </button>
                 </div>
+              </div> */}
+
+              <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
+                {/* Single Date */}
+                <div className="w-full sm:w-auto">
+                  <label className="block text-sm font-medium mb-1">
+                    Select Date
+                  </label>
+
+                  <input
+                    type="date"
+                    className="border p-2 rounded-lg w-full sm:w-[180px]"
+                    value={fromDate}
+                    onChange={handleDateChangedash}
+                  />
+                </div>
+
+                {/* Reset Button only */}
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={handleReset}
+                    className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition w-full sm:w-auto"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* new dasboard desgin */}
+
+            <div className="bg-white rounded-2xl shadow-sm border p-4 mt-4">
+              <h2 className="text-lg font-semibold mb-4">
+                Work Report Summary
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Present */}
+                <div className="p-4 rounded-2xl border bg-green-50">
+                  <p className="text-sm text-gray-600">Present</p>
+                  <h3 className="text-2xl font-bold text-green-700 mt-3">
+                    {workReport.present_count || 0}
+                  </h3>
+                </div>
+
+                {/* Absent */}
+                <div className="p-4 rounded-2xl border bg-red-50">
+                  <p className="text-sm text-gray-600">Absent</p>
+                  <h3 className="text-2xl font-bold text-red-700 mt-3">
+                    {workReport.absent_count || 0}
+                  </h3>
+                </div>
+
+                {/* Marked */}
+                <div className="p-4 rounded-2xl border bg-blue-50">
+                  <p className="text-sm text-gray-600">Work Report Marked</p>
+
+                  <div className="mt-3">
+                    <button
+                      onClick={() =>
+                        openEmployeePopup(
+                          "Marked Employees",
+                          workReport.updated_employees || [],
+                        )
+                      }
+                      className="text-2xl font-bold text-blue-700 mt-1"
+                    >
+                      {workReport.updated_count || 0}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Not Marked */}
+                <div className="p-4 rounded-2xl border bg-yellow-50">
+                  <p className="text-sm text-gray-600">Not Marked</p>
+
+                  <div className="mt-3">
+                    <button
+                      onClick={() =>
+                        openEmployeePopup(
+                          "Not Marked Employees",
+                          workReport.not_updated_employees || [],
+                        )
+                      }
+                      className="text-2xl font-bold text-yellow-700 mt-1"
+                    >
+                      {workReport.not_updated_count || 0}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* dashboard  */}
             <div className="grid grid-cols-1 lg:grid-cols-2  gap-4 md:gap-6 mt-4  dashboard-tables">
-              {/* Contract Employees */}
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Contract Employees
-                  </h2>
-                </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.contract_emps}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No contract employees."
-                  >
-                    {contractEmployeeColumns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
-                </div>
-              </div>
-
               {/* Job Form Submissions */}
               <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
@@ -1130,37 +1236,6 @@ const Dashboard_Mainbar = () => {
                     emptyMessage="No submissions found."
                   >
                     {jobFormColumns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
-                </div>
-              </div>
-
-              {/* work repoert */}
-
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Work Report
-                  </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
-                </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.workreports}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {workReportColumns.map((col, index) => (
                       <Column
                         key={index}
                         field={col.field}
@@ -1205,6 +1280,63 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
 
+              {/* interview cantidacte */}
+
+                 <div className="bg-white rounded-xl shadow-md border p-4 md:p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
+                    Interview Candidate
+                  </h2>
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.interview_candidate?.length || 0}
+                  </span>
+                </div>
+
+                <div className="space-y-3 h-[320px] overflow-auto pr-1">
+                  {(dashboardData?.interview_candidate || []).map((rowData, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition"
+                    >
+                      {/* LEFT */}
+                      <div className="min-w-0">
+                        {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
+
+                        <p
+                          className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
+                          onClick={() =>
+                            navigate(
+                              `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`,
+                            )
+                          }
+                          title={rowData.company_name}
+                        >
+                          {rowData.company_name}
+                        </p>
+
+                        {/* <p className="text-xs text-gray-500 truncate">
+              Company ID: {rowData.company_id}
+            </p> */}
+                      </div>
+
+                      {/* RIGHT COUNT */}
+                      <div className="flex-shrink-0">
+                        <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold">
+                          {rowData.count || 0}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {(dashboardData?.interviews || []).length === 0 && (
+                    <p className="text-sm text-gray-500 text-center py-10">
+                      No interview candidates found.
+                    </p>
+                  )}
+                </div>
+              </div>
+
               {/* selected candidates */}
 
               {/* interview candiate status */}
@@ -1239,14 +1371,12 @@ const Dashboard_Mainbar = () => {
               </div>
 
               {/* releving wise date */}
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+              {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-gray-800">
                     Releving wise Details
                   </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
+                
                 </div>
                 <div className="h-[300px] overflow-auto">
                   <DataTable
@@ -1266,7 +1396,7 @@ const Dashboard_Mainbar = () => {
                     ))}
                   </DataTable>
                 </div>
-              </div>
+              </div> */}
 
               {/* future employee */}
 
