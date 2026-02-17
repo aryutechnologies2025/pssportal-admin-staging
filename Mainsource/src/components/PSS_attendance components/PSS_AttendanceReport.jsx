@@ -169,6 +169,8 @@ const DailyWorkReport_Details = () => {
         },
       );
 
+      console.log("Attendance Data Response:", res.data);
+
       setAttendanceCount(res.data.summary || {});
 
       const formattedData = res.data.data.map((item, index) => ({
@@ -196,6 +198,8 @@ const DailyWorkReport_Details = () => {
       setAbsentlistData(
         res.data.data.filter((item) => item.status === "Absent"),
       );
+
+      
     } catch (err) {
       console.error("Attendance API Error:", err);
     }

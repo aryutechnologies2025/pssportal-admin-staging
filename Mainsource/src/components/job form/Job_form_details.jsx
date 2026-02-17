@@ -18,7 +18,7 @@ import ReactDOM from "react-dom";
 import Footer from "../Footer";
 import { TfiPencilAlt } from "react-icons/tfi";
 import Mobile_Sidebar from "../Mobile_Sidebar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig.js";
 import { toast, ToastContainer } from "react-toastify";
@@ -42,6 +42,7 @@ import { IoIosArrowForward } from 'react-icons/io';
 
 
 const Job_form_details = () => {
+    const [searchParams] = useSearchParams();
   let navigate = useNavigate();
   const [roles, setRoles] = useState([]);
   const [allRoles, setAllRoles] = useState([]);
