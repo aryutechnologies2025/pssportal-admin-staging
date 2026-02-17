@@ -223,7 +223,7 @@ const Sidebar = () => {
               }`}
             >
               {/* dashboard */}
-              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("Dashboard")}
                   className={`flex items-center h-10 w-full flex-grow ${
@@ -237,7 +237,7 @@ const Sidebar = () => {
                   <CiBoxList className="w-5" />
                   {!arrowClicked && <p className="text-sm">Dashboard</p>}
                 </div>
-              </div> */}
+              </div>
 
               {/* report */}
               {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
