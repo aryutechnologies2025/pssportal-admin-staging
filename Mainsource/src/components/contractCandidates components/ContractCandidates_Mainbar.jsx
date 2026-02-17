@@ -975,6 +975,10 @@ const ContractCandidates_Mainbar = () => {
         company_id: finalCompanyId,
       };
 
+      if (filterInterviewStatus !== "") {
+        payload.interview_status = filterInterviewStatus;
+      }
+
       // REMOVE undefined keys
       Object.keys(payload).forEach(
         (key) => payload[key] === undefined && delete payload[key],
@@ -1830,6 +1834,8 @@ const ContractCandidates_Mainbar = () => {
                     <Dropdown
                       value={filterInterviewStatus}
                       options={interviewStatusOptions}
+                      optionLabel="label"
+                      optionValue="value"
                       onChange={(e) => setFilterInterviewStatus(e.value)}
                       placeholder="Select Status "
                       filter
@@ -1845,6 +1851,8 @@ const ContractCandidates_Mainbar = () => {
                     <Dropdown
                       value={filterCandidateStatus}
                       options={candidateStatusOptions}
+                      optionLabel="label"
+                      optionValue="value"
                       filter
                       onChange={(e) => setFilterCandidateStatus(e.value)}
                       placeholder="Select Status "
