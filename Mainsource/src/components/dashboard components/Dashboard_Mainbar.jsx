@@ -678,6 +678,8 @@ const Dashboard_Mainbar = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupTitle, setPopupTitle] = useState("");
   const [employeeList, setEmployeeList] = useState([]);
+  const [showPopupattendance, setShowPopupattendance] = useState(false);
+  const [attendancelist, setAttendancelist] = useState([]);
 
   // console.log("employeeList", employeeList);
 
@@ -685,6 +687,13 @@ const Dashboard_Mainbar = () => {
     setPopupTitle(title);
     setEmployeeList(list || []);
     setShowPopup(true);
+  };
+
+  const openAttendance = (title, list) => {
+    // console.log("openAttendance called with:", title, list);
+    setPopupTitle(title);
+    setAttendancelist(list || []);
+    setShowPopupattendance(true);
   };
 
   const workReportColumns = [
@@ -1160,23 +1169,39 @@ const Dashboard_Mainbar = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Present */}
-                <div className="p-4 rounded-2xl border bg-green-50">
+                <div className="p-4 rounded-2xl border bg-green-50 hover:shadow-md transition">
                   <p className="text-sm text-gray-600">Present</p>
-                  <h3 className="text-2xl font-bold text-green-700 mt-3">
-                    {workReport.present_count || 0}
+                  <h3
+                    className="text-2xl font-bold text-green-700 mt-3 cursor-pointer"
+                    onClick={() =>
+                      openAttendance(
+                        "Present Employees",
+                        dashboardData?.summary?.present_employee_list || [],
+                      )
+                    }
+                  >
+                    {dashboardData?.summary?.present || 0}
                   </h3>
                 </div>
 
                 {/* Absent */}
-                <div className="p-4 rounded-2xl border bg-red-50">
+                <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition">
                   <p className="text-sm text-gray-600">Absent</p>
-                  <h3 className="text-2xl font-bold text-red-700 mt-3">
-                    {workReport.absent_count || 0}
+                  <h3
+                    className="text-2xl font-bold text-red-700 mt-3 cursor-pointer"
+                    onClick={() =>
+                      openAttendance(
+                        "Absent Employees",
+                        dashboardData?.summary?.absent_employee_list || [],
+                      )
+                    }
+                  >
+                    {dashboardData?.summary?.absent || 0}
                   </h3>
                 </div>
 
                 {/* Marked */}
-                <div className="p-4 rounded-2xl border bg-blue-50">
+                <div className="p-4 rounded-2xl border bg-blue-50 hover:shadow-md transition">
                   <p className="text-sm text-gray-600">Work Report Marked</p>
 
                   <div className="mt-3">
@@ -1195,7 +1220,7 @@ const Dashboard_Mainbar = () => {
                 </div>
 
                 {/* Not Marked */}
-                <div className="p-4 rounded-2xl border bg-yellow-50">
+                <div className="p-4 rounded-2xl border bg-yellow-50 hover:shadow-md transition">
                   <p className="text-sm text-gray-600">Not Marked</p>
 
                   <div className="mt-3">
@@ -1213,76 +1238,187 @@ const Dashboard_Mainbar = () => {
                   </div>
                 </div>
               </div>
+
+              <h2 className="text-lg font-semibold mt-4 mb-2">
+                Company Attendance Summary
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                {dashboardData?.attendance_summary?.map((item, index) => (
+                  <>
+                    {/* Marked */}
+                    <div
+                      className="p-4 rounded-2xl border bg-blue-50 cursor-pointer hover:shadow-md transition"
+                      onClick={() =>
+                        openCompanyAttendancePopup(
+                          `${formatDateTime(item.date)} - Marked Companies`,
+                          item.marked_list,
+                        )
+                      }
+                    >
+                      <p className="text-sm text-gray-600">Marked</p>
+                      <h3 className="text-2xl font-bold text-blue-700 mt-3">
+                        {item.marked}
+                      </h3>
+                    </div>
+
+                    {/* Not Marked */}
+                    <div
+                      className="p-4 rounded-2xl border bg-yellow-200 cursor-pointer hover:shadow-md transition"
+                      onClick={() =>
+                        openCompanyAttendancePopup(
+                          `${formatDateTime(item.date)} - Not Marked Companies`,
+                          item.not_marked_list,
+                        )
+                      }
+                    >
+                      <p className="text-sm text-gray-700">Not Marked</p>
+                      <h3 className="text-2xl font-bold text-yellow-800 mt-3">
+                        {item.not_marked}
+                      </h3>
+                    </div>
+                  </>
+                ))}
+              </div>
             </div>
 
             {/* dashboard  */}
-            <div className="grid grid-cols-1 lg:grid-cols-2  gap-4 md:gap-6 mt-4  dashboard-tables">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
               {/* Job Form Submissions */}
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
+
+              <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
                     Job Form Submissions
                   </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.jobformsubmission?.length || 0}
+                  </span>
                 </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.jobformsubmission}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {jobFormColumns.map((col, index) => (
-                      <Column
+
+                <div className="space-y-3 h-[320px] overflow-auto pr-1">
+                  {(dashboardData?.jobformsubmission || []).map(
+                    (rowData, index) => (
+                      <div
                         key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
+                        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      >
+                        {/* LEFT */}
+                        <div className="min-w-0 ">
+                          {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
+
+                          <p
+                            className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate "
+                            onClick={() =>
+                              navigate(
+                                `/job-form?from_date=${rowData.date}&to_date=${rowData.date}`,
+                              )
+                            }
+                            title={rowData.date}
+                          >
+                            {rowData.date}
+                          </p>
+
+                          {/* <p className="text-xs text-gray-500 truncate">
+              Company ID: {rowData.company_id}
+            </p> */}
+                        </div>
+
+                        {/* RIGHT COUNT */}
+                        <div className="flex-shrink-0">
+                          <span
+                            className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold cursor-pointer"
+                            onClick={() =>
+                              navigate(
+                                `/job-form?from_date=${rowData.date}&to_date=${rowData.date}`,
+                              )
+                            }
+                          >
+                            {rowData.count || 0}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )}
+
+                  {(dashboardData?.jobformsubmission || []).length === 0 && (
+                    <p className="text-sm text-gray-500 text-center py-10">
+                      No interview candidates found.
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* interview candiate status */}
-
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
+              {/* interview refernce candiate status */}
+              <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
                     Interview Candidate Reference count
                   </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.interview_candidate_reference?.length || 0}
+                  </span>
                 </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.interview_candidate_reference}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {interviewCandidateReferenceCountColumns.map(
-                      (col, index) => (
-                        <Column
-                          key={index}
-                          field={col.field}
-                          header={col.header}
-                          body={col.body}
-                        />
-                      ),
-                    )}
-                  </DataTable>
+
+                <div className="space-y-3 h-[320px] overflow-auto pr-1">
+                  {(dashboardData?.interview_candidate_reference || []).map(
+                    (rowData, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      >
+                        {/* LEFT */}
+                        <div className="min-w-0 ">
+                          {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
+
+                          <p
+                            className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate "
+                            onClick={() =>
+                              navigate(
+                                `/contractcandidates?refer_id=${rowData.emp_id}&startDate=${fromDate}&endDate=${toDate}`,
+                              )
+                            }
+                            title={rowData.name}
+                          >
+                            {rowData.name}
+                          </p>
+
+                          {/* <p className="text-xs text-gray-500 truncate">
+              Company ID: {rowData.company_id}
+            </p> */}
+                        </div>
+
+                        {/* RIGHT COUNT */}
+                        <div className="flex-shrink-0">
+                          <span
+                            className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold cursor-pointer"
+                            onClick={() =>
+                              navigate(
+                                `/contractcandidates?refer_id=${rowData.emp_id}&startDate=${fromDate}&endDate=${toDate}`,
+                              )
+                            }
+                          >
+                            {rowData.count || 0}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )}
+
+                  {(dashboardData?.interview_candidate_reference || [])
+                    .length === 0 && (
+                    <p className="text-sm text-gray-500 text-center py-10">
+                      No interview candidates found.
+                    </p>
+                  )}
                 </div>
               </div>
 
               {/* interview cantidacte */}
 
-                 <div className="bg-white rounded-xl shadow-md border p-4 md:p-5">
+              <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-semibold text-gray-800">
                     Interview Candidate
@@ -1294,42 +1430,51 @@ const Dashboard_Mainbar = () => {
                 </div>
 
                 <div className="space-y-3 h-[320px] overflow-auto pr-1">
-                  {(dashboardData?.interview_candidate || []).map((rowData, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition"
-                    >
-                      {/* LEFT */}
-                      <div className="min-w-0">
-                        {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
+                  {(dashboardData?.interview_candidate || []).map(
+                    (rowData, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      >
+                        {/* LEFT */}
+                        <div className="min-w-0">
+                          {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
 
-                        <p
-                          className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
-                          onClick={() =>
-                            navigate(
-                              `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`,
-                            )
-                          }
-                          title={rowData.company_name}
-                        >
-                          {rowData.company_name}
-                        </p>
+                          <p
+                            className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
+                            onClick={() =>
+                              navigate(
+                                `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`,
+                              )
+                            }
+                            title={rowData.company_name}
+                          >
+                            {rowData.company_name}
+                          </p>
 
-                        {/* <p className="text-xs text-gray-500 truncate">
+                          {/* <p className="text-xs text-gray-500 truncate">
               Company ID: {rowData.company_id}
             </p> */}
-                      </div>
+                        </div>
 
-                      {/* RIGHT COUNT */}
-                      <div className="flex-shrink-0">
-                        <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold">
-                          {rowData.count || 0}
-                        </span>
+                        {/* RIGHT COUNT */}
+                        <div className="flex-shrink-0">
+                          <span
+                            className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold"
+                            onClick={() =>
+                              navigate(
+                                `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`,
+                              )
+                            }
+                          >
+                            {rowData.count || 0}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
 
-                  {(dashboardData?.interviews || []).length === 0 && (
+                  {(dashboardData?.interview_candidate || []).length === 0 && (
                     <p className="text-sm text-gray-500 text-center py-10">
                       No interview candidates found.
                     </p>
@@ -1339,36 +1484,74 @@ const Dashboard_Mainbar = () => {
 
               {/* selected candidates */}
 
-              {/* interview candiate status */}
-
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
+              <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
                     Selected interview Candidates
                   </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.selected_company_wise?.length || 0}
+                  </span>
                 </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.selected_company_wise}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {selectedCandidateCountColumns.map((col, index) => (
-                      <Column
+
+                <div className="space-y-3 h-[320px] overflow-auto pr-1">
+                  {(dashboardData?.selected_company_wise || []).map(
+                    (rowData, index) => (
+                      <div
                         key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
+                        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      >
+                        {/* LEFT */}
+                        <div className="min-w-0 ">
+                          {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
+
+                          <p
+                            className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate "
+                            onClick={() =>
+                              window.open(
+                                `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&interview_status=Selected`,
+                                "_blank",
+                              )
+                            }
+                            title={rowData.company_name}
+                          >
+                            {rowData.company_name}
+                          </p>
+
+                          {/* <p className="text-xs text-gray-500 truncate">
+              Company ID: {rowData.company_id}
+            </p> */}
+                        </div>
+
+                        {/* RIGHT COUNT */}
+                        <div className="flex-shrink-0">
+                          <span
+                            className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold cursor-pointer"
+                            onClick={() =>
+                              window.open(
+                                `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&interview_status=Selected`,
+                                "_blank",
+                              )
+                            }
+                          >
+                            {rowData.total_selected || 0}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )}
+
+                  {(dashboardData?.selected_company_wise || []).length ===
+                    0 && (
+                    <p className="text-sm text-gray-500 text-center py-10">
+                      No interview candidates found.
+                    </p>
+                  )}
                 </div>
               </div>
+
+           
 
               {/* releving wise date */}
               {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
@@ -1400,96 +1583,128 @@ const Dashboard_Mainbar = () => {
 
               {/* future employee */}
 
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
+
+                 <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
                     Future Employee Details
                   </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.selected_joining_future?.length || 0}
+                  </span>
                 </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.selected_joining_future}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {futureJoiningCandidateCountColumns.map((col, index) => (
-                      <Column
+
+                <div className="space-y-3 h-[320px] overflow-auto pr-1">
+                  {(dashboardData?.selected_joining_future || []).map(
+                    (rowData, index) => (
+                      <div
                         key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
+                        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      >
+                        {/* LEFT */}
+                        <div className="min-w-0 ">
+                          {/* <p className="text-xs text-gray-500">#{index + 1}</p> */}
+
+                          <p
+                            className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate "
+                          onClick={() =>
+            openFutureEmployeePopup(
+              `${rowData.company_name || "Company"} - Future Employees`,
+              rowData.candidates,
+            )
+          }
+                            title={rowData.company_name}
+                          >
+                            {rowData.company_name}
+                          </p>
+
+                          {/* <p className="text-xs text-gray-500 truncate">
+              Company ID: {rowData.company_id}
+            </p> */}
+                        </div>
+
+                        {/* RIGHT COUNT */}
+                        <div className="flex-shrink-0">
+                          <span
+                            className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold cursor-pointer"
+                          onClick={() =>
+            openFutureEmployeePopup(
+              `${rowData.company_name || "Company"} - Future Employees`,
+              rowData.candidates,
+            )
+          }
+                          >
+                            {rowData?.total_count || 0}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )}
+
+                  {(dashboardData?.selected_joining_future || []).length ===
+                    0 && (
+                    <p className="text-sm text-gray-500 text-center py-10">
+                      No interview candidates found.
+                    </p>
+                  )}
                 </div>
               </div>
+
+         
 
               {/* absent list */}
 
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    3 Days absent Employees deatils
+
+                   <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
+                    Absent Employees deatils
                   </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
+
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.absent_list?.length || 0}
+                  </span>
                 </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.absent_list}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {absentlistemployee.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
-                </div>
+
+ <div className="space-y-3 h-[320px] overflow-auto pr-1">
+  {(dashboardData?.absent_list || []).map((rowData, index) => (
+    <div
+      key={index}
+      className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all duration-200 "
+    >
+      {/* Accent bar */}
+      <div className="w-1 h-full bg-red-400 rounded-l-xl"></div>
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
+        <p className="text-sm font-medium text-red-600">
+          {formatDateTime(rowData.date)}
+        </p>
+
+        <p className="text-sm font-semibold text-gray-700">
+          {Capitalise(rowData.company_name)}
+        </p>
+
+        <p className="text-sm font-semibold text-gray-900">
+          {Capitalise(rowData.employee_name)}
+        </p>
+      </div>
+    </div>
+  ))}
+
+  {(dashboardData?.absent_list || []).length === 0 && (
+    <p className="text-sm text-gray-500 text-center py-10">
+      No interview candidates found.
+    </p>
+  )}
+</div>
+
+
               </div>
 
-              {/* company attendance */}
 
-              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-gray-800">
-                    Company Attendance
-                  </h2>
-                  {/* <span className="text-sm text-green-600 font-medium">
-                      Recent activity
-                    </span> */}
-                </div>
-                <div className="h-[300px] overflow-auto">
-                  <DataTable
-                    value={dashboardData?.attendance_summary}
-                    showGridlines
-                    responsiveLayout="scroll"
-                    className="dashboard-table"
-                    emptyMessage="No submissions found."
-                  >
-                    {companyattendancelist.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                      />
-                    ))}
-                  </DataTable>
-                </div>
-              </div>
+         
             </div>
 
             {/* work repoet popup */}
@@ -1564,6 +1779,93 @@ const Dashboard_Mainbar = () => {
                   <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
                     <button
                       onClick={() => setShowPopup(false)}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* attendance popuop */}
+
+            {showPopupattendance && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={() => setShowPopupattendance(false)}
+              >
+                <div
+                  className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {popupTitle}
+                    </h2>
+
+                    <button
+                      onClick={() => setShowPopupattendance(false)}
+                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {attendancelist.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Name
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee ID
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {attendancelist.map((emp, index) => (
+                              <tr
+                                key={index}
+                                className="border-t hover:bg-gray-50 transition"
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
+
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-center ">
+                                  {emp.full_name}
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">
+                                  {emp.gen_employee_id}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No Employees Found
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-5 py-3 sm:py-4">
+                    <button
+                      onClick={() => setShowPopupattendance(false)}
                       className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
                     >
                       Close

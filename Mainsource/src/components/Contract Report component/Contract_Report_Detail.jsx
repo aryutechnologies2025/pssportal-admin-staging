@@ -540,7 +540,12 @@ const Contract_Report_Detail = () => {
                       </div>
 
                       <div className="flex-shrink-0">
-                        <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold">
+                        <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold"
+                         onClick={() =>
+                            navigate(
+                              `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&joining_status=joined`,
+                            )
+                          }>
                           {rowData.count || 0}
                         </span>
                       </div>
@@ -594,7 +599,12 @@ const Contract_Report_Detail = () => {
                       </div>
 
                       <div className="flex-shrink-0">
-                        <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold">
+                        <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold"
+                          onClick={() =>
+                            navigate(
+                              `/employeecontract?company_id=${rowData.company_id}&status=0&startDate=${fromDate}&endDate=${toDate}`,
+                            )
+                          }>
                           {rowData.count || 0}
                         </span>
                       </div>
@@ -649,7 +659,12 @@ const Contract_Report_Detail = () => {
                         </div>
 
                         <div className="flex-shrink-0">
-                          <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold">
+                          <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold"
+                            onClick={() =>
+                              navigate(
+                                `/employeecontract?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`,
+                              )
+                            }>
                             {rowData.total_employees || 0}
                           </span>
                         </div>

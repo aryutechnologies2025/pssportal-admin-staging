@@ -1653,7 +1653,7 @@ const columnMap = {
                               Education
                             </label>
                             <p className="text-gray-800">
-                              {selectedUser.education}
+                              {selectedUser?.education}
                             </p>
                           </div>
                           <div className="space-y-1">
