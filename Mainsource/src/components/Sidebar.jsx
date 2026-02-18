@@ -156,7 +156,7 @@ const Sidebar = () => {
         <ToastContainer position="top-right" autoClose={3000} />
         <div
           className={`fixed flex flex-col h-screen ${
-            arrowClicked ? "w-[60px]" : "w-48"
+            arrowClicked ? "w-[60px]" : "w-52"
           }`}
         >
           {/* Toggle Button */}
@@ -218,12 +218,12 @@ const Sidebar = () => {
             style={{ scrollbarGutter: "stable" }}
           >
             <div
-              className={`flex gap-1 mt-2 mx-2 flex-col ${
+              className={`flex gap-1 mt-2  flex-col w-full ${
                 arrowClicked ? "items-center" : "items-start"
               }`}
             >
               {/* dashboard */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("Dashboard")}
                   className={`flex items-center h-10 w-full flex-grow ${
@@ -298,7 +298,7 @@ const Sidebar = () => {
                 )}
               </div> */}
 
-                <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
+                <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("contract-report")}
                   className={`flex items-center h-10 w-full flex-grow ${
@@ -310,12 +310,12 @@ const Sidebar = () => {
                   }`}
                 >
                   <CiBoxList className="w-5" />
-                  {!arrowClicked && <p className="text-sm ">Contract Dashboard</p>}
+                  {!arrowClicked && <p className="text-sm w-full ">Contract Dashboard</p>}
                 </div>
               </div>
 
               {/* PSS Employee Dropdown */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px"}`}>
                 {/* Parent Item */}
                 <div
                   onClick={() => toggleMenu("employee")}
@@ -571,7 +571,7 @@ const Sidebar = () => {
               </div> */}
 
               {/* Company  */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("company")}
                   className={`flex items-center w-full flex-grow
@@ -601,7 +601,7 @@ const Sidebar = () => {
               </div>
 
               {/* interview */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 {/* Parent Item */}
                 <div
                   onClick={() => toggleMenu("interview")}
@@ -670,7 +670,7 @@ const Sidebar = () => {
 
               {/* Contract Candidates */}
               {/* Contract Dropdown */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 {/* Parent Item */}
                 <div
                   onClick={() => toggleMenu("contract")}
@@ -812,7 +812,7 @@ const Sidebar = () => {
               </div>
 
               {/* Job Form */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("job-form")}
                   className={`flex items-center w-full flex-grow
@@ -841,7 +841,7 @@ const Sidebar = () => {
               </div>
 
               {/* lead management */}
-              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-dashboard")}
                   className={`flex items-center w-full flex-grow
@@ -859,9 +859,9 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div> */}
+              </div>
 
-                            <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                            {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-engine")}
                   className={`flex items-center w-full flex-grow
@@ -879,10 +879,10 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Contact */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("contact")}
                   className={`flex items-center w-full flex-grow
@@ -941,7 +941,7 @@ const Sidebar = () => {
               </div>  */}
 
               {/* activity */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("activity")}
                   className={`flex items-center w-full flex-grow
@@ -1025,7 +1025,7 @@ const Sidebar = () => {
               </div> */}
 
               {/* setting */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("setting")}
                   className={`flex items-center w-full flex-grow

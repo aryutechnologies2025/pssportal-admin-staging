@@ -638,7 +638,7 @@ const Employee_contract_details = () => {
     }
   };
 
-  // select file
+  // select file 
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRejoining, setIsRejoining] = useState(true);
@@ -1861,6 +1861,7 @@ const Employee_contract_details = () => {
                     onPage={onPageChange}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
+                    globalFilterFields={['name', 'phone_number', 'aadhar_number', 'employee_id', 'gender']} 
                     showGridlines
                     resizableColumns
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"

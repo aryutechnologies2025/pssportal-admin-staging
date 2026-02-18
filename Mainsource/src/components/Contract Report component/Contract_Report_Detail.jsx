@@ -388,7 +388,7 @@ const Contract_Report_Detail = () => {
             <div className=" ">
               <Mobile_Sidebar />
 
-              <div className="flex gap-2 items-center cursor-pointer">
+              <div className="flex gap-2 justify-end items-center cursor-pointer">
                 <p
                   className="text-sm md:text-md text-gray-500  cursor-pointer"
                   onClick={() => navigate("/dashboard")}
@@ -507,6 +507,7 @@ const Contract_Report_Detail = () => {
                   <h2 className="text-base font-semibold text-gray-800">
                     Candidate Joining
                   </h2>
+
 
                   <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
                     {dashboardData?.joining?.length || 0}

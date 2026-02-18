@@ -323,26 +323,47 @@ const generateCSV = (data) => {
     }, 0);
   };
 
+  // const resetFilters = () => {
+  //   setFilterStartDate("");
+  //   setFilterEndDate("");
+  //   setSelectedReference("");
+  //   setSelectedDistrict("");
+  //   setSelectedGender("");
+  //   setPage(1);
+
+  //   // API reset
+  //   setAppliedFilters({
+  //     from_date: "",
+  //     to_date: "",
+  //     reference: "",
+  //     district: "",
+  //     gender: "",
+  //   });
+
+  //   setPage(1);
+  // };
+
   const resetFilters = () => {
-    setFilterStartDate("");
-    setFilterEndDate("");
-    setSelectedReference("");
-    setSelectedDistrict("");
-    setSelectedGender("");
-    setPage(1);
+  const today = new Date().toISOString().split("T")[0]; // Get current date
+  
+  setFilterStartDate(today);
+  setFilterEndDate(today);
+  setSelectedReference("");
+  setSelectedDistrict("");
+  setSelectedGender("");
+  setPage(1);
 
-    // API reset
-    setAppliedFilters({
-      from_date: "",
-      to_date: "",
-      reference: "",
-      district: "",
-      gender: "",
-    });
+  // API reset
+  // setAppliedFilters({
+  //   from_date: today, 
+  //   to_date: today,    
+  //   reference: "",
+  //   district: "",
+  //   gender: "",
+  // });
 
-    setPage(1);
-  };
-
+  setPage(1);
+};
   useEffect(() => {
     fetchRoles();
   }, [appliedFilters, rows, page]);
@@ -379,9 +400,18 @@ const generateCSV = (data) => {
 
       const response = await axiosInstance.get(`${API_URL}api/job-form/list`, {
         params: {
-          ...appliedFilters,
-          page,
-          limit: rows,
+          // ...appliedFilters,
+          // page,
+          // limit: rows,
+           
+        from_date: filterStartDate || today,
+        to_date: filterEndDate || today,
+        reference: selectedReference || "",
+        district: selectedDistrict || "",
+        gender: selectedGender || "",
+        page,
+        limit: rows,
+   
         },
       });
       console.log("fetchRole Response : ", response)
@@ -423,17 +453,34 @@ const generateCSV = (data) => {
 
 
 
-  const applyFilters = () => {
-    setAppliedFilters({
-      from_date: filterStartDate || "",
-      to_date: filterEndDate || "",
-      reference: selectedReference || "",
-      district: selectedDistrict || "",
-      gender: selectedGender || "",
-    });
+  // const applyFilters = () => {
+  //   setAppliedFilters({
+  //     from_date: filterStartDate || "",
+  //     to_date: filterEndDate || "",
+  //     reference: selectedReference || "",
+  //     district: selectedDistrict || "",
+  //     gender: selectedGender || "",
+  //   });
 
-    setPage(1);
-  };
+  //   setPage(1);
+  // };
+
+  
+
+  const applyFilters = () => {
+  const today = new Date().toISOString().split("T")[0];
+  
+  setAppliedFilters({
+    from_date: filterStartDate || today,  // If empty, use today
+    to_date: filterEndDate || today,      // If empty, use today
+    reference: selectedReference || "",
+    district: selectedDistrict || "",
+    gender: selectedGender || "",
+  });
+
+
+  setPage(1);
+};
 
 
   const capitalizeWords = (text) => {
