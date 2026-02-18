@@ -125,10 +125,10 @@ const Login = () => {
         localStorage.setItem("admin_token_expires", expiresAt);
         sessionStorage.setItem("admin_logged_in", "true");
         // Cookies.set("token", data.token, { path: "/" });
-        // localStorage.setItem("admin_token", data.token);
+        // localStorage.setItem("admin_token", data.token);       
         // localStorage.setItem("loginTime", Date.now());
         //  Redirect based on backend response
-        navigate(data.redirect || "/job-form", { replace: true });
+        navigate(data.redirect || "/dashboard", { replace: true });
 
         // Optional refresh
         window.scrollTo({ top: 0, behavior: "instant" });

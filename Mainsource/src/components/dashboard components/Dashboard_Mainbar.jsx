@@ -1202,7 +1202,7 @@ const Dashboard_Mainbar = () => {
 
                 {/* Marked */}
                 <div className="p-4 rounded-2xl border bg-blue-50 hover:shadow-md transition">
-                  <p className="text-sm text-gray-600">Work Report Marked</p>
+                  <p className="text-sm text-gray-600">Work Report Submitted</p>
 
                   <div className="mt-3">
                     <button
@@ -1221,7 +1221,7 @@ const Dashboard_Mainbar = () => {
 
                 {/* Not Marked */}
                 <div className="p-4 rounded-2xl border bg-yellow-50 hover:shadow-md transition">
-                  <p className="text-sm text-gray-600">Not Marked</p>
+                  <p className="text-sm text-gray-600">Work Report Not Submitted</p>
 
                   <div className="mt-3">
                     <button
