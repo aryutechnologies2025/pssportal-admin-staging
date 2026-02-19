@@ -378,6 +378,26 @@ const Contract_Report_Detail = () => {
     }
   };
 
+
+  // interview candiate
+
+const [employeePopup, setEmployeePopup] = useState(false);
+const [selectedCompany, setSelectedCompany] = useState(null);
+const [popupType, setPopupType] = useState(""); // "joining" | "relieved"
+
+const openEmployeePopup = (rowData, type) => {
+  setSelectedCompany(rowData);
+  setPopupType(type);
+  setEmployeePopup(true);
+};
+
+const closePopup = () => {
+  setEmployeePopup(false);
+  setSelectedCompany(null);
+  setPopupType("");
+};
+
+
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5 ">
       {loading ? (
@@ -525,11 +545,7 @@ const Contract_Report_Detail = () => {
 
                         <p
                           className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
-                          onClick={() =>
-                            navigate(
-                              `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&joining_status=joined`,
-                            )
-                          }
+onClick={() => openEmployeePopup(rowData, "joining")}
                           title={rowData.company_name}
                         >
                           {rowData.company_name}
@@ -542,11 +558,8 @@ const Contract_Report_Detail = () => {
 
                       <div className="flex-shrink-0">
                         <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold"
-                         onClick={() =>
-                            navigate(
-                              `/contractcandidates?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}&joining_status=joined`,
-                            )
-                          }>
+                       onClick={() => openEmployeePopup(rowData, "joining")}
+>
                           {rowData.count || 0}
                         </span>
                       </div>
@@ -584,11 +597,8 @@ const Contract_Report_Detail = () => {
 
                         <p
                           className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
-                          onClick={() =>
-                            navigate(
-                              `/employeecontract?company_id=${rowData.company_id}&status=0&startDate=${fromDate}&endDate=${toDate}`,
-                            )
-                          }
+                       onClick={() => openEmployeePopup(rowData, "relieved")}
+
                           title={rowData.company_name}
                         >
                           {rowData.company_name}
@@ -601,11 +611,8 @@ const Contract_Report_Detail = () => {
 
                       <div className="flex-shrink-0">
                         <span className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold"
-                          onClick={() =>
-                            navigate(
-                              `/employeecontract?company_id=${rowData.company_id}&status=0&startDate=${fromDate}&endDate=${toDate}`,
-                            )
-                          }>
+                        onClick={() => openEmployeePopup(rowData, "relieved")}
+>
                           {rowData.count || 0}
                         </span>
                       </div>
@@ -681,7 +688,126 @@ const Contract_Report_Detail = () => {
                 </div>
               </div>
             </div>
+
+
+ {employeePopup && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3">
+    <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-green-100 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 bg-green-600 px-5 py-4">
+        <div>
+          <h2 className="text-white font-bold text-lg leading-tight">
+            {selectedCompany?.company_name || "Employees"}
+          </h2>
+
+          <p className="text-green-100 text-sm mt-1">
+            Total {popupType === "relieved" ? "Relieved" : "Joined"}:{" "}
+            {selectedCompany?.count || 0}
+          </p>
+        </div>
+
+        <button
+          onClick={closePopup}
+          className="text-white text-xl font-bold hover:opacity-80 transition"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-4 max-h-[400px] overflow-y-auto">
+        {/* ✅ JOINING POPUP */}
+        {popupType === "joining" && (
+          <>
+            {selectedCompany?.employee_names?.length > 0 ? (
+              <div className="rounded-xl border border-green-100 overflow-hidden">
+                <div className="grid grid-cols-12 bg-green-50 px-4 py-3 text-sm font-bold text-green-700 sticky top-0 z-10">
+                  <div className="col-span-3">S.No</div>
+                  <div className="col-span-9">Employee Name</div>
+                </div>
+
+                <div className="divide-y divide-green-100 bg-white">
+                  {selectedCompany.employee_names.map((emp, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-12 px-4 py-3 text-sm hover:bg-green-50 transition"
+                    >
+                      <div className="col-span-3 font-semibold text-green-700">
+                        {i + 1}
+                      </div>
+                      <div className="col-span-9 text-gray-800 font-medium">
+                        {emp}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500 font-medium">
+                No employees found
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ✅ RELIEVED POPUP (ID + NAME) */}
+        {popupType === "relieved" && (
+          <>
+            {selectedCompany?.employees?.length > 0 ? (
+              <div className="rounded-xl border border-green-100 overflow-hidden">
+                <div className="grid grid-cols-12 bg-green-50 px-4 py-3 text-sm font-bold text-green-700 sticky top-0 z-10">
+                  <div className="col-span-2">S.No</div>
+                  <div className="col-span-4">Emp ID</div>
+                  <div className="col-span-6">Employee Name</div>
+                </div>
+
+                <div className="divide-y divide-green-100 bg-white">
+                  {selectedCompany.employees.map((emp, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-12 px-4 py-3 text-sm hover:bg-green-50 transition"
+                    >
+                      <div className="col-span-2 font-semibold text-green-700">
+                        {i + 1}
+                      </div>
+
+                      <div className="col-span-4 text-gray-800 font-semibold">
+                        {emp?.employee_id || "-"}
+                      </div>
+
+                      <div className="col-span-6 text-gray-800 font-medium">
+                        {emp?.employee_name || "-"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500 font-medium">
+                No employees found
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t bg-gray-50 flex justify-end">
+        <button
+          onClick={closePopup}
+          className="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
           </div>
+
+          
           <Footer />
         </>
       )}

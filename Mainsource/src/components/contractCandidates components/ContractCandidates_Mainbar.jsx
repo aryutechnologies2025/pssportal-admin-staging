@@ -865,8 +865,8 @@ const ContractCandidates_Mainbar = () => {
             : "",
       selectedJoiningDate: row.joining_date || "",
       joinedDate: row.joined_date || "",
-      reference: row.reference || "",
-      otherReference: row.other_reference || "",
+    reference: row.reference_id ? Number(row.reference_id) : null,
+          otherReference: row.other_reference || "",
       rejectReason:
         row.notes?.find((n) => n.note_status === "reject")?.notes || "",
       holdReason: row.notes?.find((n) => n.note_status === "hold")?.notes || "",
