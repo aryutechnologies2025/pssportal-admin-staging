@@ -707,42 +707,44 @@ useEffect(() => {
                   })} */}
 
                   
-  {leads.map((lead) => {
-        const isSameEmployee = lead.already_added_same_employee === true;
-        const isOtherEmployee = lead.already_assigned_another_employee === true;
+{leads.map((lead) => {
+  const isOtherEmployee = lead.already_assigned_another_employee === true;
 
-        return (
-          <div
-            key={lead.id}
-            className={`p-3 rounded-lg border ${
-              isOtherEmployee
-                ? "bg-orange-100 border-orange-400"
-                : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                className="mt-1"
-                checked={selectedLeads.includes(lead.id)}
-                disabled={isOtherEmployee}
-                onChange={() => handleToggle(lead.id)}
-              />
+  const otherEmp = lead?.assigned_other_employees?.[0]; // first employee
 
-              <div className="flex flex-col gap-1 text-sm w-full">
-                <p className="font-medium">{lead.full_name}</p>
-                <p className="text-gray-500">{lead.phone}</p>
+  return (
+    <div
+      key={lead.id}
+      className={`p-3 rounded-lg border ${
+        isOtherEmployee
+          ? "bg-orange-100 border-orange-400"
+          : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <input
+          type="checkbox"
+          className="mt-1"
+          checked={selectedLeads.includes(lead.id)}
+          disabled={isOtherEmployee}
+          onChange={() => handleToggle(lead.id)}
+        />
 
-                {isOtherEmployee && (
-                  <p className="text-xs font-semibold text-orange-700">
-                    Already Assigned to {lead.employee_name}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
+        <div className="flex flex-col gap-1 text-sm w-full">
+          <p className="font-medium">{lead.full_name}</p>
+          <p className="text-gray-500">{lead.phone}</p>
+
+          {isOtherEmployee && otherEmp && (
+            <p className="text-xs font-semibold text-orange-700">
+              Already Assigned to {otherEmp.full_name} ({otherEmp.gen_employee_id})
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+})}
+
 
 
                 </div>

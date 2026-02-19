@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 import Footer from "../Footer";
 import Mobile_Sidebar from "../Mobile_Sidebar";
 import { MdOutlineDeleteOutline } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MultiSelect } from "primereact/multiselect";
@@ -39,6 +39,7 @@ import { ca, fi } from "zod/v4/locales";
 
 const LeadManagement_Details = () => {
   let navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const multiSelectRef = useRef(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -123,16 +124,24 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     platform: "",
     age: "",
     city: "",
-    category:null,
-    lead_status:""
+    category: null,
+    lead_status: "",
+    employee_id: null,
   });
 
-  // apply filter
   const handleApplyFilter = () => {
+    if (!filters.from_date || !filters.to_date) {
+      toast.error("Please select From & To date");
+      return;
+    }
+
+    if (new Date(filters.from_date) > new Date(filters.to_date)) {
+      toast.error("From date cannot be greater than To date");
+      return;
+    }
+
     fetchLead(filters);
   };
-  // console.log("filter check", handleApplyFilter)
-
 
   const handleResetFilter = () => {
     const reset = {
@@ -140,16 +149,41 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       platform: "",
       age: "",
       city: "",
-      from_date: "",
-      to_date: "",
-      category:null,
-      lead_status:""
+      from_date: today,
+      to_date: today,
+      category: null,
+      lead_status: "",
+      employee_id: null,
     };
 
     setFilters(reset);
     fetchLead(reset);
+    navigate("/lead-engine", { replace: true });
   };
 
+  // Load filters from URL params on component mount
+  useEffect(() => {
+    const fromDate = searchParams.get("fromDate");
+    const toDate = searchParams.get("toDate");
+    const status = searchParams.get("status");
+    const categoryId = searchParams.get("lead_category_id");
+    const employeeId = searchParams.get("employee_id");
+
+    const urlFilters = {
+      gender: "",
+      platform: "",
+      age: "",
+      city: "",
+      from_date: fromDate || today,
+      to_date: toDate || today,
+      category: categoryId ? Number(categoryId) : null,
+      lead_status: status || "",
+      employee_id: employeeId ? Number(employeeId) : null,
+    };
+
+    setFilters(urlFilters);
+    fetchLead(urlFilters);
+  }, []);
   // open view
   const openViewModal = (row) => {
     console.log("OPen view : ",row)
@@ -499,79 +533,139 @@ setTimeout(() => {
   };
 
   //  list
-  const fetchLead = async (customFilters) => {
-    const appliedFilters = customFilters ?? filters;
+//   const fetchLead = async (customFilters) => {
+//     const appliedFilters = customFilters ?? filters;
 
-    try {
-      setLoading(true);
+//     try {
+//       setLoading(true);
 
-      const params = {};
+//       const params = {};
 
-      if (appliedFilters.gender)
-        params.gender = appliedFilters.gender.toLowerCase();
+//       if (appliedFilters.gender)
+//         params.gender = appliedFilters.gender.toLowerCase();
 
-      if (appliedFilters.platform)
-        params.platform = appliedFilters.platform.toLowerCase();
+//       if (appliedFilters.platform)
+//         params.platform = appliedFilters.platform.toLowerCase();
 
-      if (appliedFilters.city)
-        params.city = appliedFilters.city.toLowerCase();
+//       if (appliedFilters.city)
+//         params.city = appliedFilters.city.toLowerCase();
 
-      if (appliedFilters.from_date)
-        params.from_date = appliedFilters.from_date;
+//       if (appliedFilters.from_date)
+//         params.from_date = appliedFilters.from_date;
 
-      if (appliedFilters.to_date)
-        params.to_date = appliedFilters.to_date;
+//       if (appliedFilters.to_date)
+//         params.to_date = appliedFilters.to_date;
 
-       if (appliedFilters.category)
-  params.lead_category_id = appliedFilters.category;
+//        if (appliedFilters.category)
+//   params.lead_category_id = appliedFilters.category;
+//  if (appliedFilters.employee_id)
+//         params.employee_id = appliedFilters.employee_id;
 
-if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
+// if (appliedFilters.lead_status) params.lead_status = appliedFilters.lead_status;
 
-      const res = await axiosInstance.get(
-        `${API_URL}api/lead-management`,
-        { params }
-      );
+//       const res = await axiosInstance.get(
+//         `${API_URL}api/lead-management`,
+//         { params }
+//       );
 
-      console.log("API LIST : ", res.data.data);
+//       console.log("API LIST : ", res.data.data);
 
-      if (res.data.success) {
-        let data = res.data.data || [];
+//       if (res.data.success) {
+//         let data = res.data.data || [];
 
-         // Normalize status values for consistent display
+//          // Normalize status values for consistent display
+//       data = data.map(lead => ({
+//         ...lead,
+//         status: lead.status?.toString() || "", // Ensure status is string
+//         lead_status: normalizeLeadStatus(lead.lead_status),
+//          category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
+//         category_id: lead.lead_category_id // Use the correct field
+//       }));
+
+//         //   FILTERING
+//         data = applyFrontendFilters(data, appliedFilters);
+
+//         setLeads(data);
+//         setTotalRecords(data.length);
+//           setGenderOptions(res.data.gender || []);
+//           setPlatformOptions(res.data.platforms || {});
+//           setCityOptions(res.data.cities || []);
+//         // setCategoryOptions(res.data.categories || []);
+//               // Set category options from response
+//       // if (res.data.lead_category) {
+//       //   const categoryOptions = res.data.lead_category.map(cat => ({
+//       //     label: cat.name,
+//       //     value: cat.id
+//       //   }));
+//       //   setCategoryOptions(categoryOptions);
+//       // }
+
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       toast.error("Failed To Fetch Leads");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+// CHANGE THIS FUNCTION - Remove applyFrontendFilters
+const fetchLead = async (appliedFilters) => {
+  const filtersToUse = appliedFilters || filters;
+
+  try {
+    setLoading(true);
+
+    const params = {};
+
+    if (filtersToUse.gender)
+      params.gender = filtersToUse.gender.toLowerCase();
+
+    if (filtersToUse.city)
+      params.city = filtersToUse.city.toLowerCase();
+
+    if (filtersToUse.from_date)
+      params.from_date = filtersToUse.from_date;
+
+    if (filtersToUse.to_date)
+      params.to_date = filtersToUse.to_date;
+
+    if (filtersToUse.category)
+      params.lead_category_id = filtersToUse.category;
+
+    if (filtersToUse.employee_id)
+      params.employee_id = filtersToUse.employee_id;
+
+    if (filtersToUse.lead_status) 
+      params.lead_status = filtersToUse.lead_status;
+
+    const res = await axiosInstance.get(
+      `${API_URL}api/lead-management`,
+      { params }
+    );
+
+    if (res.data.success) {
+      let data = res.data.data || [];
+
+      // Only normalize data - NO FRONTEND FILTERING
       data = data.map(lead => ({
         ...lead,
-        status: lead.status?.toString() || "", // Ensure status is string
+        status: lead.status?.toString() || "",
         lead_status: normalizeLeadStatus(lead.lead_status),
-         category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
-        category_id: lead.lead_category_id // Use the correct field
+        category_name: res.data.categories?.find(cat => cat.id == lead.lead_category_id)?.name || "-",
       }));
 
-        //   FILTERING
-        data = applyFrontendFilters(data, appliedFilters);
-
-        setLeads(data);
-        setTotalRecords(data.length);
-          setGenderOptions(res.data.gender || []);
-          setPlatformOptions(res.data.platforms || {});
-          setCityOptions(res.data.cities || []);
-        // setCategoryOptions(res.data.categories || []);
-              // Set category options from response
-      // if (res.data.lead_category) {
-      //   const categoryOptions = res.data.lead_category.map(cat => ({
-      //     label: cat.name,
-      //     value: cat.id
-      //   }));
-      //   setCategoryOptions(categoryOptions);
-      // }
-
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed To Fetch Leads");
-    } finally {
-      setLoading(false);
+      setLeads(data);
+      setTotalRecords(data.length);
+      setCityOptions(res.data.cities || []);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed To Fetch Leads");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // status api get showing fetching
   const [statusList, setStatusList] = useState([]);
