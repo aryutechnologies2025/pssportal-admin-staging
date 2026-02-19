@@ -271,10 +271,10 @@ const handleUpdate = async () => {
     return;
   }
 
-  if (selectedLeads.length === 0) {
-    toast.error("Please select at least one lead");
-    return;
-  }
+  // if (selectedLeads.length === 0) {
+  //   toast.error("Please select at least one lead");
+  //   return;
+  // }
 
   try {
     setSubmitting(true);
@@ -756,12 +756,14 @@ useEffect(() => {
   </div>
                 <button
                  onClick={handleUpdate} // Attach the function here
-  disabled={selectedLeads.length === 0 || submitting}
-                  className={`px-6 py-2 rounded-lg ${
-                    selectedLeads.length === 0 || submitting 
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-green-600 hover:bg-green-700"
-                  } text-white font-medium`}
+  // disabled={selectedLeads.length === 0 || submitting}
+                  // className={`px-6 py-2 rounded-lg ${
+                  //   selectedLeads.length === 0 || submitting 
+                  //     ? "bg-gray-400 cursor-not-allowed"
+                  //     : "bg-green-600 hover:bg-green-700"
+                  // } text-white font-medium`}
+                  className={`px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium`}
+                
                 >
                   {submitting ? "Updating..." : "Update"}
                 </button>
