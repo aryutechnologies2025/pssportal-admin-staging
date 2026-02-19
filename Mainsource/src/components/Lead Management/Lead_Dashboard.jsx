@@ -431,6 +431,9 @@ const Lead_Dashboard = () => {
   //   fetchstatusdashboard();
   // }, []);
 
+
+
+
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5">
       <ToastContainer />
@@ -703,6 +706,22 @@ const Lead_Dashboard = () => {
           header="Count"
           headerClassName="bg-green-600 text-white font-semibold"
           bodyClassName="py-3 font-bold text-green-700"
+  //           body={(rowData) => (
+  //   <button
+  //     onClick={() => {
+  //       const status = rowData.status;
+
+  //       navigate(
+  //         `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`
+  //       );
+
+  //       setIsCategoryModalOpen(false);
+  //     }}
+  //     className="text-green-700 font-bold underline hover:text-green-900"
+  //   >
+  //     {rowData.count}
+  //   </button>
+  // )}
         />
       </DataTable>
     </div>
@@ -795,6 +814,22 @@ const Lead_Dashboard = () => {
           header="Count"
           headerClassName="bg-green-600 text-white font-semibold"
           bodyClassName="py-3 font-bold text-green-700"
+  //          body={(rowData) => (
+  //   <button
+  //     onClick={() => {
+  //       const status = rowData.key;
+
+  //       navigate(
+  //         `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&employee_id=${selectedlead?.employee_id}`
+  //       );
+
+  //       setIsLeadModalOpen(false);
+  //     }}
+  //     className="text-green-700 font-bold underline hover:text-green-900"
+  //   >
+  //     {rowData.count}
+  //   </button>
+  // )}
         />
       </DataTable>
     </div>

@@ -60,6 +60,8 @@ const Lead_Edit_Assigned_Details = () => {
   const today = new Date().toISOString().split("T")[0];
   const [filters, setFilters] = useState([]);
 
+  console.log("filters:", filters);
+
   const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [selectedLeads, setSelectedLeads] = useState([]);
@@ -83,7 +85,7 @@ const Lead_Edit_Assigned_Details = () => {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `${API_URL}api/lead-management/assign-edit/${id}`,
+        `${API_URL}api/lead-management/assign-view/${id}`,
       );
 
       console.log("fetchedit assigned details response : ", res);
@@ -181,7 +183,7 @@ setFilters(data);
       }
 
       const res = await axiosInstance.get(
-        `${API_URL}api/lead-management/lead-list`,
+        `${API_URL}api/lead-management/lead-list/`,
         { params },
       );
       console.log("Lead Response : ", res);
@@ -498,13 +500,13 @@ setFilters(data);
         </p>
 
         <div className="flex flex-wrap gap-2">
-          {(filters.category || []).length > 0 ? (
-            filters.category.map((item, index) => (
+          {(filters.categories || []).length > 0 ? (
+            filters.categories.map((item, index) => (
               <span
                 key={index}
                 className="px-3 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-gray-800 text-xs font-semibold"
               >
-                {item?.label || item}
+                {item?.name || item}
               </span>
             ))
           ) : (
@@ -648,44 +650,21 @@ setFilters(data);
                     );
                   })} */}
 
-                  {leads.map((lead) => {
-                    const isSameEmployee =
-                      lead.already_added_same_employee === true;
-                    const isOtherEmployee =
-                      lead.already_assigned_another_employee === true;
+             {filters?.leads?.map((lead) => (
+  <div
+    key={lead.id}
+    className="p-3 rounded-lg border bg-gray-50 hover:bg-gray-100 border-gray-200"
+  >
+    <div className="flex items-start gap-3">
+      <div className="flex flex-col gap-1 text-sm w-full">
+        <p className="font-medium">{lead.full_name}</p>
+        <p className="text-gray-500">{lead.phone}</p>
+        <p className="text-xs text-gray-400">{lead.category?.name}</p>
+      </div>
+    </div>
+  </div>
+))}
 
-                    return (
-                      <div
-                        key={lead.id}
-                        className={`p-3 rounded-lg border ${
-                          isOtherEmployee
-                            ? "bg-orange-100 border-orange-400"
-                            : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="checkbox"
-                            className="mt-1"
-                            checked={selectedLeads.includes(lead.id)}
-                            disabled={true}
-                            onChange={() => handleToggle(lead.id)}
-                          />
-
-                          <div className="flex flex-col gap-1 text-sm w-full">
-                            <p className="font-medium">{lead.full_name}</p>
-                            <p className="text-gray-500">{lead.phone}</p>
-
-                            {isOtherEmployee && (
-                              <p className="text-xs font-semibold text-orange-700">
-                                Already Assigned to {lead.employee_name}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
 
