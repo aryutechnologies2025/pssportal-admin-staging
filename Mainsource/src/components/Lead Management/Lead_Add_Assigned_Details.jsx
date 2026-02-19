@@ -772,20 +772,7 @@ const columns = [
 
               <div className="grid grid-cols-1 gap-5">
 
-                  {/* employee */}
-                <div className="flex items-center justify-between gap-1 w-[50%]">
-                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
-                  <Dropdown
-                    value={selectedEmployeeDetails}
-  onChange={handleEmployeeChange}
-  options={employeeOptions}
-  optionLabel="label"
-  optionValue="value"
-  placeholder="Select Employee"
-  filter
-                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                  />
-                </div>
+            
 
                                {/* platform */}
                 <div className="flex items-center justify-between gap-1 w-[50%]">
@@ -867,6 +854,21 @@ const columns = [
 
 />
 
+                </div>
+
+                      {/* employee */}
+                <div className="flex items-center justify-between gap-1 w-[50%]">
+                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
+                  <Dropdown
+                    value={selectedEmployeeDetails}
+  onChange={handleEmployeeChange}
+  options={employeeOptions}
+  optionLabel="label"
+  optionValue="value"
+  placeholder="Select Employee"
+  filter
+                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
                 </div>
               </div>
 
