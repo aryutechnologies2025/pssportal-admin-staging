@@ -25,6 +25,7 @@ import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import DateFilterDropdown from "../dashboard components/DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
+import { fr } from "zod/v4/locales";
 
 const Contract_Report_Detail = () => {
   let navigate = useNavigate();
@@ -653,7 +654,7 @@ onClick={() => openEmployeePopup(rowData, "joining")}
                             className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
                             onClick={() =>
                               navigate(
-                                `/employeecontract?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${toDate}`,
+                                `/employeecontract?company_id=${rowData.company_id}&startDate=${fromDate}&endDate=${fromDate}`,
                               )
                             }
                             title={rowData.company_name}
