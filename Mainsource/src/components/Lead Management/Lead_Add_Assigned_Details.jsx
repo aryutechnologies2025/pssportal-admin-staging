@@ -149,6 +149,7 @@ const Lead_Add_Assigned_Details = () => {
         lead_status: filters.lead_status, // objects
         start_date: filters.from_date,
         end_date: filters.to_date,
+        employee_id: selectedEmployeeDetails,
       });
     } else {
       setShowLeadTable(false);
@@ -160,6 +161,7 @@ const Lead_Add_Assigned_Details = () => {
     filters.lead_status,
     filters.from_date,
     filters.to_date,
+    selectedEmployeeDetails,
   ]);
 
   const applyFilters = () => {
@@ -385,6 +387,7 @@ const Lead_Add_Assigned_Details = () => {
           lead_status: filters.lead_status,
           start_date: filters.from_date,
           end_date: filters.to_date,
+          employee_id: selectedEmployeeDetails,
         });
       } else {
         toast.error(res.data?.message || "Assignment Failed");

@@ -167,10 +167,10 @@ useEffect(() => {
 
   fetchAssignedLeads({
     employee_id: selectedEmployeeDetails,
-    category_id: filters.category_id,
+    category_id: filters.category,
     lead_status: filters.lead_status,
-    start_date: filters.start_date,
-    end_date: filters.end_date
+    start_date: filters.from_date,
+end_date: filters.to_date
   });
 
 }, [filters.lead_status]);
@@ -281,6 +281,8 @@ const handleUpdate = async () => {
     
     // Construct the payload based on your typical backend requirements
     const payload = {
+      start_date: filters.from_date,
+        end_date: filters.to_date,
       employee_id: selectedEmployeeDetails,
       lead_ids: selectedLeads, // Array of IDs [301, 303, 304...]
       // category_ids: filters.category,
