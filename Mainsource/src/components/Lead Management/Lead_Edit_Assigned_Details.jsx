@@ -328,7 +328,7 @@ const handleUpdate = async () => {
     const empId = e.value;
     const emp = employeeOptions.find(o => o.value === empId);
     
-    // setSelectedEmployeeDetails(empId);
+    setSelectedEmployeeDetails(empId);  // update selected employee
     setSelectedEmployeeName(emp?.label || "");
     
     // Apply all filters when employee changes
