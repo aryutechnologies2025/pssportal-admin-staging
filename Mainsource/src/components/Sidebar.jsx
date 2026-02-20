@@ -841,7 +841,7 @@ const Sidebar = () => {
               </div>
 
               {/* lead management */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-dashboard")}
                   className={`flex items-center w-full flex-grow
@@ -859,9 +859,9 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div>
+              </div> */}
 
-                            {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
+                            <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-engine")}
                   className={`flex items-center w-full flex-grow
@@ -879,7 +879,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div> */}
+              </div>
 
               {/* Contact */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
