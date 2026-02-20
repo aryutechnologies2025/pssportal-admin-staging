@@ -504,20 +504,7 @@ useEffect(() => {
             {/* Filter Section - ORIGINAL DESIGN */}
             <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
               <div className="grid grid-cols-1 gap-5">
-                {/* Employee */}
-                <div className="flex items-center justify-between gap-1 w-[50%]">
-                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
-                  <Dropdown
-                    value={selectedEmployeeDetails}
-                    onChange={handleEmployeeChange}
-                    options={employeeOptions}
-                    optionLabel="label"
-                    optionValue="value"
-                    placeholder="Select Employee"
-                    filter
-                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                  />
-                </div>
+
 
                 {/* Platform */}
                 <div className="flex items-center justify-between gap-1 w-[50%]">
@@ -578,6 +565,22 @@ useEffect(() => {
                     className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
+
+                                {/* Employee */}
+                <div className="flex items-center justify-between gap-1 w-[50%]">
+                  <label className="text-sm font-medium text-[#6B7280]">Employee</label>
+                  <Dropdown
+                    value={selectedEmployeeDetails}
+                    onChange={handleEmployeeChange}
+                    options={employeeOptions}
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Select Employee"
+                    filter
+                    className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                  />
+                </div>
+                
               </div>
 
               {/* Filter validation message */}
