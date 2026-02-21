@@ -124,40 +124,38 @@ const Sidebar = () => {
 
 
   const onClickSidebarMenu = async (label) => {
-  // logout condition
-  if (label === "/" || label?.toLowerCase() === "logout") {
-    try {
-      setButtonLoading(true);
-      // API logout (clears session in finally block)
-      await logoutUser();
-    } catch (err) {
-      console.log("Logout error", err);
-    } finally {
-      setButtonLoading(false);
-      navigate("/", { replace: true });
-      window.scrollTo({ top: 0, behavior: "instant" });
+    // logout condition
+    if (label === "/" || label?.toLowerCase() === "logout") {
+      try {
+        setButtonLoading(true);
+        // API logout (clears session in finally block)
+        await logoutUser();
+      } catch (err) {
+        console.log("Logout error", err);
+      } finally {
+        setButtonLoading(false);
+        navigate("/", { replace: true });
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+
+      return;
     }
 
-    return;
-  }
-
-  // normal navigation
-  navigate(`/${label.toLowerCase()}`);
-  window.scrollTo({ top: 0, behavior: "instant" });
-};
+    // normal navigation
+    navigate(`/${label.toLowerCase()}`);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
 
   return (
     <div>
       <section
-        className={`bg-white max-md:hidden max-h-dvh transition-all duration-500 flex flex-col ${
-          arrowClicked ? "w-[60px]" : "w-52 "
-        }`}
+        className={`bg-white max-md:hidden max-h-dvh transition-all duration-500 flex flex-col ${arrowClicked ? "w-[60px]" : "w-52 "
+          }`}
       >
         <ToastContainer position="top-right" autoClose={3000} />
         <div
-          className={`fixed flex flex-col h-screen ${
-            arrowClicked ? "w-[60px]" : "w-52"
-          }`}
+          className={`fixed flex flex-col h-screen ${arrowClicked ? "w-[60px]" : "w-52"
+            }`}
         >
           {/* Toggle Button */}
           <div
@@ -166,9 +164,8 @@ const Sidebar = () => {
             title="Toggle Sidebar"
           >
             <div
-              className={`${
-                arrowClicked ? "-me-3" : "-me-8"
-              } w-6 h-6 rounded-full border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer`}
+              className={`${arrowClicked ? "-me-3" : "-me-8"
+                } w-6 h-6 rounded-full border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer`}
             >
               {arrowClicked ? (
                 <IoIosArrowForward className="w-3 h-3" />
@@ -218,21 +215,18 @@ const Sidebar = () => {
             style={{ scrollbarGutter: "stable" }}
           >
             <div
-              className={`flex gap-1 mt-2  flex-col w-full ${
-                arrowClicked ? "items-center" : "items-start"
-              }`}
+              className={`flex gap-1 mt-2  flex-col w-full ${arrowClicked ? "items-center" : "items-start"
+                }`}
             >
               {/* dashboard */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("Dashboard")}
-                  className={`flex items-center h-10 w-full flex-grow ${
-                    arrowClicked ? "justify-center  " : "justify-normal"
-                  } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${
-                    currentPath === "/dashboard"
+                  className={`flex items-center h-10 w-full flex-grow ${arrowClicked ? "justify-center  " : "justify-normal"
+                    } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${currentPath === "/dashboard"
                       ? "bg-[#4BB452] text-white"
                       : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                  }`}
+                    }`}
                 >
                   <CiBoxList className="w-5" />
                   {!arrowClicked && <p className="text-sm">PSS Dashboard</p>}
@@ -298,16 +292,14 @@ const Sidebar = () => {
                 )}
               </div> */}
 
-                <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("contract-report")}
-                  className={`flex items-center h-10 w-full flex-grow ${
-                    arrowClicked ? "justify-center  " : "justify-normal"
-                  } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${
-                    currentPath === "/contract-report"
+                  className={`flex items-center h-10 w-full flex-grow ${arrowClicked ? "justify-center  " : "justify-normal"
+                    } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${currentPath === "/contract-report"
                       ? "bg-[#4BB452] text-white"
                       : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                  }`}
+                    }`}
                 >
                   <CiBoxList className="w-5" />
                   {!arrowClicked && <p className="text-sm w-full ">Contract Dashboard</p>}
@@ -322,51 +314,49 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/roles" ||
-      currentPath === "/departments" ||
-      currentPath === "/permission" ||
-      currentPath === "/branches" ||
-      currentPath === "/dailywork-report" ||
-      currentPath === "/shift" ||
-      currentPath === "/psscompany" ||
-      currentPath === "/pssdailyattendance" ||
-      currentPath === "/employees"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/roles" ||
+                      currentPath === "/departments" ||
+                      currentPath === "/permission" ||
+                      currentPath === "/branches" ||
+                      currentPath === "/dailywork-report" ||
+                      currentPath === "/shift" ||
+                      currentPath === "/psscompany" ||
+                      currentPath === "/pssdailyattendance" ||
+                      currentPath === "/employees"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <img
                     src={employee}
                     alt="employee"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/roles" ||
-                      currentPath === "/permission" ||
-                      currentPath === "/departments" ||
-                      currentPath === "/branches" ||
-                      currentPath === "/dailywork-report" ||
-                      currentPath === "/psscompany" ||
-                      currentPath === "/shift" ||
-                      currentPath === "/pssdailyattendance" ||
-                      currentPath === "/employees"
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/roles" ||
+                        currentPath === "/permission" ||
+                        currentPath === "/departments" ||
+                        currentPath === "/branches" ||
+                        currentPath === "/dailywork-report" ||
+                        currentPath === "/psscompany" ||
+                        currentPath === "/shift" ||
+                        currentPath === "/pssdailyattendance" ||
+                        currentPath === "/employees"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                      }`}
                   />
 
                   {!arrowClicked && (
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">PSS</span>
                       {currentOpen === "employee" ||
-                      currentPath === "/psscompany" ||
-                      currentPath === "/roles" ||
-                      currentPath === "/departments" ||
-                      currentPath === "/permission" ||
-                      currentPath === "/branches" ||
-                      currentPath === "/dailywork-report" ||
-                      currentPath === "/shift" ||
-                      currentPath === "/pssdailyattendance" ||
-                      currentPath === "/employees" ? (
+                        currentPath === "/psscompany" ||
+                        currentPath === "/roles" ||
+                        currentPath === "/departments" ||
+                        currentPath === "/permission" ||
+                        currentPath === "/branches" ||
+                        currentPath === "/dailywork-report" ||
+                        currentPath === "/shift" ||
+                        currentPath === "/pssdailyattendance" ||
+                        currentPath === "/employees" ? (
                         <IoIosArrowUp />
                       ) : (
                         <IoIosArrowDown />
@@ -378,20 +368,19 @@ const Sidebar = () => {
                 {/* Dropdown Items */}
                 {!arrowClicked && (
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      currentOpen === "employee" ||
-                      currentPath === "/psscompany" ||
-                      currentPath === "/roles" ||
-                      currentPath === "/departments" ||
-                      currentPath === "/permission" ||
-                      currentPath === "/employees" ||
-                      currentPath === "/shift" ||
-                      currentPath === "/pssdailyattendance" ||
-                      currentPath === "/branches" ||
-                      currentPath === "/dailywork-report"
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "employee" ||
+                        currentPath === "/psscompany" ||
+                        currentPath === "/roles" ||
+                        currentPath === "/departments" ||
+                        currentPath === "/permission" ||
+                        currentPath === "/employees" ||
+                        currentPath === "/shift" ||
+                        currentPath === "/pssdailyattendance" ||
+                        currentPath === "/branches" ||
+                        currentPath === "/dailywork-report"
                         ? "max-h-50 opacity-100 mt-1"
                         : "max-h-0 opacity-0"
-                    }`}
+                      }`}
                   >
                     <div className="flex gap-2  items-start  ms-8 flex-col text-sm font-medium text-gray-500">
                       <button
@@ -402,10 +391,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition 
-                          ${
-                            currentPath === "/psscompany"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/psscompany"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Companies
@@ -419,10 +407,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition 
-                          ${
-                            currentPath === "/branches"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/branches"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Branches
@@ -435,10 +422,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${
-                            currentPath === "/departments"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/departments"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Departments
@@ -452,10 +438,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${
-                            currentPath === "/roles"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/roles"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Roles
@@ -469,10 +454,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${
-                            currentPath === "/employees"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452] "
+                          ${currentPath === "/employees"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452] "
                           }`}
                       >
                         Employees
@@ -486,10 +470,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition 
-                          ${
-                            currentPath === "/permission"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/permission"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Privileges
@@ -503,10 +486,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${
-                            currentPath === "/pssdailyattendance"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/pssdailyattendance"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Attendance
@@ -521,10 +503,9 @@ const Sidebar = () => {
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-                          ${
-                            currentPath === "/dailywork-report"
-                              ? "text-[#4BB452]"
-                              : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          ${currentPath === "/dailywork-report"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
                           }`}
                       >
                         Work Report
@@ -577,21 +558,19 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/company"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }
+    ${currentPath === "/company"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }
   `}
                 >
                   <img
                     src={company}
                     alt="company"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/company"
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/company"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                      }`}
                   />
 
                   {!arrowClicked && (
@@ -608,27 +587,25 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
       ${arrowClicked ? "justify-center" : "justify-normal"}
       px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-      ${
-        currentPath === "/contractcandidates"
-          ? "bg-[#4BB452] text-white"
-          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-      }`}
+      ${currentPath === "/contractcandidates"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <img
                     src={contractcandidates}
                     alt="contract"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/contractcandidates"
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/contractcandidates"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                      }`}
                   />
 
                   {!arrowClicked && (
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">Interview</span>
                       {currentOpen === "interview" ||
-                      currentPath === "/contractcandidates" ? (
+                        currentPath === "/contractcandidates" ? (
                         <IoIosArrowUp />
                       ) : (
                         <IoIosArrowDown />
@@ -640,12 +617,11 @@ const Sidebar = () => {
                 {/* Dropdown Items */}
                 {!arrowClicked && (
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      currentOpen === "interview" ||
-                      currentPath === "/contractcandidates"
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "interview" ||
+                        currentPath === "/contractcandidates"
                         ? "max-h-40 opacity-100 mt-1"
                         : "max-h-0 opacity-0"
-                    }`}
+                      }`}
                   >
                     <div className="flex gap-2 ms-8 flex-col text-sm font-medium text-gray-500">
                       {/* Candidates */}
@@ -655,11 +631,10 @@ const Sidebar = () => {
                           setCurrentOpen("interview");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${
-              currentPath === "/contractcandidates"
-                ? "text-[#4BB452]"
-                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-            }`}
+            ${currentPath === "/contractcandidates"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
                       >
                         Candidates
                       </button>
@@ -677,39 +652,37 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
       ${arrowClicked ? "justify-center" : "justify-normal"}
       px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-      ${
-        currentPath === "/employeecontract" ||
-        currentPath === "/attendance" ||
-        currentPath === "/boarding-point" ||
-        // currentPath === "/relieved-contract" ||
-        currentPath === "/education"
-          ? "bg-[#4BB452] text-white"
-          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-      }`}
-                >
-                  <img
-                    src={contractcandidates}
-                    alt="contract"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/employeecontract" ||
+      ${currentPath === "/employeecontract" ||
                       currentPath === "/attendance" ||
                       currentPath === "/boarding-point" ||
                       // currentPath === "/relieved-contract" ||
                       currentPath === "/education"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+                  <img
+                    src={contractcandidates}
+                    alt="contract"
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/employeecontract" ||
+                        currentPath === "/attendance" ||
+                        currentPath === "/boarding-point" ||
+                        // currentPath === "/relieved-contract" ||
+                        currentPath === "/education"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                      }`}
                   />
 
                   {!arrowClicked && (
                     <div className="flex items-center justify-between w-full">
                       <span className="text-sm font-medium">Contract</span>
                       {currentOpen === "contract" ||
-                      currentPath === "/employeecontract" ||
-                      currentPath === "/boarding-point" ||
-                      // currentPath === "/relieved-contract" ||
-                      currentPath === "/education" ||
-                      currentPath === "/attendance" ? (
+                        currentPath === "/employeecontract" ||
+                        currentPath === "/boarding-point" ||
+                        // currentPath === "/relieved-contract" ||
+                        currentPath === "/education" ||
+                        currentPath === "/attendance" ? (
                         <IoIosArrowUp />
                       ) : (
                         <IoIosArrowDown />
@@ -721,16 +694,15 @@ const Sidebar = () => {
                 {/* Dropdown Items */}
                 {!arrowClicked && (
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      currentOpen === "contract" ||
-                      currentPath === "/employeecontract" ||
-                      currentPath === "/attendance" ||
-                      currentPath === "/boarding-point" ||
-                      // currentPath === "/relieved-contract" ||
-                      currentPath === "/education"
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "contract" ||
+                        currentPath === "/employeecontract" ||
+                        currentPath === "/attendance" ||
+                        currentPath === "/boarding-point" ||
+                        // currentPath === "/relieved-contract" ||
+                        currentPath === "/education"
                         ? "max-h-60 opacity-100 mt-1"
                         : "max-h-0 opacity-0"
-                    }`}
+                      }`}
                   >
                     <div className="flex gap-2 ms-8 flex-col text-sm font-medium text-gray-500">
                       {/* Candidates */}
@@ -740,11 +712,10 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${
-              currentPath === "/employeecontract"
-                ? "text-[#4BB452]"
-                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-            }`}
+            ${currentPath === "/employeecontract"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
                       >
                         Employee
                       </button>
@@ -756,11 +727,10 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${
-              currentPath === "/attendance"
-                ? "text-[#4BB452]"
-                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-            }`}
+            ${currentPath === "/attendance"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
                       >
                         Attendance
                       </button>
@@ -770,11 +740,10 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${
-              currentPath === "/boarding-point"
-                ? "text-[#4BB452]"
-                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-            }`}
+            ${currentPath === "/boarding-point"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
                       >
                         Boarding Point
                       </button>
@@ -784,11 +753,10 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${
-              currentPath === "/education"
-                ? "text-[#4BB452]"
-                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-            }`}
+            ${currentPath === "/education"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
                       >
                         Education
                       </button>
@@ -798,13 +766,12 @@ const Sidebar = () => {
                           setCurrentOpen("contract");
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition
-            ${
-              currentPath === "/relieved-contract"
-                ? "text-[#4BB452]"
-                : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-            }`}
+            ${currentPath === "/relieved-contract"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
                       >
-                        Relieved 
+                        Relieved
                       </button>
                     </div>
                   </div>
@@ -818,20 +785,18 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/job-form"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/job-form"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <img
                     src={jobform}
                     alt="jobform"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/job-form"
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/job-form"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                      }`}
                   />
 
                   {!arrowClicked && (
@@ -841,7 +806,7 @@ const Sidebar = () => {
               </div>
 
               {/* lead management */}
-              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-dashboard")}
                   className={`flex items-center w-full flex-grow
@@ -859,19 +824,18 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div> */}
+              </div>
 
-                            <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
+              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-engine")}
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/lead-engine"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/lead-engine"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <MdLeaderboard className="w-5 " />
 
@@ -879,7 +843,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Lead Engine</p>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Contact */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
@@ -888,20 +852,18 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/contact"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/contact"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <img
                     src={contact}
                     alt="contact"
-                    className={`sidebar-icon transition-all duration-200 ${
-                      currentPath === "/contact"
+                    className={`sidebar-icon transition-all duration-200 ${currentPath === "/contact"
                         ? "brightness-0 invert pointer-events-none"
                         : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                    }`}
+                      }`}
                   />
                   {/* <MdOutlineContactMail  className="w-5 h-5 text-gray-500  "/> */}
 
@@ -947,11 +909,10 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/activity"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/activity"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   {/* <img
                     src={activity}
@@ -1031,11 +992,10 @@ const Sidebar = () => {
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/setting"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/setting"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <IoSettings className="w-5 " />
                   {/* <MdOutlineContactMail  className="w-5 h-5 text-gray-500  "/> */}
@@ -1054,9 +1014,8 @@ const Sidebar = () => {
               <div className="w-full px-2">
                 <div
                   onClick={() => onClickSidebarMenu("/")}
-                  className={`group flex items-center w-full ${
-                    arrowClicked ? "justify-center" : "justify-normal"
-                  } px-3 py-3 rounded-full gap-3 mt-1 h-10 border border-black hover:bg-[#E0E0E0]`}
+                  className={`group flex items-center w-full ${arrowClicked ? "justify-center" : "justify-normal"
+                    } px-3 py-3 rounded-full gap-3 mt-1 h-10 border border-black hover:bg-[#E0E0E0]`}
                 >
                   <MdLogout />
                   {!arrowClicked && <p className="text-sm">Logout</p>}
