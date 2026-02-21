@@ -16,6 +16,7 @@ export const EmployeeSchema = (id) => z.object({
         ? z.string().optional()
         : z.string().min(6, { message: "Password must be at least 6 characters" }),
     full_name: z.string().min(1, { message: "Full name is required" }),
+    status: z.enum(["0", "1"]).optional(),
     role_id: z
         .string()
         .min(1, { message: "Role is required" }),

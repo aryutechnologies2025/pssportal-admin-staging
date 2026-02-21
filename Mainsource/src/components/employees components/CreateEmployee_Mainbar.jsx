@@ -60,7 +60,6 @@ const CreateEmployee_Mainbar = () => {
       salary_amount: undefined,
     },
   });
-  console.log("pan_no", watch("pan_no"));
 
 
   const [educationList, setEducationList] = useState([]);
@@ -333,6 +332,8 @@ const CreateEmployee_Mainbar = () => {
         offical_email: editEmployeeData.offical_email || "",
         password: "",
         full_name: editEmployeeData.full_name || "",
+        // status: editEmployeeData.status || "",
+         status: String(editEmployeeData.status ?? ""),
         role_id: editEmployeeData.role_id || "",
         branch_id: editEmployeeData.branch_id || "",
         aadhaar_no: editEmployeeData.aadhaar_no || "",
@@ -411,7 +412,7 @@ const CreateEmployee_Mainbar = () => {
 
   const handleSave = async (data) => {
 
-    // console.log(data);
+    console.log('submitbeforecheck', data);
 
     const formData = new FormData();
     formData.append("employee_id", id ? id : null);
@@ -1121,7 +1122,36 @@ const CreateEmployee_Mainbar = () => {
                   </div>
                 )}
 
+
+
                 <div className="flex flex-col gap-4 mt-4">
+                  {/* Status */}
+                  <div className="flex flex-col xl:flex-row gap-2 justify-between gap-1">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <label
+                        className="font-medium text-sm"
+                        htmlFor="STATUS"
+                      >
+                        Status
+                      </label>
+                    </div>
+
+                    <div className="flex flex-col w-full lg:w-72">
+                      <div
+                        className={`border-2 rounded-xl ps-4 h-10 flex items-center border-gray-300`}
+                      >
+                        <select
+                          {...register("status")}
+                          className="w-full  outline-none border-none bg-transparent"
+                        >
+                          <option value="">Select status</option>
+                          <option value="1">Active</option>
+                          <option value="0">InActive</option>
+                        </select>
+                      </div>
+
+                    </div>
+                  </div>
                   {/* name */}
                   <div className="flex flex-col xl:flex-row justify-between gap-1">
                     <div className="flex flex-col w-full sm:w-auto">
