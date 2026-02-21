@@ -39,28 +39,22 @@ import { use } from "react";
 
 const Lead_Edit_Assigned_Details = () => {
   let navigate = useNavigate();
-
-
-const { id } = useParams(); // assignment ID
-
-
+  const { id } = useParams(); // assignment ID
   // // const editEmployeeId = location.state?.employee_id;
   const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState("");
   console.log("Selected Employee Details:", selectedEmployeeDetails);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [leads, setLeads] = useState([]);
-const [count, setCount] = useState(0);
-  
-const [totalRecords, setTotalRecords] = useState(0);
+  const [count, setCount] = useState(0);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [rows, setRows] = useState(10);
   const [page, setPage] = useState(1);
-  
   const storedDetails = localStorage.getItem("pssuser");
   const parsedDetails = JSON.parse(storedDetails);
   const userid = parsedDetails ? parsedDetails.id : null;
-
   const today = new Date().toISOString().split("T")[0];
+
   const [filters, setFilters] = useState({
     from_date: today,
     to_date: today,
@@ -72,10 +66,10 @@ const [totalRecords, setTotalRecords] = useState(0);
   const [employeeOptions, setEmployeeOptions] = useState([]);
   const [selectedLeads, setSelectedLeads] = useState([]);
   console.log("selectedLeads:", selectedLeads);
-  
+
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [statusTouched, setStatusTouched] = useState(false);
-const [assignRowId, setAssignRowId] = useState(null);
+  const [assignRowId, setAssignRowId] = useState(null);
 
   const isFilterComplete = () => {
     return (
@@ -86,253 +80,253 @@ const [assignRowId, setAssignRowId] = useState(null);
     );
   };
 
-  
+
   // Fetch assigned leads
-const fetchEditAssignedDetails = async () => {
-  try {
+  const fetchEditAssignedDetails = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.get(
+        `${API_URL}api/lead-management/assign-edit/${id}`
+      );
+
+      console.log("fetchedit assigned details response : ", res)
+
+      if (res.data?.success) {
+        const data = res.data.data;
+        setAssignRowId(data.id);
+        const empOption = {
+          label: data.employee.full_name,
+          value: data.employee.id
+        };
+
+
+        // set employee
+        setEmployeeOptions([empOption]);
+        setSelectedEmployeeDetails(empOption.value);
+        // console.log("setSelectedEmployeeDetails:",empOption.value);
+        setSelectedEmployeeName(empOption.label);
+        // console.log("setSelectedEmployeeName:",empOption.label);
+
+        const newFilters = {
+          category: data.category_ids || [],
+          lead_status: data.lead_statuses || [],
+          from_date: data.start_date ? data.start_date.split("T")[0] : today,
+          to_date: data.end_date ? data.end_date.split("T")[0] : today
+        };
+
+        setFilters(newFilters);
+
+        const assignedIds = (data.entries || []).map(entry => entry.lead.id);
+
+
+        fetchAssignedLeads({
+          employee_id: empOption.value,
+          category_id: newFilters.category, // Pass as array, let the function handle joining
+          lead_status: newFilters.lead_status, // Pass as array
+          start_date: newFilters.from_date,
+          end_date: newFilters.to_date,
+          assignedLeadIds: assignedIds // Pass this so they stay checked!
+        });
+        // map leads
+        // const mappedLeads = (data.entries || []).map(entry => ({
+        //   id: entry.lead.id,
+        //   full_name: entry.lead.full_name,
+        //   phone: entry.lead.phone,
+
+        //   // UI flags
+        //   isAssignedToSelected: true,
+        //   isAssignedToOther: false,
+        //   disableCheckbox: false,
+        //   showOrange: false,
+        //   assignedEmployeeName: data.employee?.full_name || ""
+        // }));
+
+        // setLeads(mappedLeads);
+
+        // mark as selected
+        // setSelectedLeads(mappedLeads.map(l => l.id));
+      }
+    } catch (err) {
+      toast.error("Failed to load assigned leads");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // useEffect(() => {
+
+  //   if (!statusTouched) return;
+
+  //   fetchAssignedLeads({
+  //     employee_id: selectedEmployeeDetails,
+  //     category_id: filters.category,
+  //     lead_status: filters.lead_status,
+  //     start_date: filters.from_date,
+  //     end_date: filters.to_date
+  //   });
+
+  // }, [filters.lead_status]);
+
+
+
+  const fetchAssignedLeads = async (appliedFilters = {}) => {
+    // console.log("fetchAssignedLeads CALLED");
     setLoading(true);
 
-    const res = await axiosInstance.get(
-      `${API_URL}api/lead-management/assign-edit/${id}`
-    );
+    try {
+      const params = {};
 
-    console.log("fetchedit assigned details response : ",res)
+      if (Array.isArray(appliedFilters.category_id) && appliedFilters.category_id.length > 0) {
+        params.category_id = appliedFilters.category_id.join(",");
+      }
 
-    if (res.data?.success) {
-      const data = res.data.data;
-setAssignRowId(data.id);
-       const empOption = {
-    label: data.employee.full_name,
-    value: data.employee.id
+      if (Array.isArray(appliedFilters.lead_status) && appliedFilters.lead_status.length > 0) {
+        params.lead_status = appliedFilters.lead_status.join(",");
+      }
+
+
+      if (appliedFilters.start_date) {
+        params.start_date = appliedFilters.start_date;
+      }
+
+      if (appliedFilters.end_date) {
+        params.end_date = appliedFilters.end_date;
+      }
+
+      if (appliedFilters.employee_id) {
+        params.employee_id = appliedFilters.employee_id;
+      }
+
+      const res = await axiosInstance.get(
+        `${API_URL}api/lead-management/lead-list`,
+        { params }
+      );
+      console.log("Lead Response : ", res);
+
+      if (res.status === 200) {
+        const leads = res.data.data || [];
+        const assignedLeadIds = appliedFilters.assignedLeadIds || [];
+
+        //  Employees for dropdown
+        const empOptions = (res.data.employees || []).map(emp => ({
+          label: emp.full_name,
+          value: emp.id
+        }));
+
+        setEmployeeOptions(empOptions);
+        // setSelectedEmployeeDetails(null); // reset selection
+
+        const normalizedLeads = leads.map(lead => ({
+          ...lead,
+
+          //  flags from backend
+          isAssignedToSelected: lead.already_added_same_employee === true,
+          isAssignedToOther: lead.already_assigned_another_employee === true,
+
+          //  ONLY other employee should be orange
+          showOrange: lead.already_assigned_another_employee === true,
+
+          //  disable checkbox if assigned anywhere
+          disableCheckbox:
+            lead.already_added_same_employee ||
+            lead.already_assigned_another_employee,
+
+          assignedEmployeeName: lead.assigned_employee_name || null
+        }));
+
+
+
+
+        setLeads(normalizedLeads);
+        setTotalRecords(res.data.count || normalizedLeads.length);
+      }
+
+    } catch (err) {
+      console.error("Failed to fetch leads:", err);
+      setEmployeeOptions([]);
+      setLeads([]);
+    } finally {
+      setLoading(false);
+    }
   };
-      
 
-      // set employee
-      setEmployeeOptions([empOption]);
-      setSelectedEmployeeDetails(empOption.value);
-      // console.log("setSelectedEmployeeDetails:",empOption.value);
-      setSelectedEmployeeName(empOption.label);
-      // console.log("setSelectedEmployeeName:",empOption.label);
+  useEffect(() => {
+    if (employeeOptions.length && selectedEmployeeDetails) {
+      setSelectedEmployeeDetails(prev => prev);
+    }
+  }, [employeeOptions]);
 
-      const newFilters = {
-        category: data.category_ids || [],
-        lead_status: data.lead_statuses || [],
-        from_date: data.start_date ? data.start_date.split("T")[0] : today,
-        to_date: data.end_date ? data.end_date.split("T")[0] : today
+  const handleUpdate = async () => {
+
+    if (!assignRowId) {
+      toast.error("Assignment ID missing");
+      return;
+    }
+
+    // if (selectedLeads.length === 0) {
+    //   toast.error("Please select at least one lead");
+    //   return;
+    // }
+
+    try {
+      setSubmitting(true);
+
+      // Construct the payload based on your typical backend requirements
+      const payload = {
+        start_date: filters.from_date,
+        end_date: filters.to_date,
+        employee_id: selectedEmployeeDetails,
+        lead_ids: selectedLeads, // Array of IDs [301, 303, 304...]
+        // category_ids: filters.category,
+        // lead_statuses: filters.lead_status,
+        category_ids: Array.isArray(filters.category)
+          ? filters.category
+          : filters.category
+            ? [filters.category]
+            : [],
+
+        lead_statuses: Array.isArray(filters.lead_status)
+          ? filters.lead_status
+          : filters.lead_status
+            ? [filters.lead_status]
+            : [],
+        start_date: filters.from_date,
+        end_date: filters.to_date
       };
 
-      setFilters(newFilters);
+      const res = await axiosInstance.put(
+        `${API_URL}api/lead-management/assign-update/${assignRowId}`,
+        payload
+      );
 
-      const assignedIds = (data.entries || []).map(entry => entry.lead.id);
+      if (res.data?.success) {
+        setTimeout(() => {
+          toast.success("Assignment updated successfully!");
 
-   
-      fetchAssignedLeads({
-        employee_id: empOption.value,
-        category_id: newFilters.category, // Pass as array, let the function handle joining
-        lead_status: newFilters.lead_status, // Pass as array
-        start_date: newFilters.from_date,
-        end_date: newFilters.to_date,
-        assignedLeadIds: assignedIds // Pass this so they stay checked!
-      });
-      // map leads
-      // const mappedLeads = (data.entries || []).map(entry => ({
-      //   id: entry.lead.id,
-      //   full_name: entry.lead.full_name,
-      //   phone: entry.lead.phone,
-
-      //   // UI flags
-      //   isAssignedToSelected: true,
-      //   isAssignedToOther: false,
-      //   disableCheckbox: false,
-      //   showOrange: false,
-      //   assignedEmployeeName: data.employee?.full_name || ""
-      // }));
-
-      // setLeads(mappedLeads);
-
-      // mark as selected
-      // setSelectedLeads(mappedLeads.map(l => l.id));
+        }, 300);
+        navigate("/lead-assignedto");
+        fetchAssignedLeads({ employee_id: selectedEmployeeDetails });
+      } else {
+        toast.error(res.data?.message || "Failed to update assignment");
+      }
+    } catch (err) {
+      console.error("Update error:", err);
+      toast.error(err.response?.data?.message || "Failed to update assignment");
+    } finally {
+      setSubmitting(false);
     }
-  } catch (err) {
-    toast.error("Failed to load assigned leads");
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  
-  if (!statusTouched) return;
-
-  fetchAssignedLeads({
-    employee_id: selectedEmployeeDetails,
-    category_id: filters.category,
-    lead_status: filters.lead_status,
-    start_date: filters.from_date,
-end_date: filters.to_date
-  });
-
-}, [filters.lead_status]);
-
-
-
-const fetchAssignedLeads = async (appliedFilters = {}) => {
-  // console.log("fetchAssignedLeads CALLED");
-  setLoading(true);
-
-  try {
-    const params = {};
-
-if (Array.isArray(appliedFilters.category_id) && appliedFilters.category_id.length > 0) {
-  params.category_id = appliedFilters.category_id.join(",");
-}
-
-if (Array.isArray(appliedFilters.lead_status) && appliedFilters.lead_status.length > 0) {
-  params.lead_status = appliedFilters.lead_status.join(",");
-}
-
-
-    if (appliedFilters.start_date) {
-      params.start_date = appliedFilters.start_date;
-    }
-
-    if (appliedFilters.end_date) {
-      params.end_date = appliedFilters.end_date;
-    }
-
-    if (appliedFilters.employee_id) {
-  params.employee_id = appliedFilters.employee_id;
-}
-
-    const res = await axiosInstance.get(
-      `${API_URL}api/lead-management/lead-list`,
-      { params }
-    );
-console.log("Lead Response : ",res);
-
-    if (res.status === 200) {
-      const leads = res.data.data || [];
-      const assignedLeadIds = appliedFilters.assignedLeadIds || [];
-
-      //  Employees for dropdown
-      const empOptions = (res.data.employees || []).map(emp => ({
-        label: emp.full_name,
-        value: emp.id
-      }));
-
-      setEmployeeOptions(empOptions);
-      // setSelectedEmployeeDetails(null); // reset selection
-
-      const normalizedLeads = leads.map(lead => ({
-  ...lead,
-
-  //  flags from backend
-  isAssignedToSelected: lead.already_added_same_employee === true,
-  isAssignedToOther: lead.already_assigned_another_employee === true,
-
-  //  ONLY other employee should be orange
-  showOrange: lead.already_assigned_another_employee === true,
-
-  //  disable checkbox if assigned anywhere
-  disableCheckbox:
-    lead.already_added_same_employee ||
-    lead.already_assigned_another_employee,
-
-  assignedEmployeeName: lead.assigned_employee_name || null
-}));
-
-
-
-
-setLeads(normalizedLeads);
-      setTotalRecords(res.data.count || normalizedLeads.length);
-    }
-
-  } catch (err) {
-    console.error("Failed to fetch leads:", err);
-    setEmployeeOptions([]);
-    setLeads([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  if (employeeOptions.length && selectedEmployeeDetails) {
-    setSelectedEmployeeDetails(prev => prev);
-  }
-}, [employeeOptions]);
-
-const handleUpdate = async () => {
-
-   if (!assignRowId) {
-    toast.error("Assignment ID missing");
-    return;
-  }
-
-  // if (selectedLeads.length === 0) {
-  //   toast.error("Please select at least one lead");
-  //   return;
-  // }
-
-  try {
-    setSubmitting(true);
-    
-    // Construct the payload based on your typical backend requirements
-    const payload = {
-      start_date: filters.from_date,
-        end_date: filters.to_date,
-      employee_id: selectedEmployeeDetails,
-      lead_ids: selectedLeads, // Array of IDs [301, 303, 304...]
-      // category_ids: filters.category,
-      // lead_statuses: filters.lead_status,
-      category_ids: Array.isArray(filters.category)
-    ? filters.category
-    : filters.category
-    ? [filters.category]
-    : [],
-
-  lead_statuses: Array.isArray(filters.lead_status)
-    ? filters.lead_status
-    : filters.lead_status
-    ? [filters.lead_status]
-    : [],
-      start_date: filters.from_date,
-      end_date: filters.to_date
-    };
-
-    const res = await axiosInstance.put(
-      `${API_URL}api/lead-management/assign-update/${assignRowId}`, 
-      payload
-    );
-
-    if (res.data?.success) {
-      setTimeout(() => {
-      toast.success("Assignment updated successfully!");
-      
-    }, 300);
-    navigate("/lead-assignedto");
-      fetchAssignedLeads({ employee_id: selectedEmployeeDetails });
-    } else {
-      toast.error(res.data?.message || "Failed to update assignment");
-    }
-  } catch (err) {
-    console.error("Update error:", err);
-    toast.error(err.response?.data?.message || "Failed to update assignment");
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
   // Handle employee change
   const handleEmployeeChange = (e) => {
     const empId = e.value;
     const emp = employeeOptions.find(o => o.value === empId);
-    
+
     setSelectedEmployeeDetails(empId);  // update selected employee
     setSelectedEmployeeName(emp?.label || "");
-    
+
     // Apply all filters when employee changes
     fetchAssignedLeads({
       employee_id: empId,
@@ -344,16 +338,16 @@ const handleUpdate = async () => {
   };
 
   // Handle lead selection
-//  const handleToggle = (leadId) => {
+  //  const handleToggle = (leadId) => {
 
-//   console.log("leadId:", leadId);
-//   setSelectedLeads(prev =>
-//     prev.includes(leadId)
-//       ? prev.filter(id => id !== leadId)
-//       : [...prev, leadId]
-//   );
-// };
- useEffect(() => {
+  //   console.log("leadId:", leadId);
+  //   setSelectedLeads(prev =>
+  //     prev.includes(leadId)
+  //       ? prev.filter(id => id !== leadId)
+  //       : [...prev, leadId]
+  //   );
+  // };
+  useEffect(() => {
     const preSelected = leads
       .filter(l => l.already_added_same_employee)
       .map(l => l.id);
@@ -361,27 +355,27 @@ const handleUpdate = async () => {
     setSelectedLeads(preSelected);
   }, [leads]);
 
-const handleToggle = (leadId) => {
-  const lead = leads.find(l => l.id === leadId);
-  if (!lead) return;
+  const handleToggle = (leadId) => {
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead) return;
 
-  // only block OTHER employee
-  if (lead.already_assigned_another_employee) return;
+    // only block OTHER employee
+    if (lead.already_assigned_another_employee) return;
 
-  setSelectedLeads(prev =>
-    prev.includes(leadId)
-      ? prev.filter(id => id !== leadId) // ✅ UNCHECK works
-      : [...prev, leadId]
-  );
-};
+    setSelectedLeads(prev =>
+      prev.includes(leadId)
+        ? prev.filter(id => id !== leadId) // ✅ UNCHECK works
+        : [...prev, leadId]
+    );
+  };
 
-useEffect(() => {
-  const initiallyAssigned = leads
-    .filter(l => l.already_added_same_employee)
-    .map(l => l.id);
+  useEffect(() => {
+    const initiallyAssigned = leads
+      .filter(l => l.already_added_same_employee)
+      .map(l => l.id);
 
-  setSelectedLeads(initiallyAssigned);
-}, [leads]);
+    setSelectedLeads(initiallyAssigned);
+  }, [leads]);
 
 
   const selectAll = () => {
@@ -414,6 +408,26 @@ useEffect(() => {
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+    }
+  };
+
+  // Fetch Employee
+  const fetchEmployee = async () => {
+    try {
+      const res = await axiosInstance.get(
+        `${API_URL}api/lead-management/assign-employee-leads`
+      );
+
+      if (res.data.success) {
+        const options = res.data.employees
+          .map(item => ({
+            label: Capitalise(item.full_name),
+            value: item.id
+          }));
+        setEmployeeOptions(options);
+      }
+    } catch (error) {
+      console.error("Failed to fetch employee:", error);
     }
   };
 
@@ -470,18 +484,19 @@ useEffect(() => {
   // Effects
   useEffect(() => {
     fetchCategories();
+    fetchEmployee();
   }, []);
 
-useEffect(() => {
-  if (id) {
-    fetchEditAssignedDetails();
-  }
-}, [id]);
+  useEffect(() => {
+    if (id) {
+      fetchEditAssignedDetails();
+    }
+  }, [id]);
 
   return (
     <div className="flex flex-col justify-between bg-gray-50 px-3 md:px-5 pt-2  w-full min-h-screen overflow-x-auto">
       {/* <ToastContainer position="top-right" autoClose={3000} /> */}
-      
+
       {loading ? (
         <Loader />
       ) : (
@@ -496,7 +511,7 @@ useEffect(() => {
                 Dashboard
               </p>
               <p>{">"}</p>
-                 <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/lead-assignedto")}>
+              <p className="text-sm md:text-md text-gray-500  cursor-pointer" onClick={() => navigate("/lead-assignedto")}>
                 Assigned To
               </p>
               <p>{">"}</p>
@@ -561,14 +576,14 @@ useEffect(() => {
                     options={statusDropdownOptions}
                     onChange={(e) => {
                       setStatusTouched(true);
-                      setFilters(prev => ({ ...prev, lead_status: e.value  || [] }));
+                      setFilters(prev => ({ ...prev, lead_status: e.value || [] }));
                     }}
                     placeholder="Select Status"
                     className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
 
-                                {/* Employee */}
+                {/* Employee */}
                 <div className="flex items-center justify-between gap-1 w-[50%]">
                   <label className="text-sm font-medium text-[#6B7280]">Employee</label>
                   <Dropdown
@@ -582,7 +597,30 @@ useEffect(() => {
                     className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
-                
+
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    setStatusTouched(true);
+
+                    if (!isFilterComplete()) return;
+
+                    fetchAssignedLeads({
+                      employee_id: selectedEmployeeDetails,
+                      category_id: filters.category,
+                      lead_status: filters.lead_status,
+                      start_date: filters.from_date,
+                      end_date: filters.to_date
+                    });
+
+                    // optional: reset selections when filtering
+                    setSelectedLeads([]);
+                  }}
+                  className="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                >
+                  Submit
+                </button>
               </div>
 
               {/* Filter validation message */}
@@ -711,44 +749,43 @@ useEffect(() => {
                     );
                   })} */}
 
-                  
-{leads.map((lead) => {
-  const isOtherEmployee = lead.already_assigned_another_employee === true;
 
-  const otherEmp = lead?.assigned_other_employees?.[0]; // first employee
+                  {leads.map((lead) => {
+                    const isOtherEmployee = lead.already_assigned_another_employee === true;
 
-  return (
-    <div
-      key={lead.id}
-      className={`p-3 rounded-lg border ${
-        isOtherEmployee
-          ? "bg-orange-100 border-orange-400"
-          : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        <input
-          type="checkbox"
-          className="mt-1"
-          checked={selectedLeads.includes(lead.id)}
-          disabled={isOtherEmployee}
-          onChange={() => handleToggle(lead.id)}
-        />
+                    const otherEmp = lead?.assigned_other_employees?.[0]; // first employee
 
-        <div className="flex flex-col gap-1 text-sm w-full">
-          <p className="font-medium">{lead.full_name}</p>
-          <p className="text-gray-500">{lead.phone}</p>
+                    return (
+                      <div
+                        key={lead.id}
+                        className={`p-3 rounded-lg border ${isOtherEmployee
+                          ? "bg-orange-100 border-orange-400"
+                          : "bg-gray-50 hover:bg-gray-100 border-gray-200"
+                          }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            className="mt-1"
+                            checked={selectedLeads.includes(lead.id)}
+                            disabled={isOtherEmployee}
+                            onChange={() => handleToggle(lead.id)}
+                          />
 
-          {isOtherEmployee && otherEmp && (
-            <p className="text-xs font-semibold text-orange-700">
-              Already Assigned to {otherEmp.full_name} ({otherEmp.gen_employee_id})
-            </p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-})}
+                          <div className="flex flex-col gap-1 text-sm w-full">
+                            <p className="font-medium">{lead.full_name}</p>
+                            <p className="text-gray-500">{lead.phone}</p>
+
+                            {isOtherEmployee && otherEmp && (
+                              <p className="text-xs font-semibold text-orange-700">
+                                Already Assigned to {otherEmp.full_name} ({otherEmp.gen_employee_id})
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
 
 
 
@@ -757,20 +794,20 @@ useEffect(() => {
 
               {/* Submit Button */}
               <div className="flex justify-between items-center mt-6">
-               <div className="text-sm font-medium text-gray-600">
-   
-    Selected: <span className="text-green-600 font-bold">{selectedLeads.length}</span> / {totalRecords}
-  </div>
+                <div className="text-sm font-medium text-gray-600">
+
+                  Selected: <span className="text-green-600 font-bold">{selectedLeads.length}</span> / {totalRecords}
+                </div>
                 <button
-                 onClick={handleUpdate} // Attach the function here
-  // disabled={selectedLeads.length === 0 || submitting}
+                  onClick={handleUpdate} // Attach the function here
+                  // disabled={selectedLeads.length === 0 || submitting}
                   // className={`px-6 py-2 rounded-lg ${
                   //   selectedLeads.length === 0 || submitting 
                   //     ? "bg-gray-400 cursor-not-allowed"
                   //     : "bg-green-600 hover:bg-green-700"
                   // } text-white font-medium`}
                   className={`px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium`}
-                
+
                 >
                   {submitting ? "Updating..." : "Update"}
                 </button>

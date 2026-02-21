@@ -38,8 +38,7 @@ import { set } from "zod";
 
 const Lead_Add_Assigned_Details = () => {
   let navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -47,15 +46,12 @@ const Lead_Add_Assigned_Details = () => {
   const [leads, setLeads] = useState([]);
   // console.log("leads :", leads)
   const [totalRecords, setTotalRecords] = useState(0);
-
   // console.log("edit value", editLeadForm);
   const storedDetatis = localStorage.getItem("pssuser");
   const parsedDetails = JSON.parse(storedDetatis);
   const userid = parsedDetails ? parsedDetails.id : null;
   const [rows, setRows] = useState(10);
-
   const [viewStatus, setViewStatus] = useState(null);
-
   const today = new Date().toISOString().split("T")[0];
   const [filters, setFilters] = useState({
     from_date: today,
@@ -139,30 +135,31 @@ const Lead_Add_Assigned_Details = () => {
     fetchAssignedLeads(reset);
   };
 
-  useEffect(() => {
-    if (isFilterComplete()) {
-      setFilterError("");
-      setShowLeadTable(true);
+  // auto filter submit
+  // useEffect(() => {
+  //   if (isFilterComplete()) {
+  //     setFilterError("");
+  //     setShowLeadTable(true);
 
-      fetchAssignedLeads({
-        category_id: filters.category, // objects
-        lead_status: filters.lead_status, // objects
-        start_date: filters.from_date,
-        end_date: filters.to_date,
-        employee_id: selectedEmployeeDetails,
-      });
-    } else {
-      setShowLeadTable(false);
-      setLeads([]);
-      setLoading(false);
-    }
-  }, [
-    filters.category,
-    filters.lead_status,
-    filters.from_date,
-    filters.to_date,
-    selectedEmployeeDetails,
-  ]);
+  //     fetchAssignedLeads({
+  //       category_id: filters.category, // objects
+  //       lead_status: filters.lead_status, // objects
+  //       start_date: filters.from_date,
+  //       end_date: filters.to_date,
+  //       employee_id: selectedEmployeeDetails,
+  //     });
+  //   } else {
+  //     setShowLeadTable(false);
+  //     setLeads([]);
+  //     setLoading(false);
+  //   }
+  // }, [
+  //   filters.category,
+  //   filters.lead_status,
+  //   filters.from_date,
+  //   filters.to_date,
+  //   selectedEmployeeDetails,
+  // ]);
 
   const applyFilters = () => {
     fetchAssignedLeads({
@@ -458,8 +455,27 @@ const Lead_Add_Assigned_Details = () => {
     }
   };
 
+  const fetchemployee = async () => {
+    try {
+      const res = await axiosInstance.get(`${API_URL}api/lead-management/assign-employee-leads`);
+
+      if (res.data.success) {
+        const options = res.data.employees
+          .map((item) => ({
+            label: Capitalise(item.full_name), // shown in dropdown
+            value: item.id, // sent to filter
+          }));
+
+        setEmployeeOptions(options);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch employee");
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchemployee();
   }, []);
   const STATUS_MAP = {
     open: "Open",
@@ -730,7 +746,7 @@ const Lead_Add_Assigned_Details = () => {
                 Assigned To
               </p>
               <p>{">"}</p>
-              <p className="text-sm  md:text-md  text-[#1ea600]">Add Lead</p>
+              <p className="text-sm  md:text-md  text-[#1ea600]">Assign Lead</p>
             </div>
 
             {/* Filter Section */}
@@ -803,18 +819,6 @@ const Lead_Add_Assigned_Details = () => {
                     Status
                   </label>
 
-                  {/* <MultiSelect
-                    value={filters.lead_status}
-                    options={statusDropdownOptions}
-                    onChange={(e) =>
-                      setFilters((prev) => ({ ...prev, lead_status: e.value }))
-                    }
-                    placeholder="Select Status"
-                    className="uniform-field h-10 w-full md:w-48 rounded-md border border-[#D9D9D9] text-sm"
-                    panelClassName="text-sm"
-                    filter
-                  /> */}
-
                   <MultiSelect
                     value={filters.lead_status}
                     options={statusDropdownOptions}
@@ -843,6 +847,29 @@ const Lead_Add_Assigned_Details = () => {
                     className="uniform-field w-full md:w-48 border border-gray-300 text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                   />
                 </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    if (!isFilterComplete()) {
+                      setStatusTouched(true);
+                      return;
+                    }
+
+                    setShowLeadTable(true);
+
+                    fetchAssignedLeads({
+                      category_id: filters.category,
+                      lead_status: filters.lead_status,
+                      start_date: filters.from_date,
+                      end_date: filters.to_date,
+                      employee_id: selectedEmployeeDetails,
+                    });
+                  }}
+                  className="px-5 py-2 bg-green-600 text-white rounded-md"
+                >
+                  Submit
+                </button>
               </div>
             </div>
             {statusTouched && !isFilterComplete() && (
@@ -884,17 +911,16 @@ px-2 py-2 md:px-6 md:py-6"
                         selectedLeads.includes(lead.id) ||
                         lead.isAssignedToSelected;
 
-                        const otherEmp = lead?.assigned_other_employees?.[0];
+                      const otherEmp = lead?.assigned_other_employees?.[0];
 
                       return (
                         <div
                           key={lead.id}
                           className={`p-3 rounded-lg border
-    ${
-      lead.showOrange
-        ? "bg-orange-100 border-orange-400"
-        : "bg-gray-50 hover:bg-gray-100"
-    }`}
+    ${lead.showOrange
+                              ? "bg-orange-100 border-orange-400"
+                              : "bg-gray-50 hover:bg-gray-100"
+                            }`}
                         >
                           <div className="flex items-start gap-3">
                             <input
@@ -921,11 +947,11 @@ px-2 py-2 md:px-6 md:py-6"
   </p>
 )} */}
 
-     {lead.isAssignedToOther && otherEmp && (
-            <p className="text-xs font-semibold text-orange-700">
-              Assigned to {otherEmp.full_name} ({otherEmp.gen_employee_id})
-            </p>
-          )}
+                              {lead.isAssignedToOther && otherEmp && (
+                                <p className="text-xs font-semibold text-orange-700">
+                                  Assigned to {otherEmp.full_name} ({otherEmp.gen_employee_id})
+                                </p>
+                              )}
 
                               {/* {lead.isAssignedToOther && (
                                 <p className="text-xs font-semibold text-orange-700">
