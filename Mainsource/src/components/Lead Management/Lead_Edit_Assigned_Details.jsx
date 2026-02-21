@@ -120,14 +120,14 @@ const Lead_Edit_Assigned_Details = () => {
         const assignedIds = (data.entries || []).map(entry => entry.lead.id);
 
 
-        fetchAssignedLeads({
-          employee_id: empOption.value,
-          category_id: newFilters.category, // Pass as array, let the function handle joining
-          lead_status: newFilters.lead_status, // Pass as array
-          start_date: newFilters.from_date,
-          end_date: newFilters.to_date,
-          assignedLeadIds: assignedIds // Pass this so they stay checked!
-        });
+        // fetchAssignedLeads({
+        //   employee_id: empOption.value,
+        //   category_id: newFilters.category, // Pass as array, let the function handle joining
+        //   lead_status: newFilters.lead_status, // Pass as array
+        //   start_date: newFilters.from_date,
+        //   end_date: newFilters.to_date,
+        //   assignedLeadIds: assignedIds // Pass this so they stay checked!
+        // });
         // map leads
         // const mappedLeads = (data.entries || []).map(entry => ({
         //   id: entry.lead.id,
@@ -320,23 +320,13 @@ const Lead_Edit_Assigned_Details = () => {
   };
 
   // Handle employee change
-  const handleEmployeeChange = (e) => {
-    const empId = e.value;
-    const emp = employeeOptions.find(o => o.value === empId);
+ const handleEmployeeChange = (e) => {
+  const empId = e.value;
+  const emp = employeeOptions.find(o => o.value === empId);
 
-    setSelectedEmployeeDetails(empId);  // update selected employee
-    setSelectedEmployeeName(emp?.label || "");
-
-    // Apply all filters when employee changes
-    fetchAssignedLeads({
-      employee_id: empId,
-      category: filters.category,
-      lead_status: filters.lead_status,
-      from_date: filters.from_date,
-      to_date: filters.to_date
-    });
-  };
-
+  setSelectedEmployeeDetails(empId);
+  setSelectedEmployeeName(emp?.label || "");
+};
   // Handle lead selection
   //  const handleToggle = (leadId) => {
 
