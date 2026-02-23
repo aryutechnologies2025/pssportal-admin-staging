@@ -310,6 +310,16 @@ const Contract_Report_Detail = () => {
 
   console.log("dashboardData", dashboardData);
 
+  const handleYesterdayFilter = () => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const formattedDate = yesterday.toISOString().split("T")[0];
+
+  setFromDate(formattedDate);   // update input field
+  fetchDashboard(formattedDate); // call API
+};
+
   const handleFromDateChange = (e) => {
     const date = e.target.value;
 
@@ -441,6 +451,16 @@ const closePopup = () => {
       /> */}
               {/* </div> */}
               <div className="flex flex-col sm:flex-row gap-4 items-end p-3 rounded-lg w-full md:w-auto">
+               
+                
+  {/* Yesterday Button */}
+  <button
+    onClick={handleYesterdayFilter}
+    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
+  >
+    Yesterday
+  </button>
+               
                 {/* From Date only */}
                 <div className="w-full sm:w-auto">
                   <label className="block text-sm font-medium mb-1">
@@ -702,7 +722,7 @@ onClick={() => openEmployeePopup(rowData, "joining")}
           </h2>
 
           <p className="text-green-100 text-sm mt-1">
-            Total {popupType === "relieved" ? "Relieved" : "Joined"}:{" "}
+            Total {popupType === "relieved" ? "Relieved" : "Joining"}:{" "}
             {selectedCompany?.count || 0}
           </p>
         </div>
