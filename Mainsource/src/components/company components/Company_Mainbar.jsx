@@ -42,6 +42,7 @@ const Company_Mainbar = () => {
   // console.log("companies", companies);
   const [allCompanies, setAllCompanies] = useState([]);
   const [companyName, setCompanyName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [address, setAddress] = useState("");
   const [gstNumber, setGstNumber] = useState("");
   const [phone, setPhone] = useState("");
@@ -68,6 +69,7 @@ const Company_Mainbar = () => {
   const [editRow, setEditRow] = useState(null);
 
   const [companyNameEdit, setCompanyNameEdit] = useState("");
+  const [displayNameEdit, setDisplayNameEdit] = useState("");
   const [addressEdit, setAddressEdit] = useState("");
   const [gstNumberEdit, setGstNumberEdit] = useState("");
   const [websiteEdit, setWebsiteEdit] = useState("");
@@ -95,6 +97,7 @@ const Company_Mainbar = () => {
 
   const [editFormData, setEditFormData] = useState({
     companyName: "",
+    displayName: "",
     address: "",
     gstNumber: "",
     website: "",
@@ -166,6 +169,9 @@ const Company_Mainbar = () => {
   };
 
   const validateCompanyName = (name) => {
+    return name && name.trim().length >= 3;
+  };
+  const validateDisplayName = (name) => {
     return name && name.trim().length >= 3;
   };
 
@@ -257,6 +263,7 @@ const Company_Mainbar = () => {
 
       setEditFormData({
         companyName: data.company_name || "",
+        displayName: data.display_name || "",
         address: data.address || "",
         gstNumber: data.gst_number || "",
         website: data.website_url || "",
@@ -418,6 +425,7 @@ const Company_Mainbar = () => {
   //reset form
   const resetForm = () => {
     setCompanyName("");
+    setDisplayName("");
     setAddress("");
     setGstNumber("");
     setWebsite("");
@@ -492,6 +500,7 @@ const Company_Mainbar = () => {
       const mappedCompanies = list.map((item) => ({
         id: item?._id || item?.id,
         companyName: item.company_name || "",
+        displayName: item.display_name || "",
         address: item.address || "",
         gstNumber: item.gst_number || "",
         website: item.website_url || "",
@@ -531,6 +540,11 @@ const Company_Mainbar = () => {
     else if (!validateCompanyName(companyName))
       newErrors.companyName = "Enter a valid Company Name";
 
+    //  Company Display Name
+    if (!displayName.trim()) newErrors.displayName = "Company Name is required";
+    else if (!validateDisplayName(displayName))
+      newErrors.displayName = "Enter a valid Company Name";
+
     //  Address
     if (!address.trim()) newErrors.address = "Address is required";
     else if (!validateAddress(address))
@@ -567,6 +581,7 @@ const Company_Mainbar = () => {
         `${API_URL}api/company/create`,
         {
           company_name: companyName.trim(),
+          display_name: displayName.trim(),
           address: address.trim(),
           gst_number: gstNumber.trim(),
           website_url: website?.trim() || null,
@@ -668,6 +683,9 @@ const Company_Mainbar = () => {
     if (!editFormData.companyName?.trim()) {
       errors.companyName = "Required";
     }
+    if (!editFormData.displayName?.trim()) {
+      errors.displayName = "Required";
+    }
 
     if (editFormData.status === "" || editFormData.status === null) {
       errors.status = "Required";
@@ -679,6 +697,7 @@ const Company_Mainbar = () => {
     try {
       const payload = {
         company_name: editFormData.companyName.trim(),
+        display_name: editFormData.displayName.trim(),
         address: editFormData.address,
         gst_number: editFormData.gstNumber,
         website_url: editFormData.website,
@@ -765,6 +784,10 @@ const Company_Mainbar = () => {
       header: "Company Name",
       field: "companyName",
     },
+    // {
+    //   header: "Company Display Name",
+    //   field: "displayName",
+    // },
     // {
     //   header: "Website",
     //   field: "website",
@@ -955,6 +978,7 @@ const Company_Mainbar = () => {
                 globalFilter={globalFilter}
                 globalFilterFields={[
                   "companyName",
+                  "displayName",
                   "website",
                   "supportEmail",
                   "billingEmail",
@@ -1019,6 +1043,30 @@ const Company_Mainbar = () => {
                     {errors?.companyName && (
                       <p className="text-red-500 text-sm mb-4">
                         {errors?.companyName}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                                {/* company display name */}
+                <div className="mt-5 flex  justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+             Display Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px] border-[#D9D9D9]">
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => {
+                        setDisplayName(e.target.value);
+                        clearError("displayName");
+                      }}
+                      placeholder="Enter Company Display Name"
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors?.displayName && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors?.displayName}
                       </p>
                     )}
                   </div>
@@ -1681,6 +1729,35 @@ const Company_Mainbar = () => {
                     {errors?.companyNameEdit && (
                       <p className="text-red-500 text-sm mb-4">
                         {errors?.companyNameEdit}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* company display name */}
+                <div className="mt-5 flex justify-between items-center">
+                  <label className="block text-md font-medium mb-2">
+                  Display Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="w-[50%] lg:w-[60%] rounded-[10px]">
+                    <input
+                      type="text"
+                      
+                      value={editFormData.displayName}
+                      id="displayNameEdit"
+                      onChange={(e) =>
+                        setEditFormData({
+                          ...editFormData,
+                          displayName: e.target.value,
+                        })
+                      }
+                      // onChange={(e) => setdisplayNameEdit(e.target.value)}
+                      placeholder="Enter Company Name"
+                      className="w-full px-2 py-2 border border-gray-300  placeholder:text-sm placeholder:font-normal rounded-[10px] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {errors?.displayNameEdit && (
+                      <p className="text-red-500 text-sm mb-4">
+                        {errors?.displayNameEdit}
                       </p>
                     )}
                   </div>
