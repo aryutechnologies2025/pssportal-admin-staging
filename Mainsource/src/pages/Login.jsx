@@ -9,11 +9,12 @@ import { FaEyeSlash } from "react-icons/fa";
 import { LuUser } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { API_URL } from "../Config";
+// import { API_URL, CAPCHA_URL } from "../Config";
 import axiosInstance from "../axiosConfig.js";
 import ReCAPTCHA from "react-google-recaptcha";
 import api from "../api.js"
 import Api from "../api.js";
+import { API_URL } from "../Config.js";
 
 const Login = () => {
   let navigate = useNavigate();
@@ -228,6 +229,12 @@ const Login = () => {
           {showPassword ? <FaEye /> : <FaEyeSlash />}
         </span>
       </div>
+
+   {/* <ReCAPTCHA
+            // sitekey="6LdBR6wqAAAAAKiqjNXKIxWOyBtdn3Vx_-MdRc8-" //local
+            sitekey={CAPCHA_URL} //live
+            onChange={handleCaptchaChange}
+          /> */}
 
       {error?.message && (
         <p className="text-red-500 text-sm text-center">{error.message}</p>
