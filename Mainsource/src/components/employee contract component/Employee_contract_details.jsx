@@ -1794,7 +1794,7 @@ const Employee_contract_details = () => {
             {/* Table Section */}
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container mt-4">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
                   {/* Entries per page */}
                   <div className="flex items-center gap-2">
                     {/* <span className="font-semibold text-base text-[#6B7280]">
@@ -1814,8 +1814,7 @@ const Employee_contract_details = () => {
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 md:gap-11">
-                    {/* Search box */}
+                                      {/* Search box */}
                     <div className="relative w-64">
                       <FiSearch
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -1837,6 +1836,9 @@ const Employee_contract_details = () => {
                         </button>
                       )}
                     </div>
+
+                  <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
+
                     <div className="hidden md:flex items-center">
                       <button
                         onClick={openImportAddModal}

@@ -81,14 +81,14 @@ const LeadManagement_Details = () => {
 
     const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
     const [selectedEmployee, setSelectedEmployee] = useState([]);
-     const [selectedCompany, setSelectedCompany] = useState(null);
+     const [selectedCompany, setSelectedCompany] = useState([]);
       const [companyOptions, setCompanyOptions] = useState([]);
 
-       const companyDropdown = companyOptions.map((c) => ({
-    label: c.label,
-    value: String(c.value),
-    company_emp_id: c.company_emp_id,
-  }));
+      const companyDropdown = companyOptions.map((company) => ({
+  label: company.company_name, 
+  value: company.id,             
+  company_emp_id: company.company_emp_id
+}));
 
 
   const [statusForm, setStatusForm] = useState({
@@ -96,7 +96,8 @@ const LeadManagement_Details = () => {
     notes: "",
     followUp: "no",
     followUpDate: "",
-    epoDate: ""
+    epoDate: "",
+    company_id:[] 
   });
 
   const [page, setPage] = useState(1);
@@ -136,6 +137,8 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     category: null,
     lead_status: "",
     employee_id: null,
+  //   assigned_employee: "",
+  // assigned_date: ""
   });
 
   const handleApplyFilter = () => {
@@ -201,13 +204,27 @@ const [selectedCategory, setSelectedCategory] = useState(null);
     setTimeout(() => setIsViewAnimating(true), 50);
   };
   //  close view
-  const closeViewModal = () => {
+   const closeViewModal = () => {
     setIsViewAnimating(false);
     setTimeout(() => {
       setIsViewModalOpen(false);
       setViewContact(null);
     }, 500);
   };
+
+ const closeStatusModal = () => {
+  setIsViewStatusOpen(false);
+  setViewStatus(null);
+  setSelectedCompany([]);
+  setStatusForm({
+    status: "",
+    notes: "",
+    followUp: "no",
+    followUpDate: "",
+    epoDate: "",
+    company_ids: []
+  });
+};
   // status list open
   const openStatusView = async (row) => {
     setStatusViewLead(row);
@@ -403,6 +420,9 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       created_by: userid,
       scheduled_date: statusForm.epoDate || null,
       followup_date: statusForm.followUp === "yes" ? statusForm.followUpDate : null,
+       company_id: statusForm.company_id.length
+  ? statusForm.company_id.join(",")
+  : null
     };
 
       if (statusForm.followUp === "yes") {
@@ -426,8 +446,10 @@ setTimeout(() => {
         notes: "",
         followUp: "no",
         followUpDate: "",
+        epoDate: "",
+      company_id: []
       });
-
+ setSelectedCompany([]);
 
     } catch (error) {
       console.error("Status update failed", error);
@@ -667,6 +689,11 @@ const fetchLead = async (appliedFilters) => {
       setLeads(data);
       setTotalRecords(data.length);
       setCityOptions(res.data.cities || []);
+
+       if (res.data.companies) {
+      setCompanyOptions(res.data.companies);
+    }
+
     }
   } catch (err) {
     console.error(err);
@@ -1322,6 +1349,53 @@ const statusDropdownOptions = [
                   />
                     
                 </div>
+
+                {/* Assigned Employee */}
+{/* <div className="flex flex-col gap-1">
+  <label className="text-sm font-medium text-[#6B7280]">
+    Assigned Employee
+  </label>
+
+  <Dropdown
+    value={filters.assigned_employee}
+    options={employeeDropdownOptions}
+    onChange={(e) =>
+      setFilters(prev => ({
+        ...prev,
+        assigned_employee: e.value
+      }))
+    }
+    placeholder="Select Employee"
+    filter
+    filterPlaceholder="Search employee"
+    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
+    panelClassName="text-sm"
+  />
+</div> */}
+
+
+{/* Assigned Date */}
+{/* <div className="flex flex-col gap-1">
+  <label className="text-sm font-medium text-[#6B7280]">
+    Assigned Date
+  </label>
+
+  <Dropdown
+    value={filters.assigned_date}
+    options={assignedDateOptions}
+    onChange={(e) =>
+      setFilters(prev => ({
+        ...prev,
+        assigned_date: e.value
+      }))
+    }
+    placeholder="Select Date"
+    filter
+    filterPlaceholder="Search date"
+    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
+    panelClassName="text-sm"
+  />
+</div> */}
 
                                 {/* employee */}
                                 {/* <div className="flex items-center justify-between gap-1 w-[50%]">
@@ -2213,7 +2287,7 @@ px-2 py-2 md:px-6 md:py-6">
 
         {/* company */}
 
-                     {/* <div>
+                     <div>
           <label className="block text-sm font-medium mb-1">Company</label>
 
                       <div className="w-[60%] md:w-[50%]">
@@ -2223,21 +2297,19 @@ px-2 py-2 md:px-6 md:py-6">
                           optionLabel="label"
                           optionValue="value"
                           placeholder="Select Company"
+                          filterPlaceholder="Search companies..."
                           filter
                           className="w-full border border-gray-300 rounded-lg"
                           onChange={(e) => {
-                            setSelectedCompany(e.value);
-                            const obj = companyDropdown.find(
-                              (item) => item.value === e.value,
-                            );
-                            setStatusForm({
-                              ...statusForm,
-                              company_id: obj.company_id,
-                            });
-                          }}
+        setSelectedCompany(e.value);
+        setStatusForm({
+          ...statusForm,
+          company_id: e.value
+        });
+      }}
                         />
                       </div>
-                    </div> */}
+                    </div>
 
         {/* Interested */}
         {statusForm.status === "interested" && (
@@ -2347,8 +2419,9 @@ px-2 py-2 md:px-6 md:py-6">
                 <th className="border px-3 py-2">Status</th>
                 <th className="border px-3 py-2">Follow Up</th>
                 <th className="border px-3 py-2">Notes</th>
+                <th className="border px-3 py-2">Company</th>
                 <th className="border px-3 py-2">Created Date</th>
-                <th className="border px-3 py-2">Follow Date</th>
+                {/* <th className="border px-3 py-2">Follow Date</th> */}
                 <th className="border px-3 py-2">Scheduled Date</th>
               </tr>
             </thead>
@@ -2371,11 +2444,19 @@ px-2 py-2 md:px-6 md:py-6">
                       {Capitalise(item.notes || "-")}
                     </td>
                     <td className="border px-3 py-2">
+  {item.company_id?.split(",")
+    ?.map(id =>
+      companyDropdown.find(c => c.value == id)?.label
+    )
+    ?.filter(Boolean)
+    ?.join(", ") || "-"}
+</td>
+                    <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.created_at)}
                     </td>
-                    <td className="border px-3 py-2">
+                    {/* <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.followup_date)}
-                    </td>
+                    </td> */}
                     <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.scheduled_date)}
                     </td>
@@ -2433,8 +2514,9 @@ px-2 py-2 md:px-6 md:py-6">
                           <th className="border px-3 py-2">Status</th>
                           <th className="border px-3 py-2">Follow Up</th>
                           <th className="border px-3 py-2">Notes</th>
+                          <th className="border px-3 py-2">Company</th>
                           <th className="border px-3 py-2">Created Date</th>
-                          <th className="border px-3 py-2">Follow Date</th>
+                          {/* <th className="border px-3 py-2">Follow Date</th> */}
                           <th className="border px-3 py-2">Scheduled Date</th>
                         </tr>
                       </thead>
@@ -2456,7 +2538,15 @@ px-2 py-2 md:px-6 md:py-6">
                                 {item.notes || "-"}
                               </td>
                               <td className="border px-3 py-2">
-                                {formatToDDMMYYYY(item.followup_date)}
+  {item.company_id?.split(",")
+    ?.map(id =>
+      companyDropdown.find(c => c.value == id)?.label
+    )
+    ?.filter(Boolean)
+    ?.join(", ") || "-"}
+</td>
+                              <td className="border px-3 py-2">
+                                {formatToDDMMYYYY(item.created_at)}
                               </td>
                             </tr>
                           ))

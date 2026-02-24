@@ -1941,8 +1941,11 @@ const ContractCandidates_Mainbar = () => {
             {/* Table Section */}
             <div className="flex flex-col  w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container  mt-4">
-                <div className="flex flex-wrap md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                  {/* Entries per page */}
+                <div className="flex flex-col  gap-4 mb-4">
+
+
+                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    {/* Entries per page */}
                   <div className="flex items-center gap-2">
                     {/* <span className="font-semibold text-base text-[#6B7280]">
                   Show
@@ -1954,16 +1957,15 @@ const ContractCandidates_Mainbar = () => {
                         value: v,
                       }))}
                       onChange={(e) => onRowsChange(e.value)}
-                      className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                      className="w-16 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
                       Entries Per Page
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-11">
                     {/* Search box */}
-                    <div className="relative w-64">
+                    <div className="relative w-full md:w-72">
                       <FiSearch
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                         size={18}
@@ -1984,6 +1986,10 @@ const ContractCandidates_Mainbar = () => {
                         </button>
                       )}
                     </div>
+                </div>
+
+                  <div className="flex flex-wrap items-center gap-4 justify-end">
+                  
 
                     <div className="hidden md:flex items-center">
                       <button
