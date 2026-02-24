@@ -595,11 +595,11 @@ const LeadAssignedTo = () => {
       body: (row) => row.entries_count || 0,
     },
 
-    //  {
-    //    field: "created_time",
-    //    header: "Date",
-    //    body: (row) => formatToDDMMYYYY(row.created_time),
-    //  },
+     {
+       field: "created_at",
+       header: "Assigned Date",
+       body: (row) => formatToDDMMYYYY(row.created_at),
+     },
     //  {
     //     field: "lead_status",
     //     header: "Status",

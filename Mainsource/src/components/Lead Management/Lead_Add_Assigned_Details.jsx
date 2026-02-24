@@ -868,7 +868,7 @@ const Lead_Add_Assigned_Details = () => {
                   }}
                   className="px-5 py-2 bg-green-600 text-white rounded-md"
                 >
-                  Submit
+                  Apply
                 </button>
               </div>
             </div>

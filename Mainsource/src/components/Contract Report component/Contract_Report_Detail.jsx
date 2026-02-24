@@ -741,6 +741,7 @@ onClick={() => openEmployeePopup(rowData, "joining")}
         (name, index) => ({
           "S.No": index + 1,
           "Employee Name": name,
+          "Company Name": selectedCompany?.company_name || "-",
         })
       );
     } else {
@@ -749,6 +750,7 @@ onClick={() => openEmployeePopup(rowData, "joining")}
           "S.No": index + 1,
           "Employee ID": emp?.employee_id || "-",
           "Employee Name": emp?.employee_name || "-",
+          "Company Name": selectedCompany?.company_name || "-",
         })
       );
     }
@@ -775,6 +777,7 @@ onClick={() => openEmployeePopup(rowData, "joining")}
         (name, index) => ({
           "S.No": index + 1,
           "Employee Name": name,
+          "Company Name": selectedCompany?.company_name || "-",
         })
       );
     } else {
@@ -783,6 +786,7 @@ onClick={() => openEmployeePopup(rowData, "joining")}
           "S.No": index + 1,
           "Employee ID": emp?.employee_id || "-",
           "Employee Name": emp?.employee_name || "-",
+          "Company Name": selectedCompany?.company_name || "-",
         })
       );
     }

@@ -81,6 +81,15 @@ const LeadManagement_Details = () => {
 
     const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState(null);
     const [selectedEmployee, setSelectedEmployee] = useState([]);
+     const [selectedCompany, setSelectedCompany] = useState(null);
+      const [companyOptions, setCompanyOptions] = useState([]);
+
+       const companyDropdown = companyOptions.map((c) => ({
+    label: c.label,
+    value: String(c.value),
+    company_emp_id: c.company_emp_id,
+  }));
+
 
   const [statusForm, setStatusForm] = useState({
     status: "",
@@ -2202,6 +2211,34 @@ px-2 py-2 md:px-6 md:py-6">
           </select>
         </div>
 
+        {/* company */}
+
+                     {/* <div>
+          <label className="block text-sm font-medium mb-1">Company</label>
+
+                      <div className="w-[60%] md:w-[50%]">
+                        <MultiSelect
+                          value={selectedCompany}
+                          options={companyDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Company"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setSelectedCompany(e.value);
+                            const obj = companyDropdown.find(
+                              (item) => item.value === e.value,
+                            );
+                            setStatusForm({
+                              ...statusForm,
+                              company_id: obj.company_id,
+                            });
+                          }}
+                        />
+                      </div>
+                    </div> */}
+
         {/* Interested */}
         {statusForm.status === "interested" && (
           <div>
@@ -2312,7 +2349,7 @@ px-2 py-2 md:px-6 md:py-6">
                 <th className="border px-3 py-2">Notes</th>
                 <th className="border px-3 py-2">Created Date</th>
                 <th className="border px-3 py-2">Follow Date</th>
-                <th className="border px-3 py-2">scheduled Date</th>
+                <th className="border px-3 py-2">Scheduled Date</th>
               </tr>
             </thead>
             <tbody>
@@ -2396,7 +2433,9 @@ px-2 py-2 md:px-6 md:py-6">
                           <th className="border px-3 py-2">Status</th>
                           <th className="border px-3 py-2">Follow Up</th>
                           <th className="border px-3 py-2">Notes</th>
-                          <th className="border px-3 py-2">Date</th>
+                          <th className="border px-3 py-2">Created Date</th>
+                          <th className="border px-3 py-2">Follow Date</th>
+                          <th className="border px-3 py-2">Scheduled Date</th>
                         </tr>
                       </thead>
 
