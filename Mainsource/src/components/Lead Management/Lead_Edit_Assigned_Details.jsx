@@ -120,14 +120,14 @@ const Lead_Edit_Assigned_Details = () => {
         const assignedIds = (data.entries || []).map(entry => entry.lead.id);
 
 
-        // fetchAssignedLeads({
-        //   employee_id: empOption.value,
-        //   category_id: newFilters.category, // Pass as array, let the function handle joining
-        //   lead_status: newFilters.lead_status, // Pass as array
-        //   start_date: newFilters.from_date,
-        //   end_date: newFilters.to_date,
-        //   assignedLeadIds: assignedIds // Pass this so they stay checked!
-        // });
+        fetchAssignedLeads({
+          employee_id: empOption.value,
+          category_id: newFilters.category, // Pass as array, let the function handle joining
+          lead_status: newFilters.lead_status, // Pass as array
+          start_date: newFilters.from_date,
+          end_date: newFilters.to_date,
+          assignedLeadIds: assignedIds // Pass this so they stay checked!
+        });
         // map leads
         // const mappedLeads = (data.entries || []).map(entry => ({
         //   id: entry.lead.id,
@@ -609,7 +609,7 @@ const Lead_Edit_Assigned_Details = () => {
                   }}
                   className="px-5 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                 >
-                  Submit
+                  Apply
                 </button>
               </div>
 

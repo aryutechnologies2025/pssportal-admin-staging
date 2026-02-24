@@ -1324,15 +1324,7 @@ const Dashboard_Mainbar = () => {
                   <p className="text-sm text-gray-600">Total Attendance</p>
                   <h3
                     className="text-2xl font-bold text-red-700 mt-3 cursor-pointer"
-                    onClick={() =>
-                      openAttendance(
-                        "All Employees",
-                        [
-          ...(dashboardData?.summary?.present_employee_list || []),
-          ...(dashboardData?.summary?.absent_employee_list || [])
-        ]
-                      )
-                    }
+                
                   >
                     
                     {dashboardData?.total_attendance ||" 0/0"}
@@ -1834,7 +1826,7 @@ const Dashboard_Mainbar = () => {
          
             </div>
 
-            {/* work repoet popup */}
+            {/* work report popup */}
 
             {showPopup && (
               <div
