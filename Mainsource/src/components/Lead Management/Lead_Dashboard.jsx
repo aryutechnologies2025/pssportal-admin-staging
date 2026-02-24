@@ -590,7 +590,7 @@ const Lead_Dashboard = () => {
                           // onClick={() => handleCategoryClicklead(rowData)}
                           className="text-gray-600 hover:text-gray-800 font-medium hover:underline"
                         >
-                          {rowData.employee_id}
+                          {rowData.employee.gen_employee_id}
                         </button>
                       )}
                     />
@@ -602,7 +602,7 @@ const Lead_Dashboard = () => {
                           onClick={() => handleCategoryClicklead(rowData)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
-                          {rowData.employee_name}
+                          {rowData.employee.full_name}
                         </button>
                       )}
                     />
@@ -612,7 +612,7 @@ const Lead_Dashboard = () => {
                           onClick={() => handleCategoryClicklead(rowData)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
-                          {rowData.assign_count}
+                          {rowData.entries_count}
                         </button>)} />
                          
                   </DataTable>
