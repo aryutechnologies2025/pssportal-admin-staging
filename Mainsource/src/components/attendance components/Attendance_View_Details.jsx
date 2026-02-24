@@ -278,6 +278,46 @@ const Attendance_View_Details = () => {
     });
   };
 
+  const handleExport = async () => {
+    if (!id) {
+      toast.error("Attendance ID missing");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.get(
+        `api/attendance/export/${id}`,
+        {
+          responseType: "blob", // 🔥 important for file download
+        }
+      );
+
+
+      const companyName =
+        data?.company?.display_name ||
+        data?.company?.company_name ||
+        "Company";
+
+      const attendanceDate = data?.attendance_date || "date";
+
+      const fileName = `${companyName.replace(/\s+/g, "_")}_${attendanceDate}.csv`;
+      // Create file download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName); // 📌 changed to .csv
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Attendance exported successfully");
+
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed");
+    }
+  };
   const handleAttendanceChange = (id, status) => {
     setAttendanceData((prev) =>
       prev.map((emp) =>
@@ -669,11 +709,19 @@ const Attendance_View_Details = () => {
                         {counts?.not_marked ?? 0}
                       </span>
                     </div>
+                    <button
+                      onClick={handleExport}
+                      disabled={saving}
+                      className="bg-gray-500 hover:bg-gray-700 text-white text-sm md:text-base px-5 py-2 rounded-lg disabled:opacity-50"
+                    >
+                      Export
+                    </button>
                   </div>
 
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 mt- md:mt-0">
+
                   <button
                     onClick={() => navigate("/attendance")}
                     className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-2 md:px-5  py-1 md:py-2  rounded-lg transition-all duration-200"
@@ -750,7 +798,7 @@ const Attendance_View_Details = () => {
                 rows={rows}
                 rowsPerPageOptions={[10, 20, 50]}
                 globalFilter={globalFilter}
-                globalFilterFields={["contract_employee.name","contract_employee.employee_id", "attendance"]}
+                globalFilterFields={["contract_employee.name", "contract_employee.employee_id", "attendance"]}
                 showGridlines
                 resizableColumns
                 className="mt-4"
