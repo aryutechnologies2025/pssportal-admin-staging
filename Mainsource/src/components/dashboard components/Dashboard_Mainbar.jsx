@@ -37,6 +37,8 @@ import { useDateUtils } from "../../Utils/useDateUtils";
 import { Capitalise } from "../../hooks/useCapitalise";
 import exportToCSV from "../../Utils/exportToCSV";
 import exportToPDF from "../../Utils/exportToPDF";
+import autoTable from "jspdf-autotable";
+import jsPDF from "jspdf";
 
 
 const Dashboard_Mainbar = () => {
@@ -1273,17 +1275,20 @@ const Dashboard_Mainbar = () => {
                     </button>
                   </div>
                 </div>
+
+
               </div>
 
-              {/* <h2 className="text-lg font-semibold mt-4 mb-2">
+              <h2 className="text-lg font-semibold mt-4 mb-2">
                 Company Attendance Summary
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+            
                 {dashboardData?.attendance_summary?.map((item, index) => (
                   <>
-                   
-                    <div
+                    {/* Marked */}
+                    <div key={index}
                       className="p-4 rounded-2xl border bg-blue-50 cursor-pointer hover:shadow-md transition"
                       onClick={() =>
                         openCompanyAttendancePopup(
@@ -1298,7 +1303,7 @@ const Dashboard_Mainbar = () => {
                       </h3>
                     </div>
 
-                  
+                    {/* Not Marked */}
                     <div
                       className="p-4 rounded-2xl border bg-yellow-200 cursor-pointer hover:shadow-md transition"
                       onClick={() =>
@@ -1313,9 +1318,30 @@ const Dashboard_Mainbar = () => {
                         {item.not_marked}
                       </h3>
                     </div>
+
+                                     {/* Total attendance */}
+                <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition">
+                  <p className="text-sm text-gray-600">Total Attendance</p>
+                  <h3
+                    className="text-2xl font-bold text-red-700 mt-3 cursor-pointer"
+                    onClick={() =>
+                      openAttendance(
+                        "All Employees",
+                        [
+          ...(dashboardData?.summary?.present_employee_list || []),
+          ...(dashboardData?.summary?.absent_employee_list || [])
+        ]
+                      )
+                    }
+                  >
+                    
+                    {dashboardData?.total_attendance ||" 0/0"}
+                  </h3>
+                </div>
+
                   </>
                 ))}
-              </div> */}
+              </div>
             </div>
 
             {/* dashboard  */}
@@ -1331,12 +1357,12 @@ const Dashboard_Mainbar = () => {
     </h2>
 
     <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-      {dashboardData?.attendance_summary?.length || 0}
+      {dashboardData?.company_wise_summary?.length || 0}
     </span>
   </div>
 
   <div className="space-y-4 h-[320px] overflow-auto pr-1">
-    {(dashboardData?.attendance_summary || []).map((rowData, index) => (
+    {(dashboardData?.company_wise_summary || []).map((rowData, index) => (
       <div
         key={index}
         className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200"
@@ -1825,12 +1851,31 @@ const Dashboard_Mainbar = () => {
                       {popupTitle}
                     </h2>
 
+ <div className="flex items-center gap-3">
+
+    {/* Excel Button */}
+    <button
+      onClick={() => exportToCSV(employeeList, "Work_Report", popupTitle)}
+      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+    >
+      Excel
+    </button>
+
+    {/* PDF Button */}
+    <button
+      onClick={() => exportToPDF(employeeList, "Work_Report", popupTitle)}
+      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+    >
+      PDF
+    </button>
+
                     <button
                       onClick={() => setShowPopup(false)}
                       className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
                     >
                       ✕
                     </button>
+                  </div>
                   </div>
 
                   {/* Body */}
@@ -1906,6 +1951,23 @@ const Dashboard_Mainbar = () => {
                       {popupTitle}
                     </h2>
 
+ <div className="flex items-center gap-3">
+
+    {/* Excel Button */}
+    <button
+      onClick={() => exportToCSV(attendancelist, "Present_Employees")}
+      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+    >
+      Excel
+    </button>
+
+    {/* PDF Button */}
+    <button
+      onClick={() => exportToPDF(attendancelist, "Present_Employees", popupTitle)}
+      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+    >
+      PDF
+    </button>
                     <button
                       onClick={() => setShowPopupattendance(false)}
                       className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
@@ -1913,6 +1975,7 @@ const Dashboard_Mainbar = () => {
                       ✕
                     </button>
                   </div>
+</div>
 
                   {/* Body */}
                   <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
@@ -2091,7 +2154,7 @@ const Dashboard_Mainbar = () => {
 
     {/* Excel Button */}
     <button
-      onClick={() => exportToCSV(absentPopupData, "Absent_Employees")}
+      onClick={() => exportToCSV(futureEmpPopupData, "Future_Employees")}
       className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
     >
       Excel
@@ -2099,7 +2162,7 @@ const Dashboard_Mainbar = () => {
 
     {/* PDF Button */}
     <button
-      onClick={() => exportToPDF(absentPopupData, "Absent_Employees", absentPopupTitle)}
+      onClick={() => exportToPDF(futureEmpPopupData, "Future_Employees", futureEmpPopupTitle)}
       className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
     >
       PDF
@@ -2192,25 +2255,75 @@ const Dashboard_Mainbar = () => {
                     <h2 className="text-white text-base sm:text-lg font-bold">
                       {absentPopupTitle}
                     </h2>
+ <div className="flex items-center gap-3">
+          {/* Excel Button */}
+          <button
+            onClick={() => {
+              // Format data for Excel - only required fields
+              const formattedData = absentPopupData.map((emp, index) => ({
+                "S.No": index + 1,
+                "Employee Name": emp?.employee_name || "-",
+                "Employee ID": emp?.employee_id || "-",
+                "Absent Dates": emp?.absent_dates?.join(", ") || "-",
+                "Continuous Days": emp?.continuous_days || "N/A"
+              }));
+              exportToCSV(formattedData, "Absent_Employees");
+            }}
+            className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+          >
+            Excel
+          </button>
 
-                   <div className="flex items-center gap-3">
+          {/* PDF Button */}
+          <button
+            onClick={() => {
+              if (!absentPopupData || absentPopupData.length === 0) return;
 
-    {/* Excel Button */}
-    <button
-      onClick={() => exportToCSV(absentPopupData, "Absent_Employees")}
-      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      CSV
-    </button>
+              const doc = new jsPDF();
+              doc.text(absentPopupTitle, 14, 15);
 
-   
-    {/* PDF Button */}
-    <button
-      onClick={() => exportToPDF(absentPopupData, "Absent_Employees", absentPopupTitle)}
-      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      PDF
-    </button>
+              const tableColumn = [
+                "S.No",
+                "Employee Name",
+                "Employee ID",
+                "Absent Dates",
+                "Continuous Days"
+              ];
+
+              const tableRows = absentPopupData.map((emp, index) => ([
+                index + 1,
+                emp?.employee_name || "-",
+                emp?.employee_id || "-",
+                emp?.absent_dates?.join(", ") || "-",
+                emp?.continuous_days || "N/A"
+              ]));
+
+              autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: 20,
+                didParseCell: function (data) {
+                  if (data.section === "body") {
+                    const rowIndex = data.row.index;
+                    const rowType = absentPopupData[rowIndex]?.type;
+
+                    if (rowType === "yellow") {
+                      data.cell.styles.fillColor = [255, 255, 150]; // Light yellow
+                    } else if (rowType === "red") {
+                      data.cell.styles.fillColor = [255, 150, 150]; // Light red
+                    } else if (rowType === "orange") {
+                      data.cell.styles.fillColor = [255, 200, 120]; // Light orange
+                    }
+                  }
+                }
+              });
+
+              doc.save("Absent_Employees.pdf");
+            }}
+            className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+          >
+            PDF
+          </button>
 
     {/* Close Button */}
     <button
@@ -2318,12 +2431,32 @@ const Dashboard_Mainbar = () => {
                       {companyAttendancePopupTitle}
                     </h2>
 
+  <div className="flex items-center gap-3">
+
+    {/* Excel Button */}
+    <button
+      onClick={() => exportToCSV(companyAttendancePopupList, "Company_Attendance")}
+      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+    >
+      CSV
+    </button>
+
+   
+    {/* PDF Button */}
+    <button
+      onClick={() => exportToPDF(companyAttendancePopupList, "Company_Attendance", companyAttendancePopupTitle)}
+      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+    >
+      PDF
+    </button>
+
                     <button
                       onClick={closeCompanyAttendancePopup}
                       className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
                     >
                       ✕
                     </button>
+                    </div>
                   </div>
 
                   {/* Body */}

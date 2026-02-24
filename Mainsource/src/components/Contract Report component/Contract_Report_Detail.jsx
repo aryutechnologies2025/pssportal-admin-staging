@@ -26,6 +26,8 @@ import DateFilterDropdown from "../dashboard components/DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
 import { fr } from "zod/v4/locales";
+import exportToPDF from "../../Utils/exportToPDF";
+import exportToCSV from "../../Utils/exportToCSV";
 
 const Contract_Report_Detail = () => {
   let navigate = useNavigate();
@@ -727,12 +729,86 @@ onClick={() => openEmployeePopup(rowData, "joining")}
           </p>
         </div>
 
+  <div className="flex items-center gap-3">
+
+    {/* Excel Button */}
+  <button
+  onClick={() => {
+    let exportData = [];
+
+    if (popupType === "joining") {
+      exportData = (selectedCompany?.employee_names || []).map(
+        (name, index) => ({
+          "S.No": index + 1,
+          "Employee Name": name,
+        })
+      );
+    } else {
+      exportData = (selectedCompany?.employees || []).map(
+        (emp, index) => ({
+          "S.No": index + 1,
+          "Employee ID": emp?.employee_id || "-",
+          "Employee Name": emp?.employee_name || "-",
+        })
+      );
+    }
+
+    exportToCSV(
+      exportData,
+      popupType === "joining"
+        ? "Joining_Employees"
+        : "Relieved_Employees"
+    );
+  }}
+  className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  CSV
+</button>
+   
+    {/* PDF Button */}
+<button
+  onClick={() => {
+    let exportData = [];
+
+    if (popupType === "joining") {
+      exportData = (selectedCompany?.employee_names || []).map(
+        (name, index) => ({
+          "S.No": index + 1,
+          "Employee Name": name,
+        })
+      );
+    } else {
+      exportData = (selectedCompany?.employees || []).map(
+        (emp, index) => ({
+          "S.No": index + 1,
+          "Employee ID": emp?.employee_id || "-",
+          "Employee Name": emp?.employee_name || "-",
+        })
+      );
+    }
+
+    exportToPDF(
+      exportData,
+      popupType === "joining"
+        ? "Joining_Employees"
+        : "Relieved_Employees",
+      popupType === "joining"
+        ? "Joining Employees List"
+        : "Relieved Employees List"
+    );
+  }}
+  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  PDF
+</button>
+
         <button
           onClick={closePopup}
           className="text-white text-xl font-bold hover:opacity-80 transition"
         >
           ✕
         </button>
+      </div>
       </div>
 
       {/* Body */}
