@@ -38,7 +38,7 @@ const Employee_contract_details = () => {
 
   const companyId = searchParams.get("company_id");
 
-  console.log("companyId", companyId);  
+  console.log("companyId", companyId);
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
   const statusParam = searchParams.get("status");
@@ -474,7 +474,6 @@ const Employee_contract_details = () => {
     setIsImportAddModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
   };
-
   const closeImportAddModal = () => {
     setIsAnimating(false);
     setTimeout(() => setIsImportAddModalOpen(false), 250);
@@ -645,13 +644,9 @@ const Employee_contract_details = () => {
   const [rejoingnote, setRejoingnote] = useState("");
   const [rejoinTouched, setRejoinTouched] = useState(false);
 
-  // console.log("rejoingnote", rejoingnote);
-
   const [editempid, setEditempid] = useState("");
-  // console.log("editempid", editempid);
   const [importskip, setImportskip] = useState([]);
   const [showSkipModal, setShowSkipModal] = useState(false);
-  // console.log("importskip", importskip);
 
   const handleFileSubmit = async (e) => {
     // console.log("selectedAccount:1");
@@ -945,24 +940,11 @@ const Employee_contract_details = () => {
       setSelectedEducation(normalizedData.education);
     }
   };
-
-  // useEffect(() => {
-  //   if (editData) {
-  //     reset(editData);
-  //   }
-  // }, [editData, reset]);
-  // const [filterStartDate, setFilterStartDate] = useState(() => {
-  //   return new Date().toISOString().split("T")[0];
-  // });
-  // const [filterEndDate, setFilterEndDate] = useState(() => {
-  //   return new Date().toISOString().split("T")[0];
-  // });
-
   // const [filterStatus, setFilterStatus] = useState("");
-    const [filterStartDate, setFilterStartDate] = useState(() => {
+  const [filterStartDate, setFilterStartDate] = useState(() => {
     return startDate || getTodayDate();
   });
-  
+
   const [filterEndDate, setFilterEndDate] = useState(() => {
     return endDate || getTodayDate();
   });
@@ -973,21 +955,21 @@ const Employee_contract_details = () => {
 
   const [filterGender, setFilterGender] = useState("");
 
-    const [selectedCompanyfilter, setSelectedCompanyfilter] = useState(() => {
+  const [selectedCompanyfilter, setSelectedCompanyfilter] = useState(() => {
     return companyId ? Number(companyId) : "";
   });
 
   // const [selectedCompanyfilter, setSelectedCompanyfilter] = useState("");
- useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams();
-    
+
     if (selectedCompanyfilter) params.set("company_id", selectedCompanyfilter);
     if (filterStartDate) params.set("startDate", filterStartDate);
     if (filterEndDate) params.set("endDate", filterEndDate);
     if (filterStatus) params.set("status", filterStatus);
     if (filterGender) params.set("gender", filterGender);
     if (selectedEducation) params.set("education_id", selectedEducation);
-    
+
     navigate(`?${params.toString()}`, { replace: true });
   }, [
     selectedCompanyfilter,
@@ -1126,45 +1108,6 @@ const Employee_contract_details = () => {
     { label: "Branch 2", value: "Branch 2" },
     { label: "Branch 3", value: "Branch 3" },
   ];
-
-  // const addEmergencyContact = () => {
-  //   const last = emergencyContacts[emergencyContacts.length - 1];
-  //   // Only add if last contact is filled
-  //   if (last.name && last.phone && last.relation) {
-  //     setEmergencyContacts([
-  //       ...emergencyContacts,
-  //       { name: "", phone: "", relation: "" },
-  //     ]);
-  //   } else {
-  //     Swal.fire({
-  //       icon: "warning",
-  //       title: "Incomplete Contact",
-  //       text: "Please complete the current contact before adding a new one",
-  //     });
-  //   }
-  // };
-
-  // const removeEmergencyContact = (index) => {
-  //   if (emergencyContacts.length <= 1) {
-  //     Swal.fire({
-  //       icon: "warning",
-  //       title: "Cannot remove",
-  //       text: "At least one contact is required",
-  //     });
-  //     return;
-  //   }
-  //   setEmergencyContacts(emergencyContacts.filter((_, i) => i !== index));
-  // };
-  // // Update Emergency Contact
-  // const updateEmergencyContact = (index, field, value) => {
-  //   const updatedContacts = [...emergencyContacts];
-  //   updatedContacts[index][field] = value;
-  //   setEmergencyContacts(updatedContacts);
-  // };
-
-  // const handleDownload = () => {
-  //   window.print(); // user selects "Save as PDF"
-  // };
   const getEducationName = (educationId) => {
     if (!educationId || !educationOptions.length) return "-";
 
@@ -1292,10 +1235,9 @@ const Employee_contract_details = () => {
       body: (row) => (
         <div
           className={`inline-block text-sm font-normal rounded-full w-[100px] justify-center items-center border 
-            ${
-              row.status === 0 || row.status === "0"
-                ? "text-[#DC2626] bg-[#fff0f0] "
-                : "text-[#16A34A] bg-[#e8fff0] "
+            ${row.status === 0 || row.status === "0"
+              ? "text-[#DC2626] bg-[#fff0f0] "
+              : "text-[#16A34A] bg-[#e8fff0] "
             }`}
         >
           {/* {row.status === 0 || row.status === "0" ? "Inactive" : "Active"} */}
@@ -1333,8 +1275,6 @@ const Employee_contract_details = () => {
     },
   ];
   const [rejoinType, setRejoinType] = useState(null);
-
-  console.log("rejoinType", rejoinType);
   // create
   const onSubmit = async (data) => {
     try {
@@ -1546,55 +1486,172 @@ const Employee_contract_details = () => {
     value: String(e.id),
   }));
 
-  // console.log("logData", logData);
+  //bulk inactive modal close
 
-  // const fetchLogs = async () => {
-  //   try {
-  //     const response = await axiosInstance.post(
-  //       `${API_URL}api/contract-employee/emp-rejoing-list/`,
-  //       {
-  //         employee_id: editempid,
-  //       },
-  //     );
+  const [isBulkInactiveModalOpen, setIsBulkInactiveModalOpen] = useState(false);
+  const [selectedBulkCompany, setBulkSelectedCompany] = useState(null);
+  const [attachmentBulk, setBulkAttachment] = useState(null);
+  const fileBulkInputRef = useRef(null);
+  const [selectedBulkFile, setSelectedBulkFile] = useState(null);
+  const [isBulkSubmitting, setIsBulkSubmitting] = useState(false);
+  const [errorBulk, setBulkError] = useState(null);
 
-  //     console.log("responselogs", response);
 
-  //     if (response.status === 200) {
-  //       setLogs(response.data.data);
-  //       // setShowLogs(true);
-  //     }
-  //   } catch (err) {
-  //     toast.error("Unable To Load Candidate Details");
-  //   }
-  // };
+  const openBulkInactiveModal = () => {
+    setIsBulkInactiveModalOpen(true);
+    setTimeout(() => setIsAnimating(true), 10);
+  };
 
-  // useEffect(() => {
-  //   if (editempid) {
-  //     fetchLogs();
-  //   }
-  // }, [editempid]);
+  const closeBulkInactiveModal = () => {
+    setIsAnimating(false);
+    setTimeout(() => setIsBulkInactiveModalOpen(false), 250);
+  };
 
-  // const logData = [
-  //   {
-  //     companyName: "PSS Agencies",
-  //     boardingPoint: "Chennai",
-  //     joiningDate: "2023-08-12",
-  //     employeeId: "EMP001",
-  //   },
-  //   {
-  //     companyName: "PSS Agencies",
-  //     boardingPoint: "Bangalore",
-  //     joiningDate: "2024-01-05",
-  //     employeeId: "EMP045",
-  //   },
+  const handleBulkInactiveFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  //   {
-  //     companyName: "PSS Agencies",
-  //     boardingPoint: "Mumbai",
-  //     joiningDate: "2024-01-05",
-  //     employeeId: "EMP045",
-  //   },
-  // ];
+    // Validate file type
+    const allowedTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+      ".xlsx",
+      ".xls",
+      ".csv",
+    ];
+
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+
+    if (
+      !allowedTypes.includes(file.type) &&
+      !["xlsx", "xls", "csv"].includes(fileExtension)
+    ) {
+      toast.error("Please upload an Excel file (.xlsx or .xls or .csv)");
+      e.target.value = ""; // Clear the input
+      return;
+    }
+
+    setSelectedBulkFile(file);
+    setBulkAttachment(file);
+
+    // clear previous errors
+    setError((prev) => ({ ...prev, file: "" }));
+  };
+
+  const handleBulkInactiveDeleteFile = () => {
+    setBulkAttachment(null);
+    if (fileBulkInputRef.current) {
+      fileBulkInputRef.current.value = "";
+    }
+  };
+
+  const handleBulkInactiveSubmit  = async (e) => {
+    // console.log("selectedAccount:1");
+    e.preventDefault();
+
+    if (isBulkSubmitting) return;
+    setIsBulkSubmitting(true);
+
+    // Reset errors
+    setBulkError({ file: "", company: "", import: [] });
+
+    // Frontend validation
+    const newErrors = {};
+    let hasError = false;
+    if (!selectedBulkFile) {
+      newErrors.file = "Please select a file";
+      hasError = true;
+    } else {
+      // Validate file type
+      const allowedExtensions = [".xlsx", ".xls", ".csv"];
+      const fileExtension = selectedBulkFile.name.split(".").pop().toLowerCase();
+      if (!allowedExtensions.includes(`.${fileExtension}`)) {
+        newErrors.file = "Please upload only Excel files (.xlsx, .xls, .csv)";
+        hasError = true;
+      }
+    }
+
+    if (!selectedBulkCompany) {
+      newErrors.company = "Please select a company";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setError((prev) => ({ ...prev, ...newErrors }));
+      // Scroll to first error
+      setTimeout(() => {
+        const errorField = Object.keys(newErrors)[0];
+        const element = document.querySelector(`[data-field="${errorField}"]`);
+        if (element)
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+
+      formData.append("file", selectedBulkFile); // Excel file
+      formData.append("created_by", userId);
+      formData.append("role_id", userRole);
+      formData.append("company_id", selectedBulkCompany); // Company ID
+
+      const response = await axiosInstance.post(
+        `${API_URL}api/contract-employee/bulk-inactive-import`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      if (response.data.success) {
+        toast.success(response.data.message || "Excel imported successfully!");
+
+        if (response.data.total !== undefined) {
+          toast.success(`Imported: ${response.data.total} records`);
+        }
+      }
+      // Reset fields
+      handleBulkInactiveDeleteFile();
+      setBulkSelectedCompany(null);
+      setIsImportAddModalOpen(false);
+      fetchContractCandidates();
+    } catch (err) {
+      console.error("Import error:", err);
+
+      const message =
+        err.response?.data?.error ||
+        err.response?.data?.message ||
+        "Upload failed";
+      const rowErrors = err.response?.data?.rowErrors || [];
+
+      setBulkError((prev) => ({
+        ...prev,
+        import: rowErrors.length ? rowErrors : message,
+      }));
+      if (rowErrors.length) {
+        toast.error(`Validation failed in ${rowErrors.length} rows`);
+      } else {
+        toast.error(message);
+      }
+    } finally {
+      setIsBulkSubmitting(false);
+    }
+  };
+
+  const resetBulkImportForm = () => {
+    setBulkSelectedCompany(null);
+    setSelectedBulkFile(null);
+    setBulkAttachment(null);
+    setBulkError({ file: "", company: "", import: [] });
+
+    // Clear input fields manually
+    if (fileBulkInputRef.current) {
+      fileBulkInputRef.current.value = "";
+    }
+  };
+
+
 
   return (
     <div className="bg-gray-100 flex flex-col justify-between w-full overflow-x-auto min-h-screen px-5 pt-2 md:pt-10">
@@ -1783,7 +1840,7 @@ const Employee_contract_details = () => {
                     <div className="hidden md:flex items-center">
                       <button
                         onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium w-20 rounded-lg"
+                        className="px-2 md:px-3 py-2  text-white bg-[#16A34A] hover:bg-[#16A34A] text-sm md:text-base font-medium w-20 rounded-lg"
                       >
                         Import
                       </button>
@@ -1793,22 +1850,28 @@ const Employee_contract_details = () => {
                       <button
                         onClick={handlCsvDownload}
                         className="
-      flex items-center gap-2
-      px-5 md:px-2 py-2
-      text-xs md:text-sm font-semibold
-      text-green-700
-      bg-green-100
-      rounded-full
-      hover:bg-green-200
-      transition
-    "
+                            flex items-center gap-2
+                            px-5 md:px-2 py-2
+                            text-xs md:text-sm font-semibold
+                            text-green-700
+                            bg-green-100
+                            rounded-full
+                            hover:bg-green-200
+                            transition
+                          "
                       >
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
                     <button
+                      onClick={openBulkInactiveModal}
+                      className="px-2 md:px-3 py-2  text-white bg-[#16A34A] hover:bg-[#16A34A] text-sm md:text-base font-medium w-20 rounded-lg"
+                    >
+                      Bulk Inactive
+                    </button>
+                    <button
                       onClick={exportEmployeeCSV}
-                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="px-2 md:px-3 py-2  text-white bg-gray-600 hover:bg-gray-700 font-medium  w-fit rounded-lg transition-all duration-200"
                     >
                       Export
                     </button>
@@ -1861,7 +1924,7 @@ const Employee_contract_details = () => {
                     onPage={onPageChange}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
-                    globalFilterFields={['name', 'phone_number', 'aadhar_number', 'employee_id', 'gender']} 
+                    globalFilterFields={['name', 'phone_number', 'aadhar_number', 'employee_id', 'gender']}
                     showGridlines
                     resizableColumns
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
@@ -1898,9 +1961,8 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${
-                    isAnimating ? "translate-x-0" : "translate-x-full"
-                  }`}
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
                 >
                   <div
                     className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
@@ -2032,6 +2094,150 @@ const Employee_contract_details = () => {
                 </div>
               </div>
             )}
+
+            {/* import bulk inactive*/}
+            {isBulkInactiveModalOpen && (
+              <div className="fixed inset-0 bg-black/10 backdrop-blur-sm bg-opacity-50 z-50">
+                {/* Overlay */}
+                <div
+                  className="absolute inset-0 "
+                  onClick={() => {
+                    closeBulkInactiveModal();
+                    resetBulkImportForm();
+                  }}
+                >
+                  <IoIosArrowForward className="w-3 h-3" />
+                </div>
+
+                <div
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                    }`}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full  mt-2 ms-2  border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer"
+                    title="Toggle Sidebar"
+                    onClick={() => {
+                      closeBulkInactiveModal();
+                      resetBulkImportForm();
+                    }}
+                  >
+                    <IoIosArrowForward className="w-3 h-3" />
+                  </div>
+
+                  <div className="p-5">
+                    <p className="text-xl md:text-2xl font-medium">
+                      Employee Candidates
+                    </p>
+
+                    {/* company */}
+                    <div className="mt-3 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        Company<span className="text-red-500">*</span>
+                      </label>
+
+                      <div className="w-[60%] md:w-[50%]">
+                        <Dropdown
+                          value={selectedBulkCompany}
+                          options={companyDropdown}
+                          optionLabel="label"
+                          optionValue="value"
+                          placeholder="Select Company"
+                          filter
+                          className="w-full border border-gray-300 rounded-lg"
+                          onChange={(e) => {
+                            setBulkSelectedCompany(e.value);
+                            const obj = companyDropdown.find(
+                              (item) => item.value === e.value,
+                            );
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* File Upload */}
+                    <div className="mt-3 flex justify-between items-center">
+                      <label className="block text-md font-medium">
+                        File Upload
+                      </label>
+
+                      <div className="w-[60%] md:w-[50%]">
+                        <input
+                          type="file"
+                          ref={fileBulkInputRef}
+                          onChange={handleBulkInactiveFileChange}
+                          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+                 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+
+                        {attachmentBulk && (
+                          <div className="flex justify-between mt-2 items-center bg-gray-50 px-3 py-2 rounded-lg border">
+                            <span className="text-sm text-gray-700 truncate w-[80%]">
+                              {attachmentBulk.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleBulkInactiveDeleteFile}
+                              title="Delete"
+                              className="text-red-600 hover:text-red-800 text-[18px]"
+                            >
+                              <AiFillDelete />
+                            </button>
+                          </div>
+                        )}
+                        {errorBulk.file && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errorBulk.file}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {/* IMPORT ERRORS */}
+                    {errorBulk.import?.length > 0 && (
+                      // <div className="mt-4 bg-red-50 border border-red-300 p-3 rounded-lg max-h-48 overflow-auto">
+                      <div className="mt-4">
+                        <p className="text-red-700 font-semibold mb-2"></p>
+
+                        {Array.isArray(errorBulk.import) ? (
+                          errorBulk.import.map((item, idx) => (
+                            <p key={idx} className="text-sm text-red-600">
+                              Row {item.row}: {item.errors.join(", ")}
+                            </p>
+                          ))
+                        ) : (
+                          <p className="text-red-600">{errorBulk.import}</p>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                      <button
+                        onClick={() => {
+                          closeBulkInactiveModal();
+                          resetBulkImportForm();
+                        }}
+                        className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        onClick={handleBulkInactiveSubmit}
+                        disabled={isBulkSubmitting}
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+             disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {isBulkSubmitting && (
+                          <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        )}
+                        {isBulkSubmitting ? "Uploading..." : "Submit"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
 
             {/* Add Modal */}
             {ModalOpen && (
@@ -2604,11 +2810,10 @@ const Employee_contract_details = () => {
                                   : "Employee ID"
                               }
                               className={`w-full px-2 py-2 border rounded-[10px]
-          ${
-            companyEmpType === "automatic"
-              ? "bg-gray-100 cursor-not-allowed"
-              : "bg-white"
-          }`}
+          ${companyEmpType === "automatic"
+                                  ? "bg-gray-100 cursor-not-allowed"
+                                  : "bg-white"
+                                }`}
                             />
                             {errors.manual_value && (
                               <p className="text-red-500 text-sm mt-1">
@@ -3101,9 +3306,9 @@ const Employee_contract_details = () => {
                         <button
                           type="submit"
                           className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                          // onClick={handleSubmit(onSubmit, (errors) =>
-                          //   console.log(errors),
-                          // )}
+                        // onClick={handleSubmit(onSubmit, (errors) =>
+                        //   console.log(errors),
+                        // )}
                         >
                           Submit
                         </button>
@@ -3437,8 +3642,8 @@ const Employee_contract_details = () => {
                         </h3>
 
                         {viewRow?.contacts &&
-                        Array.isArray(viewRow.contacts) &&
-                        viewRow.contacts.length > 0 ? (
+                          Array.isArray(viewRow.contacts) &&
+                          viewRow.contacts.length > 0 ? (
                           <table className="w-full border text-sm">
                             <thead className="bg-gray-100">
                               <tr>
@@ -3674,7 +3879,7 @@ const Employee_contract_details = () => {
                         <b className="block mb-2 text-gray-700">Documents:</b>
                         {/* Check if documents is an array and has items */}
                         {viewExistingCandidate.documents &&
-                        viewExistingCandidate.documents.length > 0 ? (
+                          viewExistingCandidate.documents.length > 0 ? (
                           <div className="space-y-2">
                             {viewExistingCandidate.documents.map(
                               (doc, index) => (
