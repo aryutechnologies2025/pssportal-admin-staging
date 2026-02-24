@@ -2185,15 +2185,15 @@ const Employee_contract_details = () => {
                             </button>
                           </div>
                         )}
-                        {errorBulk.file && (
+                        {errorBulk?.file && (
                           <p className="text-red-500 text-sm mt-1">
-                            {errorBulk.file}
+                            {errorBulk?.file}
                           </p>
                         )}
                       </div>
                     </div>
                     {/* IMPORT ERRORS */}
-                    {errorBulk.import?.length > 0 && (
+                    {errorBulk?.import?.length > 0 && (
                       // <div className="mt-4 bg-red-50 border border-red-300 p-3 rounded-lg max-h-48 overflow-auto">
                       <div className="mt-4">
                         <p className="text-red-700 font-semibold mb-2"></p>
