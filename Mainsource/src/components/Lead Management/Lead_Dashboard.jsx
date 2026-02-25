@@ -847,12 +847,10 @@ const Lead_Dashboard = () => {
                     <button
                       onClick={() => {
   const status = rowData.status;
-  console.log("fromDate value:", fromDate); // Check what date is actually being used
-  console.log("Selected employee:", selectedlead);
-  console.log("Status:", status);
+
   
   navigate(
-    `/lead-assign-report?assign_date=${fromDate}&employee_id=${selectedlead?.employee?.id}&lead_status=${status}`
+    `/lead-assign-report?fromDate=${fromDate}&toDate=${toDate}&employee_id=${selectedlead?.employee?.id}&lead_status=${status}`
   );
   
   setIsLeadModalOpen(false);
