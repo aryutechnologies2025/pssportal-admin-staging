@@ -68,6 +68,7 @@ import { useTokenExpiry } from "./hooks/useTokenExpiry";
 import Lead_Edit_Assigned_Main from "./pages/Lead_Edit_Assigned_Main";
 import Lead_Add_Assigned_Main from "./pages/Lead_Add_Assigned_Main";
 import Lead_View_Assigned_Main from "./pages/Lead_View_Assigned_Main";
+import Lead_Assign_Report_Main from "./pages/LeadAssignReport";
 
 // Routes component that uses hooks (inside Router context)
 function AppRoutes() {
@@ -158,6 +159,7 @@ function AppRoutes() {
           <Route path="sitemap" element={<Sitemap />} />
           <Route path="setting" element={<Setting />} />
           <Route path="lead-engine" element={<LeadManagement />} />
+          <Route path="lead-assign-report" element={<Lead_Assign_Report_Main />} />
           <Route path="lead-dashboard" element={<Lead_Dashboard_Main />} />
           <Route path="lead-assignedto" element={<Lead_AssignedTo_Main />} />
           <Route path="lead-assignedto-add" element={<Lead_Add_Assigned_Main/>} />
