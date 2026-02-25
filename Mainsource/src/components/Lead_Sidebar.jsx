@@ -115,15 +115,13 @@ const Lead_Sidebar = () => {
   return (
     <div>
       <section
-        className={`bg-white max-md:hidden max-h-dvh transition-all duration-500 flex flex-col ${
-          arrowClicked ? "w-[60px]" : "w-52 "
-        }`}
+        className={`bg-white max-md:hidden max-h-dvh transition-all duration-500 flex flex-col ${arrowClicked ? "w-[60px]" : "w-52 "
+          }`}
       >
         <ToastContainer position="top-right" autoClose={3000} />
         <div
-          className={`fixed flex flex-col h-screen ${
-            arrowClicked ? "w-[60px]" : "w-48"
-          }`}
+          className={`fixed flex flex-col h-screen ${arrowClicked ? "w-[60px]" : "w-48"
+            }`}
         >
           {/* Toggle Button */}
           <div
@@ -132,9 +130,8 @@ const Lead_Sidebar = () => {
             title="Toggle Sidebar"
           >
             <div
-              className={`${
-                arrowClicked ? "-me-3" : "-me-8"
-              } w-6 h-6 rounded-full border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer`}
+              className={`${arrowClicked ? "-me-3" : "-me-8"
+                } w-6 h-6 rounded-full border-2 transition-all duration-500 bg-white border-gray-300 flex items-center justify-center cursor-pointer`}
             >
               {arrowClicked ? (
                 <IoIosArrowForward className="w-3 h-3" />
@@ -184,22 +181,19 @@ const Lead_Sidebar = () => {
             style={{ scrollbarGutter: "stable" }}
           >
             <div
-              className={`flex gap-1 mt-2 mx-2 flex-col ${
-                arrowClicked ? "items-center" : "items-start"
-              }`}
+              className={`flex gap-1 mt-2 mx-2 flex-col ${arrowClicked ? "items-center" : "items-start"
+                }`}
             >
 
-                {/* home */}
+              {/* home */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("dashboard")}
-                  className={`flex items-center h-10 w-full flex-grow ${
-                    arrowClicked ? "justify-center  " : "justify-normal"
-                  } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${
-                    currentPath === "/dashboard"
+                  className={`flex items-center h-10 w-full flex-grow ${arrowClicked ? "justify-center  " : "justify-normal"
+                    } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${currentPath === "/dashboard"
                       ? "bg-[#4BB452] text-white"
                       : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                  }`}
+                    }`}
                 >
                   <IoHomeOutline className="w-5" />
                   {!arrowClicked && <p className="text-sm">Home</p>}
@@ -211,34 +205,31 @@ const Lead_Sidebar = () => {
               <div className={`w-full ${arrowClicked ? "px-0" : "px-[7px]"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-dashboard")}
-                  className={`flex items-center h-10 w-full flex-grow ${
-                    arrowClicked ? "justify-center  " : "justify-normal"
-                  } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${
-                    currentPath === "/lead-dashboard"
+                  className={`flex items-center h-10 w-full flex-grow ${arrowClicked ? "justify-center  " : "justify-normal"
+                    } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${currentPath === "/lead-dashboard"
                       ? "bg-[#4BB452] text-white"
                       : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                  }`}
+                    }`}
                 >
                   <CiBoxList className="w-5" />
                   {!arrowClicked && <p className="text-sm">Dashboard</p>}
                 </div>
               </div>
 
-                            {/* category */}
+              {/* category */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("lead-category")}
                   className={`flex items-center w-full flex-grow
     ${arrowClicked ? "justify-center" : "justify-normal"}
     px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/lead-category"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+    ${currentPath === "/lead-category"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
-                 
-                  <TbCategory className="w-5 h-5 "/>
+
+                  <TbCategory className="w-5 h-5 " />
 
                   {!arrowClicked && (
                     <p className="text-sm font-medium">Platform</p>
@@ -251,13 +242,12 @@ const Lead_Sidebar = () => {
                 <div
                   onClick={() => onClickSidebarMenu("lead-engine")}
                   className={`flex items-center w-full flex-grow
-    ${arrowClicked ? "justify-center" : "justify-normal"}
-    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${
-      currentPath === "/lead-engine"
-        ? "bg-[#4BB452] text-white"
-        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-    }`}
+                    ${arrowClicked ? "justify-center" : "justify-normal"}
+                    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+                    ${currentPath === "/lead-engine"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
                 >
                   <MdLeaderboard className="w-5 " />
 
@@ -267,26 +257,45 @@ const Lead_Sidebar = () => {
                 </div>
               </div>
 
-{/* assign lead */}
+              {/* assign lead */}
 
-<div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
-  <div
-    onClick={() => onClickSidebarMenu("lead-assignedto")}
-    className={`flex items-center w-full flex-grow
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("lead-assignedto")}
+                  className={`flex items-center w-full flex-grow
       ${arrowClicked ? "justify-center" : "justify-normal"}
       px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-      ${
-        currentPath.startsWith("/lead-assignedto")
-          ? "bg-[#4BB452] text-white"
-          : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-      }`}
-  >
-    <MdOutlineAssignmentTurnedIn className="w-5" />
-    {!arrowClicked && (
-      <p className="text-sm font-medium">Assigned Leads</p>
-    )}
-  </div>
-</div>
+      ${currentPath.startsWith("/lead-assignedto")
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+                  <MdOutlineAssignmentTurnedIn className="w-5" />
+                  {!arrowClicked && (
+                    <p className="text-sm font-medium">Assigned Leads</p>
+                  )}
+                </div>
+              </div>
+
+               {/* lead Assign report */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("lead-assign-report")}
+                  className={`flex items-center w-full flex-grow
+                    ${arrowClicked ? "justify-center" : "justify-normal"}
+                    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+                    ${currentPath === "/lead-assign-report"
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+                  <MdLeaderboard className="w-5 " />
+
+                  {!arrowClicked && (
+                    <p className="text-sm font-medium">Assigned Leads Report</p>
+                  )}
+                </div>
+              </div>
 
 
 
@@ -299,9 +308,8 @@ const Lead_Sidebar = () => {
               <div className="w-full px-2">
                 <div
                   onClick={() => onClickSidebarMenu("/")}
-                  className={`group flex items-center w-full ${
-                    arrowClicked ? "justify-center" : "justify-normal"
-                  } px-3 py-3 rounded-full gap-3 mt-1 h-10 border border-black hover:bg-[#E0E0E0]`}
+                  className={`group flex items-center w-full ${arrowClicked ? "justify-center" : "justify-normal"
+                    } px-3 py-3 rounded-full gap-3 mt-1 h-10 border border-black hover:bg-[#E0E0E0]`}
                 >
                   <MdLogout />
                   {!arrowClicked && <p className="text-sm">Logout</p>}
