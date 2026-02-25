@@ -65,6 +65,14 @@ const Attendance_Edit_Page = () => {
         const attendanceDetails =
           response?.data?.data?.details.map((emp) => ({
             ...emp,
+
+             // ✅ Normalize attendance here
+    attendance:
+      emp.attendance === "1" || emp.attendance === 1
+        ? "present"
+        : emp.attendance === "0" || emp.attendance === 0
+        ? "absent"
+        : null,
             shifts:
               emp.shift_details?.map((sd) => ({
                 shift_id: sd.shift_id,

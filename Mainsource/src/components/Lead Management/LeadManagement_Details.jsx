@@ -2421,7 +2421,7 @@ px-2 py-2 md:px-6 md:py-6">
                 <th className="border px-3 py-2">Notes</th>
                 <th className="border px-3 py-2">Company</th>
                 <th className="border px-3 py-2">Created Date</th>
-                {/* <th className="border px-3 py-2">Follow Date</th> */}
+                <th className="border px-3 py-2">Follow Date</th>
                 <th className="border px-3 py-2">Scheduled Date</th>
               </tr>
             </thead>
@@ -2454,9 +2454,9 @@ px-2 py-2 md:px-6 md:py-6">
                     <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.created_at)}
                     </td>
-                    {/* <td className="border px-3 py-2">
+                    <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.followup_date)}
-                    </td> */}
+                    </td>
                     <td className="border px-3 py-2">
                       {formatToDDMMYYYY(item.scheduled_date)}
                     </td>
@@ -2516,7 +2516,7 @@ px-2 py-2 md:px-6 md:py-6">
                           <th className="border px-3 py-2">Notes</th>
                           <th className="border px-3 py-2">Company</th>
                           <th className="border px-3 py-2">Created Date</th>
-                          {/* <th className="border px-3 py-2">Follow Date</th> */}
+                          <th className="border px-3 py-2">Follow Date</th>
                           <th className="border px-3 py-2">Scheduled Date</th>
                         </tr>
                       </thead>
@@ -2547,6 +2547,12 @@ px-2 py-2 md:px-6 md:py-6">
 </td>
                               <td className="border px-3 py-2">
                                 {formatToDDMMYYYY(item.created_at)}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {formatToDDMMYYYY(item.followup_date)}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {formatToDDMMYYYY(item.scheduled_date)}
                               </td>
                             </tr>
                           ))
