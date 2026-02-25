@@ -19,6 +19,12 @@ const Lead_Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState(today);
   const [toDate, setToDate] = useState(today);
+  const [filters, setFilters] = useState({
+  assign_date: today,
+  employee_id:"",
+  lead_status:""
+});
+  
 
   // Dashboard data
   const [categoryData, setCategoryData] = useState([]);
@@ -729,22 +735,22 @@ const Lead_Dashboard = () => {
                     header="Count"
                     headerClassName="bg-green-600 text-white font-semibold"
                     bodyClassName="py-3 font-bold text-green-700"
-                  //           body={(rowData) => (
-                  //   <button
-                  //     onClick={() => {
-                  //       const status = rowData.status;
+                            body={(rowData) => (
+                    <button
+                      onClick={() => {
+                        const status = rowData.status;
 
-                  //       navigate(
-                  //         `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`
-                  //       );
+                        navigate(
+                          `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`
+                        );
 
-                  //       setIsCategoryModalOpen(false);
-                  //     }}
-                  //     className="text-green-700 font-bold underline hover:text-green-900"
-                  //   >
-                  //     {rowData.count}
-                  //   </button>
-                  // )}
+                        setIsCategoryModalOpen(false);
+                      }}
+                      className="text-green-700 font-bold  hover:text-green-900"
+                    >
+                      {rowData.count}
+                    </button>
+                  )}
                   />
                 </DataTable>
               </div>
@@ -837,6 +843,25 @@ const Lead_Dashboard = () => {
                     header="Count"
                     headerClassName="bg-green-600 text-white font-semibold"
                     bodyClassName="py-3 font-bold text-green-700"
+                     body={(rowData) => (
+                    <button
+                      onClick={() => {
+  const status = rowData.status;
+  console.log("fromDate value:", fromDate); // Check what date is actually being used
+  console.log("Selected employee:", selectedlead);
+  console.log("Status:", status);
+  
+  navigate(
+    `/lead-assign-report?assign_date=${fromDate}&employee_id=${selectedlead?.employee?.id}&lead_status=${status}`
+  );
+  
+  setIsLeadModalOpen(false);
+}}
+                      className="text-green-700 font-bold  hover:text-green-900"
+                    >
+                      {rowData.count}
+                    </button>
+                  )}
                   />
                 </DataTable>
               </div>

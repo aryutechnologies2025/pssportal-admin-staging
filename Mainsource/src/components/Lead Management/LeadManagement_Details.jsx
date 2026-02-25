@@ -142,17 +142,19 @@ const [selectedCategory, setSelectedCategory] = useState(null);
   });
 
   const handleApplyFilter = () => {
-    if (!filters.from_date || !filters.to_date) {
+
+    const updatedFilters = { ...filters };
+    if (!updatedFilters.from_date || !updatedFilters.to_date) {
       toast.error("Please select From & To date");
       return;
     }
 
-    if (new Date(filters.from_date) > new Date(filters.to_date)) {
+    if (new Date(updatedFilters.from_date) > new Date(updatedFilters.to_date)) {
       toast.error("From date cannot be greater than To date");
       return;
     }
 
-    fetchLead(filters);
+    fetchLead(updatedFilters);
   };
 
   const handleResetFilter = () => {
@@ -507,9 +509,9 @@ setTimeout(() => {
   };
 
   // Fetch lead from the API
-  useEffect(() => {
-    fetchLead();
-  }, []);
+  // useEffect(() => {
+  //   fetchLead();
+  // }, []);
 
   const applyFrontendFilters = (data, filters) => {
     let result = [...data];
@@ -639,6 +641,8 @@ setTimeout(() => {
 //       setLoading(false);
 //     }
 //   };
+
+
 
 // CHANGE THIS FUNCTION - Remove applyFrontendFilters
 const fetchLead = async (appliedFilters) => {
