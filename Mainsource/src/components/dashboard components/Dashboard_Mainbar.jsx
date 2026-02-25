@@ -2257,7 +2257,7 @@ const Dashboard_Mainbar = () => {
                 "Employee Name": emp?.employee_name || "-",
                 "Employee ID": emp?.employee_id || "-",
                 "Absent Dates": emp?.absent_dates?.join(", ") || "-",
-                "Continuous Days": emp?.continuous_days || "N/A"
+                // "Continuous Days": emp?.continuous_days || "N/A"
               }));
               exportToCSV(formattedData, "Absent_Employees");
             }}
@@ -2279,7 +2279,7 @@ const Dashboard_Mainbar = () => {
                 "Employee Name",
                 "Employee ID",
                 "Absent Dates",
-                "Continuous Days"
+                // "Continuous Days"
               ];
 
               const tableRows = absentPopupData.map((emp, index) => ([
@@ -2347,9 +2347,9 @@ const Dashboard_Mainbar = () => {
                               {/* <th className="px-4 py-3 text-center">
                                 Company Name
                               </th> */}
-                              <th className="px-4 py-3 text-center">
+                              {/* <th className="px-4 py-3 text-center">
                                 Continous Absent Days
-                              </th>
+                              </th> */}
                               
                             </tr>
                           </thead>
@@ -2375,9 +2375,9 @@ const Dashboard_Mainbar = () => {
                                 {/* <td className="px-4 py-3 text-center text-gray-700">
                                   {emp?.company_name || "N/A"}
                                 </td> */}
-                                <td className="px-4 py-3 text-center text-gray-700">
+                                {/* <td className="px-4 py-3 text-center text-gray-700">
                                   {emp?.continuous_days || "N/A"}
-                                </td>
+                                </td> */}
                               
                               </tr>
                             ))}

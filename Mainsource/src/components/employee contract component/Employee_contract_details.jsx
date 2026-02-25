@@ -224,6 +224,9 @@ const Employee_contract_details = () => {
   const candidateStatus = watch("candidateStatus");
   const reference = watch("reference");
 
+  //already aadhar exsist
+  const [existingAadharList, setExistingAadharList] = useState([]);
+
   useEffect(() => {
     if (interviewStatus !== "Rejected") {
       setValue("rejectReason", "");
@@ -720,6 +723,10 @@ const Employee_contract_details = () => {
           // Add timeout for debugging
         },
       );
+
+      if (response.data.existing_aadhar?.length > 0) {
+  setExistingAadharList(response.data.existing_aadhar);
+}
 
       // console.log("response:", response.data);
       if (response.data.success) {
@@ -1274,6 +1281,146 @@ const Employee_contract_details = () => {
       style: { textAlign: "center", width: "120px" },
     },
   ];
+
+  const addharExsistCustomerColumns = [
+  {
+    header: "S.No",
+    body: (_, options) => options.rowIndex + 1,
+    style: { textAlign: "center", width: "80px" },
+  },
+
+  {
+    header: "Employee ID",
+    field: "employee_id",
+    body: (row) => row.employee_id || "-",
+  },
+
+  {
+    header: "Name",
+    field: "name",
+    body: (row) => Capitalise(row.name || "-"),
+  },
+
+  {
+    header: "Joining Date",
+    field: "joining_date",
+    body: (row) => formatToDDMMYYYY(row.joining_date),
+  },
+
+  {
+    header: "DOB",
+    field: "date_of_birth",
+    body: (row) => formatToDDMMYYYY(row.date_of_birth),
+  },
+
+  {
+    header: "Phone",
+    field: "phone_number",
+    body: (row) => row.phone_number || "-",
+  },
+
+  {
+    header: "Emergency Contact",
+    field: "emr_contact_number",
+    body: (row) => row.emr_contact_number || "-",
+  },
+
+  {
+    header: "Aadhar Number",
+    field: "aadhar_number",
+    body: (row) => row.aadhar_number || "-",
+  },
+
+  {
+    header: "PAN Number",
+    field: "pan_number",
+    body: (row) => row.pan_number || "-",
+  },
+
+  {
+    header: "UAN Number",
+    field: "uan_number",
+    body: (row) => row.uan_number || "-",
+  },
+
+  {
+    header: "ESIC",
+    field: "esic",
+    body: (row) => row.esic || "-",
+  },
+
+  {
+    header: "Account Number",
+    field: "account_number",
+    body: (row) => row.account_number || "-",
+  },
+
+  {
+    header: "Bank Name",
+    field: "bank_name",
+    body: (row) => row.bank_name || "-",
+  },
+
+  {
+    header: "Branch Name",
+    field: "branch_name",
+    body: (row) => row.branch_name || "-",
+  },
+
+  {
+    header: "IFSC Code",
+    field: "ifsc_code",
+    body: (row) => row.ifsc_code || "-",
+  },
+
+  {
+    header: "Father Name",
+    field: "father_name",
+    body: (row) => row.father_name || "-",
+  },
+
+  {
+    header: "Gender",
+    field: "gender",
+    body: (row) => row.gender || "-",
+  },
+
+  {
+    header: "Marital Status",
+    field: "marital_status",
+    body: (row) => row.marital_status || "-",
+  },
+
+  {
+    header: "Address",
+    field: "address",
+    body: (row) => row.address || "-",
+  },
+
+  {
+    header: "Current Address",
+    field: "current_address",
+    body: (row) => row.current_address || "-",
+  },
+
+  {
+    header: "City",
+    field: "city",
+    body: (row) => row.city || "-",
+  },
+
+  {
+    header: "State",
+    field: "state",
+    body: (row) => row.state || "-",
+  },
+
+  {
+    header: "Pincode",
+    field: "pincode",
+    body: (row) => row.pincode || "-",
+  },
+];
   const [rejoinType, setRejoinType] = useState(null);
   // create
   const onSubmit = async (data) => {
@@ -1837,7 +1984,7 @@ const Employee_contract_details = () => {
                       )}
                     </div>
 
-                  <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
+                  <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
 
                     <div className="hidden md:flex items-center">
                       <button
@@ -1867,7 +2014,7 @@ const Employee_contract_details = () => {
                     </div>
                     <button
                       onClick={openBulkInactiveModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#16A34A] hover:bg-[#16A34A] text-sm md:text-base font-medium w-20 rounded-lg"
+                      className="px-2 md:px-3 py-2  text-white bg-[#16A34A] hover:bg-[#16A34A] text-sm  font-medium w-20 rounded-lg"
                     >
                       Bulk Inactive
                     </button>
@@ -1881,7 +2028,7 @@ const Employee_contract_details = () => {
                       onClick={openAddModal}
                       className="hidden md:block px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium  w-fit rounded-lg transition-all duration-200"
                     >
-                      Add Employee
+                      Add
                     </button>
                   </div>
                 </div>
@@ -1963,7 +2110,7 @@ const Employee_contract_details = () => {
                 </div>
 
                 <div
-                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw] md:w-[45vw] bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
+                  className={`fixed top-0 right-0 h-screen overflow-y-auto w-screen sm:w-[90vw]  bg-white shadow-lg  transform transition-transform duration-500 ease-in-out ${isAnimating ? "translate-x-0" : "translate-x-full"
                     }`}
                 >
                   <div
@@ -2070,7 +2217,7 @@ const Employee_contract_details = () => {
                     )}
 
                     <div className="flex  justify-end gap-2 mt-6 md:mt-14">
-                      <button
+                      {/* <button
                         onClick={() => {
                           closeImportAddModal();
                           resetImportForm();
@@ -2078,7 +2225,7 @@ const Employee_contract_details = () => {
                         className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
                       >
                         Cancel
-                      </button>
+                      </button> */}
                       <button
                         // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
@@ -2092,6 +2239,60 @@ const Employee_contract_details = () => {
                         {isSubmitting ? "Uploading..." : "Submit"}
                       </button>
                     </div>
+
+ <div className="table-scroll-container flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6" id="datatable">
+                  <DataTable
+
+                    className="mt-8"
+                    value={columnData}
+                    paginator
+                    rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    globalFilter={globalFilter}
+                    globalFilterFields={['name', 'phone_number', 'aadhar_number', 'employee_id', 'gender']}
+                    showGridlines
+                    resizableColumns
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    paginatorClassName="custom-paginator"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    loading={loading}
+                  >
+                    {addharExsistCustomerColumns.map((col, index) => (
+                      <Column
+                        key={index}
+                        field={col.field}
+                        header={col.header}
+                        body={col.body}
+                        style={col.style}
+                      />
+                    ))}
+                  </DataTable>
+
+                    <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                      <button
+                        onClick={() => {
+                          closeImportAddModal();
+                          resetImportForm();
+                        }}
+                        className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                        // onClick={handleFileSubmit}
+                        
+                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+             disabled:opacity-50 flex items-center gap-2"
+                      >
+                        Okay
+                      </button>
+                    </div>
+
+                </div>
+                    
                   </div>
                 </div>
               </div>
