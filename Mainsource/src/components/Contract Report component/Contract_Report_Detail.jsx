@@ -745,13 +745,13 @@ onClick={() => openEmployeePopup(rowData, "joining")}
               </div>
 
 
-              {/* company attendance summary */}
+              {/* continuous absent list */}
 
 
 <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
   <div className="flex items-center justify-between mb-4">
     <h2 className="text-base font-semibold text-gray-800">
-      Company Attendance Summary
+      Continuous Absent
     </h2>
 
     <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">

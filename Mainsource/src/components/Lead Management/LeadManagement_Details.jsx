@@ -416,10 +416,10 @@ const [selectedCategory, setSelectedCategory] = useState(null);
       
       lead_status: statusForm.status, 
       notes: statusForm.notes,
-      followup_status: statusForm.followUp === "yes" ? 1 : 0,
+      followup_status: statusForm.followUpDate ? 1 : 0,
       created_by: userid,
       scheduled_date: statusForm.epoDate || null,
-      followup_date: statusForm.followUp === "yes" ? statusForm.followUpDate : null,
+       followup_date: statusForm.followUpDate || null,
        company_id: statusForm.company_id.length
   ? statusForm.company_id.join(",")
   : null
