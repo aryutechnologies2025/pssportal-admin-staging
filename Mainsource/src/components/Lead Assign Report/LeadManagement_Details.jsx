@@ -117,7 +117,7 @@ const LeadManagement_Details = () => {
   const [filters, setFilters] = useState({
      from_date: today,
     to_date: today,
-    assigned_employee: "",
+    employee_id: "",
     lead_status: null
   });
 
@@ -134,7 +134,7 @@ useEffect(() => {
   const urlFilters = {
     from_date: fromDate || today,
       to_date: toDate || today,
-    assigned_employee: employeeId ? Number(employeeId) : "",
+    employee_id: employeeId ? Number(employeeId) : "",
     lead_status: status || null
   };
 
@@ -164,7 +164,7 @@ useEffect(() => {
     const reset = {
       from_date: today,
       to_date: today,
-      assigned_employee: "",
+      employee_id: "",
       lead_status: null
     };
 
@@ -240,8 +240,8 @@ useEffect(() => {
     if (filtersToUse.to_date)
       params.to_date = filtersToUse.to_date;
 
-      if (filtersToUse.assigned_employee)
-        params.employee_id = filtersToUse.assigned_employee;
+      if (filtersToUse.employee_id)
+        params.employee_id = filtersToUse.employee_id;
 
       if (filtersToUse.lead_status)
         params.lead_status = filtersToUse.lead_status;
@@ -315,9 +315,8 @@ useEffect(() => {
     if (filtersToUse.to_date)
       params.to_date = filtersToUse.to_date;
 
-      if (filtersToUse?.assigned_employee) {
-        params.employee_id = filtersToUse.assigned_employee;
-      }
+        if (filtersToUse.employee_id)  
+      params.employee_id = filtersToUse.employee_id;
 
       if (filtersToUse.lead_status)
         params.lead_status = filtersToUse.lead_status;
@@ -545,12 +544,12 @@ useEffect(() => {
                   </label>
 
                   <Dropdown
-                    value={filters.assigned_employee}
+                    value={filters.employee_id}
                     options={employeeDropdownOptions}
                     onChange={(e) =>
                       setFilters(prev => ({
                         ...prev,
-                        assigned_employee: e.value
+                        employee_id: e.value
                       }))
                     }
                     placeholder="Select Employee"

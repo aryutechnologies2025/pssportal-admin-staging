@@ -823,7 +823,7 @@ const Lead_Dashboard = () => {
                   />
 
                   <Column
-                    field="label"
+                    field="status"
                     header="Status"
                     headerClassName="bg-green-600 text-white font-semibold"
                     bodyClassName="py-3 text-gray-700 font-medium"
@@ -841,7 +841,7 @@ const Lead_Dashboard = () => {
 
   
   navigate(
-    `/lead-assign-report?fromDate=${fromDate}&toDate=${toDate}&employee_id=${selectedlead?.employee?.id}&lead_status=${status}`
+    `/lead-assign-report?fromDate=${fromDate}&toDate=${toDate}&employee_id=${selectedlead?.employee_id}&lead_status=${status}`
   );
   
   setIsLeadModalOpen(false);
