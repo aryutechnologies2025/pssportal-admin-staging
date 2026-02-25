@@ -328,8 +328,6 @@ const Lead_Dashboard = () => {
   //
 
   const [dasboradData, setDashboardData] = useState([]);
-  console.log("dasboradData", dasboradData);
-
   // const fetchleaddashboard = async () => {
   //   try {
   //     const res = await axiosInstance.get(`${API_URL}api/lead-management/dashboard`);
@@ -342,8 +340,6 @@ const Lead_Dashboard = () => {
   // };
 
   const [statusLeadData, setStatusLeadData] = useState([]);
-
-  console.log('statusLeadData', statusLeadData);
 
   const fetchleaddashboard = async (params = {}) => {
     try {
@@ -363,20 +359,20 @@ const Lead_Dashboard = () => {
 
       // ✅ convert response for table
 
-      const status_list = res.data.assign_leads;
+      // const status_list = res.data.assign_leads;
 
-      const converted = status_list[0]?.status_counts.map((lead) => ({
-        status: lead.status,
-        label: lead.status
-          .replaceAll("_", " ")
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
-        count: lead.count,
-      })) || [];
+      // const converted = status_list?.status_counts.map((lead) => ({
+      //   status: lead.status,
+      //   label: lead.status
+      //     .replaceAll("_", " ")
+      //     .replace(/\b\w/g, (c) => c.toUpperCase()),
+      //   count: lead.count,
+      // })) || [];
 
-      console.log("converted", converted);
+      // console.log("converted", status_list);
 
 
-      setStatusLeadData(converted);
+      // setStatusLeadData(converted);
     } catch (error) {
       console.error("Failed to fetch lead dashboard data", error);
     }
@@ -392,10 +388,7 @@ const Lead_Dashboard = () => {
   const [selectedlead, setSelectedlead] = useState(null);
   const [statusData, setStatusData] = useState([]);
 
-
-
   const handleCategoryClick = (rowData) => {
-    console.log("Clicked category:", rowData);
     setSelectedCategory(rowData);
 
     fetchstatusdashboard({
@@ -406,7 +399,7 @@ const Lead_Dashboard = () => {
   };
 
   const handleCategoryClicklead = (rowData) => {
-    setSelectedlead(rowData);
+    setStatusLeadData(rowData);
     setIsLeadModalOpen(true);
 
   };
@@ -424,7 +417,7 @@ const Lead_Dashboard = () => {
     statusList.map((s) => ({
       key: s.key,
       label: s.label,
-      count: selectedlead?.status_counts?.count?.[s.key] ?? 0,
+      count: selectedlead?.count?.[s.key] ?? 0,
     })) || [];
 
 
@@ -435,8 +428,6 @@ const Lead_Dashboard = () => {
       const res = await axiosInstance.get(
         `${API_URL}api/lead-management/status-wise?${queryParams}`,
       );
-
-      console.log("Lead assign Data:", res.data);
 
       const apiData = res?.data?.data || [];
 
@@ -628,7 +619,7 @@ const Lead_Dashboard = () => {
                       header="Employee Name"
                       body={(rowData) => (
                         <button
-                          onClick={() => handleCategoryClicklead(rowData)}
+                          onClick={() => handleCategoryClicklead(rowData.status_counts)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
                           {rowData.employee.full_name}
@@ -638,7 +629,7 @@ const Lead_Dashboard = () => {
                     <Column field="assign_count" header="Count"
                       body={(rowData) => (
                         <button
-                          onClick={() => handleCategoryClicklead(rowData)}
+                          onClick={() => handleCategoryClicklead(rowData.status_counts)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
                           {rowData.entries_count}
