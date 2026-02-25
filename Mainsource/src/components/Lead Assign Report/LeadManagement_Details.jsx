@@ -115,36 +115,55 @@ const LeadManagement_Details = () => {
 
 
   const [filters, setFilters] = useState({
-    from_date: today,
+     from_date: today,
+    to_date: today,
     assigned_employee: "",
     lead_status: null
   });
 
 
   //redirect from dashboard 
-  useEffect(() => {
-  const fromDate = searchParams.get("fromDate");
-  const status = searchParams.get("status");
+useEffect(() => {
+   const fromDate = searchParams.get("fromDate");
+    const toDate = searchParams.get("toDate");
+  const status = searchParams.get("lead_status"); 
   const employeeId = searchParams.get("employee_id");
+
+
 
   const urlFilters = {
     from_date: fromDate || today,
+      to_date: toDate || today,
     assigned_employee: employeeId ? Number(employeeId) : "",
     lead_status: status || null
   };
+
 
   setFilters(urlFilters);
   fetchLead(urlFilters);
 
 }, [searchParams]);
-
   const handleApplyFilter = () => {
-    fetchLead(filters);
+
+    const updatedFilters = { ...filters };
+    if (!updatedFilters.from_date || !updatedFilters.to_date) {
+      toast.error("Please select From & To date");
+      return;
+    }
+
+    if (new Date(updatedFilters.from_date) > new Date(updatedFilters.to_date)) {
+      toast.error("From date cannot be greater than To date");
+      return;
+    }
+
+    fetchLead(updatedFilters);
   };
+
 
   const handleResetFilter = () => {
     const reset = {
       from_date: today,
+      to_date: today,
       assigned_employee: "",
       lead_status: null
     };
@@ -215,8 +234,11 @@ const LeadManagement_Details = () => {
 
       const params = {};
 
-      if (filtersToUse.from_date)
-        params.assign_date = filtersToUse.from_date;
+        if (filtersToUse.from_date)
+      params.from_date = filtersToUse.from_date;
+
+    if (filtersToUse.to_date)
+      params.to_date = filtersToUse.to_date;
 
       if (filtersToUse.assigned_employee)
         params.employee_id = filtersToUse.assigned_employee;
@@ -287,13 +309,18 @@ const LeadManagement_Details = () => {
 
       const params = {};
 
-      if (filtersToUse?.from_date) {
-        params.assign_date = filtersToUse.from_date;
-      }
+        if (filtersToUse.from_date)
+      params.from_date = filtersToUse.from_date;
+
+    if (filtersToUse.to_date)
+      params.to_date = filtersToUse.to_date;
 
       if (filtersToUse?.assigned_employee) {
         params.employee_id = filtersToUse.assigned_employee;
       }
+
+      if (filtersToUse.lead_status)
+        params.lead_status = filtersToUse.lead_status;
 
       const response = await axiosInstance.get(
         `api/lead-assign-report/export`,
@@ -483,15 +510,28 @@ const LeadManagement_Details = () => {
             <div className="w-full mt-5 rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-4 py-4">
 
               <div className="flex flex-wrap gap-4">
-                {/* Assigned Date */}
+                          {/* Start Date */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-[#6B7280]">Assign Date</label>
+                  <label className="text-sm font-medium text-[#6B7280]">Start Date</label>
                   <input
                     type="date"
                     className="border h-10 px-3 rounded-md"
                     value={filters.from_date}
                     onChange={(e) =>
                       setFilters(prev => ({ ...prev, from_date: e.target.value }))
+                    }
+                  />
+                </div>
+
+                {/* End Date */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">End Date</label>
+                  <input
+                    type="date"
+                    className="border h-10 px-3 rounded-md"
+                    value={filters.to_date}
+                    onChange={(e) =>
+                      setFilters(prev => ({ ...prev, to_date: e.target.value }))
                     }
                   />
                 </div>
