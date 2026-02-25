@@ -211,6 +211,9 @@ const Employee_contract_details = () => {
   const [statusType, setStatusType] = useState(0);
   const [companyEmpType, setCompanyEmpType] = useState([]);
 
+  //existing table
+  const [showExistingTable, setShowExistingTable] = useState(false);
+
   // console.log("companyEmpType", companyEmpType);
 
   // Table states
@@ -332,6 +335,7 @@ const Employee_contract_details = () => {
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [selectedBoarding, setSelectedBoarding] = useState(null);
   const [selectedEducation, setSelectedEducation] = useState(null);
+  const[isFinalized, setIsFinalized] = useState(false);
   // console.log("selectedEducation", selectedEducation);
 
   // console.log("selectedCompany", selectedCompany);
@@ -477,10 +481,22 @@ const Employee_contract_details = () => {
     setIsImportAddModalOpen(true);
     setTimeout(() => setIsAnimating(true), 10);
   };
-  const closeImportAddModal = () => {
-    setIsAnimating(false);
-    setTimeout(() => setIsImportAddModalOpen(false), 250);
-  };
+
+  
+const closeImportAddModal = () => {
+  setIsAnimating(false);
+  setColumnData([]);
+  setSelectedCompany(null);
+  setSelectedFile(null); // This clears your state...
+  setShowExistingTable(false); 
+
+  // ADD THIS LINE: This clears the actual HTML input value
+  if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
+
+  setTimeout(() => setIsImportAddModalOpen(false), 350);
+};
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -739,21 +755,23 @@ const Employee_contract_details = () => {
 
       const skipped = response.data?.skipped_details || [];
 
-      console.log('skipped details', skipped);
+      // console.log('skipped details', skipped);
 
-      // setImportskip(skipped);
+     if (skipped.length > 0) {
+  // Extract existing_data only
+  const existingList = skipped.map(item => ({
+    ...item.existing_data,
+    row: item.row,
+    existing_id: item.existing_id
+  }));
 
-      // //  only if skipped data exists
-      // if (skipped.length > 0) {
-      //   setShowSkipModal(true);
-      // }
-
-      // Reset fields
-      // handleDeleteFile();
-      // setSelectedDate(new Date().toISOString().split("T")[0]);
-      // setSelectedCompany(null);
-      setIsImportAddModalOpen(true);
-      fetchContractCandidates();
+  setColumnData(existingList);
+  setShowExistingTable(true);   //  show table
+} else {
+  setShowExistingTable(false);  //  hide table
+}
+      
+      
     } catch (err) {
       console.error("Import error:", err);
 
@@ -777,6 +795,45 @@ const Employee_contract_details = () => {
     }
   };
 
+const handleFileOkay = async (e) => {
+  e.preventDefault();
+
+  if (isSubmitting) return;
+  setIsSubmitting(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("file", selectedFile);
+    formData.append("created_by", userId);
+    formData.append("role_id", userRole);
+    formData.append("company_id", selectedCompany);
+
+    formData.append("is_finalize", "1");
+
+    const response = await axiosInstance.post(
+      `${API_URL}api/contract-employee/import`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    if (response.data.success) {
+      toast.success("Excel finalized successfully!");
+fetchContractCandidates();
+      setColumnData([]);              // clear table
+      setShowExistingTable(false);    // hide table
+      closeImportAddModal();          // close modal
+    }
+
+  } catch (err) {
+    toast.error("Finalize failed");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+  
   const normalizeDocuments = (rowData) => {
     if (rowData.document_groups?.length) {
       return rowData.document_groups.flatMap((group) =>
@@ -2228,7 +2285,7 @@ const Employee_contract_details = () => {
                       >
                         Cancel
                       </button> */}
-                      <button
+                      {/* <button
                         // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
                         onClick={handleFileSubmit}
                         disabled={isSubmitting}
@@ -2239,9 +2296,21 @@ const Employee_contract_details = () => {
                           <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         )}
                         {isSubmitting ? "Uploading..." : "Submit"}
-                      </button>
+                      </button> */}
+
+                       {/* Show Submit ONLY if no existing data */}
+  {!showExistingTable && (
+    <button
+      onClick={handleFileSubmit}
+      disabled={isSubmitting}
+      className="bg-[#1ea600] text-white px-5 py-2 rounded-[10px]"
+    >
+      Submit
+    </button>
+  )}
                     </div>
 
+{showExistingTable && (
                     <div className="table-scroll-container flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6" id="datatable">
                       <DataTable
 
@@ -2282,19 +2351,28 @@ const Employee_contract_details = () => {
                         >
                           Cancel
                         </button>
-                        <button
-                          // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                          // onClick={handleFileSubmit}
-
-                          className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
-             disabled:opacity-50 flex items-center gap-2"
+                        {/* <button
+                          className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                          onClick={handleFileOkay}
+                
                         >
                           Okay
-                        </button>
+                        </button> */}
+
+                         {/* Show OK ONLY if existing data found */}
+  {showExistingTable && (
+    <button
+      onClick={handleFileOkay}
+      onClose={closeImportAddModal}
+      className="bg-[#1ea600] text-white px-5 py-2 rounded-[10px]"
+    >
+      Okay
+    </button>
+  )}
                       </div>
 
                     </div>
-
+)}
                   </div>
                 </div>
               </div>
