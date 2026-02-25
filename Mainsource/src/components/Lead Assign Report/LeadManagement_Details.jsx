@@ -116,9 +116,27 @@ const LeadManagement_Details = () => {
 
   const [filters, setFilters] = useState({
     from_date: today,
-    assigned_employee: ""
+    assigned_employee: "",
+    lead_status: null
   });
 
+
+  //redirect from dashboard 
+  useEffect(() => {
+  const fromDate = searchParams.get("fromDate");
+  const status = searchParams.get("status");
+  const employeeId = searchParams.get("employee_id");
+
+  const urlFilters = {
+    from_date: fromDate || today,
+    assigned_employee: employeeId ? Number(employeeId) : "",
+    lead_status: status || null
+  };
+
+  setFilters(urlFilters);
+  fetchLead(urlFilters);
+
+}, [searchParams]);
 
   const handleApplyFilter = () => {
     fetchLead(filters);
@@ -128,6 +146,7 @@ const LeadManagement_Details = () => {
     const reset = {
       from_date: today,
       assigned_employee: "",
+      lead_status: null
     };
 
     setFilters(reset);
@@ -179,69 +198,12 @@ const LeadManagement_Details = () => {
     setStatusViewLead(null);
   };
 
-  // update lead status
-  const handleStatusSubmit = async () => {
-    try {
-      if (!statusForm.status) {
-        toast.warning("Please Select Status");
-        return;
-      }
-
-      if (statusForm.followUp === "yes" && !statusForm.followUpDate) {
-        toast.warning("Please Select Follow Up Date");
-        return;
-      }
-
-      const payload = {
-
-        lead_status: statusForm.status,
-        notes: statusForm.notes,
-        followup_status: statusForm.followUp === "yes" ? 1 : 0,
-        created_by: userid,
-        scheduled_date: statusForm.epoDate || null,
-        followup_date: statusForm.followUp === "yes" ? statusForm.followUpDate : null,
-        company_id: statusForm.company_id.length
-          ? statusForm.company_id.join(",")
-          : null
-      };
-
-      if (statusForm.followUp === "yes") {
-        payload.followup_date = statusForm.followUpDate;
-      }
-
-      const response = await axiosInstance.post(
-        `${API_URL}api/lead-management/status-update/${viewStatus.id}`,
-        payload
-      );
-      setTimeout(() => {
-        toast.success("Lead Status Updated Successfully");
-      }, 600);
-
-      await fetchStatusList(viewStatus.id);
-      fetchLead();
-
-      // reset form
-      setStatusForm({
-        status: "",
-        notes: "",
-        followUp: "no",
-        followUpDate: "",
-        epoDate: "",
-        company_id: []
-      });
-      setSelectedCompany([]);
-
-    } catch (error) {
-      console.error("Status update failed", error);
-      toast.error("Failed to update lead status");
-    }
-  };
 
 
   // Fetch lead from the API
-  useEffect(() => {
-    fetchLead();
-  }, []);
+  // useEffect(() => {
+  //   fetchLead();
+  // }, []);
 
 
   // CHANGE THIS FUNCTION - Remove applyFrontendFilters
@@ -258,6 +220,9 @@ const LeadManagement_Details = () => {
 
       if (filtersToUse.assigned_employee)
         params.employee_id = filtersToUse.assigned_employee;
+
+      if (filtersToUse.lead_status)
+        params.lead_status = filtersToUse.lead_status;
 
       const res = await axiosInstance.get(
         `${API_URL}api/lead-assign-report`,
@@ -312,32 +277,7 @@ const LeadManagement_Details = () => {
     return foundKey || "open";
   };
 
-  const handleStatusChange = (row, newStatusKey) => {
 
-    //  Update UI immediately
-    setLeads(prev =>
-      prev.map(lead =>
-        lead.id === row.id
-          ? { ...lead, lead_status: newStatusKey }
-          : lead
-      )
-    );
-
-    //  Open modal
-    setViewStatus({ ...row, lead_status: newStatusKey });
-    setIsViewStatusOpen(true);
-
-    //  Prepare form
-    setStatusForm({
-      status: newStatusKey,
-      notes: "",
-      followUp: "no",
-      followUpDate: "",
-      epoDate: ""
-    });
-  };
-
-  const [selectedRows, setSelectedRows] = useState([]);
 
   //export
   const handleExport = async () => {
@@ -581,6 +521,27 @@ const LeadManagement_Details = () => {
                   />
                 </div>
 
+                {/* status */}
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-[#6B7280]">
+                    Status
+                  </label>
+                
+                  <Dropdown
+                    value={filters.lead_status}
+                    options={statusDropdownOptions}
+                    onChange={(e) =>
+                      setFilters((prev) => ({ ...prev, lead_status: e.value }))
+                    }
+                    placeholder="Select Status"
+                    className="h-10 rounded-md border border-[#D9D9D9] text-sm"
+                    panelClassName="text-sm"
+                    filter
+                  />
+                </div>
+                
+
                 {/* Buttons */}
                 <div className="flex gap-3 mt-6 md:mt-0 justify-end items-end">
                   <button
@@ -717,251 +678,6 @@ const LeadManagement_Details = () => {
               </div>
             </div>
 
-
-            {/* status */}
-            {isViewStatusOpen && viewStatus && (
-              <div
-                className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center"
-                onClick={() => setIsViewStatusOpen(false)}
-              >
-                {/* STOP CLICK INSIDE */}
-                <div
-                  className="bg-white rounded-xl w-full max-w-4xl mx-4 shadow-xl h-[80vh] flex flex-col"
-                  onClick={(e) => e.stopPropagation()}
-                >
-
-                  {/* HEADER */}
-                  <div className="px-6 py-4 border-b bg-green-50 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-green-700">
-                      Update Lead Status
-                    </h2>
-                    <button
-                      onClick={() => setIsViewStatusOpen(false)}
-                      className="p-1 rounded-full
-                   text-gray-600 hover:bg-red-100 hover:text-red-600 transition"
-                    >
-                      <IoClose size={22} />
-                    </button>
-                  </div>
-
-                  {/* SCROLLABLE BODY */}
-                  <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6 green-scroll">
-                    {/* Status */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Status</label>
-                      <select
-                        className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                        value={statusForm.status}
-                        onChange={(e) =>
-                          setStatusForm({ ...statusForm, status: e.target.value })
-                        }
-                      >
-                        <option value="open">Open</option>
-                        <option value="joined">Joined</option>
-                        <option value="interested">Interested / schedule</option>
-                        <option value="not_interested">Not Interested</option>
-                        <option value="follow_up">Follow Up</option>
-                        <option value="not_picked">Not Picked</option>
-                      </select>
-                    </div>
-
-                    {/* company */}
-
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Company</label>
-
-                      <div className="w-[60%] md:w-[50%]">
-                        <MultiSelect
-                          value={selectedCompany}
-                          options={companyDropdown}
-                          optionLabel="label"
-                          optionValue="value"
-                          placeholder="Select Company"
-                          filterPlaceholder="Search companies..."
-                          filter
-                          className="w-full border border-gray-300 rounded-lg"
-                          onChange={(e) => {
-                            setSelectedCompany(e.value);
-                            setStatusForm({
-                              ...statusForm,
-                              company_id: e.value
-                            });
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Interested */}
-                    {statusForm.status === "interested" && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Schedule Date
-                        </label>
-                        <input
-                          type="date"
-                          className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                          value={statusForm.epoDate}
-                          onChange={(e) =>
-                            setStatusForm({ ...statusForm, epoDate: e.target.value })
-                          }
-                        />
-                      </div>
-                    )}
-
-                    {/* Notes */}
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Notes</label>
-                      <textarea
-                        className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                        rows="3"
-                        value={statusForm.notes}
-                        onChange={(e) =>
-                          setStatusForm({ ...statusForm, notes: e.target.value })
-                        }
-                      />
-                    </div>
-
-                    {/* Follow up */}
-                    <div className="grid grid-cols-2 gap-6">
-                      {/* <div>
-            <label className="block text-sm font-medium mb-1">
-              Next Follow Up?
-            </label>
-            <div className="flex gap-6 mt-2">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="yes"
-                  checked={statusForm.followUp === "yes"}
-                  onChange={(e) =>
-                    setStatusForm({ ...statusForm, followUp: e.target.value })
-                  }
-                />
-                Yes
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="no"
-                  checked={statusForm.followUp === "no"}
-                  onChange={(e) =>
-                    setStatusForm({ ...statusForm, followUp: e.target.value })
-                  }
-                />
-                No
-              </label>
-            </div>
-          </div> */}
-
-                      {/* {statusForm.followUp === "yes" && ( */}
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Follow Up Date
-                        </label>
-                        <input
-                          type="date"
-                          className="border p-2 w-full rounded-md focus:ring-2 focus:ring-green-400"
-                          value={statusForm.followUpDate}
-                          onChange={(e) =>
-                            setStatusForm({
-                              ...statusForm,
-                              followUpDate: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      {/* )} */}
-                    </div>
-
-                    <div className="flex justify-end gap-3 pt-6">
-                      <button
-                        className="px-4 py-2 border rounded-md hover:bg-gray-100"
-                        onClick={() => setIsViewStatusOpen(false)}
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                        onClick={handleStatusSubmit}
-                      >
-                        Submit
-                      </button>
-                    </div>
-
-                    {/* Status History */}
-                    <div className="border rounded-lg overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-green-100">
-                          <tr>
-                            <th className="border px-3 py-2">S.No</th>
-                            <th className="border px-3 py-2">Status</th>
-                            <th className="border px-3 py-2">Follow Up</th>
-                            <th className="border px-3 py-2">Notes</th>
-                            <th className="border px-3 py-2">Company</th>
-                            <th className="border px-3 py-2">Created Date</th>
-                            {/* <th className="border px-3 py-2">Follow Date</th> */}
-                            <th className="border px-3 py-2">Scheduled Date</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {statusList?.length ? (
-                            statusList.map((item, index) => (
-                              <tr key={index} className="hover:bg-green-50">
-                                <td className="border px-3 py-2 text-center">
-                                  {index + 1}
-                                </td>
-                                <td className="border px-3 py-2 capitalize">
-                                  {item.status}
-                                </td>
-                                <td className="border px-3 py-2 text-center">
-                                  {/* {item.followUp ? "Yes" : "No"} */}
-                                  {item.followup_status === "1" ? "Yes" : "No"}
-
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {Capitalise(item.notes || "-")}
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {item.company_id?.split(",")
-                                    ?.map(id =>
-                                      companyDropdown.find(c => c.value == id)?.label
-                                    )
-                                    ?.filter(Boolean)
-                                    ?.join(", ") || "-"}
-                                </td>
-                                <td className="border px-3 py-2">
-                                  {formatToDDMMYYYY(item.created_at)}
-                                </td>
-                                {/* <td className="border px-3 py-2">
-                      {formatToDDMMYYYY(item.followup_date)}
-                    </td> */}
-                                <td className="border px-3 py-2">
-                                  {formatToDDMMYYYY(item.scheduled_date)}
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td
-                                colSpan="5"
-                                className="border px-3 py-4 text-center text-gray-500"
-                              >
-                                No status history found
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* FOOTER (NORMAL POSITION) */}
-
-                  </div>
-                </div>
-              </div>
-            )}
 
 
             {/*status list view  */}

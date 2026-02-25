@@ -778,11 +778,11 @@ onClick={() => openEmployeePopup(rowData, "joining")}
         </div>
 
         {/* CENTER - Present / Total */}
-        <div className="flex-shrink-0">
+        {/* <div className="flex-shrink-0">
           <span className="px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
             {rowData.present_employees}/{rowData.total_employees}
           </span>
-        </div>
+        </div> */}
 
         {/* RIGHT - Absent */}
         <div className="flex-shrink-0">
