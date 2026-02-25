@@ -28,6 +28,8 @@ import axiosInstance from "../../axiosConfig";
 import { fr } from "zod/v4/locales";
 import exportToPDF from "../../Utils/exportToPDF";
 import exportToCSV from "../../Utils/exportToCSV";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const Contract_Report_Detail = () => {
   let navigate = useNavigate();
@@ -67,6 +69,37 @@ const Contract_Report_Detail = () => {
     useState([]);
 
   const [dateFilter, setDateFilter] = useState("Today");
+
+    // 3 days abent list
+  const [openAbsentPopup, setOpenAbsentPopup] = useState(false);
+  const [absentPopupTitle, setAbsentPopupTitle] = useState("");
+  const [absentPopupData, setAbsentPopupData] = useState([]);
+
+   const openAbsentEmployeePopup = (title, list) => {
+    console.log("Popup opening", title, list);
+    setAbsentPopupTitle(title);
+    setAbsentPopupData(list || []);
+    setOpenAbsentPopup(true);
+  };
+
+  const closeAbsentEmployeePopup = () => {
+    setOpenAbsentPopup(false);
+    setAbsentPopupTitle("");
+    setAbsentPopupData([]);
+  };
+
+    const getRowColor = (type) => {
+  switch (type) {
+    case "red":
+      return "bg-red-100 hover:bg-red-200";
+    case "orange":
+      return "bg-orange-100 hover:bg-orange-200";
+    case "yellow":
+      return "bg-yellow-100 hover:bg-yellow-200";
+    default:
+      return "hover:bg-gray-50";
+  }
+};
 
   const staticInterviewCandidates = [
     { company_name: "ARYU", total_employees: 10 },
@@ -710,6 +743,71 @@ onClick={() => openEmployeePopup(rowData, "joining")}
                   )}
                 </div>
               </div>
+
+
+              {/* company attendance summary */}
+
+
+<div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+  <div className="flex items-center justify-between mb-4">
+    <h2 className="text-base font-semibold text-gray-800">
+      Company Attendance Summary
+    </h2>
+
+    <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+      {dashboardData?.company_wise_summary?.length || 0}
+    </span>
+  </div>
+
+  <div className="space-y-4 h-[320px] overflow-auto pr-1">
+    {(dashboardData?.company_wise_summary || []).map((rowData, index) => (
+      <div
+        key={index}
+        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200"
+      >
+
+
+        {/* LEFT - Company Name */}
+        <div className="min-w-0 ">
+          <p 
+          className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
+          title={rowData.company_name}
+          >
+            {rowData.company_name}
+          </p>
+        </div>
+
+        {/* CENTER - Present / Total */}
+        <div className="flex-shrink-0">
+          <span className="px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+            {rowData.present_employees}/{rowData.total_employees}
+          </span>
+        </div>
+
+        {/* RIGHT - Absent */}
+        <div className="flex-shrink-0">
+          <span
+            onClick={() =>
+              openAbsentEmployeePopup(
+                `${rowData.company_name} - Absent Employees`,
+                rowData.absentees
+              )
+            }
+            className="px-4 py-1.5 rounded-full bg-red-100 text-red-700 text-sm font-semibold cursor-pointer hover:bg-red-700 hover:text-white transition"
+          >
+             {rowData.absent_employees}
+          </span>
+        </div>
+      </div>
+    ))}
+
+    {(dashboardData?.company_attendance || []).length === 0 && (
+      <p className="text-sm text-gray-500 text-center py-10">
+        No attendance data found.
+      </p>
+    )}
+  </div>
+</div>
             </div>
 
 
@@ -890,7 +988,12 @@ onClick={() => openEmployeePopup(rowData, "joining")}
             )}
           </>
         )}
+
+       
+
       </div>
+
+
 
       {/* Footer */}
       <div className="p-4 border-t bg-gray-50 flex justify-end">
@@ -904,6 +1007,181 @@ onClick={() => openEmployeePopup(rowData, "joining")}
     </div>
   </div>
 )}
+
+          {/* absent popup */}
+
+            {openAbsentPopup && (
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+                onClick={closeAbsentEmployeePopup}
+              >
+                <div
+                  className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between bg-green-700 px-4 sm:px-6 py-3 sm:py-4">
+                    <h2 className="text-white text-base sm:text-lg font-bold">
+                      {absentPopupTitle}
+                    </h2>
+ <div className="flex items-center gap-3">
+          {/* Excel Button */}
+          <button
+            onClick={() => {
+              // Format data for Excel - only required fields
+              const formattedData = absentPopupData.map((emp, index) => ({
+                "S.No": index + 1,
+                "Employee Name": emp?.employee_name || "-",
+                "Employee ID": emp?.employee_id || "-",
+                "Absent Dates": emp?.absent_dates?.join(", ") || "-",
+                "Continuous Days": emp?.continuous_days || "N/A"
+              }));
+              exportToCSV(formattedData, "Absent_Employees");
+            }}
+            className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+          >
+            Excel
+          </button>
+
+          {/* PDF Button */}
+          <button
+            onClick={() => {
+              if (!absentPopupData || absentPopupData.length === 0) return;
+
+              const doc = new jsPDF();
+              doc.text(absentPopupTitle, 14, 15);
+
+              const tableColumn = [
+                "S.No",
+                "Employee Name",
+                "Employee ID",
+                "Absent Dates",
+                "Continuous Days"
+              ];
+
+              const tableRows = absentPopupData.map((emp, index) => ([
+                index + 1,
+                emp?.employee_name || "-",
+                emp?.employee_id || "-",
+                emp?.absent_dates?.join(", ") || "-",
+                emp?.continuous_days || "N/A"
+              ]));
+
+              autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: 20,
+                didParseCell: function (data) {
+                  if (data.section === "body") {
+                    const rowIndex = data.row.index;
+                    const rowType = absentPopupData[rowIndex]?.type;
+
+                    if (rowType === "yellow") {
+                      data.cell.styles.fillColor = [255, 255, 150]; // Light yellow
+                    } else if (rowType === "red") {
+                      data.cell.styles.fillColor = [255, 150, 150]; // Light red
+                    } else if (rowType === "orange") {
+                      data.cell.styles.fillColor = [255, 200, 120]; // Light orange
+                    }
+                  }
+                }
+              });
+
+              doc.save("Absent_Employees.pdf");
+            }}
+            className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+          >
+            PDF
+          </button>
+
+    {/* Close Button */}
+    <button
+      onClick={closeAbsentEmployeePopup}
+      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+    >
+      ✕
+    </button>
+
+  </div>
+                  </div>
+
+                  {/* Body */}
+                  <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+                    {absentPopupData?.length > 0 ? (
+                      <div className="overflow-x-auto rounded-xl border border-gray-200">
+                        <table className="w-full text-sm">
+                          <thead>
+                             <tr className="bg-green-50 text-green-900">
+                              <th className="px-4 py-3 text-center w-[70px]">
+                                S.No
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Id
+                              </th>
+                              <th className="px-4 py-3 text-center">
+                                Employee Name
+                              </th>
+                              {/* <th className="px-4 py-3 text-center">
+                                Company Name
+                              </th> */}
+                              <th className="px-4 py-3 text-center">
+                                Continous Absent Days
+                              </th>
+                              
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {absentPopupData.map((emp, index) => (
+                              <tr
+                                key={index}
+                                className={`border-t hover:bg-gray-50 transition ${getRowColor(emp?.type)}`}
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  {index + 1}
+                                </td>
+
+                                <td className="px-4 py-3 text-center font-semibold text-gray-800">
+                                  {emp?.employee_id || "-"}
+                                </td>
+
+                                <td className="px-4 py-3 text-center text-gray-800">
+                                  {emp?.employee_name || "-"}
+                                </td>
+
+                                {/* <td className="px-4 py-3 text-center text-gray-700">
+                                  {emp?.company_name || "N/A"}
+                                </td> */}
+                                <td className="px-4 py-3 text-center text-gray-700">
+                                  {emp?.continuous_days || "N/A"}
+                                </td>
+                              
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10">
+                        <p className="text-gray-500 font-medium">
+                          No Absent Employees
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-6 py-3 sm:py-4">
+                    <button
+                      onClick={closeAbsentEmployeePopup}
+                      className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
 
           </div>
