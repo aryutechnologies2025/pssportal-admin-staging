@@ -692,12 +692,12 @@ const Employee_contract_details = () => {
     if (hasError) {
       setError((prev) => ({ ...prev, ...newErrors }));
       // Scroll to first error
-      setTimeout(() => {
-        const errorField = Object.keys(newErrors)[0];
-        const element = document.querySelector(`[data-field="${errorField}"]`);
-        if (element)
-          element.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 100);
+      // setTimeout(() => {
+      //   const errorField = Object.keys(newErrors)[0];
+      //   const element = document.querySelector(`[data-field="${errorField}"]`);
+      //   if (element)
+      //     element.scrollIntoView({ behavior: "smooth", block: "center" });
+      // }, 100);
 
       return;
     }
@@ -725,8 +725,8 @@ const Employee_contract_details = () => {
       );
 
       if (response.data.existing_aadhar?.length > 0) {
-  setExistingAadharList(response.data.existing_aadhar);
-}
+        setExistingAadharList(response.data.existing_aadhar);
+      }
 
       // console.log("response:", response.data);
       if (response.data.success) {
@@ -739,18 +739,20 @@ const Employee_contract_details = () => {
 
       const skipped = response.data?.skipped_details || [];
 
-      setImportskip(skipped);
+      console.log('skipped details', skipped);
 
-      //  only if skipped data exists
-      if (skipped.length > 0) {
-        setShowSkipModal(true);
-      }
+      // setImportskip(skipped);
+
+      // //  only if skipped data exists
+      // if (skipped.length > 0) {
+      //   setShowSkipModal(true);
+      // }
 
       // Reset fields
-      handleDeleteFile();
-      setSelectedDate(new Date().toISOString().split("T")[0]);
-      setSelectedCompany(null);
-      setIsImportAddModalOpen(false);
+      // handleDeleteFile();
+      // setSelectedDate(new Date().toISOString().split("T")[0]);
+      // setSelectedCompany(null);
+      setIsImportAddModalOpen(true);
       fetchContractCandidates();
     } catch (err) {
       console.error("Import error:", err);
@@ -1283,144 +1285,144 @@ const Employee_contract_details = () => {
   ];
 
   const addharExsistCustomerColumns = [
-  {
-    header: "S.No",
-    body: (_, options) => options.rowIndex + 1,
-    style: { textAlign: "center", width: "80px" },
-  },
+    {
+      header: "S.No",
+      body: (_, options) => options.rowIndex + 1,
+      style: { textAlign: "center", width: "80px" },
+    },
 
-  {
-    header: "Employee ID",
-    field: "employee_id",
-    body: (row) => row.employee_id || "-",
-  },
+    {
+      header: "Employee ID",
+      field: "employee_id",
+      body: (row) => row.employee_id || "-",
+    },
 
-  {
-    header: "Name",
-    field: "name",
-    body: (row) => Capitalise(row.name || "-"),
-  },
+    {
+      header: "Name",
+      field: "name",
+      body: (row) => Capitalise(row.name || "-"),
+    },
 
-  {
-    header: "Joining Date",
-    field: "joining_date",
-    body: (row) => formatToDDMMYYYY(row.joining_date),
-  },
+    {
+      header: "Joining Date",
+      field: "joining_date",
+      body: (row) => formatToDDMMYYYY(row.joining_date),
+    },
 
-  {
-    header: "DOB",
-    field: "date_of_birth",
-    body: (row) => formatToDDMMYYYY(row.date_of_birth),
-  },
+    {
+      header: "DOB",
+      field: "date_of_birth",
+      body: (row) => formatToDDMMYYYY(row.date_of_birth),
+    },
 
-  {
-    header: "Phone",
-    field: "phone_number",
-    body: (row) => row.phone_number || "-",
-  },
+    {
+      header: "Phone",
+      field: "phone_number",
+      body: (row) => row.phone_number || "-",
+    },
 
-  {
-    header: "Emergency Contact",
-    field: "emr_contact_number",
-    body: (row) => row.emr_contact_number || "-",
-  },
+    {
+      header: "Emergency Contact",
+      field: "emr_contact_number",
+      body: (row) => row.emr_contact_number || "-",
+    },
 
-  {
-    header: "Aadhar Number",
-    field: "aadhar_number",
-    body: (row) => row.aadhar_number || "-",
-  },
+    {
+      header: "Aadhar Number",
+      field: "aadhar_number",
+      body: (row) => row.aadhar_number || "-",
+    },
 
-  {
-    header: "PAN Number",
-    field: "pan_number",
-    body: (row) => row.pan_number || "-",
-  },
+    {
+      header: "PAN Number",
+      field: "pan_number",
+      body: (row) => row.pan_number || "-",
+    },
 
-  {
-    header: "UAN Number",
-    field: "uan_number",
-    body: (row) => row.uan_number || "-",
-  },
+    {
+      header: "UAN Number",
+      field: "uan_number",
+      body: (row) => row.uan_number || "-",
+    },
 
-  {
-    header: "ESIC",
-    field: "esic",
-    body: (row) => row.esic || "-",
-  },
+    {
+      header: "ESIC",
+      field: "esic",
+      body: (row) => row.esic || "-",
+    },
 
-  {
-    header: "Account Number",
-    field: "account_number",
-    body: (row) => row.account_number || "-",
-  },
+    {
+      header: "Account Number",
+      field: "account_number",
+      body: (row) => row.account_number || "-",
+    },
 
-  {
-    header: "Bank Name",
-    field: "bank_name",
-    body: (row) => row.bank_name || "-",
-  },
+    {
+      header: "Bank Name",
+      field: "bank_name",
+      body: (row) => row.bank_name || "-",
+    },
 
-  {
-    header: "Branch Name",
-    field: "branch_name",
-    body: (row) => row.branch_name || "-",
-  },
+    {
+      header: "Branch Name",
+      field: "branch_name",
+      body: (row) => row.branch_name || "-",
+    },
 
-  {
-    header: "IFSC Code",
-    field: "ifsc_code",
-    body: (row) => row.ifsc_code || "-",
-  },
+    {
+      header: "IFSC Code",
+      field: "ifsc_code",
+      body: (row) => row.ifsc_code || "-",
+    },
 
-  {
-    header: "Father Name",
-    field: "father_name",
-    body: (row) => row.father_name || "-",
-  },
+    {
+      header: "Father Name",
+      field: "father_name",
+      body: (row) => row.father_name || "-",
+    },
 
-  {
-    header: "Gender",
-    field: "gender",
-    body: (row) => row.gender || "-",
-  },
+    {
+      header: "Gender",
+      field: "gender",
+      body: (row) => row.gender || "-",
+    },
 
-  {
-    header: "Marital Status",
-    field: "marital_status",
-    body: (row) => row.marital_status || "-",
-  },
+    {
+      header: "Marital Status",
+      field: "marital_status",
+      body: (row) => row.marital_status || "-",
+    },
 
-  {
-    header: "Address",
-    field: "address",
-    body: (row) => row.address || "-",
-  },
+    {
+      header: "Address",
+      field: "address",
+      body: (row) => row.address || "-",
+    },
 
-  {
-    header: "Current Address",
-    field: "current_address",
-    body: (row) => row.current_address || "-",
-  },
+    {
+      header: "Current Address",
+      field: "current_address",
+      body: (row) => row.current_address || "-",
+    },
 
-  {
-    header: "City",
-    field: "city",
-    body: (row) => row.city || "-",
-  },
+    {
+      header: "City",
+      field: "city",
+      body: (row) => row.city || "-",
+    },
 
-  {
-    header: "State",
-    field: "state",
-    body: (row) => row.state || "-",
-  },
+    {
+      header: "State",
+      field: "state",
+      body: (row) => row.state || "-",
+    },
 
-  {
-    header: "Pincode",
-    field: "pincode",
-    body: (row) => row.pincode || "-",
-  },
-];
+    {
+      header: "Pincode",
+      field: "pincode",
+      body: (row) => row.pincode || "-",
+    },
+  ];
   const [rejoinType, setRejoinType] = useState(null);
   // create
   const onSubmit = async (data) => {
@@ -1692,7 +1694,7 @@ const Employee_contract_details = () => {
     }
   };
 
-  const handleBulkInactiveSubmit  = async (e) => {
+  const handleBulkInactiveSubmit = async (e) => {
     // console.log("selectedAccount:1");
     e.preventDefault();
 
@@ -1961,28 +1963,28 @@ const Employee_contract_details = () => {
                     </span>
                   </div>
 
-                                      {/* Search box */}
-                    <div className="relative w-64">
-                      <FiSearch
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                        size={18}
-                      />
-                      <InputText
-                        value={globalFilter}
-                        onChange={(e) => setGlobalFilter(e.target.value)}
-                        placeholder="Search......"
-                        className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
-                      />
-                      {globalFilter && (
-                        <button
-                          type="button"
-                          onClick={() => setGlobalFilter("")}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-                        >
-                          <FiX size={18} />
-                        </button>
-                      )}
-                    </div>
+                  {/* Search box */}
+                  <div className="relative w-64">
+                    <FiSearch
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                      size={18}
+                    />
+                    <InputText
+                      value={globalFilter}
+                      onChange={(e) => setGlobalFilter(e.target.value)}
+                      placeholder="Search......"
+                      className="w-full pl-10 pr-3 py-2 rounded-md text-sm border border-[#D9D9D9] focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                    />
+                    {globalFilter && (
+                      <button
+                        type="button"
+                        onClick={() => setGlobalFilter("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
+                      >
+                        <FiX size={18} />
+                      </button>
+                    )}
+                  </div>
 
                   <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
 
@@ -2240,59 +2242,59 @@ const Employee_contract_details = () => {
                       </button>
                     </div>
 
- <div className="table-scroll-container flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6" id="datatable">
-                  <DataTable
+                    <div className="table-scroll-container flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white shadow-[0_8px_24px_rgba(0,0,0,0.08)] px-2 py-2 md:px-6 md:py-6" id="datatable">
+                      <DataTable
 
-                    className="mt-8"
-                    value={columnData}
-                    paginator
-                    rows={rows}
-                    first={(page - 1) * rows}
-                    onPage={onPageChange}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
-                    globalFilter={globalFilter}
-                    globalFilterFields={['name', 'phone_number', 'aadhar_number', 'employee_id', 'gender']}
-                    showGridlines
-                    resizableColumns
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                    paginatorClassName="custom-paginator"
-                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                    loading={loading}
-                  >
-                    {addharExsistCustomerColumns.map((col, index) => (
-                      <Column
-                        key={index}
-                        field={col.field}
-                        header={col.header}
-                        body={col.body}
-                        style={col.style}
-                      />
-                    ))}
-                  </DataTable>
-
-                    <div className="flex  justify-end gap-2 mt-6 md:mt-14">
-                      <button
-                        onClick={() => {
-                          closeImportAddModal();
-                          resetImportForm();
-                        }}
-                        className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                        className="mt-8"
+                        value={columnData}
+                        paginator
+                        rows={rows}
+                        first={(page - 1) * rows}
+                        onPage={onPageChange}
+                        rowsPerPageOptions={[10, 25, 50, 100]}
+                        globalFilter={globalFilter}
+                        globalFilterFields={['name', 'phone_number', 'aadhar_number', 'employee_id', 'gender']}
+                        showGridlines
+                        resizableColumns
+                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                        paginatorClassName="custom-paginator"
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                        loading={loading}
                       >
-                        Cancel
-                      </button>
-                      <button
-                        // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
-                        // onClick={handleFileSubmit}
-                        
-                        className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
+                        {addharExsistCustomerColumns.map((col, index) => (
+                          <Column
+                            key={index}
+                            field={col.field}
+                            header={col.header}
+                            body={col.body}
+                            style={col.style}
+                          />
+                        ))}
+                      </DataTable>
+
+                      <div className="flex  justify-end gap-2 mt-6 md:mt-14">
+                        <button
+                          onClick={() => {
+                            closeImportAddModal();
+                            resetImportForm();
+                          }}
+                          className=" hover:bg-[#FEE2E2] hover:border-[#FEE2E2] text-sm md:text-base border border-[#7C7C7C]  text-[#7C7C7C] hover:text-[#DC2626] px-5 md:px-5 py-1 md:py-2 font-semibold rounded-[10px] transition-all duration-200"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          // className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] disabled:opacity-50 transition-all duration-200"
+                          // onClick={handleFileSubmit}
+
+                          className="bg-[#1ea600] hover:bg-[#4BB452] text-white px-4 md:px-5 py-2 font-semibold rounded-[10px] 
              disabled:opacity-50 flex items-center gap-2"
-                      >
-                        Okay
-                      </button>
+                        >
+                          Okay
+                        </button>
+                      </div>
+
                     </div>
 
-                </div>
-                    
                   </div>
                 </div>
               </div>
