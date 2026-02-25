@@ -2535,7 +2535,7 @@ px-2 py-2 md:px-6 md:py-6">
                                 {item.followUp ? "Yes" : "No"}
                               </td>
                               <td className="border px-3 py-2">
-                                {item.notes || "-"}
+                                {Capitalise(item.notes || "-" )}
                               </td>
                               <td className="border px-3 py-2">
   {item.company_id?.split(",")
