@@ -42,18 +42,14 @@ const LeadManagement_Details = () => {
   let navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const multiSelectRef = useRef(null);
- 
+
   const [loading, setLoading] = useState(true);
-  
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState({});
- 
+
   const [leads, setLeads] = useState([]);
-  
+
   const [totalRecords, setTotalRecords] = useState(0);
- 
- 
+
+
   const storedDetatis = localStorage.getItem("pssuser");
   const parsedDetails = JSON.parse(storedDetatis);
   const userid = parsedDetails ? parsedDetails.id : null;
@@ -70,13 +66,14 @@ const LeadManagement_Details = () => {
   const [cityOptions, setCityOptions] = useState([]);
   const [isStatusViewOpen, setIsStatusViewOpen] = useState(false);
   const [statusViewLead, setStatusViewLead] = useState(null);
-    const [statusList, setStatusList] = useState([]);
+  const [statusList, setStatusList] = useState([]);
 
 
 
   const [employeeOptions, setEmployeeOptions] = useState([]);
+
   const employeeDropdownOptions = employeeOptions.map(employee => ({
-    label: employee.name,
+    label: employee.full_name,
     value: employee.id
   }));
 
@@ -120,7 +117,7 @@ const LeadManagement_Details = () => {
   const [filters, setFilters] = useState({
     from_date: today,
     assigned_employee: ""
-    });
+  });
 
 
   const handleApplyFilter = () => {
@@ -152,26 +149,23 @@ const LeadManagement_Details = () => {
     }, 500);
   };
 
-    const fetchStatusList = async (id) => {
-      try {
-        setLoading(true);
-  
-        const res = await axiosInstance.post(
-          `${API_URL}api/lead-management/status-list/${id}`
-        );
-  
-        console.log("fetch Status List", res.data);
-  
-  
-        setStatusList(res.data.leadstatus.notes);
-  
-      } catch (error) {
-        toast.error("Failed to fetch status list");
-      } finally {
-        setLoading(false);
-  
-      }
-    };
+  const fetchStatusList = async (id) => {
+    try {
+      setLoading(true);
+
+      const res = await axiosInstance.post(
+        `${API_URL}api/lead-management/status-list/${id}`
+      );
+
+      setStatusList(res.data.leadstatus.notes);
+
+    } catch (error) {
+      toast.error("Failed to fetch status list");
+    } finally {
+      setLoading(false);
+
+    }
+  };
 
   // status list open
   const openStatusView = async (row) => {
@@ -184,24 +178,6 @@ const LeadManagement_Details = () => {
     setIsStatusViewOpen(false);
     setStatusViewLead(null);
   };
-
-
-
-  const [leadForm, setLeadForm] = useState({
-    is_organic: "",
-    full_name: "",
-    gender: "",
-    phone: "",
-    dob: "",
-    post_code: "",
-    city: "",
-    state: "",
-    status: "",
-    category: null,
-    // category:[]
-  });
- 
-
 
   // update lead status
   const handleStatusSubmit = async () => {
@@ -277,35 +253,19 @@ const LeadManagement_Details = () => {
 
       const params = {};
 
-      if (filtersToUse.gender)
-        params.gender = filtersToUse.gender.toLowerCase();
-
-      if (filtersToUse.city)
-        params.city = filtersToUse.city.toLowerCase();
-
       if (filtersToUse.from_date)
-        params.from_date = filtersToUse.from_date;
+        params.assign_date = filtersToUse.from_date;
 
-      if (filtersToUse.to_date)
-        params.to_date = filtersToUse.to_date;
-
-      if (filtersToUse.category)
-        params.lead_category_id = filtersToUse.category;
-
-      if (filtersToUse.employee_id)
-        params.employee_id = filtersToUse.employee_id;
-
-      if (filtersToUse.lead_status)
-        params.lead_status = filtersToUse.lead_status;
+      if (filtersToUse.assigned_employee)
+        params.employee_id = filtersToUse.assigned_employee;
 
       const res = await axiosInstance.get(
-        `${API_URL}api/lead-management`,
+        `${API_URL}api/lead-assign-report`,
         { params }
       );
 
       if (res.data.success) {
         let data = res.data.data || [];
-
         // Only normalize data - NO FRONTEND FILTERING
         data = data.map(lead => ({
           ...lead,
@@ -316,12 +276,7 @@ const LeadManagement_Details = () => {
 
         setLeads(data);
         setTotalRecords(data.length);
-        setCityOptions(res.data.cities || []);
         setEmployeeOptions(res.data.employees || []);
-
-        if (res.data.companies) {
-          setCompanyOptions(res.data.companies);
-        }
 
       }
     } catch (err) {
@@ -359,33 +314,75 @@ const LeadManagement_Details = () => {
 
   const handleStatusChange = (row, newStatusKey) => {
 
-  //  Update UI immediately
-  setLeads(prev =>
-    prev.map(lead =>
-      lead.id === row.id
-        ? { ...lead, lead_status: newStatusKey }
-        : lead
-    )
-  );
+    //  Update UI immediately
+    setLeads(prev =>
+      prev.map(lead =>
+        lead.id === row.id
+          ? { ...lead, lead_status: newStatusKey }
+          : lead
+      )
+    );
 
-  //  Open modal
-  setViewStatus({ ...row, lead_status: newStatusKey });
-  setIsViewStatusOpen(true);
+    //  Open modal
+    setViewStatus({ ...row, lead_status: newStatusKey });
+    setIsViewStatusOpen(true);
 
-  //  Prepare form
-  setStatusForm({
-    status: newStatusKey,
-    notes: "",
-    followUp: "no",
-    followUpDate: "",
-    epoDate: ""
-  });
-};
+    //  Prepare form
+    setStatusForm({
+      status: newStatusKey,
+      notes: "",
+      followUp: "no",
+      followUpDate: "",
+      epoDate: ""
+    });
+  };
 
   const [selectedRows, setSelectedRows] = useState([]);
 
+  //export
+  const handleExport = async () => {
+    try {
 
+       const filtersToUse = filters;
 
+      const params = {};
+
+      if (filtersToUse?.from_date) {
+        params.assign_date = filtersToUse.from_date;
+      }
+
+      if (filtersToUse?.assigned_employee) {
+        params.employee_id = filtersToUse.assigned_employee;
+      }
+
+      const response = await axiosInstance.get(
+        `api/lead-assign-report/export`,
+        {
+          params: params,          // ✅ FIXED
+          responseType: "blob",    // ✅ required for file
+        }
+      );
+
+      const attendanceDate = filtersToUse?.from_date || "date";
+
+      const fileName = `lead_assign_report_${attendanceDate}.csv`;
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Lead Assign Report exported successfully");
+
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Export failed");
+    }
+  };
 
   // column
   const columns = [
@@ -450,20 +447,20 @@ const LeadManagement_Details = () => {
       body: (row) => formatToDDMMYYYY(row.created_time),
     },
     {
-  field: "status",
-  header: "Status",
-  body: (row) => (
-    <div className="flex items-center gap-2">
+      field: "status",
+      header: "Status",
+      body: (row) => (
+        <div className="flex items-center gap-2">
 
-      {/* Show only selected label */}
-      <span className="border p-1 w-56">
-        {STATUS_MAP[row.lead_status] || "Open"}
-      </span>
+          {/* Show only selected label */}
+          <span className="border p-1 w-56">
+            {STATUS_MAP[row.lead_status] || "Open"}
+          </span>
 
-      
-    </div>
-  ),
-},
+
+        </div>
+      ),
+    },
 
     {
       field: "Action",
@@ -472,12 +469,12 @@ const LeadManagement_Details = () => {
         <div className="flex justify-center gap-3">
 
           {/* Eye button for history */}
-      <button
-        onClick={() => openStatusView(row)}
-        className="text-blue-600"
-      >
-        <HiOutlineQueueList />
-      </button>
+          <button
+            onClick={() => openStatusView(row)}
+            className="text-blue-600"
+          >
+            <HiOutlineQueueList />
+          </button>
 
           <button
             onClick={() => openViewModal(row)}
@@ -547,7 +544,7 @@ const LeadManagement_Details = () => {
 
               <div className="flex flex-wrap gap-4">
                 {/* Assigned Date */}
-                 <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1">
                   <label className="text-sm font-medium text-[#6B7280]">Assign Date</label>
                   <input
                     type="date"
@@ -605,8 +602,8 @@ const LeadManagement_Details = () => {
             </div>
 
             <div className="flex flex-col w-full mt-1 md:mt-5 h-auto rounded-2xl bg-white 
-shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
-px-2 py-2 md:px-6 md:py-6">
+                shadow-[0_8px_24px_rgba(0,0,0,0.08)] 
+                px-2 py-2 md:px-6 md:py-6">
               <div className="datatable-container mt-4">
                 <div className="flex flex-col lg:flex-row md:items-center md:justify-between gap-3 mb-4">
                   {/* Entries per page */}
@@ -655,6 +652,14 @@ px-2 py-2 md:px-6 md:py-6">
                   </div>
 
                   <div className="flex justify-between items-center gap-5">
+
+                    <button
+                      onClick={handleExport}
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                    >
+                      Export
+                    </button>
+
                     {/* Search box */}
                     <div className="relative w-64">
                       <FiSearch
@@ -668,13 +673,14 @@ px-2 py-2 md:px-6 md:py-6">
 
                         placeholder="Search......"
                         className="w-full pl-10 pr-3 py-2 text-sm rounded-md border border-[#D9D9D9] 
-               focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
+                          focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
 
                       />
                     </div>
-                   
+
 
                   </div>
+
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
@@ -990,7 +996,7 @@ px-2 py-2 md:px-6 md:py-6">
                           <th className="border px-3 py-2">Notes</th>
                           <th className="border px-3 py-2">Company</th>
                           <th className="border px-3 py-2">Created Date</th>
-                          {/* <th className="border px-3 py-2">Follow Date</th> */}
+                          <th className="border px-3 py-2">Follow Date</th>
                           <th className="border px-3 py-2">Scheduled Date</th>
                         </tr>
                       </thead>
@@ -1021,6 +1027,12 @@ px-2 py-2 md:px-6 md:py-6">
                               </td>
                               <td className="border px-3 py-2">
                                 {formatToDDMMYYYY(item.created_at)}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {formatToDDMMYYYY(item.followup_date)}
+                              </td>
+                              <td className="border px-3 py-2">
+                                {formatToDDMMYYYY(item.scheduled_date)}
                               </td>
                             </tr>
                           ))
@@ -1126,7 +1138,7 @@ px-2 py-2 md:px-6 md:py-6">
               </div>
             )}
 
-          
+
           </div>
         </>
       )

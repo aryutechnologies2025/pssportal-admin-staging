@@ -335,6 +335,10 @@ const Lead_Dashboard = () => {
   //   }
   // };
 
+  const [statusLeadData, setStatusLeadData] = useState([]);
+
+  console.log('statusLeadData', statusLeadData);
+
   const fetchleaddashboard = async (params = {}) => {
     try {
       const payload = {
@@ -349,6 +353,24 @@ const Lead_Dashboard = () => {
       );
 
       setDashboardData(res.data);
+
+
+      // ✅ convert response for table
+
+      const status_list = res.data.assign_leads;
+
+      const converted = status_list[0]?.status_counts.map((lead) => ({
+        status: lead.status,
+        label: lead.status
+          .replaceAll("_", " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase()),
+        count: lead.count,
+      })) || [];
+
+      console.log("converted", converted);
+
+
+      setStatusLeadData(converted);
     } catch (error) {
       console.error("Failed to fetch lead dashboard data", error);
     }
@@ -364,6 +386,8 @@ const Lead_Dashboard = () => {
   const [selectedlead, setSelectedlead] = useState(null);
   const [statusData, setStatusData] = useState([]);
 
+
+
   const handleCategoryClick = (rowData) => {
     console.log("Clicked category:", rowData);
     setSelectedCategory(rowData);
@@ -375,12 +399,10 @@ const Lead_Dashboard = () => {
     });
   };
 
-    const handleCategoryClicklead = (rowData) => {
-    console.log("Clicked category:", rowData);
+  const handleCategoryClicklead = (rowData) => {
     setSelectedlead(rowData);
     setIsLeadModalOpen(true);
 
-   
   };
 
   const statusList = [
@@ -396,8 +418,9 @@ const Lead_Dashboard = () => {
     statusList.map((s) => ({
       key: s.key,
       label: s.label,
-      count: selectedlead?.status_details?.[s.key] ?? 0,
+      count: selectedlead?.status_counts?.count?.[s.key] ?? 0,
     })) || [];
+
 
   const fetchstatusdashboard = async (params = {}) => {
     try {
@@ -607,14 +630,14 @@ const Lead_Dashboard = () => {
                       )}
                     />
                     <Column field="assign_count" header="Count"
-                    body={(rowData) => (
-                     <button
+                      body={(rowData) => (
+                        <button
                           onClick={() => handleCategoryClicklead(rowData)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
                           {rowData.entries_count}
                         </button>)} />
-                         
+
                   </DataTable>
                 </div>
 
@@ -629,219 +652,203 @@ const Lead_Dashboard = () => {
           </div>
 
           {/* Category Modal */}
-         <Dialog
-  header={
-    <div className="flex flex-col">
-      <p className="text-lg font-bold text-gray-800">
-        {selectedCategory?.employee_name}
-      </p>
-      <p className="text-sm text-green-700 font-medium">
-        Status Wise Count
-      </p>
-    </div>
-  }
-  visible={isCategoryModalOpen}
-  style={{ width: "75vw", maxWidth: "900px" }}
-  onHide={() => setIsCategoryModalOpen(false)}
-  className="rounded-2xl"
-  footer={
-    <div className="flex justify-end gap-3">
-      <button
-        onClick={() => setIsCategoryModalOpen(false)}
-        className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
-      >
-        Close
-      </button>
-    </div>
-  }
->
-  <div className="p-4 md:p-6 bg-white rounded-2xl">
-    <div className="mb-5 flex items-center justify-between gap-4">
-      <div>
-        <p className="text-sm text-gray-500">
-          Showing status counts for
-        </p>
-        <p className="text-base font-semibold text-gray-800">
-          {selectedCategory?.employee_name}
-        </p>
-      </div>
-
-      <div className="px-4 py-2 rounded-xl bg-green-50 border border-green-200">
-        <p className="text-sm text-green-800 font-semibold">
-          Total: {statusData.reduce((sum, item) => sum + item.count, 0)}
-        </p>
-      </div>
-    </div>
-
-    <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-      <DataTable
-        value={statusData}
-        showGridlines={false}
-        responsiveLayout="scroll"
-        className="w-full"
-        emptyMessage="No status data found"
-        stripedRows
-      >
-        <Column
-          header="S.No"
-          body={(_, options) => (
-            <span className="font-semibold text-gray-700">
-              {options.rowIndex + 1}
-            </span>
-          )}
-          style={{ width: "80px" }}
-          headerClassName="bg-green-600 text-white font-semibold"
-          bodyClassName="py-3"
-        />
-
-        <Column
-          field="label"
-          header="Status"
-          headerClassName="bg-green-600 text-white font-semibold"
-          bodyClassName="py-3 text-gray-700 font-medium"
-        />
-
-        <Column
-          field="count"
-          header="Count"
-          headerClassName="bg-green-600 text-white font-semibold"
-          bodyClassName="py-3 font-bold text-green-700"
-  //           body={(rowData) => (
-  //   <button
-  //     onClick={() => {
-  //       const status = rowData.status;
-
-  //       navigate(
-  //         `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`
-  //       );
-
-  //       setIsCategoryModalOpen(false);
-  //     }}
-  //     className="text-green-700 font-bold underline hover:text-green-900"
-  //   >
-  //     {rowData.count}
-  //   </button>
-  // )}
-        />
-      </DataTable>
-    </div>
-
-    <div className="mt-5 p-4 rounded-2xl bg-green-50 border border-green-200">
-      <p className="text-sm text-green-900 font-semibold">
-        Total in {selectedCategory?.employee_name}:{" "}
-        {statusData.reduce((sum, item) => sum + item.count, 0)}
-      </p>
-    </div>
-  </div>
-</Dialog>
-
-
-{/* lead */}
           <Dialog
-  header={
-    <div className="flex flex-col">
-      <p className="text-lg font-bold text-gray-800">
-        {selectedlead?.employee_name}
-      </p>
-      <p className="text-sm text-green-700 font-medium">
-        Status Wise Count
-      </p>
-    </div>
-  }
-  visible={isLeadModalOpen}
-  style={{ width: "75vw", maxWidth: "900px" }}
-  onHide={() => setIsLeadModalOpen(false)}
-  className="rounded-2xl"
-  footer={
-    <div className="flex justify-end gap-3">
-      <button
-        onClick={() => setIsLeadModalOpen(false)}
-        className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
-      >
-        Close
-      </button>
-    </div>
-  }
->
-  <div className="p-4 md:p-6 bg-white rounded-2xl">
-    <div className="mb-5 flex items-center justify-between gap-4">
-      <div>
-        <p className="text-sm text-gray-500">
-          Showing status counts for
-        </p>
-        <p className="text-base font-semibold text-gray-800">
-          {selectedlead?.employee_name}
-        </p>
-      </div>
+            header={
+              <div className="flex flex-col">
+                <p className="text-lg font-bold text-gray-800">
+                  {selectedCategory?.employee_name}
+                </p>
+                <p className="text-sm text-green-700 font-medium">
+                  Status Wise Count
+                </p>
+              </div>
+            }
+            visible={isCategoryModalOpen}
+            style={{ width: "75vw", maxWidth: "900px" }}
+            onHide={() => setIsCategoryModalOpen(false)}
+            className="rounded-2xl"
+            footer={
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+                >
+                  Close
+                </button>
+              </div>
+            }
+          >
+            <div className="p-4 md:p-6 bg-white rounded-2xl">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">
+                    Showing status counts for
+                  </p>
+                  <p className="text-base font-semibold text-gray-800">
+                    {selectedCategory?.employee_name}
+                  </p>
+                </div>
 
-      <div className="px-4 py-2 rounded-xl bg-green-50 border border-green-200">
-        <p className="text-sm text-green-800 font-semibold">
-          Total: {statusDatalead.reduce((sum, item) => sum + item.count, 0)}
-        </p>
-      </div>
-    </div>
+                <div className="px-4 py-2 rounded-xl bg-green-50 border border-green-200">
+                  <p className="text-sm text-green-800 font-semibold">
+                    Total: {statusData.reduce((sum, item) => sum + item.count, 0)}
+                  </p>
+                </div>
+              </div>
 
-    <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-      <DataTable
-        value={statusDatalead}
-        showGridlines={false}
-        responsiveLayout="scroll"
-        className="w-full"
-        emptyMessage="No status data found"
-        stripedRows
-      >
-        <Column
-          header="S.No"
-          body={(_, options) => (
-            <span className="font-semibold text-gray-700">
-              {options.rowIndex + 1}
-            </span>
-          )}
-          style={{ width: "80px" }}
-          headerClassName="bg-green-600 text-white font-semibold"
-          bodyClassName="py-3"
-        />
+              <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                <DataTable
+                  value={statusData}
+                  showGridlines={false}
+                  responsiveLayout="scroll"
+                  className="w-full"
+                  emptyMessage="No status data found"
+                  stripedRows
+                >
+                  <Column
+                    header="S.No"
+                    body={(_, options) => (
+                      <span className="font-semibold text-gray-700">
+                        {options.rowIndex + 1}
+                      </span>
+                    )}
+                    style={{ width: "80px" }}
+                    headerClassName="bg-green-600 text-white font-semibold"
+                    bodyClassName="py-3"
+                  />
 
-        <Column
-          field="label"
-          header="Status"
-          headerClassName="bg-green-600 text-white font-semibold"
-          bodyClassName="py-3 text-gray-700 font-medium"
-        />
+                  <Column
+                    field="label"
+                    header="Status"
+                    headerClassName="bg-green-600 text-white font-semibold"
+                    bodyClassName="py-3 text-gray-700 font-medium"
+                  />
 
-        <Column
-          field="count"
-          header="Count"
-          headerClassName="bg-green-600 text-white font-semibold"
-          bodyClassName="py-3 font-bold text-green-700"
-  //          body={(rowData) => (
-  //   <button
-  //     onClick={() => {
-  //       const status = rowData.key;
+                  <Column
+                    field="count"
+                    header="Count"
+                    headerClassName="bg-green-600 text-white font-semibold"
+                    bodyClassName="py-3 font-bold text-green-700"
+                  //           body={(rowData) => (
+                  //   <button
+                  //     onClick={() => {
+                  //       const status = rowData.status;
 
-  //       navigate(
-  //         `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&employee_id=${selectedlead?.employee_id}`
-  //       );
+                  //       navigate(
+                  //         `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`
+                  //       );
 
-  //       setIsLeadModalOpen(false);
-  //     }}
-  //     className="text-green-700 font-bold underline hover:text-green-900"
-  //   >
-  //     {rowData.count}
-  //   </button>
-  // )}
-        />
-      </DataTable>
-    </div>
+                  //       setIsCategoryModalOpen(false);
+                  //     }}
+                  //     className="text-green-700 font-bold underline hover:text-green-900"
+                  //   >
+                  //     {rowData.count}
+                  //   </button>
+                  // )}
+                  />
+                </DataTable>
+              </div>
 
-    <div className="mt-5 p-4 rounded-2xl bg-green-50 border border-green-200">
-      <p className="text-sm text-green-900 font-semibold">
-        Total in {selectedlead?.employee_name}:{" "}
-        {statusDatalead.reduce((sum, item) => sum + item.count, 0)}
-      </p>
-    </div>
-  </div>
-</Dialog>
+              <div className="mt-5 p-4 rounded-2xl bg-green-50 border border-green-200">
+                <p className="text-sm text-green-900 font-semibold">
+                  Total in {selectedCategory?.employee_name}:{" "}
+                  {statusData.reduce((sum, item) => sum + item.count, 0)}
+                </p>
+              </div>
+            </div>
+          </Dialog>
+
+
+          {/* lead */}
+          <Dialog
+            header={
+              <div className="flex flex-col">
+                <p className="text-lg font-bold text-gray-800">
+                  {selectedlead?.employee_name}
+                </p>
+                <p className="text-sm text-green-700 font-medium">
+                  Status Wise Count
+                </p>
+              </div>
+            }
+            visible={isLeadModalOpen}
+            style={{ width: "75vw", maxWidth: "900px" }}
+            onHide={() => setIsLeadModalOpen(false)}
+            className="rounded-2xl"
+            footer={
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsLeadModalOpen(false)}
+                  className="px-5 py-2 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+                >
+                  Close
+                </button>
+              </div>
+            }
+          >
+            <div className="p-4 md:p-6 bg-white rounded-2xl">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">
+                    Showing status counts for assign
+                  </p>
+                  <p className="text-base font-semibold text-gray-800">
+                    {selectedlead?.employee_name}
+                  </p>
+                </div>
+
+                <div className="px-4 py-2 rounded-xl bg-green-50 border border-green-200">
+                  <p className="text-sm text-green-800 font-semibold">
+                    Total: {selectedlead?.status_counts.reduce((sum, item) => sum + item.count, 0)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                <DataTable
+                  value={statusLeadData}
+                  showGridlines={false}
+                  responsiveLayout="scroll"
+                  className="w-full"
+                  emptyMessage="No status data found"
+                  stripedRows
+                >
+                  <Column
+                    header="S.No"
+                    body={(_, options) => (
+                      <span className="font-semibold text-gray-700">
+                        {options.rowIndex + 1}
+                      </span>
+                    )}
+                    style={{ width: "80px" }}
+                    headerClassName="bg-green-600 text-white font-semibold"
+                    bodyClassName="py-3"
+                  />
+
+                  <Column
+                    field="label"
+                    header="Status"
+                    headerClassName="bg-green-600 text-white font-semibold"
+                    bodyClassName="py-3 text-gray-700 font-medium"
+                  />
+
+                  <Column
+                    field="count"
+                    header="Count"
+                    headerClassName="bg-green-600 text-white font-semibold"
+                    bodyClassName="py-3 font-bold text-green-700"
+                  />
+                </DataTable>
+              </div>
+
+              <div className="mt-5 p-4 rounded-2xl bg-green-50 border border-green-200">
+                <p className="text-sm text-green-900 font-semibold">
+                  Total in {selectedlead?.employee_name}:{" "}
+                  {selectedlead?.status_counts.reduce((sum, item) => sum + item.count, 0)}
+                </p>
+              </div>
+            </div>
+          </Dialog>
 
 
           <Footer />
