@@ -2038,7 +2038,9 @@ const ContractCandidates_Mainbar = () => {
                     className="mt-8"
                     value={columnData}
                     paginator
-                    rows={10}
+                    rows={rows}
+                    first={(page - 1) * rows}
+                    onPage={onPageChange}
                     rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
                     showGridlines

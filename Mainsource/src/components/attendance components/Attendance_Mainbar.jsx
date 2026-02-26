@@ -43,7 +43,18 @@ const Attendance_Mainbar = () => {
   const [companyName, setCompanyName] = useState("ABC Company");
   const [selectedCompany, setSelectedCompany] = useState("Company A");
 
-  const [page, setPage] = useState(1);
+
+   const [page, setPage] = useState(1);
+   const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
   const [rows, setRows] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
   const [companies, setCompanies] = useState([]);
@@ -1033,7 +1044,7 @@ px-2 py-2 md:px-6 md:py-6"
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
                     <span className=" text-sm text-[#6B7280]">
@@ -1139,8 +1150,12 @@ px-2 py-2 md:px-6 md:py-6"
                   className="mt-8 overflow-x-hidden"
                   value={attendanceData}
                   paginator
-                  rows={10}
-                  rowsPerPageOptions={[5, 10, 20]}
+                  
+                  rows={rows}
+                   first={(page - 1) * rows}
+                    onPage={onPageChange}
+                  rowsPerPageOptions={[10, 20, 50, 100]}
+              
                   globalFilter={globalFilter}
                   globalFilterFields={[
                     "name",
@@ -1150,6 +1165,10 @@ px-2 py-2 md:px-6 md:py-6"
                   ]}
                   showGridlines
                   resizableColumns
+                   paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    paginatorClassName="custom-paginator"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    loading={loading}
                 >
                   {columns.map((col, index) => (
                     <Column

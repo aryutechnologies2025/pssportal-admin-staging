@@ -158,6 +158,11 @@ const referenceOptions = [
 
   };
 
+    const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
   const fetchRemarksById = async (id) => {
     try {
       const res = await axiosInstance.get(
@@ -1485,7 +1490,7 @@ const columnMap = {
                     <Dropdown
                       value={rows}
                       options={[10, 25, 50, 100].map((v) => ({ label: v, value: v }))}
-                      onChange={(e) => setRows(e.value)}
+                      onChange={(e) => onRowsChange(e.value)}
 
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
