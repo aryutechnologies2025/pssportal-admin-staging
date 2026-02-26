@@ -19,15 +19,6 @@ import { API_URL } from "../Config.js";
 const Login = () => {
   let navigate = useNavigate();
 
-  // function onCLickLogin() {
-  //   navigate("/dashboard");
-
-  //   window.scrollTo({
-  //     top: 0,
-  //     behavior: "instant",
-  //   });
-  // }
-
   const [error, setError] = useState({});
   let [requiredError, setRequiredError] = useState("");
   let [adminError, setAdminError] = useState("");
@@ -89,6 +80,8 @@ const Login = () => {
   //     }
   //   }
   // };
+
+
   const onCLickLogin = async (e) => {
     e.preventDefault();
 
@@ -236,9 +229,9 @@ const Login = () => {
             onChange={handleCaptchaChange}
           /> */}
 
-      {error?.message && (
+      {/* {error?.message && (
         <p className="text-red-500 text-sm text-center">{error.message}</p>
-      )}
+      )} */}
 
       <button
         onClick={onCLickLogin}
