@@ -20,11 +20,10 @@ const Lead_Dashboard = () => {
   const [fromDate, setFromDate] = useState(today);
   const [toDate, setToDate] = useState(today);
   const [filters, setFilters] = useState({
-  assign_date: today,
-  employee_id:"",
-  lead_status:""
-});
-  
+    assign_date: today,
+    employee_id: "",
+    lead_status: "",
+  });
 
   // Dashboard data
   const [categoryData, setCategoryData] = useState([]);
@@ -328,6 +327,7 @@ const Lead_Dashboard = () => {
   //
 
   const [dasboradData, setDashboardData] = useState([]);
+  console.log("dashboardData", dasboradData);
   // const fetchleaddashboard = async () => {
   //   try {
   //     const res = await axiosInstance.get(`${API_URL}api/lead-management/dashboard`);
@@ -340,6 +340,8 @@ const Lead_Dashboard = () => {
   // };
 
   const [statusLeadData, setStatusLeadData] = useState([]);
+
+  console.log("statusLeadData", statusLeadData);
 
   const fetchleaddashboard = async (params = {}) => {
     try {
@@ -356,7 +358,6 @@ const Lead_Dashboard = () => {
 
       setDashboardData(res.data);
 
-
       // ✅ convert response for table
 
       // const status_list = res.data.assign_leads;
@@ -370,7 +371,6 @@ const Lead_Dashboard = () => {
       // })) || [];
 
       // console.log("converted", status_list);
-
 
       // setStatusLeadData(converted);
     } catch (error) {
@@ -401,7 +401,6 @@ const Lead_Dashboard = () => {
   const handleCategoryClicklead = (rowData) => {
     setStatusLeadData(rowData);
     setIsLeadModalOpen(true);
-
   };
 
   const statusList = [
@@ -419,7 +418,6 @@ const Lead_Dashboard = () => {
       label: s.label,
       count: selectedlead?.count?.[s.key] ?? 0,
     })) || [];
-
 
   const fetchstatusdashboard = async (params = {}) => {
     try {
@@ -450,9 +448,6 @@ const Lead_Dashboard = () => {
   // useEffect(() => {
   //   fetchstatusdashboard();
   // }, []);
-
-
-
 
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5">
@@ -559,13 +554,18 @@ const Lead_Dashboard = () => {
                       )}
                     />
 
-                    <Column field="count" header="Count"
+                    <Column
+                      field="count"
+                      header="Count"
                       body={(rowData) => (
                         <button
                           onClick={() => handleCategoryClick(rowData)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
-                        >{rowData.count}</button>
-                      )} />
+                        >
+                          {rowData.count}
+                        </button>
+                      )}
+                    />
                   </DataTable>
                 </div>
 
@@ -619,22 +619,25 @@ const Lead_Dashboard = () => {
                       header="Employee Name"
                       body={(rowData) => (
                         <button
-                          onClick={() => handleCategoryClicklead(rowData.status_counts)}
+                          onClick={() => handleCategoryClicklead(rowData)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
                           {rowData.employee.full_name}
                         </button>
                       )}
                     />
-                    <Column field="assign_count" header="Count"
+                    <Column
+                      field="assign_count"
+                      header="Count"
                       body={(rowData) => (
                         <button
-                          onClick={() => handleCategoryClicklead(rowData.status_counts)}
+                          onClick={() => handleCategoryClicklead(rowData)}
                           className="text-green-600 hover:text-green-800 font-medium hover:underline"
                         >
                           {rowData.entries_count}
-                        </button>)} />
-
+                        </button>
+                      )}
+                    />
                   </DataTable>
                 </div>
 
@@ -688,7 +691,8 @@ const Lead_Dashboard = () => {
 
                 <div className="px-4 py-2 rounded-xl bg-green-50 border border-green-200">
                   <p className="text-sm text-green-800 font-semibold">
-                    Total: {statusData.reduce((sum, item) => sum + item.count, 0)}
+                    Total:{" "}
+                    {statusData.reduce((sum, item) => sum + item.count, 0)}
                   </p>
                 </div>
               </div>
@@ -726,22 +730,22 @@ const Lead_Dashboard = () => {
                     header="Count"
                     headerClassName="bg-green-600 text-white font-semibold"
                     bodyClassName="py-3 font-bold text-green-700"
-                            body={(rowData) => (
-                    <button
-                      onClick={() => {
-                        const status = rowData.status;
+                    body={(rowData) => (
+                      <button
+                        onClick={() => {
+                          const status = rowData.status;
 
-                        navigate(
-                          `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`
-                        );
+                          navigate(
+                            `/lead-engine?fromDate=${fromDate}&toDate=${toDate}&status=${status}&lead_category_id=${selectedCategory?.category_id}`,
+                          );
 
-                        setIsCategoryModalOpen(false);
-                      }}
-                      className="text-green-700 font-bold  hover:text-green-900"
-                    >
-                      {rowData.count}
-                    </button>
-                  )}
+                          setIsCategoryModalOpen(false);
+                        }}
+                        className="text-green-700 font-bold  hover:text-green-900"
+                      >
+                        {rowData.count}
+                      </button>
+                    )}
                   />
                 </DataTable>
               </div>
@@ -755,13 +759,12 @@ const Lead_Dashboard = () => {
             </div>
           </Dialog>
 
-
           {/* lead */}
           <Dialog
             header={
               <div className="flex flex-col">
                 <p className="text-lg font-bold text-gray-800">
-                  {selectedlead?.employee_name}
+                  {statusLeadData?.employee?.full_name}
                 </p>
                 <p className="text-sm text-green-700 font-medium">
                   Status Wise Count
@@ -790,20 +793,23 @@ const Lead_Dashboard = () => {
                     Showing status counts for assign
                   </p>
                   <p className="text-base font-semibold text-gray-800">
-                    {selectedlead?.employee_name}
+                    {statusLeadData?.employee?.full_name}
                   </p>
                 </div>
 
                 <div className="px-4 py-2 rounded-xl bg-green-50 border border-green-200">
                   <p className="text-sm text-green-800 font-semibold">
-                    Total: {selectedlead?.status_counts.reduce((sum, item) => sum + item.count, 0)}
+                    Total:   {statusLeadData?.status_counts?.reduce(
+                    (sum, item) => sum + (item.count || 0),
+                    0,
+                  ) || 0}
                   </p>
                 </div>
               </div>
 
               <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                 <DataTable
-                  value={statusLeadData}
+                  value={statusLeadData?.status_counts}
                   showGridlines={false}
                   responsiveLayout="scroll"
                   className="w-full"
@@ -834,36 +840,37 @@ const Lead_Dashboard = () => {
                     header="Count"
                     headerClassName="bg-green-600 text-white font-semibold"
                     bodyClassName="py-3 font-bold text-green-700"
-                     body={(rowData) => (
-                    <button
-                      onClick={() => {
-  const status = rowData.status;
+                    body={(rowData) => (
+                      <button
+                        onClick={() => {
+                          const status = rowData.status;
 
-  
-  navigate(
-    `/lead-assign-report?fromDate=${fromDate}&toDate=${toDate}&employee_id=${selectedlead?.employee_id}&lead_status=${status}`
-  );
-  
-  setIsLeadModalOpen(false);
-}}
-                      className="text-green-700 font-bold  hover:text-green-900"
-                    >
-                      {rowData.count}
-                    </button>
-                  )}
+                          navigate(
+                            `/lead-assign-report?fromDate=${fromDate}&toDate=${toDate}&employee_id=${statusLeadData?.employee_id}&lead_status=${status}`,
+                          );
+
+                          setIsLeadModalOpen(false);
+                        }}
+                        className="text-green-700 font-bold  hover:text-green-900"
+                      >
+                        {rowData?.count}
+                      </button>
+                    )}
                   />
                 </DataTable>
               </div>
 
               <div className="mt-5 p-4 rounded-2xl bg-green-50 border border-green-200">
                 <p className="text-sm text-green-900 font-semibold">
-                  Total in {selectedlead?.employee_name}:{" "}
-                  {selectedlead?.status_counts.reduce((sum, item) => sum + item.count, 0)}
+                  Total in {statusLeadData?.employee?.full_name || "Employee"}:{" "}
+                  {statusLeadData?.status_counts?.reduce(
+                    (sum, item) => sum + (item.count || 0),
+                    0,
+                  ) || 0}
                 </p>
               </div>
             </div>
           </Dialog>
-
 
           <Footer />
         </>

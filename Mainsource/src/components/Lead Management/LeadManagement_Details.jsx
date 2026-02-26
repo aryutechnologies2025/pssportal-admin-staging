@@ -2421,11 +2421,11 @@ px-2 py-2 md:px-6 md:py-6">
               <tr>
                 <th className="border px-3 py-2">S.No</th>
                 <th className="border px-3 py-2">Status</th>
-                <th className="border px-3 py-2">Follow Up</th>
+                {/* <th className="border px-3 py-2">Follow Up</th> */}
                 <th className="border px-3 py-2">Notes</th>
                 <th className="border px-3 py-2">Company</th>
                 <th className="border px-3 py-2">Created Date</th>
-                <th className="border px-3 py-2">Follow Date</th>
+                <th className="border px-3 py-2">Follow up Date</th>
                 <th className="border px-3 py-2">Scheduled Date</th>
               </tr>
             </thead>
@@ -2439,11 +2439,10 @@ px-2 py-2 md:px-6 md:py-6">
                     <td className="border px-3 py-2 capitalize">
                       {item.status}
                     </td>
-                    <td className="border px-3 py-2 text-center">
-                      {/* {item.followUp ? "Yes" : "No"} */}
+                    {/* <td className="border px-3 py-2 text-center">
                       {item.followup_status === "1" ? "Yes" : "No"}
 
-                    </td>
+                    </td> */}
                     <td className="border px-3 py-2">
                       {Capitalise(item.notes || "-")}
                     </td>
@@ -2516,11 +2515,11 @@ px-2 py-2 md:px-6 md:py-6">
                         <tr>
                           <th className="border px-3 py-2">S.No</th>
                           <th className="border px-3 py-2">Status</th>
-                          <th className="border px-3 py-2">Follow Up</th>
+                          {/* <th className="border px-3 py-2">Follow Up</th> */}
                           <th className="border px-3 py-2">Notes</th>
                           <th className="border px-3 py-2">Company</th>
                           <th className="border px-3 py-2">Created Date</th>
-                          <th className="border px-3 py-2">Follow Date</th>
+                          <th className="border px-3 py-2">Follow up Date</th>
                           <th className="border px-3 py-2">Scheduled Date</th>
                         </tr>
                       </thead>
@@ -2535,9 +2534,9 @@ px-2 py-2 md:px-6 md:py-6">
                               <td className="border px-3 py-2 capitalize">
                                 {item.status}
                               </td>
-                              <td className="border px-3 py-2 text-center">
+                              {/* <td className="border px-3 py-2 text-center">
                                 {item.followUp ? "Yes" : "No"}
-                              </td>
+                              </td> */}
                               <td className="border px-3 py-2">
                                 {Capitalise(item.notes || "-" )}
                               </td>
