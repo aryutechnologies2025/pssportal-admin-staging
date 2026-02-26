@@ -15,4 +15,4 @@ export const API_URL = "https://portalapi-staging.pssagencies.com/";  //staging
 
 // export const API_URL = "http://192.168.0.102:8000/";
 
-export const CAPCHA_URL = "6LfAxm8sAAAAAMxloeaxcZzXfzbwMTPrStDgpUEx";  //site key(live)
+export const CAPCHA_URL = "6Lf7HngsAAAAAHIwPBmxM_NFfivpudvUWFEykM0i";  //site key(live)

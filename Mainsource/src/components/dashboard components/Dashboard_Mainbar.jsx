@@ -1847,19 +1847,36 @@ const Dashboard_Mainbar = () => {
 
     {/* Excel Button */}
     <button
-      onClick={() => exportToCSV(employeeList, "Work_Report", popupTitle)}
-      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      Excel
-    </button>
+  onClick={() =>
+    exportToCSV(
+      employeeList.map((emp, index) => ({
+        "S.No": index + 1,
+        "Full Name": Capitalise(emp.employee_name),
+      })),
+      popupTitle.replaceAll(" ", "_")
+    )
+  }
+  className="px-3 py-1 rounded bg-white text-green-600 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  Excel
+</button>
 
     {/* PDF Button */}
     <button
-      onClick={() => exportToPDF(employeeList, "Work_Report", popupTitle)}
-      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      PDF
-    </button>
+  onClick={() =>
+    exportToPDF(
+      employeeList.map((emp, index) => ({
+        "S.No": index + 1,
+        "Full Name": Capitalise(emp.employee_name),
+      })),
+      popupTitle.replaceAll(" ", "_"),
+      popupTitle
+    )
+  }
+  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  PDF
+</button>
 
                     <button
                       onClick={() => setShowPopup(false)}
@@ -1947,19 +1964,38 @@ const Dashboard_Mainbar = () => {
 
     {/* Excel Button */}
     <button
-      onClick={() => exportToCSV(attendancelist, "Present_Employees")}
-      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      Excel
-    </button>
+  onClick={() =>
+    exportToCSV(
+      attendancelist.map((emp, index) => ({
+        "S.No": index + 1,
+        "Full Name": Capitalise(emp.full_name),
+        "Employee Id": emp.gen_employee_id,
+      })),
+      popupTitle.replaceAll(" ", "_")
+    )
+  }
+  className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  Excel
+</button>
 
     {/* PDF Button */}
-    <button
-      onClick={() => exportToPDF(attendancelist, "Present_Employees", popupTitle)}
-      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      PDF
-    </button>
+<button
+  onClick={() =>
+    exportToPDF(
+      attendancelist.map((emp, index) => ({
+        "S.No": index + 1,
+        "Full Name": Capitalise(emp.full_name),
+        "Employee ID": emp.gen_employee_id,
+      })),
+      popupTitle.replaceAll(" ", "_"),
+      popupTitle
+    )
+  }
+  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  PDF
+</button>
                     <button
                       onClick={() => setShowPopupattendance(false)}
                       className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
@@ -2145,8 +2181,12 @@ const Dashboard_Mainbar = () => {
   <div className="flex items-center gap-3">
 
     {/* Excel Button */}
+    
+
     <button
-      onClick={() => exportToCSV(futureEmpPopupData, "Future_Employees")}
+      onClick={() => exportToCSV(futureEmpPopupData.map((emp, index) => ({ 
+        "S.No": index + 1, "Employee Name": Capitalise(emp.name),
+         "Joining Date": emp.joining_date })), "Future_Employees")}
       className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
     >
       Excel
@@ -2154,7 +2194,10 @@ const Dashboard_Mainbar = () => {
 
     {/* PDF Button */}
     <button
-      onClick={() => exportToPDF(futureEmpPopupData, "Future_Employees", futureEmpPopupTitle)}
+      onClick={() => exportToPDF(futureEmpPopupData.map((emp,index) => ({ 
+        "S.No": index + 1, "Employee Name": Capitalise(emp.name),
+         "Joining Date":formatDateTime(emp.joining_date),}))
+         , "Future_Employees", futureEmpPopupTitle)}
       className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
     >
       PDF
@@ -2427,20 +2470,54 @@ const Dashboard_Mainbar = () => {
 
     {/* Excel Button */}
     <button
-      onClick={() => exportToCSV(companyAttendancePopupList, "Company_Attendance")}
-      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      CSV
-    </button>
+  onClick={() => {
+    const fileName = companyAttendancePopupTitle
+      .toLowerCase()
+      .includes("not marked")
+      ? "Not_Marked_Company"
+      : "Marked_Company";
+
+    exportToCSV(
+      companyAttendancePopupList.map((item, index) => ({
+        "S.No": index + 1,
+        "Company Name": item?.company_name
+          ? Capitalise(item.company_name)
+          : "N/A",
+      })),
+      fileName
+    );
+  }}
+  className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  CSV
+</button>
+
 
    
     {/* PDF Button */}
-    <button
-      onClick={() => exportToPDF(companyAttendancePopupList, "Company_Attendance", companyAttendancePopupTitle)}
-      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      PDF
-    </button>
+<button
+  onClick={() => {
+    const fileName = companyAttendancePopupTitle
+      .toLowerCase()
+      .includes("not marked")
+      ? "Not_Marked_Company"
+      : "Marked_Company";
+
+    exportToPDF(
+      companyAttendancePopupList.map((item, index) => ({
+        "S.No": index + 1,
+        "Company Name": item?.company_name
+          ? Capitalise(item.company_name)
+          : "N/A",
+      })),
+      fileName,
+      companyAttendancePopupTitle
+    );
+  }}
+  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+>
+  PDF
+</button>
 
                     <button
                       onClick={closeCompanyAttendancePopup}
@@ -2478,7 +2555,9 @@ const Dashboard_Mainbar = () => {
                                 </td>
 
                                 <td className="px-4 py-3 font-semibold text-gray-800 text-center">
-                                  {item?.company_name || "N/A"}
+                                  {item?.company_name
+  ? Capitalise(item.company_name)
+  : "N/A"}
                                 </td>
                               </tr>
                             ))}
