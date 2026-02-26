@@ -2447,10 +2447,12 @@ px-2 py-2 md:px-6 md:py-6">
                       {Capitalise(item.notes || "-")}
                     </td>
                     <td className="border px-3 py-2">
-  {item.company_id?.split(",")
-    ?.map(id =>
-      companyDropdown.find(c => c.value == id)?.label
-    )
+  {item.company_id
+    ?.split(",")
+    ?.map(id => {
+      const company = companyDropdown.find(c => c.value == id)?.label;
+      return company ? Capitalise(company) : null;
+    })
     ?.filter(Boolean)
     ?.join(", ") || "-"}
 </td>
@@ -2541,10 +2543,12 @@ px-2 py-2 md:px-6 md:py-6">
                                 {Capitalise(item.notes || "-" )}
                               </td>
                               <td className="border px-3 py-2">
-  {item.company_id?.split(",")
-    ?.map(id =>
-      companyDropdown.find(c => c.value == id)?.label
-    )
+  {item.company_id
+    ?.split(",")
+    ?.map(id => {
+      const company = companyDropdown.find(c => c.value == id)?.label;
+      return company ? Capitalise(company) : null;
+    })
     ?.filter(Boolean)
     ?.join(", ") || "-"}
 </td>

@@ -83,12 +83,31 @@ const LeadManagement_Details = () => {
   const [selectedCompany, setSelectedCompany] = useState([]);
   const [companyOptions, setCompanyOptions] = useState([]);
 
-  const companyDropdown = companyOptions.map((company) => ({
-    label: company.company_name,
-    value: company.id,
-    company_emp_id: company.company_emp_id
-  }));
+ 
+  const fetchCompanies = async () => {
+  try {
+    const res = await axiosInstance.get(`${API_URL}api/company`);
+    console.log("API FULL RESPONSE", res.data);
 
+    if (res.data.success) {
+      setCompanyOptions(res.data.data);
+    }
+  } catch (err) {
+    console.error("Failed to fetch companies");
+  }
+};
+
+useEffect(() => {
+  fetchCompanies();
+}, []);
+
+const companyMap = useMemo(() => {
+  const map = {};
+  companyOptions.forEach(company => {
+    map[String(company.id)] = company.company_name;
+  });
+  return map;
+}, [companyOptions]);
 
   const [statusForm, setStatusForm] = useState({
     status: "",
@@ -770,16 +789,15 @@ useEffect(() => {
                                 {item.followUp ? "Yes" : "No"}
                               </td>
                               <td className="border px-3 py-2">
-                                {item.notes || "-"}
+                                {Capitalise(item.notes || "-")}
                               </td>
-                              <td className="border px-3 py-2">
-                                {item.company_id?.split(",")
-                                  ?.map(id =>
-                                    companyDropdown.find(c => c.value == id)?.label
-                                  )
-                                  ?.filter(Boolean)
-                                  ?.join(", ") || "-"}
-                              </td>
+                             <td className="border px-3 py-2">
+  {item.company_id
+    ?.split(",")
+    ?.map(id => companyMap[id] ? Capitalise(companyMap[id]) : null)
+    ?.filter(Boolean)
+    ?.join(", ") || "-"}
+</td>
                               <td className="border px-3 py-2">
                                 {formatToDDMMYYYY(item.created_at)}
                               </td>
