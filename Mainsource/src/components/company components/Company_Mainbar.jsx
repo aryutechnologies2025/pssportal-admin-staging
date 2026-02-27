@@ -90,6 +90,19 @@ const Company_Mainbar = () => {
 
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState(10);
+
+    const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+  
+    const onRowsChange = (value) => {
+      setRows(value);
+      setPage(1); // Reset to first page when changing rows per page
+    };
+
   const [globalFilter, setGlobalFilter] = useState("");
 
   const [mode, setMode] = useState("");
@@ -927,7 +940,7 @@ const Company_Mainbar = () => {
                     label: v,
                     value: v,
                   }))}
-                  onChange={(e) => setRows(e.value)}
+                  onChange={(e) => onRowsChange(e.value)}
                   className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                 />
                 <span className=" text-sm text-[#6B7280]">
@@ -974,6 +987,9 @@ const Company_Mainbar = () => {
                 dataKey="id"
                 paginator
                 rows={rows}
+                first={(page - 1) * rows}
+
+                    onPage={onPageChange}
                 rowsPerPageOptions={[10, 25, 50, 100]}
                 globalFilter={globalFilter}
                 globalFilterFields={[
@@ -982,6 +998,8 @@ const Company_Mainbar = () => {
                   "website",
                   "supportEmail",
                   "billingEmail",
+                  "gstNumber",
+                  "target"
                 ]}
                 showGridlines
                 resizableColumns

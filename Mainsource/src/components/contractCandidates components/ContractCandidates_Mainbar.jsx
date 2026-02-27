@@ -532,7 +532,9 @@ const ContractCandidates_Mainbar = () => {
     try {
       const response = await axiosInstance.get(`/api/contract-emp/edit/${id}`);
 
-      if (response.data?.success) {
+      // if (response.data?.success)
+      if(response.data?.data)
+         {
         setViewExistingCandidate(response.data.data);
         setIsExistingCandidateViewModalOpen(true);
       }
@@ -548,6 +550,7 @@ const ContractCandidates_Mainbar = () => {
 
     setIsExistingCandidateViewModalOpen(false);
     setViewExistingCandidate(null);
+    setExistingCandidate(null);
   };
 
   const handleView = async (row) => {
@@ -1990,16 +1993,6 @@ const ContractCandidates_Mainbar = () => {
 
                   <div className="flex flex-wrap items-center gap-4 justify-end">
                   
-
-                    <div className="hidden md:flex items-center">
-                      <button
-                        onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
-                      >
-                        Import
-                      </button>
-                    </div>
-
                     {/* sample csv format download */}
                     <div className="hidden md:flex items-center">
                       <button
@@ -2018,6 +2011,17 @@ const ContractCandidates_Mainbar = () => {
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
+
+                    <div className="hidden md:flex items-center">
+                      <button
+                        onClick={openImportAddModal}
+                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium w-20 rounded-lg"
+                      >
+                        Import
+                      </button>
+                    </div>
+
+                  
                     <button
                       onClick={exportTableCSV}
                       className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"

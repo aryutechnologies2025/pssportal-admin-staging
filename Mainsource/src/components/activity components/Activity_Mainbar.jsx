@@ -292,7 +292,7 @@ const columns = [
               {/* Responsive wrapper for the table */}
               <div className="table-scroll-container">
                 <DataTable
-                  className="mt-8"
+                  className="mt-2 md:mt-8"
                   value={activity}
                   dataKey="id"
                   paginator
@@ -302,7 +302,7 @@ const columns = [
                   totalRecords={activity.length}
                   rowsPerPageOptions={[10, 25, 50, 100]}
                   globalFilter={globalFilter}
-                  globalFilterFields={["role_name", "reason", "created_at"]}
+                  globalFilterFields={["type","employee_name","role_name", "reason", "created_at"]}
                   emptyMessage="No data found"
                   showGridlines
                   resizableColumns
