@@ -3034,7 +3034,7 @@ const ContractCandidates_Mainbar = () => {
 
             {isViewModalOpen && viewRow && (
               <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
-                <div className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
+                <div id="print-area" className="bg-white w-full max-w-3xl rounded-xl shadow-lg p-6 relative max-h-[90vh] flex flex-col animate-fadeIn">
                   {/* Close Button */}
                   {/* <button
                     onClick={closeViewModal}
