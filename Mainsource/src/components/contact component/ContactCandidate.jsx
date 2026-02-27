@@ -42,6 +42,20 @@ const ContactCandidate = () => {
   const [loading, setLoading] = useState(true); // State to manage loading
   let navigate = useNavigate();
   const [rows, setRows] = useState(10);
+
+  const [page, setPage] = useState(1);
+    const onPageChange = (e) => {
+      setPage(e.page + 1); // PrimeReact is 0-based
+      setRows(e.rows);
+  
+    };
+  
+    const onRowsChange = (value) => {
+      setRows(value);
+      setPage(1); // Reset to first page when changing rows per page
+    };
+  
+    
   const [globalFilter, setGlobalFilter] = useState("");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewContact, setViewContact] = useState(null);
@@ -103,14 +117,14 @@ const ContactCandidate = () => {
       //   );
       // }
 
-      // //  Requirement filter
-      // if (selectedRequirement) {
-      //   data = data.filter((item) =>
-      //     item.subject
-      //       ?.toLowerCase()
-      //       .includes(selectedRequirement.toLowerCase())
-      //   );
-      // }
+      //  Requirement filter
+      if (selectedRequirement) {
+        data = data.filter((item) =>
+          item.subject
+            ?.toLowerCase()
+            .includes(selectedRequirement.toLowerCase())
+        );
+      }
       setcontact(response.data.data);
     } catch (err) {
       toast.error("Failed to fetch contacts");
@@ -367,10 +381,7 @@ const ContactCandidate = () => {
                         label: v,
                         value: v,
                       }))}
-                      onChange={(e) => {
-                        setRows(e.value);
-                        setFirst(0); // reset to first page
-                      }}
+                      onChange={(e) => onRowsChange(e.value)}
                       className="w-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#1ea600]"
                     />
 
@@ -401,18 +412,22 @@ const ContactCandidate = () => {
                 </div>
                 <div className="table-scroll-container" id="datatable">
                   <DataTable
+                   className="mt-2 md:mt-8"
                     value={contact}
                     paginator
-                    first={first}
-                    rows={rows}
-                    onPage={(e) => {
-                      setFirst(e.first);
-                      setRows(e.rows);
-                    }}
+                    
+                   rows={rows}
+                    first={(page - 1) * rows}
+
+                    onPage={onPageChange}
                     totalRecords={contact.length}
-                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    // rowsPerPageOptions={[10, 25, 50, 100]}
                     globalFilter={globalFilter}
                     showGridlines
+                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    paginatorClassName="custom-paginator"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    loading={loading}
                   >
                     {columns.map((col, index) => (
                       <Column

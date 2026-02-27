@@ -442,3 +442,42 @@ tbody {
     color: inherit !important;          /* Keeps text color the same */
 }
 
+/* for printer in view page or modal */
+
+@media print {
+  /*  Hide everything on the screen */
+  body * {
+    visibility: hidden;
+    overflow: visible !important;
+  }
+
+  /*  Show ONLY the print area */
+  #print-area, #print-area * {
+    visibility: visible;
+  }
+
+  /*  Position the print area to fill the page correctly */
+  #print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    box-shadow: none !important;
+    max-height: none !important; /* Prevents 2nd sheet overflow */
+    overflow: visible !important;
+  }
+
+  /*  Force Portrait if the data is vertical (recommended) */
+  @page {
+    size: portrait; 
+    margin: 1cm;
+    
+  }
+  
+  /* Hide the close/print buttons during the actual print */
+  button {
+    display: none !important;
+  }
+}
