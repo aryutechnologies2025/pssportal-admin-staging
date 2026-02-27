@@ -374,7 +374,7 @@ const Employee_contract_details = () => {
         `api/contract-employee/edit/${id}`,
       );
 
-      if (response.data?.success) {
+      if (response.data?.data) {
         setViewExistingCandidate(response.data.data);
         setIsExistingCandidateViewModalOpen(true);
       }
@@ -386,6 +386,7 @@ const Employee_contract_details = () => {
   const handleCloseViewExistingCandidate = () => {
     setIsExistingCandidateViewModalOpen(false);
     setViewExistingCandidate(null);
+    setExistingCandidate(null);
   };
   // Open and close modals
   const openAddModal = () => {
@@ -2045,15 +2046,7 @@ fetchContractCandidates();
 
                   <div className="flex flex-wrap md:flex-nowrap items-center gap-2">
 
-                    <div className="hidden md:flex items-center">
-                      <button
-                        onClick={openImportAddModal}
-                        className="px-2 md:px-3 py-2  text-white bg-[#16A34A] hover:bg-[#16A34A] text-sm md:text-base font-medium w-20 rounded-lg"
-                      >
-                        Import
-                      </button>
-                    </div>
-                    {/* sample csv format download */}
+ {/* sample csv format download */}
                     <div className="hidden md:flex items-center">
                       <button
                         onClick={handlCsvDownload}
@@ -2071,15 +2064,24 @@ fetchContractCandidates();
                         <FiDownload className="text-lg" /> Demo CSV
                       </button>
                     </div>
+                    <div className="hidden md:flex items-center">
+                      <button
+                        onClick={openImportAddModal}
+                        className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium w-20 rounded-lg"
+                      >
+                        Import
+                      </button>
+                    </div>
+                   
                     <button
                       onClick={openBulkInactiveModal}
-                      className="px-2 md:px-3 py-2  text-white bg-[#16A34A] hover:bg-[#16A34A] text-sm  font-medium w-20 rounded-lg"
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] text-sm md:text-base font-medium w-32 rounded-lg"
                     >
                       Bulk Inactive
                     </button>
                     <button
                       onClick={exportEmployeeCSV}
-                      className="px-2 md:px-3 py-2  text-white bg-gray-600 hover:bg-gray-700 font-medium  w-fit rounded-lg transition-all duration-200"
+                      className="px-2 md:px-3 py-2  text-white bg-[#1ea600] hover:bg-[#4BB452] font-medium  w-fit rounded-lg transition-all duration-200"
                     >
                       Export
                     </button>

@@ -576,7 +576,7 @@ const columns = [
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          placeholder="Enter Your Name "
+                          placeholder="Enter Platform Name "
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         {errors.name && (
@@ -669,7 +669,7 @@ const columns = [
                           type="text"
                           value={nameEdit}
                           onChange={(e) => setNameEdit(e.target.value)}
-                          placeholder="Enter Your Name "
+                          placeholder="Enter Platform Name "
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         {errors.name && (

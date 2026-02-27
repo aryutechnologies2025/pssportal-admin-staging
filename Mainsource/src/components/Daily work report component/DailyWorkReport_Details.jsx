@@ -45,6 +45,18 @@ const DailyWorkReport_Details = () => {
     const parsedDetails = JSON.parse(storedDetatis);
     const userid = parsedDetails ? parsedDetails.id : null;
     const [rows, setRows] = useState(10);
+    
+       const [page, setPage] = useState(1);
+   const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
     const [globalFilter, setGlobalFilter] = useState("");;
     const [viewMessage, setViewMessage] = useState(null);
     const [workReports, setWorkReports] = useState([]);
@@ -535,7 +547,7 @@ px-2 py-2 md:px-6 md:py-6">
                                             <Dropdown
                                                 value={rows}
                                                 options={[10, 25, 50, 100].map(v => ({ label: v, value: v }))}
-                                                onChange={(e) => setRows(e.value)}
+                                                onChange={(e) => onRowsChange(e.value)}
                                                 className="w-20 border"
                                             />
                                             <span className=" text-sm text-[#6B7280]">Entries Per Page</span>
@@ -572,6 +584,8 @@ px-2 py-2 md:px-6 md:py-6">
                                         value={workReports}
                                         paginator
                                         rows={rows}
+                                         first={(page - 1) * rows}
+                    onPage={onPageChange}
                                         totalRecords={totalRecords}
                                         rowsPerPageOptions={[10, 25, 50, 100]}
                                         globalFilter={globalFilter}

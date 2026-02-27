@@ -34,6 +34,17 @@ const Attendance_Edit_Page = () => {
   const [saving, setSaving] = useState(false);
   const [globalFilter, setGlobalFilter] = useState("");
   const [rows, setRows] = useState(10);
+     const [page, setPage] = useState(1);
+   const onPageChange = (e) => {
+    setPage(e.page + 1); // PrimeReact is 0-based
+    setRows(e.rows);
+  };
+
+  const onRowsChange = (value) => {
+    setRows(value);
+    setPage(1); // Reset to first page when changing rows per page
+  };
+
   const [attendanceData, setAttendanceData] = useState([]);
   console.log("attendence", attendanceData);
   const [data, setData] = useState([]);
@@ -1023,7 +1034,7 @@ function generateTimeOptions() {
                       label: v,
                       value: v,
                     }))}
-                    onChange={(e) => setRows(e.value)}
+                    onChange={(e) => onRowsChange(e.value)}
                     className="w-20 border rounded-md"
                   />
                   <span className=" text-[#6B7280]">Entries Per Page</span>
@@ -1047,19 +1058,25 @@ function generateTimeOptions() {
                 value={attendanceData}
                 paginator
                 rows={rows}
-                rowsPerPageOptions={[10, 20, 50]}
+                 first={(page - 1) * rows}
+                    onPage={onPageChange}
+                // rowsPerPageOptions={[10, 20, 50]}
                 globalFilter={globalFilter}
                   globalFilterFields={[
                   "contract_employee.name",
                   "contract_employee.employee_id",
                   "employee_number",
                   "attendance",
-                
+                "status"
 
                 ]}
                 showGridlines
                 resizableColumns
-                className="mt-4"
+                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    paginatorClassName="custom-paginator"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    loading={loading}
+                className="mt-8 overflow-x-hidden"
               >
                 {columns.map((col, index) => (
                   <Column
