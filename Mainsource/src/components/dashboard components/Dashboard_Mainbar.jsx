@@ -114,6 +114,8 @@ const Dashboard_Mainbar = () => {
     try {
       const res = await axiosInstance.get(`${API_URL}api/announcements/latest`);
 
+
+      console.log("Announcement :",res)
       if (res.data?.success) {
         const list = res.data.data || [];
         setAnnouncements(list);
@@ -711,6 +713,8 @@ const Dashboard_Mainbar = () => {
     setShowPopupattendance(true);
   };
 
+
+
   const workReportColumns = [
     {
       field: "sno",
@@ -983,6 +987,13 @@ const Dashboard_Mainbar = () => {
     setCompanyAttendancePopupTitle("");
     setCompanyAttendancePopupList([]);
   };
+
+  const [showActiveUsersPopup, setShowActiveUsersPopup] = useState(false);
+  const openActiveUsersPopup = (title, users) => {
+  setPopupTitle(title);
+  setEmployeeList(users);
+  setShowActiveUsersPopup(true);
+};
 
   const companyattendancelist = [
     {
@@ -1330,6 +1341,24 @@ const Dashboard_Mainbar = () => {
                     {dashboardData?.total_attendance ||" 0/0"}
                   </h3>
                 </div>
+
+                <div
+  className="p-4 rounded-2xl border bg-green-50 cursor-pointer hover:shadow-md transition"
+  onClick={() =>
+    openActiveUsersPopup(
+      "Currently Active Employees",
+      dashboardData?.active_users?.users || []
+    )
+  }
+>
+  <p className="text-sm text-gray-600">
+    Active Users
+  </p>
+
+  <h3 className="text-2xl font-bold text-green-700 mt-3">
+    {dashboardData?.active_users?.count || 0}
+  </h3>
+</div>
 
                   </>
                 ))}
@@ -2412,7 +2441,7 @@ const Dashboard_Mainbar = () => {
                                 </td>
 
                                 <td className="px-4 py-3 text-center text-gray-800">
-                                  {emp?.employee_name || "-"}
+                                  {Capitalise(emp?.employee_name || "-")}
                                 </td>
 
                                 {/* <td className="px-4 py-3 text-center text-gray-700">
@@ -2585,6 +2614,9 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
             )}
+
+
+            
           </div>
           <Footer />
         </>

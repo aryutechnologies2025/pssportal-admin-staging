@@ -6,7 +6,7 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdCampaign, MdLogout, MdManageAccounts } from "react-icons/md";
+import { MdCampaign, MdLogout, MdManageAccounts, MdOutlineDashboardCustomize } from "react-icons/md";
 import medics_logo from "../assets/medics_logo.svg";
 import admin_icon from "../assets/admin_icon.png";
 import employee from "../assets/employee.svg";
@@ -31,6 +31,7 @@ import { TbReport } from "react-icons/tb";
 import { AiOutlineMessage } from "react-icons/ai";
 import { VscReport } from "react-icons/vsc";
 import Api from "../api";
+import { GrDocumentPerformance } from "react-icons/gr";
 
 const Sidebar = () => {
   const AdminData = JSON.parse(
@@ -146,6 +147,10 @@ const Sidebar = () => {
     window.scrollTo({ top: 0, behavior: "instant" });
   };
 
+  const isPerformanceActive =
+  currentPath === "/employee-performance" ||
+  currentPath === "/company-performance";
+
   return (
     <div>
       <section
@@ -232,6 +237,110 @@ const Sidebar = () => {
                   {!arrowClicked && <p className="text-sm">PSS Dashboard</p>}
                 </div>
               </div>
+
+                            {/*company dashboard */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("company-dashboard")}
+                  className={`flex items-center h-10 w-full flex-grow ${arrowClicked ? "justify-center  " : "justify-normal"
+                    } hover:bg-green-100 hover:text-[#4BB452] px-2 py-3 rounded-md gap-2 text-gray-500 text-sm font-medium cursor-pointer ${currentPath === "/company-dashboard"
+                      ? "bg-[#4BB452] text-white"
+                      : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+                  <MdOutlineDashboardCustomize className="w-5" />
+                  {!arrowClicked && <p className="text-sm">Company Dashboard</p>}
+                </div>
+              </div>
+
+
+              {/* performance dashboard */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px"} mt-1`}>
+                {/* Parent Item */}
+                <div
+                  onClick={() => toggleMenu("permance")}
+                  className={`flex items-center w-full flex-grow
+    ${arrowClicked ? "justify-center" : "justify-normal"}
+    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+    ${currentPath === "/employee-performance" ||
+                      currentPath === "/company-performance" 
+                     
+                      ? "bg-[#4BB452] text-white"
+                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                    }`}
+                >
+                  <GrDocumentPerformance
+                   
+                    className={`sidebar-icon transition-all duration-200
+                       ${currentPath === "/employee-performance" ||
+                        currentPath === "/company-performance" 
+                        ? "brightness-0 invert pointer-events-none"
+                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+                      }`}
+                  />
+
+                  {!arrowClicked && (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-sm font-medium">Permance Dashboard</span>
+                      {currentOpen === "employee-performance" ||
+                        currentPath === "/company-performance"  ? (
+                        <IoIosArrowUp />
+                      ) : (
+                        <IoIosArrowDown />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Dropdown Items */}
+                {!arrowClicked && (
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "permance" ||
+                        currentPath === "/employee-performance" ||
+                        currentPath === "/company-performance" 
+                        ? "max-h-50 opacity-100 mt-1"
+                        : "max-h-0 opacity-0"
+                      }`}
+                  >
+                    <div className="flex gap-2  items-start  ms-8 flex-col text-sm font-medium text-gray-500">
+                      <button
+                        onClick={() => {
+                          navigate("/employee-performance");
+                          if (currentOpen !== "performance") {
+                            setCurrentOpen("performance");
+                          }
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition 
+                          ${currentPath === "/employee-performance"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Employee Performance
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          navigate("/company-performance");
+                          if (currentOpen !== "performance") {
+                            setCurrentOpen("performance");
+                          }
+                        }}
+                        className={`w-full text-left px-2 py-1 rounded-md transition 
+                          ${currentPath === "/company-performance"
+                            ? "text-[#4BB452]"
+                            : "text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+                          }`}
+                      >
+                        Company Performance
+                      </button>
+
+
+                    </div>
+                  </div>
+                )}
+              </div>
+
 
               {/* report */}
               {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
@@ -874,7 +983,7 @@ const Sidebar = () => {
               </div>
 
               {/* Announcement */}
-              {/* <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("announcement")}
                   className={`flex items-center w-full flex-grow
@@ -900,7 +1009,7 @@ const Sidebar = () => {
                     <p className="text-sm font-medium">Announcement</p>
                   )}
                 </div>
-              </div>  */}
+              </div> 
 
               {/* activity */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"}`}>
