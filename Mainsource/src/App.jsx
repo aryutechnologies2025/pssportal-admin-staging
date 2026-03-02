@@ -69,6 +69,7 @@ import Lead_Edit_Assigned_Main from "./pages/Lead_Edit_Assigned_Main";
 import Lead_Add_Assigned_Main from "./pages/Lead_Add_Assigned_Main";
 import Lead_View_Assigned_Main from "./pages/Lead_View_Assigned_Main";
 import Lead_Assign_Report_Main from "./pages/LeadAssignReport";
+import CompanyDashboard_Main from "./pages/CompanyDashboard_Main";
 
 // Routes component that uses hooks (inside Router context)
 function AppRoutes() {
@@ -97,6 +98,7 @@ function AppRoutes() {
         {/* PROTECTED ROOT */}
         <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/company-dashboard" element={<CompanyDashboard_Main />} />
           <Route path="/permission" element={<Permission />} />
           <Route path="/roles" element={<Roles />} />
           <Route path="/departments" element={<Department />} />
