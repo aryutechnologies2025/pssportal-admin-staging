@@ -17,9 +17,6 @@ disableConcurrentBuilds()
 stages {
 
 ```
-/* =====================
-   CHECKOUT SOURCE
-====================== */
 stage('Checkout Source') {
   steps {
     checkout scm
@@ -27,9 +24,6 @@ stage('Checkout Source') {
   }
 }
 
-/* =====================
-   CLEAN OLD BUILD
-====================== */
 stage('Clean') {
   steps {
     dir("${APP_DIR}") {
@@ -38,9 +32,6 @@ stage('Clean') {
   }
 }
 
-/* =====================
-   INSTALL DEPENDENCIES
-====================== */
 stage('Install Dependencies') {
   steps {
     dir("${APP_DIR}") {
@@ -53,9 +44,6 @@ stage('Install Dependencies') {
   }
 }
 
-/* =====================
-   BUILD FRONTEND
-====================== */
 stage('Build Frontend') {
   steps {
     dir("${APP_DIR}") {
@@ -64,9 +52,6 @@ stage('Build Frontend') {
   }
 }
 
-/* =====================
-   VERIFY BUILD
-====================== */
 stage('Verify Build') {
   steps {
     dir("${APP_DIR}") {
@@ -78,9 +63,6 @@ stage('Verify Build') {
   }
 }
 
-/* =====================
-   ADD SPA REWRITE
-====================== */
 stage('Add SPA Rewrite Rule') {
   steps {
     sh '''
@@ -99,9 +81,6 @@ EOF
 }
 
 ```
-/* =====================
-   DEPLOY TO CONTAINER
-====================== */
 stage('Deploy') {
   steps {
 
@@ -127,9 +106,6 @@ stage('Deploy') {
   }
 }
 
-/* =====================
-   HEALTH CHECK
-====================== */
 stage('Health Check') {
   steps {
     sh '''
@@ -151,4 +127,3 @@ echo "❌ DEPLOY FAILED — OLD VERSION PRESERVED"
 }
 }
 }
-
