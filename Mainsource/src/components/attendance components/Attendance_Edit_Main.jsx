@@ -1,7 +1,7 @@
 import React from 'react'
 import Sidebar from '../../components/Sidebar'
 
-import Attendance_Edit_Page from './Attendance_Edit_page'
+import Attendance_Edit_Page from './Attendance_Edit_Page'
 
 
 const Attendance_Edit_Main = () => {
