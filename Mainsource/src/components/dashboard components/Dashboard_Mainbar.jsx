@@ -33,10 +33,10 @@ import {
 import DateFilterDropdown from "./DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
-import { useDateUtils } from "../../utils/useDateUtils";
+import { useDateUtils } from "../../Utils/useDateUtils";
 import { Capitalise } from "../../hooks/useCapitalise";
-import exportToCSV from "../../utils/exportToCSV";
-import exportToPDF from "../../utils/exportToPDF";
+import exportToCSV from "../../Utils/exportToCSV";
+import exportToPDF from "../../Utils/exportToPDF";
 import autoTable from "jspdf-autotable";
 import jsPDF from "jspdf";
 

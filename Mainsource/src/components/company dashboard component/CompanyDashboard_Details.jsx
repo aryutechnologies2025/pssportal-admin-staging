@@ -5,12 +5,12 @@ import { API_URL } from '../../Config';
 import Footer from '../Footer';
 import Loader from '../Loader';
 import Mobile_Sidebar from '../Mobile_Sidebar';
-import exportToCSV from '../../utils/exportToCSV';
+import exportToCSV from '../../Utils/exportToCSV';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Capitalise } from '../../hooks/useCapitalise';
 import { capitalize } from '@mui/material';
-import { useDateUtils } from '../../utils/useDateUtils';
+import { useDateUtils } from '../../Utils/useDateUtils';
 import CompanyAttendanceCard from '../ChartCard';
 
 const CompanyDashboard_Details = () => {

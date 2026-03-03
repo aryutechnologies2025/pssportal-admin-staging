@@ -5,10 +5,10 @@ import { ToastContainer } from 'react-toastify';
 import Footer from '../Footer';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown } from 'primereact/dropdown';
-import { useDateUtils } from '../../utils/useDateUtils';
+import { useDateUtils } from '../../Utils/useDateUtils';
 import { Capitalise } from '../../hooks/useCapitalise';
-import exportToPDF from '../../utils/exportToPDF';
-import exportToCSV from '../../utils/exportToCSV';
+import exportToPDF from '../../Utils/exportToPDF';
+import exportToCSV from '../../Utils/exportToCSV';
 
 const Employee_Performance_Details = () => {
     const navigate = useNavigate();
