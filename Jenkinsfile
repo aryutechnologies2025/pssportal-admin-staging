@@ -26,7 +26,17 @@ stage('Checkout Source') {
 stage('Clean') {
   steps {
     dir("${APP_DIR}") {
-      sh 'rm -rf node_modules dist'
+      sh '''
+        set +e
+
+        echo "Killing stale node/npm processes"
+        pkill -f node || true
+        pkill -f npm || true
+
+        sleep 2
+
+        rm -rf node_modules dist || true
+      '''
     }
   }
 }
