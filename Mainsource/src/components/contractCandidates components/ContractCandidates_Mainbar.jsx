@@ -32,7 +32,7 @@ import Loader from "../Loader";
 import Mobile_Sidebar from "../Mobile_Sidebar";
 import Footer from "../Footer";
 import { Capitalise } from "../../hooks/useCapitalise";
-import CameraPhoto from "../../Utils/cameraPhoto";
+import CameraPhoto from "../../Utils/CameraPhoto";
 import { FiX } from "react-icons/fi";
 
 const ContractCandidates_Mainbar = () => {

@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EmployeeEducationSchema, EmployeeSchema, EducationItemSchema, ExperienceItemSchema, EmployeeExperienceSchema } from "./EmployeeSchema";
 import axiosInstance from "../../axiosConfig";
 import { API_URL } from "../../Config";
-import CameraPhoto from "../../Utils/cameraPhoto";
+import CameraPhoto from "../../Utils/CameraPhoto";
 import { Dropdown } from "primereact/dropdown";
 
 
