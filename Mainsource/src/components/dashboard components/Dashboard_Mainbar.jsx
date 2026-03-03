@@ -127,6 +127,26 @@ const Dashboard_Mainbar = () => {
     }
   };
 
+  // hoildays
+
+  const [holidays, setHolidays] = useState([]);
+
+const fetchHoildays = async () => {
+  try {
+    const res = await axiosInstance.get(`${API_URL}api/holiday`);
+
+    if (res?.data?.data) {
+      setHolidays(res.data.data);
+    }
+
+  } catch (error) {
+    console.error("Failed to fetch holidays", error);
+  }
+};
+
+useEffect(() => {
+  fetchHoildays();
+}, []);
   const loadData = () => {
     //  API call
 
@@ -1037,6 +1057,25 @@ const Dashboard_Mainbar = () => {
     },
   ];
 
+  const [openActivePopup, setOpenActivePopup] = useState(false);
+const [activePopupTitle, setActivePopupTitle] = useState("");
+const [activePopupData, setActivePopupData] = useState([]);
+
+
+const openActiveEmployeePopup = (title, data) => {
+ 
+  const activeEmployees = data && data.length > 0 ? data[0] : [];
+  setActivePopupTitle(title);
+  setActivePopupData(activeEmployees || []);
+  setOpenActivePopup(true);
+};
+
+const closeActiveEmployeePopup = () => {
+  setOpenActivePopup(false);
+  setActivePopupTitle("");
+  setActivePopupData([]);
+};
+
   // dasboard all counbt
 
   const workReport = dashboardData?.workreports?.[0] || {};
@@ -1325,16 +1364,16 @@ const Dashboard_Mainbar = () => {
                     <div
                       className="p-4 rounded-2xl border bg-green-50 cursor-pointer hover:shadow-md transition"
                       onClick={() =>
-                        openActiveUsersPopup(
+                        openActiveEmployeePopup(
                           "Currently Active Employees",
-                          dashboardData?.active_users?.users || [],
+                          dashboardData?.active_employees_summary?.active_employee_list || [],
                         )
                       }
                     >
-                      <p className="text-sm text-gray-600">Active Users</p>
+                      <p className="text-sm text-gray-600">Active Employees</p>
 
                       <h3 className="text-2xl font-bold text-green-700 mt-3">
-                        {dashboardData?.active_users?.count || 0}
+                        {dashboardData?.active_employees_summary?.active_employee_count || 0}
                       </h3>
                     </div>
                   </>
@@ -1821,6 +1860,46 @@ const Dashboard_Mainbar = () => {
 
               </div> */}
             </div>
+
+            {/* holidays */}
+
+            {holidays.length > 0 && (
+  <div className="bg-white rounded-2xl shadow-md p-6 mb-8 w-[50%] mt-4">
+    
+    <h2 className="text-xl font-bold text-gray-800 mb-4">
+      🎉 Upcoming Holidays
+    </h2>
+
+    <div className="space-y-4">
+      {holidays.map((holiday) => (
+        <div
+          key={holiday.id}
+          className="flex items-center justify-between bg-gradient-to-r from-red-50 to-pink-50 border border-red-100 rounded-xl p-4 hover:shadow-md transition"
+        >
+          {/* Left Side */}
+          <div>
+            <p className="text-sm text-gray-500">
+              {new Date(holiday.date).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+
+            <h3 className="text-lg font-semibold text-red-600 mt-1">
+              {holiday.title}
+            </h3>
+          </div>
+
+          {/* Right Badge */}
+          <div className="bg-red-500 text-white text-xs px-3 py-1 rounded-full">
+            Holiday
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
             {/* work report popup */}
 
@@ -2591,6 +2670,140 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
             )}
+
+            {/* Active Employees Popup */}
+{openActivePopup && (
+  <div
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-3 sm:p-4"
+    onClick={closeActiveEmployeePopup}
+  >
+    <div
+      className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between bg-green-700 px-4 sm:px-6 py-3 sm:py-4">
+        <h2 className="text-white text-base sm:text-lg font-bold">
+          {activePopupTitle}
+        </h2>
+        <div className="flex items-center gap-3">
+          {/* Excel Button */}
+          <button
+            onClick={() => {
+              const formattedData = activePopupData.map((emp, index) => ({
+                "S.No": index + 1,
+                "Employee Name": Capitalise(emp?.employee?.full_name || "-"),
+                // "Employee ID": emp?.employee?.gen_employee_id || "-",
+                // "Attendance Time": emp?.attendance_time || "-",
+                // "Location": emp?.location_details ? 
+                //   JSON.parse(emp.location_details)?.fullAddress || "-" : "-"
+              }));
+              exportToCSV(formattedData, "Active_Employees");
+            }}
+            className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+          >
+            Excel
+          </button>
+
+          {/* PDF Button */}
+          <button
+            onClick={() => {
+              if (!activePopupData || activePopupData.length === 0) return;
+              const doc = new jsPDF();
+              doc.text(activePopupTitle, 14, 15);
+              const tableColumn = [
+                "S.No",
+                "Employee Name",
+                // "Employee ID",
+                // "Attendance Time",
+                // "Location"
+              ];
+              const tableRows = activePopupData.map((emp, index) => ([
+                index + 1,
+                Capitalise(emp?.employee?.full_name || "-"),
+                // emp?.employee?.gen_employee_id || "-",
+                // emp?.attendance_time || "-",
+                // emp?.location_details ? 
+                //   JSON.parse(emp.location_details)?.fullAddress || "-" : "-"
+              ]));
+              autoTable(doc, {
+                head: [tableColumn],
+                body: tableRows,
+                startY: 20,
+              });
+              doc.save("Active_Employees.pdf");
+            }}
+            className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+          >
+            PDF
+          </button>
+
+          {/* Close Button */}
+          <button
+            onClick={closeActiveEmployeePopup}
+            className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
+        {activePopupData?.length > 0 ? (
+          <div className="overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-green-50 text-green-900">
+                  <th className="px-4 py-3 text-center w-[70px]">S.No</th>
+                 
+                  <th className="px-4 py-3 text-center">Employee Name</th>
+                  {/* <th className="px-4 py-3 text-center">Attendance Time</th>
+                  <th className="px-4 py-3 text-center">Location</th> */}
+                </tr>
+              </thead>
+              <tbody>
+                {activePopupData.map((emp, index) => (
+                  <tr key={index} className="border-t hover:bg-gray-50 transition">
+                    <td className="px-4 py-3 text-center">{index + 1}</td>
+                    {/* <td className="px-4 py-3 text-center font-semibold text-gray-800">
+                      {emp?.employee?.gen_employee_id || "-"}
+                    </td> */}
+                    <td className="px-4 py-3 text-center text-gray-800">
+                      {Capitalise(emp?.employee?.full_name) || "-"}
+                    </td>
+                    {/* <td className="px-4 py-3 text-center text-gray-700">
+                      {formatDateTime(emp?.attendance_time || "-")}
+                    </td>
+                    <td className="px-4 py-3 text-center text-gray-700 max-w-[200px] truncate" title={emp?.location_details ? 
+                      JSON.parse(emp.location_details)?.fullAddress || "-" : "-"}>
+                      {emp?.location_details ? 
+                        JSON.parse(emp.location_details)?.fullAddress || "-" : "-"}
+                    </td> */}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-gray-500 font-medium">No Active Employees</p>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end gap-2 border-t bg-white px-4 sm:px-6 py-3 sm:py-4">
+        <button
+          onClick={closeActiveEmployeePopup}
+          className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
           </div>
           <Footer />
         </>
