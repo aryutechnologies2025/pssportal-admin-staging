@@ -62,21 +62,24 @@ stage('Verify Build') {
   }
 }
 
+
 stage('Add SPA Rewrite Rule') {
   steps {
     sh '''
-
-cat <<EOF > Mainsource/dist/.htaccess <IfModule mod_rewrite.c>
+cat <<'EOF' > Mainsource/dist/.htaccess
+<IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteBase /
-RewriteRule ^index\.html$ - [L]
+RewriteRule ^index.html$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.html [L] </IfModule>
+RewriteRule . /index.html [L]
+</IfModule>
 EOF
 '''
+  }
 }
-}
+
 
 stage('Deploy') {
   steps {
