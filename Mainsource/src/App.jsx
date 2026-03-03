@@ -49,7 +49,7 @@ import Finance_Request from "./pages/Finance_Request";
 import Holiday from "./pages/Holiday";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PSS_Attendance from "./pages/Pss_Attendance";
+import PSS_Attendance from "./pages/PSS_Attendance";
 import Announcement_Mainbar from "./components/announcement/Announcement";
 import Announcement_Mainbar_page from "./pages/Announcement";
 import BoardingPoint_Main from "./pages/BoardingPoint_Main";
