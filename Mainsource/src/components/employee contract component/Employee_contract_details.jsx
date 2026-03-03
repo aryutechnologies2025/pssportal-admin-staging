@@ -27,7 +27,7 @@ import Loader from "../Loader";
 import { formatToDDMMYYYY, formatToYYYYMMDD } from "../../Utils/dateformat";
 import { Capitalise } from "../../hooks/useCapitalise";
 import { IoMdDownload } from "react-icons/io";
-import CameraPhoto from "../../Utils/cameraPhoto";
+import CameraPhoto from "../../Utils/CameraPhoto";
 import { IoAddCircleSharp } from "react-icons/io5";
 import { FiDownload } from "react-icons/fi";
 import { TbLogs } from "react-icons/tb";
