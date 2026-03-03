@@ -5,7 +5,7 @@ import { ToastContainer } from 'react-toastify';
 import Footer from '../Footer';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown } from 'primereact/dropdown';
-import { useDateUtils } from '../../Utils/useDateUtils';
+import { useDateUtils } from '../../utils/useDateUtils';
 
 const Employee_Performance_Details = () => {
     const navigate = useNavigate();
@@ -35,10 +35,10 @@ const Employee_Performance_Details = () => {
     const [employeePerformanceData, setEmployeePerformanceData] = useState({
         company: {
             name: "Tech Solutions Inc.",
-            total_employees: 150,
+            total_employees: 10,
             joining_today: 5,
             relieving_today: 2,
-            working_today: 143,
+            working_today: 3,
             joining_list: [
                 { id: 1, name: "John Doe", department: "IT", designation: "Developer", joining_date: "2026-03-03" },
                 { id: 2, name: "Jane Smith", department: "HR", designation: "Manager", joining_date: "2026-03-03" },
@@ -56,8 +56,8 @@ const Employee_Performance_Details = () => {
             summary: [
                 {
                     date: today,
-                    present: 120,
-                    absent: 30,
+                    present: 7,
+                    absent: 3,
                     present_list: [
                         { id: 1, name: "John Doe", department: "IT", check_in: "09:00 AM", check_out: "06:00 PM" },
                         { id: 2, name: "Jane Smith", department: "HR", check_in: "09:15 AM", check_out: "06:30 PM" },
@@ -70,8 +70,8 @@ const Employee_Performance_Details = () => {
             ]
         },
         workReport: {
-            submitted: 98,
-            not_submitted: 52,
+            submitted: 5,
+            not_submitted: 2,
             submitted_list: [
                 { id: 1, name: "John Doe", department: "IT", submitted_time: "10:30 AM", tasks_completed: 5 },
                 { id: 2, name: "Jane Smith", department: "HR", submitted_time: "11:15 AM", tasks_completed: 3 },
