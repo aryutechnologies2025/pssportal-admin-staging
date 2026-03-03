@@ -16,7 +16,6 @@ disableConcurrentBuilds()
 
 stages {
 
-```
 stage('Checkout Source') {
   steps {
     checkout scm
@@ -66,7 +65,6 @@ stage('Verify Build') {
 stage('Add SPA Rewrite Rule') {
   steps {
     sh '''
-```
 
 cat <<EOF > Mainsource/dist/.htaccess <IfModule mod_rewrite.c>
 RewriteEngine On
@@ -80,7 +78,6 @@ EOF
 }
 }
 
-```
 stage('Deploy') {
   steps {
 
@@ -114,7 +111,6 @@ stage('Health Check') {
     '''
   }
 }
-```
 
 }
 
