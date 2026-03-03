@@ -54,7 +54,7 @@ import Announcement_Mainbar from "./components/announcement/Announcement";
 import Announcement_Mainbar_page from "./pages/Announcement";
 import BoardingPoint_Main from "./pages/BoardingPoint_Main";
 import Education_Main from "./pages/Education_Main";
-import Contract_Report_main from "./components/Contract_Report_component/Contract_Report_Main";
+import Contract_Report_main from "./components/Contract Report component/Contract_Report_Main";
 import Relieved_Main from "./components/relieved component/Relieved_Main";
 import Lead_Dashboard from "./components/Lead Management/Lead_Dashboard";
 import Lead_Dashboard_Main from "./pages/Lead_Dashboard_Main";
