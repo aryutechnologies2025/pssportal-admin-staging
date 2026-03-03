@@ -7,17 +7,22 @@ import {
   LabelList,
   Cell,
 } from "recharts";
+import { Capitalise } from "../hooks/useCapitalise";
 
 const CompanyAttendanceCard = ({ 
   company, 
   openAbsentEmployeePopup, 
   openContinuousEmployeePopup 
 }) => {
-  const getContinuousAbsentees = (absentees) => {
-    return (absentees || []).filter(emp => emp.continuous_days > 1);
-  };
+const absentees = company.absentees || [];
 
-  const continuousCount = getContinuousAbsentees(company.absentees).length;
+  const continuousCount = absentees.filter(
+    emp => emp.continuous_days > 1
+  ).length;
+
+  const continuousAbsentees = absentees.filter(
+    emp => emp.continuous_days > 1
+  );
 
   const chartData = [
     {
@@ -41,7 +46,7 @@ const CompanyAttendanceCard = ({
     if (data.name === "Absent") {
       openAbsentEmployeePopup(
         `${company.company_name} - Absent Employees`,
-        company.absentees || []
+       absentees || []
       );
     } else if (data.name === "Continuous") {
       // Filter only continuous absentees (continuous_days > 1)
@@ -59,16 +64,16 @@ const CompanyAttendanceCard = ({
   return (
     <div className="rounded-lg border bg-white shadow-sm hover:shadow-md transition p-3">
       {/* HEADER */}
-      <div className="border-b pb-2 mb-2">
+      <div className="border-b pb-2 mb-2 flex justify-between items-center">
         <p
-          className="text-xs font-semibold text-green-700 truncate"
+          className="text-sm font-semibold text-green-700 truncate"
           title={company.company_name}
         >
-          {company.company_name}
+          {Capitalise(company.company_name)}
         </p>
         <p className="text-[11px] text-gray-500">
-          Total Employees :
-          <span className="font-semibold text-gray-700">
+          
+          <span className="bg-gray-100 text-xs px-3 py-1 rounded-full">
             {" "}{company.total_employees}
           </span>
         </p>
@@ -96,10 +101,10 @@ const CompanyAttendanceCard = ({
                   key={index}
                   fill={
                     entry.name === "Present"
-                      ? "#22c55e"  // Green
+                      ? "#4ade80"  // Green
                       : entry.name === "Absent"
-                      ? "#ef4444"  // Red
-                      : "#f97316"  // Orange for Continuous
+                      ? "#f87171"  // Red
+                      : "#fb923c"  // Orange for Continuous
                   }
                 />
               ))}
@@ -123,24 +128,24 @@ const CompanyAttendanceCard = ({
           className="flex items-center gap-1 cursor-default"
           title="Present employees"
         >
-          <div className="w-2 h-2 rounded-sm bg-green-500"></div>
-          <span className="text-green-700">Present: {company.present_employees || 0}</span>
+          {/* <div className="w-2 h-2 rounded-sm bg-green-500"></div> */}
+          {/* <span className="text-green-700">Present: {company.present_employees || 0}</span> */}
         </div>
         <div 
           className="flex items-center gap-1 cursor-pointer hover:bg-red-50 px-1 rounded"
           onClick={() => handleBarClick({ name: "Absent" })}
           title="Click to view absent employees"
         >
-          <div className="w-2 h-2 rounded-sm bg-red-500"></div>
-          <span className="text-red-700">Absent: {company.absent_employees || 0}</span>
+          {/* <div className="w-2 h-2 rounded-sm bg-red-500"></div> */}
+          {/* <span className="text-red-700">Absent: {company.absent_employees || 0}</span> */}
         </div>
         <div 
           className="flex items-center gap-1 cursor-pointer hover:bg-orange-50 px-1 rounded"
           onClick={() => handleBarClick({ name: "Continuous" })}
           title="Click to view continuous absentees"
         >
-          <div className="w-2 h-2 rounded-sm bg-orange-500"></div>
-          <span className="text-orange-700">Continuous: {continuousCount}</span>
+          {/* <div className="w-2 h-2 rounded-sm bg-orange-500"></div> */}
+          {/* <span className="text-orange-700">Continuous: {continuousCount}</span> */}
         </div>
       </div>
     </div>

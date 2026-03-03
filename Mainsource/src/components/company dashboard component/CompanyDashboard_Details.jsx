@@ -84,7 +84,7 @@ const CompanyDashboard_Details = () => {
       setLoading(true);
 
       const res = await axiosInstance.get(
-        `${API_URL}api/dashboard`, {
+        `${API_URL}api/contract-dashboard`, {
           params: {
             start_date: date,
             end_date: date, 
@@ -92,11 +92,11 @@ const CompanyDashboard_Details = () => {
         }
       );
 
-      console.log("API Response:", res.data); 
+      console.log("API Response:", res.data.data); 
 
       if (res.data.success) {
        
-        setDashboardData(res.data);
+        setDashboardData(res.data.data || []);
       } else {
         console.error(res.data.message);
       }
