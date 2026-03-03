@@ -1,76 +1,154 @@
 pipeline {
-  agent any
+agent any
 
-  environment {
-    CONTAINER_NAME = "staging_portal"
-    SOURCE_PATH   = "."
-    HEALTH_URL   = "http://127.0.0.1:3001"
-    DEPLOY_BRANCH = "main"
+environment {
+CONTAINER_NAME = "staging_portal"
+DEPLOY_BRANCH  = "main"
+HEALTH_URL     = "http://127.0.0.1:3001"
+DEPLOY_PATH    = "/usr/local/apache2/htdocs"
+APP_DIR        = "Mainsource"
+}
+
+options {
+timestamps()
+disableConcurrentBuilds()
+}
+
+stages {
+
+```
+/* =====================
+   CHECKOUT SOURCE
+====================== */
+stage('Checkout Source') {
+  steps {
+    checkout scm
+    sh 'git log --oneline -1'
   }
+}
 
-  options {
-    timestamps()
-    disableConcurrentBuilds()
-  }
-
-  stages {
-
-    stage('Checkout (LOCKED TO MAIN)') {
-      steps {
-        checkout([
-          $class: 'GitSCM',
-          branches: [[name: "*/${DEPLOY_BRANCH}"]],
-          userRemoteConfigs: scm.userRemoteConfigs
-        ])
-        sh 'echo "DEPLOYING COMMIT:" && git log --oneline -1'
-      }
-    }
-
-    stage('Verify Static Files') {
-      steps {
-        sh '''
-          set -e
-          test -d assets
-          test -f index.html
-        '''
-      }
-    }
-
-    stage('Deploy (FAST SYNC — SAFE MODE)') {
-      steps {
-        sh '''
-          set -e
-
-          docker exec ${CONTAINER_NAME} mkdir -p /usr/local/apache2/htdocs_new
-          docker cp . ${CONTAINER_NAME}:/usr/local/apache2/htdocs_new
-
-          docker exec ${CONTAINER_NAME} sh -c "
-            rm -rf /usr/local/apache2/htdocs_old || true
-            mv /usr/local/apache2/htdocs /usr/local/apache2/htdocs_old
-            mv /usr/local/apache2/htdocs_new /usr/local/apache2/htdocs
-          "
-        '''
-      }
-    }
-
-    stage('Health Check') {
-      steps {
-        sh '''
-          set -e
-          sleep 3
-          curl -f ${HEALTH_URL}
-        '''
-      }
+/* =====================
+   CLEAN OLD BUILD
+====================== */
+stage('Clean') {
+  steps {
+    dir("${APP_DIR}") {
+      sh 'rm -rf node_modules dist'
     }
   }
+}
 
-  post {
-    success {
-      echo "✅ ADMIN FRONTEND DEPLOYED FROM MAIN"
-    }
-    failure {
-      echo "❌ DEPLOY FAILED — CONTAINER NOT TOUCHED"
+/* =====================
+   INSTALL DEPENDENCIES
+====================== */
+stage('Install Dependencies') {
+  steps {
+    dir("${APP_DIR}") {
+      sh '''
+        set -e
+        npm ci --no-audit --no-fund || \
+        npm install --legacy-peer-deps --no-audit --no-fund
+      '''
     }
   }
+}
+
+/* =====================
+   BUILD FRONTEND
+====================== */
+stage('Build Frontend') {
+  steps {
+    dir("${APP_DIR}") {
+      sh 'npm run build'
+    }
+  }
+}
+
+/* =====================
+   VERIFY BUILD
+====================== */
+stage('Verify Build') {
+  steps {
+    dir("${APP_DIR}") {
+      sh '''
+        test -f dist/index.html
+        echo "✅ Admin Build Successful"
+      '''
+    }
+  }
+}
+
+/* =====================
+   ADD SPA REWRITE
+====================== */
+stage('Add SPA Rewrite Rule') {
+  steps {
+    sh '''
+```
+
+cat <<EOF > Mainsource/dist/.htaccess <IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L] </IfModule>
+EOF
+'''
+}
+}
+
+```
+/* =====================
+   DEPLOY TO CONTAINER
+====================== */
+stage('Deploy') {
+  steps {
+
+    sh '''
+      docker exec ${CONTAINER_NAME} \
+      mkdir -p ${DEPLOY_PATH}_new
+    '''
+
+    dir("${APP_DIR}") {
+      sh '''
+        docker cp dist/. \
+        ${CONTAINER_NAME}:${DEPLOY_PATH}_new/
+      '''
+    }
+
+    sh '''
+      docker exec ${CONTAINER_NAME} sh -c "
+        rm -rf ${DEPLOY_PATH}_old || true
+        mv ${DEPLOY_PATH} ${DEPLOY_PATH}_old
+        mv ${DEPLOY_PATH}_new ${DEPLOY_PATH}
+      "
+    '''
+  }
+}
+
+/* =====================
+   HEALTH CHECK
+====================== */
+stage('Health Check') {
+  steps {
+    sh '''
+      sleep 5
+      curl -f ${HEALTH_URL}
+    '''
+  }
+}
+```
+
+}
+
+post {
+success {
+echo "✅ ADMIN FRONTEND DEPLOYED SUCCESSFULLY"
+}
+failure {
+echo "❌ DEPLOY FAILED — OLD VERSION PRESERVED"
+}
+}
 }
 
