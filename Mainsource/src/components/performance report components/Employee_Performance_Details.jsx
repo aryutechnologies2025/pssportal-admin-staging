@@ -8,17 +8,16 @@ import { Dropdown } from 'primereact/dropdown';
 import { useDateUtils } from '../../Utils/useDateUtils';
 import exportToPDF from '../../Utils/exportToPDF';
 import exportToCSV from '../../Utils/exportToCSV';
+import { formatToDDMMYYYY } from '../../Utils/dateformat';
 
 const Employee_Performance_Details = () => {
     const navigate = useNavigate();
-
-      const formatDateTime = useDateUtils();
-
+    const formatDateTime = useDateUtils();
     const [loading, setLoading] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [popupTitle, setPopupTitle] = useState("");
     const [popupData, setPopupData] = useState([]);
-    const [popupType, setPopupType] = useState(""); // 'joining', 'relieving', 'working', 'present', 'absent', 'submitted', 'not_submitted'
+    const [popupType, setPopupType] = useState(""); // 'referred', 'joined', 'relieved', 'selected', 'present', 'absent', 'submitted', 'not_submitted', 'marked', 'not_marked'
 
     const today = new Date().toISOString().split("T")[0];
     const [filters, setFilters] = useState({
@@ -36,7 +35,7 @@ const Employee_Performance_Details = () => {
     const selectedEmployee = employees.find(emp => emp.id === Number(filters.employee_id));
 
     // Sample data for demonstration - replace with actual API data
-   const [employeePerformanceData, setEmployeePerformanceData] = useState({
+    const [employeePerformanceData, setEmployeePerformanceData] = useState({
         company: {
             name: "Tech Solutions Inc.",
             total_employees: 10,
@@ -103,34 +102,12 @@ const Employee_Performance_Details = () => {
         }
     });
 
-
     const applyFilters = () => {
-        let filtered = [...allWorkReports];
-
-        if (filters.from_date) {
-            filtered = filtered.filter(item =>
-                new Date(item.report_date) >= new Date(filters.from_date)
-            );
-        }
-
-        if (filters.to_date) {
-            filtered = filtered.filter(item =>
-                new Date(item.report_date) <= new Date(filters.to_date)
-            );
-        }
-
-        if (filters.employee_id) {
-            filtered = filtered.filter(
-                item => item.employee?.id === Number(filters.employee_id)
-            );
-        }
-
-        setWorkReports(filtered);
-        setTotalRecords(filtered.length);
+        // Your filter logic
     };
 
     const openPopup = (title, data, type) => {
-         const employeeName = selectedEmployee ? ` - ${selectedEmployee.full_name}` : " Emp1";
+        const employeeName = selectedEmployee ? ` - ${selectedEmployee.full_name}` : "";
         setPopupTitle(title + employeeName);
         setPopupData(data);
         setPopupType(type);
@@ -144,73 +121,86 @@ const Employee_Performance_Details = () => {
         setPopupType("");
     };
 
-const getExportData = () => {
-  return popupData.map((item, index) => {
-    const base = {
-      "S.No": index + 1,
-    //   "Name": item.name || "-"
-    };
+    const getExportData = () => {
+        return popupData.map((item, index) => {
+            const base = {
+                "S.No": index + 1,
+            };
 
-    switch (popupType) {
-      case "present":
-        return {
-          ...base,
-          Date: item.date || "-",
-          Time: `${item.check_in || "-"} - ${item.check_out || "-"}`
-        };
-
-      case "absent":
-        return {
-          ...base,
-          Date: item.date || "-"
-        };
-
-         case "referred":
+            switch (popupType) {
+                case "referred":
                     return {
                         ...base,
                         "Company": item.company_name || "-",
                         "Count": item.count || "-"
                     };
 
-      case "joined":
-        case "selected":
-        return {
-          ...base,
+                case "joined":
+                    return {
+                        ...base,
                         "Company": item.company || "-",
                         "Employee Name": item.name || "-",
                         "Joining Date": item.joining_date || "-"
-        };
+                    };
 
-      case "relieved":
-        return {
-           ...base,
+                case "relieved":
+                    return {
+                        ...base,
+                        "Company": item.company || "-",
+                        "Employee Name": item.name || "-",
+                        "Relieving Date": item.relieving_date || "-"
+                    };
+
+                case "selected":
+                    return {
+                        ...base,
                         "Company": item.company || "-",
                         "Employee Name": item.name || "-",
                         "Status": item.status || "-"
-        };
+                    };
 
-      case "submitted":
-      case "not_submitted":
-        return {
-          ...base,
-          Date: item.date || "-"
-        };
+                case "present":
+                    return {
+                        ...base,
+                        "Date": item.date || "-",
+                        // "Employee Name": item.name || "-",
+                        "Check In": item.check_in || "-",
+                        "Check Out": item.check_out || "-"
+                    };
 
-      case "marked":
-      case "not_marked":
-        return {
-          ...base,
-          Company: item.company || "-",
-          Date: item.date || "-"
-        };
+                case "absent":
+                    return {
+                        ...base,
+                        "Date": item.date || "-",
+                        // "Employee Name": item.name || "-",
+                        // "Reason": item.reason || "-"
+                    };
 
-      default:
-        return base;
-    }
-  });
-};
+                case "submitted":
+                case "not_submitted":
+                    return {
+                        ...base,
+                        "Date": item.date || "-",
+                        // "Employee Name": item.name || "-"
+                    };
 
-    const workReport = dashboardData?.workreports?.[0] || {};
+                case "marked":
+                case "not_marked":
+                    return {
+                        ...base,
+                        "Company": item.company || "-",
+                        "Employee Name": item.name || "-",
+                        "Date": item.date || "-"
+                    };
+
+                default:
+                    return {
+                        ...base,
+                        "Name": item.name || "-"
+                    };
+            }
+        });
+    };
 
     return (
         <div className="flex flex-col justify-between bg-gray-50 px-3 md:px-5 pt-2 md:pt-10 w-full min-h-screen overflow-x-auto">
@@ -219,9 +209,7 @@ const getExportData = () => {
             ) : (
                 <>
                     <div>
-                        <div>
-                            <Mobile_Sidebar />
-                        </div>
+                        <Mobile_Sidebar />
 
                         <div className="flex justify-start gap-2 mt-2 md:mt-0 items-center">
                             <ToastContainer position="top-right" autoClose={3000} />
@@ -312,63 +300,47 @@ const getExportData = () => {
                         {/* Employee Performance Dashboard Cards */}
                         <div className="mt-6 space-y-6">
                             {/* Company Section */}
-
-                            {/* {filters.employee_id && selectedEmployee && (
-    <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <p className="text-sm text-blue-800">
-            Showing data for: <span className="font-semibold">{selectedEmployee.full_name}</span>
-        </p>
-    </div>
-)} */}
-
                             <div className="bg-white rounded-2xl shadow-sm border p-4">
-                                {/* <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                                    {employeePerformanceData.company.name}
-                                </h2> */}
-                                
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    {/* Total Employees */}
+                                    {/* Total Referred Count */}
                                     <div className="p-4 rounded-2xl border bg-purple-50 hover:shadow-md transition cursor-pointer"
-                                         onClick={() => openPopup("Refered Count", 
-                                            [{ label: "Total Employees", value: employeePerformanceData.referred_count }], 
-                                            "total")}>
-                                        <p className="text-sm text-gray-600">Total Count For Refered</p>
-                                        {/* <h3 className="text-2xl font-bold text-purple-700 mt-3">
-                                            {employeePerformanceData.referred_count}
-                                        </h3> */}
+                                         onClick={() => openPopup("Referred Count", 
+                                            employeePerformanceData.referred_count, 
+                                            "referred")}>
+                                        <p className="text-sm text-gray-600">Total Count For Referred</p>
                                         <h3 className="text-2xl font-bold text-purple-700 mt-3">
                                             {employeePerformanceData.referred_count.reduce((sum, item) => sum + item.count, 0)}
                                         </h3>
                                     </div>
 
-                                    {/* Joining */}
+                                    {/* Joined */}
                                     <div className="p-4 rounded-2xl border bg-green-50 hover:shadow-md transition cursor-pointer"
                                          onClick={() => openPopup("Joined Contract Employees", 
                                             employeePerformanceData.company.joining_list, 
-                                            "joining")}>
-                                        <p className="text-sm text-gray-600">Joined </p>
+                                            "joined")}>
+                                        <p className="text-sm text-gray-600">Joined</p>
                                         <h3 className="text-2xl font-bold text-green-700 mt-3">
                                             {employeePerformanceData.company.joining_today}
                                         </h3>
                                     </div>
 
-                                    {/* Relieving  */}
+                                    {/* Relieved */}
                                     <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition cursor-pointer"
                                          onClick={() => openPopup("Relieved Contract Employees", 
                                             employeePerformanceData.company.relieving_list, 
-                                            "relieving")}>
-                                        <p className="text-sm text-gray-600">Relieved </p>
+                                            "relieved")}>
+                                        <p className="text-sm text-gray-600">Relieved</p>
                                         <h3 className="text-2xl font-bold text-red-700 mt-3">
                                             {employeePerformanceData.company.relieving_today}
                                         </h3>
                                     </div>
 
-                                    {/* selected Today */}
+                                    {/* Selected */}
                                     <div className="p-4 rounded-2xl border bg-blue-50 hover:shadow-md transition cursor-pointer"
                                          onClick={() => openPopup("Selected Employees", 
-                                            employeePerformanceData.company.selected_list, 
-                                            "working")}>
-                                        <p className="text-sm text-gray-600">Selected </p>
+                                            employeePerformanceData.company.working_list, 
+                                            "selected")}>
+                                        <p className="text-sm text-gray-600">Selected</p>
                                         <h3 className="text-2xl font-bold text-blue-700 mt-3">
                                             {employeePerformanceData.company.working_today}
                                         </h3>
@@ -376,76 +348,63 @@ const getExportData = () => {
                                 </div>
                             </div>
 
-                    <div>
+                            <div>
                                 {/* Attendance Summary Section */}
-                            <div className="bg-white rounded-2xl shadow-sm border p-4">
-                                <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                                    {/* Attendance Summary - {formatDateTime(today)} */}
-                                    Attendance Summary
-                                </h2>
+                                <div className="bg-white rounded-2xl shadow-sm border p-4">
+                                    <h2 className="text-lg font-semibold mb-4 text-gray-800">Attendance Summary</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {/* Present Employees */}
+                                        <div className="p-4 rounded-2xl border bg-green-50 hover:shadow-md transition cursor-pointer"
+                                             onClick={() => openPopup("Present Employees", 
+                                                employeePerformanceData.attendance.summary[0].present_list, 
+                                                "present")}>
+                                            <p className="text-sm text-gray-600">Present</p>
+                                            <h3 className="text-2xl font-bold text-green-700 mt-3">
+                                                {employeePerformanceData.attendance.summary[0].present}
+                                            </h3>
+                                        </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    {/* Present Employees */}
-                                    <div className="p-4 rounded-2xl border bg-green-50 hover:shadow-md transition cursor-pointer"
-                                         onClick={() => openPopup("Present Employees", 
-                                            employeePerformanceData.attendance.summary[0].present_list, 
-                                            "present")}>
-                                        <p className="text-sm text-gray-600">Present</p>
-                                        <h3 className="text-2xl font-bold text-green-700 mt-3">
-                                            {employeePerformanceData.attendance.summary[0].present}
-                                        </h3>
-                                        
-                                    </div>
+                                        {/* Absent Employees */}
+                                        <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition cursor-pointer"
+                                             onClick={() => openPopup("Absent Employees", 
+                                                employeePerformanceData.attendance.summary[0].absent_list, 
+                                                "absent")}>
+                                            <p className="text-sm text-gray-600">Absent</p>
+                                            <h3 className="text-2xl font-bold text-red-700 mt-3">
+                                                {employeePerformanceData.attendance.summary[0].absent}
+                                            </h3>
+                                        </div>
 
-                                    {/* Absent Employees */}
-                                    <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition cursor-pointer"
-                                         onClick={() => openPopup("Absent Employees", 
-                                            employeePerformanceData.attendance.summary[0].absent_list, 
-                                            "absent")}>
-                                        <p className="text-sm text-gray-600">Absent</p>
-                                        <h3 className="text-2xl font-bold text-red-700 mt-3">
-                                            {employeePerformanceData.attendance.summary[0].absent}
-                                        </h3>
-                                        
-                                    </div>
-                                     {/* Submitted */}
-                                    <div className="p-4 rounded-2xl border bg-blue-50 hover:shadow-md transition cursor-pointer"
-                                         onClick={() => openPopup(" Submitted Employees", 
-                                            employeePerformanceData.workReport.submitted_list, 
-                                            "submitted")}>
-                                        <p className="text-sm text-gray-600">Submitted</p>
-                                        <h3 className="text-2xl font-bold text-blue-700 mt-3">
-                                            {employeePerformanceData.workReport.submitted}
-                                        </h3>
-                                        
-                                    </div>
+                                        {/* Submitted */}
+                                        <div className="p-4 rounded-2xl border bg-blue-50 hover:shadow-md transition cursor-pointer"
+                                             onClick={() => openPopup("Submitted Employees", 
+                                                employeePerformanceData.workReport.submitted_list, 
+                                                "submitted")}>
+                                            <p className="text-sm text-gray-600">Submitted</p>
+                                            <h3 className="text-2xl font-bold text-blue-700 mt-3">
+                                                {employeePerformanceData.workReport.submitted}
+                                            </h3>
+                                        </div>
 
-                                    {/* Not Submitted */}
-                                    <div className="p-4 rounded-2xl border bg-yellow-50 hover:shadow-md transition cursor-pointer"
-                                         onClick={() => openPopup("Not Submitted Employees", 
-                                            employeePerformanceData.workReport.not_submitted_list, 
-                                            "not_submitted")}>
-                                        <p className="text-sm text-gray-600">Not Submitted</p>
-                                        <h3 className="text-2xl font-bold text-yellow-700 mt-3">
-                                            {employeePerformanceData.workReport.not_submitted}
-                                        </h3>
-                                        
+                                        {/* Not Submitted */}
+                                        <div className="p-4 rounded-2xl border bg-yellow-50 hover:shadow-md transition cursor-pointer"
+                                             onClick={() => openPopup("Not Submitted Employees", 
+                                                employeePerformanceData.workReport.not_submitted_list, 
+                                                "not_submitted")}>
+                                            <p className="text-sm text-gray-600">Not Submitted</p>
+                                            <h3 className="text-2xl font-bold text-yellow-700 mt-3">
+                                                {employeePerformanceData.workReport.not_submitted}
+                                            </h3>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                 
-
-                    </div>
-                                {/* company attendance marked Summary Section */}
+                            {/* Company Attendance Marked Summary Section */}
                             <div className="bg-white rounded-2xl shadow-sm border p-4">
-                                <h2 className="text-lg font-semibold mb-4 text-gray-800">
-                                    {/* Work Report Summary - {formatDateTime(today)} */}
-                                    Company Attendance Summary
-                                </h2>
-
+                                <h2 className="text-lg font-semibold mb-4 text-gray-800">Company Attendance Summary</h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    {/* Submitted */}
+                                    {/* Marked */}
                                     <div className="p-4 rounded-2xl border bg-blue-50 hover:shadow-md transition cursor-pointer"
                                          onClick={() => openPopup("Marked Employees", 
                                             employeePerformanceData.markedReport.marked_list, 
@@ -454,10 +413,9 @@ const getExportData = () => {
                                         <h3 className="text-2xl font-bold text-blue-700 mt-3">
                                             {employeePerformanceData.markedReport.marked}
                                         </h3>
-                                        
                                     </div>
 
-                                    {/* Not Submitted */}
+                                    {/* Not Marked */}
                                     <div className="p-4 rounded-2xl border bg-yellow-50 hover:shadow-md transition cursor-pointer"
                                          onClick={() => openPopup("Not Marked Employees", 
                                             employeePerformanceData.markedReport.not_marked_list, 
@@ -466,7 +424,6 @@ const getExportData = () => {
                                         <h3 className="text-2xl font-bold text-yellow-700 mt-3">
                                             {employeePerformanceData.markedReport.not_marked}
                                         </h3>
-                                        
                                     </div>
                                 </div>
                             </div>
@@ -475,235 +432,231 @@ const getExportData = () => {
 
                     {/* Popup Modal */}
                     {showPopup && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-2xl shadow-xl w-11/12 md:w-2/3 lg:w-1/2 max-h-[80vh] overflow-hidden">
-                                <div className="flex items-center justify-between bg-green-700 px-4 sm:px-5 py-3 sm:py-4">
-                                    <h3 className="text-white text-base sm:text-lg font-bold">
-                    {popupTitle} 
-                    {selectedEmployee && filters.employee_id && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+                                {/* Header */}
+                                <div className="flex items-center justify-between bg-green-700 px-6 py-4">
+                                    <h3 className="text-white text-lg font-bold">
+                                        {popupTitle}
+                                        {selectedEmployee && filters.employee_id && (
                         <span className="text-[#1ea600] ml-2">
                             - {selectedEmployee.full_name}
                         </span>
                     ) } 
-                </h3>
 
-                   <div className="flex items-center gap-3">
-                      {/* Excel Button */}
-                      <button
-  onClick={() =>
-    exportToCSV(
-      getExportData(),
-      popupTitle.replaceAll(" ", "_")
-    )
-  }
-  className="px-3 py-1 rounded bg-white text-green-600 text-sm font-semibold hover:bg-gray-100"
->
-  Excel
-</button>
+                                    </h3>
+                                    <div className="flex items-center gap-3">
+                                        {/* Excel Button */}
+                                        <button
+                                            onClick={() => exportToCSV(getExportData(), popupTitle.replaceAll(" ", "_"))}
+                                            className="px-4 py-2 rounded-lg bg-white text-green-600 text-sm font-semibold hover:bg-gray-100 transition"
+                                        >
+                                            Excel
+                                        </button>
 
-                      {/* PDF Button */}
-                     <button
-  onClick={() =>
-    exportToPDF(
-      getExportData(),
-      popupTitle.replaceAll(" ", "_"),
-      popupTitle
-    )
-  }
-  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100"
->
-  PDF
-</button>
+                                        {/* PDF Button */}
+                                        <button
+                                            onClick={() => exportToPDF(getExportData(), popupTitle.replaceAll(" ", "_"), popupTitle)}
+                                            className="px-4 py-2 rounded-lg bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+                                        >
+                                            PDF
+                                        </button>
 
-                      <button
-                                        onClick={closePopup}
-                                        className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-                      >
-                        ✕
-                                    </button>
-                    </div>
-                                    
+                                        {/* Close Button */}
+                                        <button
+                                            onClick={closePopup}
+                                            className="h-10 w-10 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition text-xl"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
                                 </div>
-                                
-                                {/* body */}
-                                <div className="p-4 overflow-y-auto max-h-[60vh]">
-                                    {/* {popupData.length > 0 ? ( */}
+
+                                {/* Body */}
+                                <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
                                     {Array.isArray(popupData) && popupData.length > 0 ? (
                                         <div className="overflow-x-auto rounded-xl border border-gray-200">
-                                        <table className="w-full text-sm">
-                                            <thead >
-                                                <tr className="bg-green-50 text-green-900">
-                                                    <th className="px-4 py-3 text-center w-[70px]">S.No</th>
-                                                    {/* <th className="px-4 py-3 text-center">Name</th> */}
-                                                    
-                                                    {popupType === "referred" && (
-                                                        <>
-                                                           <th className="px-4 py-3 text-center">Company Name</th>
-                                                           <th className="px-4 py-3 text-center">Count</th>
-                                                           {/* <th className="px-4 py-3 text-center">Reason</th> */}
-                                                        </>
-                                                    )}
-                                                    {popupType === "joined" && (
-                                                        <>
-                                                            <th className="px-4 py-3 text-center">Employee Name</th>
-                                                            <th className="px-4 py-3 text-center">Company Name</th>
-                                                            <th className="px-4 py-3 text-center">Joining Date</th>
-                                                        </>
-                                                    )}
-                                                    {popupType === "relieved" && (
-                                                        <>
-                                                          <th className="px-4 py-3 text-center">Employee Name</th>
-                                                          <th className="px-4 py-3 text-center">Company Name</th>
-                                                            <th className="px-4 py-3 text-center">Relieving Date</th>
-                                                        </>
-                                                    )}
-                                                    {popupType === "selected" && (
-                                                        <>
-                                                            <th className="px-4 py-3 text-center">Employee Name</th>
-                                                            <th className="px-4 py-3 text-center">Company Name</th>
-                                                            <th className="px-4 py-3 text-center">Selected Date</th>
-                                                            <th className="px-4 py-3 text-center">Status</th>
-                                                        </>
-                                                    )}
-
-                                                    {popupType === "present" && (
-                                                        <>
+                                            <table className="w-full text-sm">
+                                                <thead>
+                                                    <tr className="bg-green-50 text-green-900">
+                                                        <th className="px-4 py-3 text-center w-[70px]">S.No</th>
                                                         
-                                                            <th className="px-4 py-3 text-center">Date</th>
-                                                            <th className="px-4 py-3 text-center">Check In - Check Out</th>
-                                                            
-                                                            
-                                                        </>
-                                                    )}
-                                                    {popupType === "absent" && (
-                                                        <>
-                                                           <th className="px-4 py-3 text-center">Date</th>
-                                                           {/* <th className="px-4 py-3 text-center">Reason</th> */}
-                                                        </>
-                                                    )}
-
-                                                    {popupType === "submitted" && (
-                                                        <>
-                                                            <th className="px-4 py-3 text-center">Date</th>
-                                                        </>
-                                                    )}
-                                                    {popupType === "not_submitted" && (
-                                                        <>
-                                                            <th className="px-4 py-3 text-center">Date</th>
-                                                        </>
-                                                    )}
-                                                    {popupType === "marked" && (
-                                                        <>
-                                                            <th className="px-4 py-3 text-center">Company Name</th>
-
-                                                            <th className="px-4 py-3 text-center">Emplooyee Name</th>
-                                                            <th className="px-4 py-3 text-center">Date</th>
-                                                        </>
-                                                    )}
-                                                    {popupType === "not_marked" && (
-                                                        <>
-                                                            <th className="px-4 py-3 text-center">Company Name</th>
-                                                            <th className="px-4 py-3 text-center">Employee Name</th>
-                                                            <th className="px-4 py-3 text-center">Date</th>
-                                                        </>
-                                                    )}
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {/* {popupData.map((item, index) => ( */}
-                                                {Array.isArray(popupData) &&
-  popupData.map((item, index) => (
-                                                    <tr key={item.id || index} className="border-t hover:bg-gray-50 transition">
-                                                        <td className="px-4 py-3 font-semibold text-gray-800 text-center">{index + 1}</td>
-                                                        {/* <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.name || "-"}</td> */}
-                                                        
-                                                 
                                                         {popupType === "referred" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.company_name || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.count || "-"}</td>
+                                                                <th className="px-4 py-3 text-center">Company Name</th>
+                                                                <th className="px-4 py-3 text-center">Count</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "joined" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.name || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.company_name || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.joining_date || "-")}</td>
+                                                                <th className="px-4 py-3 text-center">Employee Name</th>
+                                                                <th className="px-4 py-3 text-center">Company Name</th>
+                                                                <th className="px-4 py-3 text-center">Joining Date</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "relieved" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.name || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.company_name || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.relieving_date || "-")}</td>
+                                                                <th className="px-4 py-3 text-center">Employee Name</th>
+                                                                <th className="px-4 py-3 text-center">Company Name</th>
+                                                                <th className="px-4 py-3 text-center">Relieving Date</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "selected" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.selected_date || "-")}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.name || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.company || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">
-                                                                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                                                                        {item.status}
-                                                                    </span>
-                                                                </td>
+                                                                <th className="px-4 py-3 text-center">Employee Name</th>
+                                                                <th className="px-4 py-3 text-center">Company Name</th>
+                                                                <th className="px-4 py-3 text-center">Status</th>
                                                             </>
                                                         )}
-                                                               {popupType === "present" && (
+                                                        
+                                                        {popupType === "present" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.date || "-")}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.check_in} - {item.check_out}</td>
+                                                                {/* <th className="px-4 py-3 text-center">Employee Name</th> */}
+                                                                <th className="px-4 py-3 text-center">Date</th>
+                                                                <th className="px-4 py-3 text-center">Check In - Check Out</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "absent" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.date || "-")}</td>
-                                                                {/* <td className="p-3 text-sm text-gray-600">{item.reason}</td> */}
+                                                                {/* <th className="px-4 py-3 text-center">Employee Name</th> */}
+                                                                <th className="px-4 py-3 text-center">Date</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "submitted" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.date || "-")}</td>
-                                                                
+                                                                {/* <th className="px-4 py-3 text-center">Employee Name</th> */}
+                                                                <th className="px-4 py-3 text-center">Date</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "not_submitted" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.date || "-")}</td>
-                                                                
+                                                                {/* <th className="px-4 py-3 text-center">Employee Name</th> */}
+                                                                <th className="px-4 py-3 text-center">Date</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "marked" && (
                                                             <>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.company || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.name}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.date || "-")}</td>
-                                                                
+                                                                <th className="px-4 py-3 text-center">Company Name</th>
+                                                                <th className="px-4 py-3 text-center">Employee Name</th>
+                                                                <th className="px-4 py-3 text-center">Date</th>
                                                             </>
                                                         )}
+                                                        
                                                         {popupType === "not_marked" && (
                                                             <>
-                                                                    <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.company || "-"}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{item.name}</td>
-                                                                <td className="px-4 py-3 font-semibold text-gray-800 text-center">{formatDateTime(item.date || "-")}</td>
-                                                                
+                                                                <th className="px-4 py-3 text-center">Company Name</th>
+                                                                <th className="px-4 py-3 text-center">Employee Name</th>
+                                                                <th className="px-4 py-3 text-center">Date</th>
                                                             </>
                                                         )}
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {popupData.map((item, index) => (
+                                                        <tr key={item.id || index} className="border-t hover:bg-gray-50 transition">
+                                                            <td className="px-4 py-3 font-semibold text-gray-800 text-center">{index + 1}</td>
+                                                            
+                                                            {popupType === "referred" && (
+                                                                <>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.company_name || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.count || "-"}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "joined" && (
+                                                                <>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.company || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.joining_date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "relieved" && (
+                                                                <>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.company || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.relieving_date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "selected" && (
+                                                                <>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.company || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center">
+                                                                        <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                                                                            {item.status || "Working"}
+                                                                        </span>
+                                                                    </td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "present" && (
+                                                                <>
+                                                                    {/* <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td> */}
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.date || "-")}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.check_in} - {item.check_out}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "absent" && (
+                                                                <>
+                                                                    {/* <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td> */}
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "submitted" && (
+                                                                <>
+                                                                    {/* <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td> */}
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "not_submitted" && (
+                                                                <>
+                                                                    {/* <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td> */}
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "marked" && (
+                                                                <>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.company || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                            
+                                                            {popupType === "not_marked" && (
+                                                                <>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.company || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{item.name || "-"}</td>
+                                                                    <td className="px-4 py-3 text-center text-gray-800">{formatToDDMMYYYY(item.date || "-")}</td>
+                                                                </>
+                                                            )}
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     ) : (
-                                        <p className="text-center text-gray-500 py-4">No data available</p>
+                                        <p className="text-center text-gray-500 py-8">No data available</p>
                                     )}
                                 </div>
-                                
-                                <div className="flex justify-end p-4 border-t">
+
+                                {/* Footer */}
+                                <div className="flex justify-end px-6 py-4 border-t bg-gray-50">
                                     <button
                                         onClick={closePopup}
-                                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                                        className="px-6 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
                                     >
                                         Close
                                     </button>
