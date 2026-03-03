@@ -33,13 +33,15 @@ import {
 import DateFilterDropdown from "./DateFilterDropdown";
 import { API_URL } from "../../Config";
 import axiosInstance from "../../axiosConfig";
-import { useDateUtils } from "../../Utils/useDateUtils";
+import { useDateUtils } from "../../utils/useDateUtils";
 import { Capitalise } from "../../hooks/useCapitalise";
-import exportToCSV from "../../Utils/exportToCSV";
-import exportToPDF from "../../Utils/exportToPDF";
+import exportToCSV from "../../utils/exportToCSV";
+import exportToPDF from "../../utils/exportToPDF";
 import autoTable from "jspdf-autotable";
 import jsPDF from "jspdf";
 
+import { FaEye } from "react-icons/fa";
+import { IoIosCloseCircle } from "react-icons/io";
 
 const Dashboard_Mainbar = () => {
   const formatDateTime = useDateUtils();
@@ -74,6 +76,8 @@ const Dashboard_Mainbar = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [topAnnouncement, setTopAnnouncement] = useState(null);
 
+  console.log("topAnnouncement", topAnnouncement);
+
   const [continuousAbsentees, setContinuousAbsentees] = useState([]);
   const [employeesJoinedToday, setEmployeesJoinedToday] = useState([]);
   const [jobFormSubmissions, setJobFormSubmissions] = useState([]);
@@ -94,10 +98,7 @@ const Dashboard_Mainbar = () => {
   };
 
   useEffect(() => {
-    loadData();
-    fetchAnnouncements(); // 👈 ADD THIS
-    const date = new Date().toISOString().split("T")[0];
-    setSelectedDate(date);
+    fetchAnnouncements();
   }, []);
 
   // useEffect(() => {
@@ -112,19 +113,15 @@ const Dashboard_Mainbar = () => {
 
   const fetchAnnouncements = async () => {
     try {
-      const res = await axiosInstance.get(`${API_URL}api/announcements/latest`);
+      const res = await axiosInstance.get(`${API_URL}api/announcement`);
 
+      console.log("Announcement :", res);
 
-      console.log("Announcement :",res)
-      if (res.data?.success) {
-        const list = res.data.data || [];
-        setAnnouncements(list);
+      const list = res.data || [];
+      setAnnouncements(list);
 
-        if (list.length > 0) {
-          setTopAnnouncement(list[0]); // show latest one
-          setShowTopBanner(true);
-        }
-      }
+      setTopAnnouncement(list);
+      setShowTopBanner(true);
     } catch (error) {
       console.error("Failed to fetch announcements", error);
     }
@@ -610,14 +607,14 @@ const Dashboard_Mainbar = () => {
   // };
 
   const handleYesterdayFilter = () => {
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
 
-  const formattedDate = yesterday.toISOString().split("T")[0];
+    const formattedDate = yesterday.toISOString().split("T")[0];
 
-  setFromDate(formattedDate);   // update input field
-  fetchDashboard(formattedDate); // call API
-};
+    setFromDate(formattedDate); // update input field
+    fetchDashboard(formattedDate); // call API
+  };
 
   const handleDateChangedash = (e) => {
     const date = e.target.value;
@@ -712,8 +709,6 @@ const Dashboard_Mainbar = () => {
     setAttendancelist(list || []);
     setShowPopupattendance(true);
   };
-
-
 
   const workReportColumns = [
     {
@@ -990,10 +985,10 @@ const Dashboard_Mainbar = () => {
 
   const [showActiveUsersPopup, setShowActiveUsersPopup] = useState(false);
   const openActiveUsersPopup = (title, users) => {
-  setPopupTitle(title);
-  setEmployeeList(users);
-  setShowActiveUsersPopup(true);
-};
+    setPopupTitle(title);
+    setEmployeeList(users);
+    setShowActiveUsersPopup(true);
+  };
 
   const companyattendancelist = [
     {
@@ -1047,17 +1042,17 @@ const Dashboard_Mainbar = () => {
   const workReport = dashboardData?.workreports?.[0] || {};
 
   const getRowColor = (type) => {
-  switch (type) {
-    case "red":
-      return "bg-red-100 hover:bg-red-200";
-    case "orange":
-      return "bg-orange-100 hover:bg-orange-200";
-    case "yellow":
-      return "bg-yellow-100 hover:bg-yellow-200";
-    default:
-      return "hover:bg-gray-50";
-  }
-};
+    switch (type) {
+      case "red":
+        return "bg-red-100 hover:bg-red-200";
+      case "orange":
+        return "bg-orange-100 hover:bg-orange-200";
+      case "yellow":
+        return "bg-yellow-100 hover:bg-yellow-200";
+      default:
+        return "hover:bg-gray-50";
+    }
+  };
 
   return (
     <div className="w-screen min-h-screen flex flex-col justify-between bg-gray-100 md:px-5 px-3 py-2 md:pt-5 ">
@@ -1076,58 +1071,6 @@ const Dashboard_Mainbar = () => {
             {/* <div className="bg-white rounded-2xl px-2 py-2 md:px-5 md:py-5 flex justify-between mt-1 "> */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
               <p className="hidden md:block font-semibold">PSS Dashboard</p>
-
-              {topAnnouncement && showTopBanner && (
-                <div className="w-full mb-4">
-                  <div
-                    className="
-                      relative flex flex-col md:flex-row gap-3 md:gap-6 items-start md:items-center
-                      bg-gradient-to-r from-green-600 to-emerald-500
-                      text-white px-4 md:px-6 py-3 md:py-4
-                      rounded-xl shadow-lg
-                    "
-                  >
-                    {/* Left Icon */}
-                    <div className="hidden md:flex items-center justify-center w-10 h-10 bg-white/20 rounded-full">
-                      <FaEye className="text-white text-lg" />
-                    </div>
-
-                    {/* Message */}
-                    <div className="flex-1">
-                      <p className="text-sm md:text-base font-semibold">
-                        📢 Latest Announcement
-                      </p>
-
-                      <div
-                        className="text-xs md:text-sm mt-1 text-white/90 line-clamp-2"
-                        dangerouslySetInnerHTML={{
-                          __html: topAnnouncement?.announcement_details,
-                        }}
-                      />
-                    </div>
-
-                    {/* CTA */}
-                    <button
-                      onClick={() => openViewModal(topAnnouncement)}
-                      className="
-                        text-xs md:text-sm font-medium
-                        bg-white/20 hover:bg-white/30
-                        px-3 py-1.5 rounded-md transition
-                      "
-                    >
-                      View
-                    </button>
-
-                    {/* Close */}
-                    <button
-                      onClick={() => setShowTopBanner(false)}
-                      className="absolute top-2 right-2 text-white/80 hover:text-white"
-                    >
-                      <IoIosCloseCircle size={22} />
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {/* <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
                 <div className="w-full sm:w-auto">
@@ -1173,16 +1116,14 @@ const Dashboard_Mainbar = () => {
               </div> */}
 
               <div className="flex flex-col sm:flex-row md:flex-row gap-4 p-3 rounded-lg items-end w-full md:w-auto">
-             
-              
-  {/* Yesterday Button */}
-  <button
-    onClick={handleYesterdayFilter}
-    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
-  >
-    Yesterday
-  </button>
-             
+                {/* Yesterday Button */}
+                <button
+                  onClick={handleYesterdayFilter}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
+                >
+                  Yesterday
+                </button>
+
                 {/* Single Date */}
                 <div className="w-full sm:w-auto">
                   <label className="block text-sm font-medium mb-1">
@@ -1208,6 +1149,49 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
             </div>
+
+            {topAnnouncement && showTopBanner && (
+              <div className="w-full mb-4">
+                <div
+                  className="
+                      relative flex flex-col md:flex-row gap-3 md:gap-6 items-start md:items-center
+                      bg-gradient-to-r from-green-100 to-green-100
+                      text-green-800 px-4 md:px-6 py-3 md:py-4
+                      rounded-xl shadow-lg
+                    "
+                >
+                  {/* Message */}
+                  <div className="flex-1">
+                    <p className="text-sm md:text-base font-semibold">
+                      📢 Latest Announcement
+                    </p>
+                    <ul className="px-4 space-y-2 mt-2">
+                      {topAnnouncement?.data?.map((item) => (
+                        <li key={item.id} className="flex items-start gap-2">
+                          <span className="text-yellow-400 text-sm mt-[2px]">
+                            📜
+                          </span>
+                          <span
+                            className="text-xs md:text-sm text-green-800"
+                            dangerouslySetInnerHTML={{
+                              __html: item?.announcement_details,
+                            }}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Close */}
+                  <button
+                    onClick={() => setShowTopBanner(false)}
+                    className="absolute top-2 right-2 text-green-800 hover:text-green-900"
+                  >
+                    <IoIosCloseCircle size={22} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* new dasboard desgin */}
 
@@ -1270,7 +1254,9 @@ const Dashboard_Mainbar = () => {
 
                 {/* Not Marked */}
                 <div className="p-4 rounded-2xl border bg-yellow-50 hover:shadow-md transition">
-                  <p className="text-sm text-gray-600">Work Report Not Submitted</p>
+                  <p className="text-sm text-gray-600">
+                    Work Report Not Submitted
+                  </p>
 
                   <div className="mt-3">
                     <button
@@ -1286,20 +1272,18 @@ const Dashboard_Mainbar = () => {
                     </button>
                   </div>
                 </div>
-
-
               </div>
 
               <h2 className="text-lg font-semibold mt-4 mb-2">
                 Company Attendance Summary
               </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-            
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
                 {dashboardData?.attendance_summary?.map((item, index) => (
                   <>
                     {/* Marked */}
-                    <div key={index}
+                    <div
+                      key={index}
                       className="p-4 rounded-2xl border bg-blue-50 cursor-pointer hover:shadow-md transition"
                       onClick={() =>
                         openCompanyAttendancePopup(
@@ -1330,36 +1314,29 @@ const Dashboard_Mainbar = () => {
                       </h3>
                     </div>
 
-                                     {/* Total attendance */}
-                <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition">
-                  <p className="text-sm text-gray-600">Total Attendance</p>
-                  <h3
-                    className="text-2xl font-bold text-red-700 mt-3 cursor-pointer"
-                
-                  >
-                    
-                    {dashboardData?.total_attendance ||" 0/0"}
-                  </h3>
-                </div>
+                    {/* Total attendance */}
+                    <div className="p-4 rounded-2xl border bg-red-50 hover:shadow-md transition">
+                      <p className="text-sm text-gray-600">Total Attendance</p>
+                      <h3 className="text-2xl font-bold text-red-700 mt-3 cursor-pointer">
+                        {dashboardData?.total_attendance || " 0/0"}
+                      </h3>
+                    </div>
 
-                <div
-  className="p-4 rounded-2xl border bg-green-50 cursor-pointer hover:shadow-md transition"
-  onClick={() =>
-    openActiveUsersPopup(
-      "Currently Active Employees",
-      dashboardData?.active_users?.users || []
-    )
-  }
->
-  <p className="text-sm text-gray-600">
-    Active Users
-  </p>
+                    <div
+                      className="p-4 rounded-2xl border bg-green-50 cursor-pointer hover:shadow-md transition"
+                      onClick={() =>
+                        openActiveUsersPopup(
+                          "Currently Active Employees",
+                          dashboardData?.active_users?.users || [],
+                        )
+                      }
+                    >
+                      <p className="text-sm text-gray-600">Active Users</p>
 
-  <h3 className="text-2xl font-bold text-green-700 mt-3">
-    {dashboardData?.active_users?.count || 0}
-  </h3>
-</div>
-
+                      <h3 className="text-2xl font-bold text-green-700 mt-3">
+                        {dashboardData?.active_users?.count || 0}
+                      </h3>
+                    </div>
                   </>
                 ))}
               </div>
@@ -1367,70 +1344,69 @@ const Dashboard_Mainbar = () => {
 
             {/* dashboard  */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
+              {/* company attendance summary */}
 
-{/* company attendance summary */}
+              <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-semibold text-gray-800">
+                    Company Attendance Summary
+                  </h2>
 
+                  <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
+                    {dashboardData?.company_wise_summary?.length || 0}
+                  </span>
+                </div>
 
-<div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
-  <div className="flex items-center justify-between mb-4">
-    <h2 className="text-base font-semibold text-gray-800">
-      Company Attendance Summary
-    </h2>
+                <div className="space-y-4 h-[320px] overflow-auto pr-1">
+                  {(dashboardData?.company_wise_summary || []).map(
+                    (rowData, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200"
+                      >
+                        {/* LEFT - Company Name */}
+                        <div className="min-w-0 ">
+                          <p
+                            className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
+                            title={rowData.company_name}
+                          >
+                            {rowData.company_name}
+                          </p>
+                        </div>
 
-    <span className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">
-      {dashboardData?.company_wise_summary?.length || 0}
-    </span>
-  </div>
+                        {/* CENTER - Present / Total */}
+                        <div className="flex-shrink-0">
+                          <span className="px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                            {rowData.present_employees}/
+                            {rowData.total_employees}
+                          </span>
+                        </div>
 
-  <div className="space-y-4 h-[320px] overflow-auto pr-1">
-    {(dashboardData?.company_wise_summary || []).map((rowData, index) => (
-      <div
-        key={index}
-        className="flex items-center justify-between gap-4 p-4 rounded-xl border bg-gray-50 hover:bg-white hover:shadow-sm transition-all duration-200"
-      >
+                        {/* RIGHT - Absent */}
+                        <div className="flex-shrink-0">
+                          <span
+                            onClick={() =>
+                              openAbsentEmployeePopup(
+                                `${rowData.company_name} - Absent Employees`,
+                                rowData.absentees,
+                              )
+                            }
+                            className="px-4 py-1.5 rounded-full bg-red-100 text-red-700 text-sm font-semibold cursor-pointer hover:bg-red-700 hover:text-white transition"
+                          >
+                            {rowData.absent_employees}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )}
 
-
-        {/* LEFT - Company Name */}
-        <div className="min-w-0 ">
-          <p 
-          className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate"
-          title={rowData.company_name}
-          >
-            {rowData.company_name}
-          </p>
-        </div>
-
-        {/* CENTER - Present / Total */}
-        <div className="flex-shrink-0">
-          <span className="px-4 py-1.5 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
-            {rowData.present_employees}/{rowData.total_employees}
-          </span>
-        </div>
-
-        {/* RIGHT - Absent */}
-        <div className="flex-shrink-0">
-          <span
-            onClick={() =>
-              openAbsentEmployeePopup(
-                `${rowData.company_name} - Absent Employees`,
-                rowData.absentees
-              )
-            }
-            className="px-4 py-1.5 rounded-full bg-red-100 text-red-700 text-sm font-semibold cursor-pointer hover:bg-red-700 hover:text-white transition"
-          >
-             {rowData.absent_employees}
-          </span>
-        </div>
-      </div>
-    ))}
-
-    {(dashboardData?.company_attendance || []).length === 0 && (
-      <p className="text-sm text-gray-500 text-center py-10">
-        No attendance data found.
-      </p>
-    )}
-  </div>
-</div>
+                  {(dashboardData?.company_attendance || []).length === 0 && (
+                    <p className="text-sm text-gray-500 text-center py-10">
+                      No attendance data found.
+                    </p>
+                  )}
+                </div>
+              </div>
 
               {/* Job Form Submissions */}
 
@@ -1699,8 +1675,6 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
 
-           
-
               {/* releving wise date */}
               {/* <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex justify-between items-center mb-4">
@@ -1731,8 +1705,7 @@ const Dashboard_Mainbar = () => {
 
               {/* future employee */}
 
-
-                 <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+              <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-semibold text-gray-800">
                     Upcoming Employees
@@ -1756,12 +1729,12 @@ const Dashboard_Mainbar = () => {
 
                           <p
                             className="text-sm font-semibold text-green-700 cursor-pointer hover:underline truncate "
-                          onClick={() =>
-            openFutureEmployeePopup(
-              `${rowData.company_name || "Company"} - Future Employees`,
-              rowData.candidates,
-            )
-          }
+                            onClick={() =>
+                              openFutureEmployeePopup(
+                                `${rowData.company_name || "Company"} - Future Employees`,
+                                rowData.candidates,
+                              )
+                            }
                             title={rowData.company_name}
                           >
                             {rowData.company_name}
@@ -1776,12 +1749,12 @@ const Dashboard_Mainbar = () => {
                         <div className="flex-shrink-0">
                           <span
                             className="px-4 py-1.5 rounded-full bg-green-600 text-white text-sm font-semibold cursor-pointer"
-                          onClick={() =>
-            openFutureEmployeePopup(
-              `${rowData.company_name || "Company"} - Future Employees`,
-              rowData.candidates,
-            )
-          }
+                            onClick={() =>
+                              openFutureEmployeePopup(
+                                `${rowData.company_name || "Company"} - Future Employees`,
+                                rowData.candidates,
+                              )
+                            }
                           >
                             {rowData?.total_count || 0}
                           </span>
@@ -1799,12 +1772,9 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
 
-         
-
               {/* absent list */}
 
-
-                   {/* <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
+              {/* <div className="bg-white rounded-xl shadow-md border p-4 md:p-5 bg-[url('././assets/zigzaglines_large.svg')] bg-cover">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-semibold text-gray-800">
                     Absent Employees
@@ -1850,9 +1820,6 @@ const Dashboard_Mainbar = () => {
 
 
               </div> */}
-
-
-         
             </div>
 
             {/* work report popup */}
@@ -1872,48 +1839,47 @@ const Dashboard_Mainbar = () => {
                       {popupTitle}
                     </h2>
 
- <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
+                      {/* Excel Button */}
+                      <button
+                        onClick={() =>
+                          exportToCSV(
+                            employeeList.map((emp, index) => ({
+                              "S.No": index + 1,
+                              "Full Name": Capitalise(emp.employee_name),
+                            })),
+                            popupTitle.replaceAll(" ", "_"),
+                          )
+                        }
+                        className="px-3 py-1 rounded bg-white text-green-600 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        Excel
+                      </button>
 
-    {/* Excel Button */}
-    <button
-  onClick={() =>
-    exportToCSV(
-      employeeList.map((emp, index) => ({
-        "S.No": index + 1,
-        "Full Name": Capitalise(emp.employee_name),
-      })),
-      popupTitle.replaceAll(" ", "_")
-    )
-  }
-  className="px-3 py-1 rounded bg-white text-green-600 text-sm font-semibold hover:bg-gray-100 transition"
->
-  Excel
-</button>
+                      {/* PDF Button */}
+                      <button
+                        onClick={() =>
+                          exportToPDF(
+                            employeeList.map((emp, index) => ({
+                              "S.No": index + 1,
+                              "Full Name": Capitalise(emp.employee_name),
+                            })),
+                            popupTitle.replaceAll(" ", "_"),
+                            popupTitle,
+                          )
+                        }
+                        className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        PDF
+                      </button>
 
-    {/* PDF Button */}
-    <button
-  onClick={() =>
-    exportToPDF(
-      employeeList.map((emp, index) => ({
-        "S.No": index + 1,
-        "Full Name": Capitalise(emp.employee_name),
-      })),
-      popupTitle.replaceAll(" ", "_"),
-      popupTitle
-    )
-  }
-  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
->
-  PDF
-</button>
-
-                    <button
-                      onClick={() => setShowPopup(false)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-                    >
-                      ✕
-                    </button>
-                  </div>
+                      <button
+                        onClick={() => setShowPopup(false)}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
 
                   {/* Body */}
@@ -1989,50 +1955,49 @@ const Dashboard_Mainbar = () => {
                       {popupTitle}
                     </h2>
 
- <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
+                      {/* Excel Button */}
+                      <button
+                        onClick={() =>
+                          exportToCSV(
+                            attendancelist.map((emp, index) => ({
+                              "S.No": index + 1,
+                              "Full Name": Capitalise(emp.full_name),
+                              "Employee Id": emp.gen_employee_id,
+                            })),
+                            popupTitle.replaceAll(" ", "_"),
+                          )
+                        }
+                        className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        Excel
+                      </button>
 
-    {/* Excel Button */}
-    <button
-  onClick={() =>
-    exportToCSV(
-      attendancelist.map((emp, index) => ({
-        "S.No": index + 1,
-        "Full Name": Capitalise(emp.full_name),
-        "Employee Id": emp.gen_employee_id,
-      })),
-      popupTitle.replaceAll(" ", "_")
-    )
-  }
-  className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
->
-  Excel
-</button>
-
-    {/* PDF Button */}
-<button
-  onClick={() =>
-    exportToPDF(
-      attendancelist.map((emp, index) => ({
-        "S.No": index + 1,
-        "Full Name": Capitalise(emp.full_name),
-        "Employee ID": emp.gen_employee_id,
-      })),
-      popupTitle.replaceAll(" ", "_"),
-      popupTitle
-    )
-  }
-  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
->
-  PDF
-</button>
-                    <button
-                      onClick={() => setShowPopupattendance(false)}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-                    >
-                      ✕
-                    </button>
+                      {/* PDF Button */}
+                      <button
+                        onClick={() =>
+                          exportToPDF(
+                            attendancelist.map((emp, index) => ({
+                              "S.No": index + 1,
+                              "Full Name": Capitalise(emp.full_name),
+                              "Employee ID": emp.gen_employee_id,
+                            })),
+                            popupTitle.replaceAll(" ", "_"),
+                            popupTitle,
+                          )
+                        }
+                        className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        PDF
+                      </button>
+                      <button
+                        onClick={() => setShowPopupattendance(false)}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
-</div>
 
                   {/* Body */}
                   <div className="p-3 sm:p-5 max-h-[70vh] overflow-y-auto">
@@ -2207,36 +2172,48 @@ const Dashboard_Mainbar = () => {
                       {futureEmpPopupTitle}
                     </h2>
 
-  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
+                      {/* Excel Button */}
 
-    {/* Excel Button */}
-    
+                      <button
+                        onClick={() =>
+                          exportToCSV(
+                            futureEmpPopupData.map((emp, index) => ({
+                              "S.No": index + 1,
+                              "Employee Name": Capitalise(emp.name),
+                              "Joining Date": emp.joining_date,
+                            })),
+                            "Future_Employees",
+                          )
+                        }
+                        className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        Excel
+                      </button>
 
-    <button
-      onClick={() => exportToCSV(futureEmpPopupData.map((emp, index) => ({ 
-        "S.No": index + 1, "Employee Name": Capitalise(emp.name),
-         "Joining Date": emp.joining_date })), "Future_Employees")}
-      className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      Excel
-    </button>
-
-    {/* PDF Button */}
-    <button
-      onClick={() => exportToPDF(futureEmpPopupData.map((emp,index) => ({ 
-        "S.No": index + 1, "Employee Name": Capitalise(emp.name),
-         "Joining Date":formatDateTime(emp.joining_date),}))
-         , "Future_Employees", futureEmpPopupTitle)}
-      className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
-    >
-      PDF
-    </button>
-                    <button
-                      onClick={closeFutureEmployeePopup}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-                    >
-                      ✕
-                    </button>
+                      {/* PDF Button */}
+                      <button
+                        onClick={() =>
+                          exportToPDF(
+                            futureEmpPopupData.map((emp, index) => ({
+                              "S.No": index + 1,
+                              "Employee Name": Capitalise(emp.name),
+                              "Joining Date": formatDateTime(emp.joining_date),
+                            })),
+                            "Future_Employees",
+                            futureEmpPopupTitle,
+                          )
+                        }
+                        className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        PDF
+                      </button>
+                      <button
+                        onClick={closeFutureEmployeePopup}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
 
@@ -2319,85 +2296,90 @@ const Dashboard_Mainbar = () => {
                     <h2 className="text-white text-base sm:text-lg font-bold">
                       {absentPopupTitle}
                     </h2>
- <div className="flex items-center gap-3">
-          {/* Excel Button */}
-          <button
-            onClick={() => {
-              // Format data for Excel - only required fields
-              const formattedData = absentPopupData.map((emp, index) => ({
-                "S.No": index + 1,
-                "Employee Name": emp?.employee_name || "-",
-                "Employee ID": emp?.employee_id || "-",
-                "Absent Dates": emp?.absent_dates?.join(", ") || "-",
-                // "Continuous Days": emp?.continuous_days || "N/A"
-              }));
-              exportToCSV(formattedData, "Absent_Employees");
-            }}
-            className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
-          >
-            Excel
-          </button>
+                    <div className="flex items-center gap-3">
+                      {/* Excel Button */}
+                      <button
+                        onClick={() => {
+                          // Format data for Excel - only required fields
+                          const formattedData = absentPopupData.map(
+                            (emp, index) => ({
+                              "S.No": index + 1,
+                              "Employee Name": emp?.employee_name || "-",
+                              "Employee ID": emp?.employee_id || "-",
+                              "Absent Dates":
+                                emp?.absent_dates?.join(", ") || "-",
+                              // "Continuous Days": emp?.continuous_days || "N/A"
+                            }),
+                          );
+                          exportToCSV(formattedData, "Absent_Employees");
+                        }}
+                        className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        Excel
+                      </button>
 
-          {/* PDF Button */}
-          <button
-            onClick={() => {
-              if (!absentPopupData || absentPopupData.length === 0) return;
+                      {/* PDF Button */}
+                      <button
+                        onClick={() => {
+                          if (!absentPopupData || absentPopupData.length === 0)
+                            return;
 
-              const doc = new jsPDF();
-              doc.text(absentPopupTitle, 14, 15);
+                          const doc = new jsPDF();
+                          doc.text(absentPopupTitle, 14, 15);
 
-              const tableColumn = [
-                "S.No",
-                "Employee Name",
-                "Employee ID",
-                "Absent Dates",
-                // "Continuous Days"
-              ];
+                          const tableColumn = [
+                            "S.No",
+                            "Employee Name",
+                            "Employee ID",
+                            "Absent Dates",
+                            // "Continuous Days"
+                          ];
 
-              const tableRows = absentPopupData.map((emp, index) => ([
-                index + 1,
-                emp?.employee_name || "-",
-                emp?.employee_id || "-",
-                emp?.absent_dates?.join(", ") || "-",
-                emp?.continuous_days || "N/A"
-              ]));
+                          const tableRows = absentPopupData.map(
+                            (emp, index) => [
+                              index + 1,
+                              emp?.employee_name || "-",
+                              emp?.employee_id || "-",
+                              emp?.absent_dates?.join(", ") || "-",
+                              emp?.continuous_days || "N/A",
+                            ],
+                          );
 
-              autoTable(doc, {
-                head: [tableColumn],
-                body: tableRows,
-                startY: 20,
-                didParseCell: function (data) {
-                  if (data.section === "body") {
-                    const rowIndex = data.row.index;
-                    const rowType = absentPopupData[rowIndex]?.type;
+                          autoTable(doc, {
+                            head: [tableColumn],
+                            body: tableRows,
+                            startY: 20,
+                            didParseCell: function (data) {
+                              if (data.section === "body") {
+                                const rowIndex = data.row.index;
+                                const rowType = absentPopupData[rowIndex]?.type;
 
-                    if (rowType === "yellow") {
-                      data.cell.styles.fillColor = [255, 255, 150]; // Light yellow
-                    } else if (rowType === "red") {
-                      data.cell.styles.fillColor = [255, 150, 150]; // Light red
-                    } else if (rowType === "orange") {
-                      data.cell.styles.fillColor = [255, 200, 120]; // Light orange
-                    }
-                  }
-                }
-              });
+                                if (rowType === "yellow") {
+                                  data.cell.styles.fillColor = [255, 255, 150]; // Light yellow
+                                } else if (rowType === "red") {
+                                  data.cell.styles.fillColor = [255, 150, 150]; // Light red
+                                } else if (rowType === "orange") {
+                                  data.cell.styles.fillColor = [255, 200, 120]; // Light orange
+                                }
+                              }
+                            },
+                          });
 
-              doc.save("Absent_Employees.pdf");
-            }}
-            className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
-          >
-            PDF
-          </button>
+                          doc.save("Absent_Employees.pdf");
+                        }}
+                        className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        PDF
+                      </button>
 
-    {/* Close Button */}
-    <button
-      onClick={closeAbsentEmployeePopup}
-      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-    >
-      ✕
-    </button>
-
-  </div>
+                      {/* Close Button */}
+                      <button
+                        onClick={closeAbsentEmployeePopup}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
 
                   {/* Body */}
@@ -2406,7 +2388,7 @@ const Dashboard_Mainbar = () => {
                       <div className="overflow-x-auto rounded-xl border border-gray-200">
                         <table className="w-full text-sm">
                           <thead>
-                             <tr className="bg-green-50 text-green-900">
+                            <tr className="bg-green-50 text-green-900">
                               <th className="px-4 py-3 text-center w-[70px]">
                                 S.No
                               </th>
@@ -2422,7 +2404,6 @@ const Dashboard_Mainbar = () => {
                               {/* <th className="px-4 py-3 text-center">
                                 Continous Absent Days
                               </th> */}
-                              
                             </tr>
                           </thead>
 
@@ -2450,7 +2431,6 @@ const Dashboard_Mainbar = () => {
                                 {/* <td className="px-4 py-3 text-center text-gray-700">
                                   {emp?.continuous_days || "N/A"}
                                 </td> */}
-                              
                               </tr>
                             ))}
                           </tbody>
@@ -2495,65 +2475,62 @@ const Dashboard_Mainbar = () => {
                       {companyAttendancePopupTitle}
                     </h2>
 
-  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
+                      {/* Excel Button */}
+                      <button
+                        onClick={() => {
+                          const fileName = companyAttendancePopupTitle
+                            .toLowerCase()
+                            .includes("not marked")
+                            ? "Not_Marked_Company"
+                            : "Marked_Company";
 
-    {/* Excel Button */}
-    <button
-  onClick={() => {
-    const fileName = companyAttendancePopupTitle
-      .toLowerCase()
-      .includes("not marked")
-      ? "Not_Marked_Company"
-      : "Marked_Company";
+                          exportToCSV(
+                            companyAttendancePopupList.map((item, index) => ({
+                              "S.No": index + 1,
+                              "Company Name": item?.company_name
+                                ? Capitalise(item.company_name)
+                                : "N/A",
+                            })),
+                            fileName,
+                          );
+                        }}
+                        className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        CSV
+                      </button>
 
-    exportToCSV(
-      companyAttendancePopupList.map((item, index) => ({
-        "S.No": index + 1,
-        "Company Name": item?.company_name
-          ? Capitalise(item.company_name)
-          : "N/A",
-      })),
-      fileName
-    );
-  }}
-  className="px-3 py-1 rounded bg-white text-green-700 text-sm font-semibold hover:bg-gray-100 transition"
->
-  CSV
-</button>
+                      {/* PDF Button */}
+                      <button
+                        onClick={() => {
+                          const fileName = companyAttendancePopupTitle
+                            .toLowerCase()
+                            .includes("not marked")
+                            ? "Not_Marked_Company"
+                            : "Marked_Company";
 
+                          exportToPDF(
+                            companyAttendancePopupList.map((item, index) => ({
+                              "S.No": index + 1,
+                              "Company Name": item?.company_name
+                                ? Capitalise(item.company_name)
+                                : "N/A",
+                            })),
+                            fileName,
+                            companyAttendancePopupTitle,
+                          );
+                        }}
+                        className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
+                      >
+                        PDF
+                      </button>
 
-   
-    {/* PDF Button */}
-<button
-  onClick={() => {
-    const fileName = companyAttendancePopupTitle
-      .toLowerCase()
-      .includes("not marked")
-      ? "Not_Marked_Company"
-      : "Marked_Company";
-
-    exportToPDF(
-      companyAttendancePopupList.map((item, index) => ({
-        "S.No": index + 1,
-        "Company Name": item?.company_name
-          ? Capitalise(item.company_name)
-          : "N/A",
-      })),
-      fileName,
-      companyAttendancePopupTitle
-    );
-  }}
-  className="px-3 py-1 rounded bg-white text-red-600 text-sm font-semibold hover:bg-gray-100 transition"
->
-  PDF
-</button>
-
-                    <button
-                      onClick={closeCompanyAttendancePopup}
-                      className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
-                    >
-                      ✕
-                    </button>
+                      <button
+                        onClick={closeCompanyAttendancePopup}
+                        className="h-9 w-9 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
 
@@ -2585,8 +2562,8 @@ const Dashboard_Mainbar = () => {
 
                                 <td className="px-4 py-3 font-semibold text-gray-800 text-center">
                                   {item?.company_name
-  ? Capitalise(item.company_name)
-  : "N/A"}
+                                    ? Capitalise(item.company_name)
+                                    : "N/A"}
                                 </td>
                               </tr>
                             ))}
@@ -2614,9 +2591,6 @@ const Dashboard_Mainbar = () => {
                 </div>
               </div>
             )}
-
-
-            
           </div>
           <Footer />
         </>
