@@ -6,7 +6,7 @@ import {
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MdCampaign, MdLogout, MdManageAccounts, MdOutlineDashboardCustomize } from "react-icons/md";
+import { MdCampaign, MdLogout, MdManageAccounts, MdOutlineDashboardCustomize, MdOutlineHolidayVillage } from "react-icons/md";
 import medics_logo from "../assets/medics_logo.svg";
 import admin_icon from "../assets/admin_icon.png";
 import employee from "../assets/employee.svg";
@@ -254,48 +254,49 @@ const Sidebar = () => {
               </div>
 
 
-              {/* performance dashboard */}
-              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px"} mt-1`}>
+              {/* report dashboard for performance */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-[1px]"} mt-1`}>
                 {/* Parent Item */}
-                <div
-                  onClick={() => toggleMenu("permance")}
-                  className={`flex items-center w-full flex-grow
-    ${arrowClicked ? "justify-center" : "justify-normal"}
-    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
-    ${currentPath === "/employee-performance" ||
-                      currentPath === "/company-performance" 
-                     
-                      ? "bg-[#4BB452] text-white"
-                      : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
-                    }`}
-                >
-                  <GrDocumentPerformance
-                   
-                    className={`sidebar-icon transition-all duration-200
-                       ${currentPath === "/employee-performance" ||
-                        currentPath === "/company-performance" 
-                        ? "brightness-0 invert pointer-events-none"
-                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
-                      }`}
-                  />
+      <div
+  onClick={() => toggleMenu("report")}
+  className={`flex items-center h-10 w-full
+  ${arrowClicked ? "justify-center" : ""}
+  hover:bg-green-100 hover:text-[#4BB452]
+  px-2 py-3 rounded-md gap-2 text-sm font-medium cursor-pointer
+  ${
+    currentPath === "/employee-performance" ||
+    currentPath === "/company-performance"
+      ? "bg-[#4BB452] text-white"
+      : "text-gray-500"
+  }`}
+>
+  <GrDocumentPerformance
+    className={`w-5 transition-all duration-200 ${
+      currentPath === "/employee-performance" ||
+      currentPath === "/company-performance"
+        ? "brightness-0 invert"
+        : ""
+    }`}
+  />
 
-                  {!arrowClicked && (
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-sm font-medium">Permance Dashboard</span>
-                      {currentOpen === "employee-performance" ||
-                        currentPath === "/company-performance"  ? (
-                        <IoIosArrowUp />
-                      ) : (
-                        <IoIosArrowDown />
-                      )}
-                    </div>
-                  )}
-                </div>
+  {!arrowClicked && (
+    <>
+      <p className="text-sm">Report</p>
+
+      {/* Arrow pushed right */}
+      {currentOpen === "report" ? (
+        <IoIosArrowUp className="ml-auto" />
+      ) : (
+        <IoIosArrowDown className="ml-auto" />
+      )}
+    </>
+  )}
+</div>
 
                 {/* Dropdown Items */}
                 {!arrowClicked && (
                   <div
-                    className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "permance" ||
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${currentOpen === "report" ||
                         currentPath === "/employee-performance" ||
                         currentPath === "/company-performance" 
                         ? "max-h-50 opacity-100 mt-1"
@@ -306,8 +307,8 @@ const Sidebar = () => {
                       <button
                         onClick={() => {
                           navigate("/employee-performance");
-                          if (currentOpen !== "performance") {
-                            setCurrentOpen("performance");
+                          if (currentOpen !== "report") {
+                            setCurrentOpen("report");
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition 
@@ -322,8 +323,8 @@ const Sidebar = () => {
                       <button
                         onClick={() => {
                           navigate("/company-performance");
-                          if (currentOpen !== "performance") {
-                            setCurrentOpen("performance");
+                          if (currentOpen !== "report") {
+                            setCurrentOpen("report");
                           }
                         }}
                         className={`w-full text-left px-2 py-1 rounded-md transition 
@@ -982,7 +983,9 @@ const Sidebar = () => {
                 </div>
               </div>
 
-              {/* Announcement */}
+
+
+                            {/* Announcement */}
               <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
                 <div
                   onClick={() => onClickSidebarMenu("announcement")}
@@ -1007,6 +1010,35 @@ const Sidebar = () => {
 
                   {!arrowClicked && (
                     <p className="text-sm font-medium">Announcement</p>
+                  )}
+                </div>
+              </div>
+
+                            {/* Pss holiday */}
+              <div className={`w-full ${arrowClicked ? "px-0" : "px-2"}`}>
+                <div
+                  onClick={() => onClickSidebarMenu("holiday")}
+                  className={`flex items-center w-full flex-grow
+    ${arrowClicked ? "justify-center" : "justify-normal"}
+    px-2 py-3 h-10 rounded-md gap-2 text-sm font-medium cursor-pointer
+    ${
+      currentPath === "/holiday"
+        ? "bg-[#4BB452] text-white"
+        : "group text-gray-500 hover:bg-green-100 hover:text-[#4BB452]"
+    }`}
+                >
+                 
+                  <MdOutlineHolidayVillage
+                    size={24} 
+                    className={`sidebar-icon transition-all duration-200 ${
+                      currentPath === "/holiday"
+                        ? "brightness-0 invert pointer-events-none"
+                        : "group-hover:brightness-0 group-hover:[filter:invert(45%)_sepia(65%)_saturate(450%)_hue-rotate(85deg)_brightness(95%)_contrast(95%)]"
+                    }`}
+                  />
+
+                  {!arrowClicked && (
+                    <p className="text-sm font-medium">Pss Holiday</p>
                   )}
                 </div>
               </div> 

@@ -70,6 +70,8 @@ import Lead_Add_Assigned_Main from "./pages/Lead_Add_Assigned_Main";
 import Lead_View_Assigned_Main from "./pages/Lead_View_Assigned_Main";
 import Lead_Assign_Report_Main from "./pages/LeadAssignReport";
 import CompanyDashboard_Main from "./pages/CompanyDashboard_Main";
+import Employee_Performance_Main from "./pages/Employee_Performance_Main";
+import Company_Performance_Main from "./pages/Company_Performance_Main";
 
 // Routes component that uses hooks (inside Router context)
 function AppRoutes() {
@@ -171,6 +173,8 @@ function AppRoutes() {
           <Route path="dailywork-report" element={<DailyWork_Report_Main />} />
           <Route path="announcement" element={<Announcement_Mainbar_page />} />
           <Route path="contract-report" element={<Contract_Report_main />} />
+          <Route path="employee-performance" element={<Employee_Performance_Main />} />
+          <Route path="company-performance" element={<Company_Performance_Main />} />
           <Route path="relieved-contract" element={<Relieved_Main />} />
           <Route
             path="monthly-workreport"
