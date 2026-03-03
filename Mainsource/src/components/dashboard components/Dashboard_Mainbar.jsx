@@ -1195,7 +1195,7 @@ const Dashboard_Mainbar = () => {
 
             {/* new dasboard desgin */}
 
-            <div className="bg-white rounded-2xl shadow-sm border p-4 mt-4">
+            <div className="bg-white rounded-2xl shadow-sm border p-4 ">
               <h2 className="text-lg font-semibold mb-4">
                 Work Report Summary
               </h2>
